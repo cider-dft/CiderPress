@@ -40,11 +40,11 @@ int SPLINE_SIZE;
 
 int get_1f1_spline_size() { return SPLINE_SIZE; }
 
-inline double i2r_1f1(int i) { return GRID_A * (exp(GRID_D * i) - 1); }
+static inline double i2r_1f1(int i) { return GRID_A * (exp(GRID_D * i) - 1); }
 
-inline double r2i_1f1(double r) { return log(r / GRID_A + 1) / GRID_D; }
+static inline double r2i_1f1(double r) { return log(r / GRID_A + 1) / GRID_D; }
 
-inline double deriv_r2i_1f1(double r) { return -1.0 / (r + GRID_A) / GRID_D; }
+static inline double deriv_r2i_1f1(double r) { return -1.0 / (r + GRID_A) / GRID_D; }
 
 int check_1f1_initialization() {
     if (SPLINE == NULL) {
@@ -98,7 +98,7 @@ void set_spline_1f1_with_grad(double *spline_buf, double *grad_buf, double a,
     GRAD_SPLINE = grad_buf;
 }
 
-inline double eval_1f1(double r, double *my_spline) {
+static inline double eval_1f1(double r, double *my_spline) {
     double di = r2i_1f1(r);
     int i = (int)di;
     di -= i;
@@ -109,7 +109,7 @@ inline double eval_1f1(double r, double *my_spline) {
                  di * (my_spline[i * 4 + 2] + di * my_spline[i * 4 + 3]));
 }
 
-inline double eval_1f1_grad(double r, double *my_spline) {
+static inline double eval_1f1_grad(double r, double *my_spline) {
     double di = r2i_1f1(r);
     int i = (int)di;
     di -= i;

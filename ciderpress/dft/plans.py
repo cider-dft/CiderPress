@@ -1547,7 +1547,7 @@ class NLDFAuxiliaryPlan(ABC):
                 nspin=self.nspin,
             )
             res = a, (dadn, dadsigma)
-        if self._raise_large_expnt_error and np.max(a) > np.max(self.alphas):
+        if self._raise_large_expnt_error and a.size > 0 and np.max(a) > np.max(self.alphas):
             raise RuntimeError(
                 "NLDF exponent is too large! Please increase nalpha/alpha_max."
             )

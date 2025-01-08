@@ -21,7 +21,7 @@
 #include <omp.h>
 #include <stdlib.h>
 
-inline double _evaluate_se(double *x0, double *x1, double *exps, int nfeat) {
+static inline double _evaluate_se(double *x0, double *x1, double *exps, int nfeat) {
     double tot = 0;
     double tmp;
     for (int j = 0; j < nfeat; j++) {
@@ -31,7 +31,7 @@ inline double _evaluate_se(double *x0, double *x1, double *exps, int nfeat) {
     return tot;
 }
 
-inline void _add_deriv(double *grad, double *x0, double *x1, double *exps,
+static inline void _add_deriv(double *grad, double *x0, double *x1, double *exps,
                        double fac, int nfeat) {
     for (int j = 0; j < nfeat; j++) {
         grad[j] += 2 * exps[j] * (x1[j] - x0[j]) * fac;

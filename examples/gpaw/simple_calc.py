@@ -51,7 +51,7 @@ atoms.calc = CiderGPAW(
     # Fermi smearing with 0.01 eV width
     occupations={"name": "fermi-dirac", "width": 0.01},
     # kpt mesh parameters
-    kpts={"size": (4, 4, 4), "gamma": False},
+    kpts={"size": (8, 8, 8), "gamma": True},
     # convergence energy in eV/electron
     convergence={"energy": 1e-5},
     # Set augments_grids=True for CIDER functionals to parallelize

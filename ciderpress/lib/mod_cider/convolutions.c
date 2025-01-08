@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 /** int_0^infty dr r^(2*l+2) exp(-a*r^2) */
-inline double gauss_integral(int l, double a) {
+static inline double gauss_integral(int l, double a) {
     return 0.5 * pow(a, -1.5 - l) * tgamma(1.5 + l);
 }
 
