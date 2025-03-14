@@ -1,8 +1,14 @@
 
-add_library(fft_wrapper SHARED
-  cider_fft.c
-  cider_mpi_fft.c
-)
+if (HAVE_MPI)
+  add_library(fft_wrapper SHARED
+    cider_fft.c
+    cider_mpi_fft.c
+  )
+else()
+  add_library(fft_wrapper SHARED
+    cider_fft.c
+  )
+endif()
 
 set_target_properties(fft_wrapper PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -19,13 +25,13 @@ if (HAVE_MPI)
   target_link_libraries(fft_wrapper PUBLIC MPI::MPI_C)
 endif()
 
-if (FFT_BACKEND_NUMBER EQUAL 0)
+if (FFT_BACKEND EQUAL 1) # MKL
   target_include_directories(fft_wrapper PUBLIC ${MKL_INCLUDE_DIR})
   target_link_libraries(fft_wrapper PUBLIC MKL::MKL)
   if (HAVE_MPI)
-    target_link_libraries(fft_wrapper PUBLIC MKL::MKL_CDFT)
+    target_link_libraries(fft_wrapper PUBLIC MKL::mkl_cdft_core)
   endif()
-else()
+else() # FFTW
   target_link_libraries(fft_wrapper PRIVATE fftw3)
   target_link_libraries(fft_wrapper PRIVATE fftw3_omp)
   if (HAVE_MPI)

@@ -72,15 +72,6 @@ void apply_orb_phases(double complex *ao, int *atom_list, int *ang_list,
     }
 }
 
-void pbc_check_status(int status) {
-    if (status != 0) {
-        printf("FFT ROUTINE FAILED WITH STATUS %d:\n", status);
-        char *message = DftiErrorMessage(status);
-        printf("%s\n", message);
-        exit(-1);
-    }
-}
-
 void parallel_mul_add_d(double *a, double *b, double *c, int dim1, int dim2) {
 #pragma omp parallel for collapse(2)
     for (int i = 0; i < dim1; i++) {
@@ -440,4 +431,18 @@ void map_between_fft_meshes(double complex *x1, const int *fftg1,
             }
         }
     }
+}
+
+void test_fft3d(double *xr, double complex *xk, int nx, int ny, int nz,
+                int fwd) {
+    int dims[3] = {nx, ny, nz};
+    cider_fft_set_nthread(-1); // use all available threads.
+    fft_plan_t *plan = allocate_fftnd_plan(3, dims, fwd, 1, 1, 0, 1);
+    if (fwd) {
+        initialize_fft_plan(plan, xr, xk);
+    } else {
+        initialize_fft_plan(plan, xk, xr);
+    }
+    execute_fft_plan(plan);
+    free_fft_plan(plan);
 }

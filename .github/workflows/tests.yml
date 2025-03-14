@@ -12,7 +12,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -43,9 +43,10 @@ jobs:
       run: |
         source .github/workflows/load_conda.sh
         source .github/workflows/mm_install_torch.sh
-        pip install .
+        export CMAKE_CONFIGURE_ARGS="-DBUILD_WITH_MKL=ON -DBUILD_LIBXC=OFF"
+        ./.github/workflows/run_local_pip.sh
         python scripts/download_functionals.py
     - name: Test with unittest
       run: |
         source .github/workflows/load_conda.sh
-        sh .github/workflows/run_tests.sh
+        ./.github/workflows/run_tests.sh

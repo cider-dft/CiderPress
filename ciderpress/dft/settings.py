@@ -88,6 +88,8 @@ def get_cider_exponent(
     cond = rho < rhocut
     rho = rho.copy()
     rho[cond] = rhocut
+    sigma[cond] = 0
+    tau[cond] = 0
     if nspin == 1:
         B = np.pi / 2 ** (2.0 / 3) * (a0 - tau_fac)
     else:
@@ -130,6 +132,7 @@ def get_cider_exponent_gga(rho, sigma, a0=1.0, grad_mul=0.03125, rhocut=1e-10, n
     cond = rho < rhocut
     rho = rho.copy()
     rho[cond] = rhocut
+    sigma[cond] = 0
     if nspin == 1:
         B = np.pi / 2 ** (2.0 / 3) * a0
     else:
@@ -1712,7 +1715,7 @@ class FeatureSettings(BaseSettings):
         self.sdmx_settings = EmptySettings() if sdmx_settings is None else sdmx_settings
         self.hyb_settings = EmptySettings() if hyb_settings is None else hyb_settings
         self.normalizers = (
-            FeatNormalizerList([None] * self.nfeat)
+            FeatNormalizerList([None] * self.nfeat, slmode=self.sl_settings.mode)
             if normalizers is None
             else normalizers
         )
@@ -1806,7 +1809,9 @@ class FeatureSettings(BaseSettings):
         )
 
     def assign_reasonable_normalizer(self):
-        self.normalizers = FeatNormalizerList(self.get_reasonable_normalizer())
+        self.normalizers = FeatNormalizerList(
+            self.get_reasonable_normalizer(), slmode=self.sl_settings.mode
+        )
 
 
 def dtauw(rho, sigma):
