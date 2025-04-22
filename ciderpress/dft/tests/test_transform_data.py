@@ -38,6 +38,7 @@ from ciderpress.dft.transform_data import (
     XMap,
     YMap,
     ZMap,
+    OmegaMap
 )
 
 TMP_TEST = "test_files/tmp"

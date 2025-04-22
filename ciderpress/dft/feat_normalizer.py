@@ -25,6 +25,7 @@ desirable behavior under uniform scaling.
 from abc import ABC, abstractmethod
 
 import numpy as np
+from ciderpress.dft.transform_data import OmegaMap
 
 CFC = (3.0 / 10) * (3 * np.pi**2) ** (2.0 / 3)
 

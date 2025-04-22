@@ -224,21 +224,31 @@ class MOLGP:
 
     @staticmethod
     def load_data(ddir, mol_id, get_orb_deriv):
+        print("Loading data for ", mol_id)
+        print("ddir is ", ddir)
+        print("get_orb_deriv is ", get_orb_deriv)
         fname = os.path.join(ddir["REF"], mol_id + ".hdf5")
+        print("fname for REF: ", fname)
         all_data = chkfile.load(fname, "train_data")
         all_data["desc"] = []
         all_data["ddesc"] = []
         for feat_type in ["SL", "NLDF", "NLOF", "SDMX", "HYB"]:
             if ddir[feat_type] is None:
+                print(f"Skipping {feat_type} - directory is None")
                 if feat_type == "SL":
                     raise ValueError("Need semilocal features")
                 else:
                     continue
             else:
                 fname = os.path.join(ddir[feat_type], mol_id + ".hdf5")
+                print("fname for ", feat_type, ": ", fname)
                 data = chkfile.load(fname, "train_data")
+                print(f"Keys available in data: {list(data.keys())}")
                 all_data["desc"].append(data["desc"])
-                if get_orb_deriv or (get_orb_deriv is None and "ddesc" in data):
+                print(f"get_orb_deriv value: {get_orb_deriv}")
+                # if get_orb_deriv or (get_orb_deriv is None and "ddesc" in data):
+                if get_orb_deriv:
+                    print(f"Inside a If statement - Attempting to append ddesc for {feat_type}")
                     all_data["ddesc"].append(data["ddesc"])
                     get_orb_deriv = True
                 else:
