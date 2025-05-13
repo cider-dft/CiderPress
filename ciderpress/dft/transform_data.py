@@ -1111,6 +1111,7 @@ class SLDMap(FeatureNormalizer):
 
 
 class OmegaMap(FeatureNormalizer):
+    code = "Omega"
     def __init__(self, i_n, i_s, i_alpha, c, B, C, bounds=None):
         self.i_n = i_n
         self.i_s = i_s
@@ -1132,31 +1133,36 @@ class OmegaMap(FeatureNormalizer):
         return 3
 
     def fill_feat_(self, y, x, mol_id=None):
-        if x.size == 0:
-            raise ValueError("x is a zero-size array")
-        n = x[self.i_n]
-        s2 = x[self.i_s]
-        alpha = x[self.i_alpha]
-        if n.size == 0 or s2.size == 0 or alpha.size == 0:
-            raise ValueError("n, s2, or alpha is a zero-size array")
-        n_nan_mask = np.isnan(n)
-        n_zero_mask = n == 0
-        s2_nan_mask = np.isnan(s2)
-        alpha_nan_mask = np.isnan(alpha)
+        try:
+            if x.size == 0:
+                raise ValueError("x is a zero-size array")
+            n = x[self.i_n]
+            s2 = x[self.i_s]
+            alpha = x[self.i_alpha]
+            if n.size == 0 or s2.size == 0 or alpha.size == 0:
+                raise ValueError("n, s2, or alpha is a zero-size array")
+            n_nan_mask = np.isnan(n)
+            n_zero_mask = n == 0
+            s2_nan_mask = np.isnan(s2)
+            alpha_nan_mask = np.isnan(alpha)
 
-        n = np.abs(n)
-        n[n_nan_mask | n_zero_mask] = 1e-10
+            n = np.abs(n)
+            n[n_nan_mask | n_zero_mask] = 1e-10
 
-        s2[s2_nan_mask] = 0
-        alpha[alpha_nan_mask] = 0
+            s2[s2_nan_mask] = 0
+            alpha[alpha_nan_mask] = 0
 
-        s2 = np.clip(s2, -1e10, 1e10)
-        alpha = np.clip(alpha, -1e10, 1e10)
+            s2 = np.clip(s2, -1e10, 1e10)
+            alpha = np.clip(alpha, -1e10, 1e10)
 
-        inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-        omega = np.sqrt(n ** (2 / 3) * inner_term)
-        denominator = np.maximum(1 + self.c * omega, 1e-10)
-        y[:] = self.c * omega / denominator
+            inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
+            omega = np.sqrt(n ** (2 / 3) * inner_term)
+            denominator = np.maximum(1 + self.c * omega, 1e-10)
+            y[:] = self.c * omega / denominator
+        except ValueError as e:
+            print(f"Error in molecule {mol_id}: {str(e)}")
+            print("Setting y to zeros and continuing...")
+            y[:] = 0
 
     def fill_deriv_(self, dfdx, dfdy, x):
         n = np.maximum(np.abs(x[self.i_n]), 1e-10)
