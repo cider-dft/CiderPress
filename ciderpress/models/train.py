@@ -146,9 +146,31 @@ class MOLGP:
         return [k for k in self.kernels if k.component != "x"]
 
     def fit(self, x=None, sigma_min=0.25):
+
+        # --- DEBUG PRINTING START for fit method ---
+        print(f"\nDEBUG fit: Entering fit method.")
+        print(f"DEBUG fit: Length of self.rxn_ref_list: {len(self.rxn_ref_list)}")
+        print(f"DEBUG fit: Length of self.rxn_noise_list: {len(self.rxn_noise_list)}")
+        print(f"DEBUG fit: Number of kernels in self.kernels: {len(self.kernels)}")
+        if len(self.kernels) > 0:
+            for i_k_debug, k_debug in enumerate(self.kernels):
+                 print(f"DEBUG fit:   Kernel #{i_k_debug}: type={type(k_debug).__name__}, component='{k_debug.component}', "
+                       f"id={id(k_debug)}, len(rxn_cov_list)={len(k_debug.rxn_cov_list if hasattr(k_debug, 'rxn_cov_list') else -1)}")
+        # --- DEBUG PRINTING END ---
+
         Kimn_list = []
         Knmimn = 0
-        for kernel in self.kernels:
+        for kernel_idx_fit, kernel in enumerate(self.kernels): # Original L148, added kernel_idx_fit
+            # --- DEBUG PRINTING START for kernel in fit ---
+            print(f"DEBUG fit: Processing kernel #{kernel_idx_fit} in fit loop: type={type(kernel).__name__}, component='{kernel.component}', id={id(kernel)}")
+            print(f"DEBUG fit:   Length of this kernel.rxn_cov_list before np.stack: {len(kernel.rxn_cov_list)}")
+            if len(kernel.rxn_cov_list) > 0:
+                print(f"DEBUG fit:     First element type in kernel.rxn_cov_list: {type(kernel.rxn_cov_list[0])}")
+                if hasattr(kernel.rxn_cov_list[0], 'shape'):
+                    print(f"DEBUG fit:     First element shape: {kernel.rxn_cov_list[0].shape}")
+            else:
+                print(f"DEBUG fit:     kernel.rxn_cov_list IS EMPTY, np.stack will fail here!")
+            # --- DEBUG PRINTING END ---
             Kmm = kernel.get_kctrl()
             Kmn = np.stack(kernel.rxn_cov_list).T
             M = Kmm.shape[0]
@@ -230,6 +252,32 @@ class MOLGP:
         fname = os.path.join(ddir["REF"], mol_id + ".hdf5")
         print("fname for REF: ", fname)
         all_data = chkfile.load(fname, "train_data")
+
+        # --- DEBUG PRINTING START for MOLGP.load_data (REF file) ---
+        print(f"DEBUG load_data: REF file '{fname}' loaded. Content overview:")
+        for key_in_all_data, val_in_all_data in all_data.items():
+            val_repr = "N/A"
+            val_shape_repr = "N/A"
+            if isinstance(val_in_all_data, np.ndarray):
+                val_shape_repr = str(val_in_all_data.shape)
+                # Avoid printing huge arrays, show a small slice or just stats
+                if val_in_all_data.size > 20:
+                    val_repr = f"<ndarray, mean:{np.mean(val_in_all_data):.2e}, std:{np.std(val_in_all_data):.2e}>"
+                else:
+                    val_repr = str(val_in_all_data)
+            elif isinstance(val_in_all_data, dict):
+                val_repr = f"<dict with keys: {list(val_in_all_data.keys())}>"
+            elif isinstance(val_in_all_data, (list, tuple)):
+                 if len(val_in_all_data) > 5:
+                     val_repr = f"<{type(val_in_all_data).__name__} of len {len(val_in_all_data)}, first 5: {val_in_all_data[:5]}>"
+                 else:
+                     val_repr = str(val_in_all_data)
+            else:
+                val_repr = str(val_in_all_data)
+
+            print(f"DEBUG load_data:   all_data['{key_in_all_data}']: type={type(val_in_all_data)}, shape={val_shape_repr}, value_summary='{val_repr}'")
+        # --- DEBUG PRINTING END ---
+
         all_data["desc"] = []
         all_data["ddesc"] = []
         for feat_type in ["SL", "NLDF", "NLOF", "SDMX", "HYB"]:
@@ -243,6 +291,30 @@ class MOLGP:
                 fname = os.path.join(ddir[feat_type], mol_id + ".hdf5")
                 print("fname for ", feat_type, ": ", fname)
                 data = chkfile.load(fname, "train_data")
+
+                # --- DEBUG PRINTING START for MOLGP.load_data (feat_type file) ---
+                print(f"DEBUG load_data: Feature file '{fname}' for feat_type '{feat_type}' loaded. Content overview:")
+                for key_in_data, val_in_data in data.items(): # Changed variable names to avoid clash
+                    val_repr = "N/A"
+                    val_shape_repr = "N/A"
+                    if isinstance(val_in_data, np.ndarray):
+                        val_shape_repr = str(val_in_data.shape)
+                        if val_in_data.size > 20:
+                             val_repr = f"<ndarray, mean:{np.mean(val_in_data):.2e}, std:{np.std(val_in_data):.2e}>"
+                        else:
+                            val_repr = str(val_in_data)
+                    elif isinstance(val_in_data, dict):
+                        val_repr = f"<dict with keys: {list(val_in_data.keys())}>"
+                    elif isinstance(val_in_data, (list, tuple)):
+                        if len(val_in_data) > 5:
+                            val_repr = f"<{type(val_in_data).__name__} of len {len(val_in_data)}, first 5: {val_in_data[:5]}>"
+                        else:
+                            val_repr = str(val_in_data)
+                    else:
+                        val_repr = str(val_in_data)
+                    print(f"DEBUG load_data:   data['{key_in_data}']: type={type(val_in_data)}, shape={val_shape_repr}, value_summary='{val_repr}'")
+                # --- DEBUG PRINTING END ---
+
                 print(f"Keys available in data: {list(data.keys())}")
                 all_data["desc"].append(data["desc"])
                 print(f"get_orb_deriv value: {get_orb_deriv}")
@@ -323,6 +395,17 @@ class MOLGP:
             if deriv:
                 ddesc = strk_to_tuplek(data["ddesc"])
                 self.dexx_ref_dict[mol_id] = strk_to_tuplek(data["dval"], ref=True)
+
+                # --- DEBUG PRINTING START for _compute_mol_covs (dexx_ref_dict) ---
+                print(f"DEBUG _compute_mol_covs ({mol_id}): Populating self.dexx_ref_dict[{mol_id}]")
+                val_to_print = self.dexx_ref_dict[mol_id]
+                if isinstance(val_to_print, dict):
+                    for orb_key, orb_val in val_to_print.items():
+                        print(f"DEBUG _compute_mol_covs ({mol_id}):   dexx_ref_dict[{mol_id}][{orb_key}]: {orb_val} (type: {type(orb_val)}, shape: {getattr(orb_val, 'shape', 'N/A')})")
+                else:
+                     print(f"DEBUG _compute_mol_covs ({mol_id}):   dexx_ref_dict[{mol_id}] (overall): {val_to_print} (type: {type(val_to_print)}, shape: {getattr(val_to_print, 'shape', 'N/A')})")
+                # --- DEBUG PRINTING END ---
+
                 dvwrtt_tot = {k: 0 for k in ddesc.keys()}
                 dbaseline = {k: 0 for k in ddesc.keys()}
             for i0, i1 in prange(0, weights.size, blksize):
@@ -543,60 +626,236 @@ class MOLGP:
                 * unit: Eh per (rxn energy unit)
                 * noise (optional): noise in Eh for the reaction
         """
-        for mode, rxn in rxn_list:
+
+        # --- DEBUG PRINTING START: Initial info for add_reactions ---
+        print(f"\nDEBUG add_reactions: Received rxn_list with {len(rxn_list)} reaction entries.")
+        # --- DEBUG PRINTING END ---
+        
+        for reaction_idx, (mode, rxn) in enumerate(rxn_list): # Added reaction_idx for easier tracking
+            # --- DEBUG PRINTING START: Reaction Entry Info ---
+            rxn_structs_info = str(rxn.get('structs', ['<no_structs>'])).replace(' ', '') # Compact
+            if len(rxn_structs_info) > 120: rxn_structs_info = rxn_structs_info[:120] + "..."
+            
+            print(f"\n--- DEBUG add_reactions: PROCESSING RXN ENTRY #{reaction_idx} ---")
+            print(f"DEBUG add_reactions:   Mode: {mode}")
+            print(f"DEBUG add_reactions:   Reaction content (structs summary): {rxn_structs_info}")
+            # --- DEBUG PRINTING END ---
+
             if mode == 1:
                 raise NotImplementedError
             elif mode > 2:
                 raise ValueError("Unsupported mode")
+            
             rxn_ref = 0
-            if mode == 0:
-                for sysid, count in zip(rxn["structs"], rxn["counts"]):
-                    if isinstance(sysid, tuple):
-                        rxn_ref += count * self.dexx_ref_dict[sysid[0]][sysid[1]]
-                    else:
-                        rxn_ref += count * self.exx_ref_dict[sysid]
-            for kernel in self.xkernels:
-                rxn_cov = 0
-                for sysid, count in zip(rxn["structs"], rxn["counts"]):
-                    if isinstance(sysid, tuple):
-                        rxn_cov += count * kernel.dcov_dict[sysid[0]][sysid[1]]
-                        rxn_ref -= count * kernel.dbase_dict[sysid[0]][sysid[1]]
-                    else:
-                        rxn_cov += count * kernel.cov_dict[sysid]
-                        rxn_ref -= count * kernel.base_dict[sysid]
-                kernel.rxn_cov_list.append(rxn_cov)
-            if mode == 2:
-                if rxn.get("unit") is None:
-                    rxn["unit"] = 0.00159360109742136  # kcal/mol per Ha
-                rxn_ref += rxn["energy"] * rxn["unit"]
-                for sysid, count in zip(rxn["structs"], rxn["counts"]):
-                    rxn_ref -= count * self.ks_baseline_dict[sysid]
-                for kernel in self.ckernels:
-                    rxn_cov = 0
-                    for sysid, count in zip(rxn["structs"], rxn["counts"]):
-                        if isinstance(sysid, tuple):
-                            rxn_cov += count * kernel.dcov_dict[sysid[0]][sysid[1]]
-                            rxn_ref -= count * kernel.dbase_dict[sysid[0]][sysid[1]]
-                        else:
-                            rxn_cov += count * kernel.cov_dict[sysid]
-                            rxn_ref -= count * kernel.base_dict[sysid]
-                    kernel.rxn_cov_list.append(rxn_cov)
-            else:
-                for kernel in self.ckernels:
-                    kernel.rxn_cov_list.append(np.zeros(kernel.Nctrl))
-            self.rxn_ref_list.append(rxn_ref)
-            if rxn.get("noise") is not None:
-                noise = rxn["noise"]
-            elif rxn.get("noise_factor") is not None:
-                noise = rxn["noise_factor"] * self.default_noise
-            else:
-                noise = self.default_noise
-            if rxn.get("noise_rel_factor") is not None:
-                noise += rxn["noise_rel_factor"] * np.abs(rxn_ref)
-            if rxn.get("weight") is not None:
-                noise /= np.sqrt(rxn["weight"])
-            self.rxn_noise_list.append(noise)
+            # --- DEBUG PRINTING START for rxn_ref ---
+            print(f"DEBUG add_reactions:     rxn_ref_step_0 (initial): {rxn_ref} (type: {type(rxn_ref)})")
+            # --- DEBUG PRINTING END ---
 
+            if mode == 0:
+                print(f"DEBUG add_reactions:   --- Mode 0: Initial rxn_ref calculation (from dexx_ref_dict/exx_ref_dict) ---")
+                for sysid_idx, (sysid, count) in enumerate(zip(rxn["structs"], rxn["counts"])):
+                    term_val, term_src = (None, "")
+                    if isinstance(sysid, tuple):
+                        term_val = self.dexx_ref_dict[sysid[0]][sysid[1]]
+                        term_src = f"self.dexx_ref_dict[{sysid[0]}][{sysid[1]}]"
+                    else:
+                        term_src = f"self.exx_ref_dict[{sysid}]"
+                        term_val = self.exx_ref_dict[sysid]
+                    
+                    print(f"DEBUG add_reactions:       mode0_sysid{sysid_idx}: Adding from {term_src} for sysid '{str(sysid)[:50]}...'")
+                    print(f"DEBUG add_reactions:         Term value: {term_val} (type: {type(term_val)}, shape: {getattr(term_val, 'shape', 'N/A')}), Count: {count}")
+                    rxn_ref += count * term_val
+                    print(f"DEBUG add_reactions:         rxn_ref after this term: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+            
+            print(f"DEBUG add_reactions:   --- Applying XKernel Baselines to rxn_ref AND Calculating rxn_cov for XKernels ---")
+            for xkernel_idx, kernel in enumerate(self.xkernels):
+                kernel_name_info = f"xkernel[{xkernel_idx}]({type(kernel).__name__}, id={id(kernel)}, comp='{kernel.component}')"
+                print(f"DEBUG add_reactions:     Processing {kernel_name_info}:")
+                
+                rxn_cov = 0 # Initialize rxn_cov for this kernel and this reaction
+                # --- DEBUG PRINTING START for kernel.rxn_cov_list (xkernel) ---
+                print(f"DEBUG add_reactions:       {kernel_name_info}: BEFORE append to its rxn_cov_list: len={len(kernel.rxn_cov_list)}")
+                # --- DEBUG PRINTING END ---
+
+                for sysid_idx, (sysid, count) in enumerate(zip(rxn["structs"], rxn["counts"])):
+                    term_val_dbase, term_src_dbase = (None, "")
+                    term_val_cov, term_src_cov = (None, "")
+
+                    if isinstance(sysid, tuple):
+                        # For rxn_cov
+                        term_val_cov = kernel.dcov_dict[sysid[0]][sysid[1]]
+                        term_src_cov = f"{kernel_name_info}.dcov_dict[{sysid[0]}][{sysid[1]}]"
+                        rxn_cov += count * term_val_cov
+                        
+                        # For rxn_ref baseline subtraction
+                        term_val_dbase = kernel.dbase_dict[sysid[0]][sysid[1]]
+                        term_src_dbase = f"{kernel_name_info}.dbase_dict[{sysid[0]}][{sysid[1]}]"
+                        print(f"DEBUG add_reactions:         sysid{sysid_idx} (tuple) '{str(sysid)[:50]}...':")
+                        print(f"DEBUG add_reactions:           Subtracting for rxn_ref from {term_src_dbase}: Term value: {term_val_dbase} (type: {type(term_val_dbase)}, shape: {getattr(term_val_dbase, 'shape', 'N/A')}), Count: {count}")
+                        rxn_ref -= count * term_val_dbase
+                        print(f"DEBUG add_reactions:           rxn_ref after this dbase term: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+                        print(f"DEBUG add_reactions:           Adding to rxn_cov from {term_src_cov}: Term value: {term_val_cov} (type: {type(term_val_cov)}, shape: {getattr(term_val_cov, 'shape', 'N/A')}), Count: {count}")
+
+                    else: # sysid is a string
+                        # For rxn_cov
+                        term_val_cov = kernel.cov_dict[sysid]
+                        term_src_cov = f"{kernel_name_info}.cov_dict[{sysid}]"
+                        rxn_cov += count * term_val_cov
+
+                        # For rxn_ref baseline subtraction
+                        term_val_dbase = kernel.base_dict[sysid]
+                        term_src_dbase = f"{kernel_name_info}.base_dict[{sysid}]"
+                        print(f"DEBUG add_reactions:         sysid{sysid_idx} (string) '{str(sysid)[:50]}...':")
+                        print(f"DEBUG add_reactions:           Subtracting for rxn_ref from {term_src_dbase}: Term value: {term_val_dbase} (type: {type(term_val_dbase)}, shape: {getattr(term_val_dbase, 'shape', 'N/A')}), Count: {count}")
+                        rxn_ref -= count * term_val_dbase
+                        print(f"DEBUG add_reactions:           rxn_ref after this base term: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+                        print(f"DEBUG add_reactions:           Adding to rxn_cov from {term_src_cov}: Term value: {term_val_cov} (type: {type(term_val_cov)}, shape: {getattr(term_val_cov, 'shape', 'N/A')}), Count: {count}")
+                    
+                    print(f"DEBUG add_reactions:         Current rxn_cov for {kernel_name_info} after sysid{sysid_idx}: {rxn_cov} (type: {type(rxn_cov)}, shape: {getattr(rxn_cov, 'shape', 'N/A')})")
+
+                # --- DEBUG PRINTING START for kernel.rxn_cov_list (xkernel) ---
+                print(f"DEBUG add_reactions:       {kernel_name_info}: FINAL rxn_cov to append: {rxn_cov} (type: {type(rxn_cov)}, shape: {getattr(rxn_cov, 'shape', 'N/A')})")
+                # --- DEBUG PRINTING END ---
+                kernel.rxn_cov_list.append(rxn_cov)
+                # --- DEBUG PRINTING START for kernel.rxn_cov_list (xkernel) ---
+                print(f"DEBUG add_reactions:       {kernel_name_info}: AFTER append to its rxn_cov_list: len={len(kernel.rxn_cov_list)}")
+                # --- DEBUG PRINTING END ---
+            
+            if mode == 2:
+                print(f"DEBUG add_reactions:   --- Mode 2: Additional rxn_ref calculations & CKernel Processing ---")
+                _original_rxn_unit_for_debug = rxn.get("unit")
+                if rxn.get("unit") is None:
+                    rxn["unit"] = 0.00159360109742136
+                
+                term_yaml_energy_val = rxn.get("energy", 0.0)
+                term_yaml_unit_val = rxn["unit"]
+                term_from_yaml_energy = term_yaml_energy_val * term_yaml_unit_val
+                print(f"DEBUG add_reactions:     mode2_energy_term: Adding from rxn YAML: energy={term_yaml_energy_val}, unit={term_yaml_unit_val} (original unit: {_original_rxn_unit_for_debug}), term_value={term_from_yaml_energy}")
+                rxn_ref += term_from_yaml_energy
+                print(f"DEBUG add_reactions:     rxn_ref after YAML energy: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+
+                for sysid_idx, (sysid, count) in enumerate(zip(rxn["structs"], rxn["counts"])):
+                    term_val = self.ks_baseline_dict[sysid]
+                    term_src = f"self.ks_baseline_dict[{sysid}]"
+                    print(f"DEBUG add_reactions:       mode2_ks_baseline_sysid{sysid_idx}: Subtracting from {term_src} for sysid '{str(sysid)[:50]}...'")
+                    print(f"DEBUG add_reactions:         Term value: {term_val} (type: {type(term_val)}, shape: {getattr(term_val, 'shape', 'N/A')}), Count: {count}")
+                    rxn_ref -= count * term_val
+                    print(f"DEBUG add_reactions:         rxn_ref after this term: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+
+                print(f"DEBUG add_reactions:   --- Applying CKernel Baselines to rxn_ref AND Calculating rxn_cov for CKernels (mode 2) ---")
+                for ckernel_idx, kernel in enumerate(self.ckernels):
+                    kernel_name_info = f"ckernel[{ckernel_idx}]({type(kernel).__name__}, id={id(kernel)}, comp='{kernel.component}')"
+                    print(f"DEBUG add_reactions:     Processing {kernel_name_info}:")
+                    
+                    rxn_cov = 0 # Initialize rxn_cov for this ckernel and this reaction
+                    # --- DEBUG PRINTING START for kernel.rxn_cov_list (ckernel mode 2) ---
+                    print(f"DEBUG add_reactions:       {kernel_name_info}: BEFORE append to its rxn_cov_list: len={len(kernel.rxn_cov_list)}")
+                    # --- DEBUG PRINTING END ---
+
+                    for sysid_idx, (sysid, count) in enumerate(zip(rxn["structs"], rxn["counts"])):
+                        term_val_dbase, term_src_dbase = (None, "")
+                        term_val_cov, term_src_cov = (None, "")
+                        if isinstance(sysid, tuple):
+                            term_val_cov = kernel.dcov_dict[sysid[0]][sysid[1]]
+                            term_src_cov = f"{kernel_name_info}.dcov_dict[{sysid[0]}][{sysid[1]}]"
+                            rxn_cov += count * term_val_cov
+                            
+                            term_val_dbase = kernel.dbase_dict[sysid[0]][sysid[1]]
+                            term_src_dbase = f"{kernel_name_info}.dbase_dict[{sysid[0]}][{sysid[1]}]"
+                            print(f"DEBUG add_reactions:         sysid{sysid_idx} (tuple) '{str(sysid)[:50]}...':")
+                            print(f"DEBUG add_reactions:           Subtracting for rxn_ref from {term_src_dbase}: Term value: {term_val_dbase} (type: {type(term_val_dbase)}, shape: {getattr(term_val_dbase, 'shape', 'N/A')}), Count: {count}")
+                            rxn_ref -= count * term_val_dbase
+                            print(f"DEBUG add_reactions:           rxn_ref after this dbase term: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+                            print(f"DEBUG add_reactions:           Adding to rxn_cov from {term_src_cov}: Term value: {term_val_cov} (type: {type(term_val_cov)}, shape: {getattr(term_val_cov, 'shape', 'N/A')}), Count: {count}")
+                        else: # sysid is string
+                            term_val_cov = kernel.cov_dict[sysid]
+                            term_src_cov = f"{kernel_name_info}.cov_dict[{sysid}]"
+                            rxn_cov += count * term_val_cov
+
+                            term_val_dbase = kernel.base_dict[sysid]
+                            term_src_dbase = f"{kernel_name_info}.base_dict[{sysid}]"
+                            print(f"DEBUG add_reactions:         sysid{sysid_idx} (string) '{str(sysid)[:50]}...':")
+                            print(f"DEBUG add_reactions:           Subtracting for rxn_ref from {term_src_dbase}: Term value: {term_val_dbase} (type: {type(term_val_dbase)}, shape: {getattr(term_val_dbase, 'shape', 'N/A')}), Count: {count}")
+                            rxn_ref -= count * term_val_dbase
+                            print(f"DEBUG add_reactions:           rxn_ref after this base term: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+                            print(f"DEBUG add_reactions:           Adding to rxn_cov from {term_src_cov}: Term value: {term_val_cov} (type: {type(term_val_cov)}, shape: {getattr(term_val_cov, 'shape', 'N/A')}), Count: {count}")
+                        print(f"DEBUG add_reactions:         Current rxn_cov for {kernel_name_info} after sysid{sysid_idx}: {rxn_cov} (type: {type(rxn_cov)}, shape: {getattr(rxn_cov, 'shape', 'N/A')})")
+                    
+                    # --- DEBUG PRINTING START for kernel.rxn_cov_list (ckernel mode 2) ---
+                    print(f"DEBUG add_reactions:       {kernel_name_info}: FINAL rxn_cov to append: {rxn_cov} (type: {type(rxn_cov)}, shape: {getattr(rxn_cov, 'shape', 'N/A')})")
+                    # --- DEBUG PRINTING END ---
+                    kernel.rxn_cov_list.append(rxn_cov)
+                    # --- DEBUG PRINTING START for kernel.rxn_cov_list (ckernel mode 2) ---
+                    print(f"DEBUG add_reactions:       {kernel_name_info}: AFTER append to its rxn_cov_list: len={len(kernel.rxn_cov_list)}")
+                    # --- DEBUG PRINTING END ---
+            else: # mode != 2 (this includes mode == 0 for ckernels)
+                print(f"DEBUG add_reactions:   --- Processing CKernels (mode != 2): Appending zeros to rxn_cov_list ---")
+                for ckernel_idx_else, kernel_else in enumerate(self.ckernels):
+                    kernel_name_info = f"ckernel_else[{ckernel_idx_else}]({type(kernel_else).__name__}, id={id(kernel_else)}, comp='{kernel_else.component}')"
+                    # --- DEBUG PRINTING START for kernel.rxn_cov_list (ckernel, mode != 2) ---
+                    print(f"DEBUG add_reactions:     RXN_ENTRY #{reaction_idx}, {kernel_name_info}:")
+                    print(f"DEBUG add_reactions:       BEFORE append (zeros) to rxn_cov_list: len={len(kernel_else.rxn_cov_list)}")
+                    zeros_to_add = np.zeros(kernel_else.Nctrl)
+                    print(f"DEBUG add_reactions:       Value of zeros_to_add: shape={zeros_to_add.shape}")
+                    # --- DEBUG PRINTING END ---
+                    kernel_else.rxn_cov_list.append(zeros_to_add)
+                    # --- DEBUG PRINTING START for kernel.rxn_cov_list (ckernel, mode != 2) ---
+                    print(f"DEBUG add_reactions:       AFTER append (zeros) to rxn_cov_list: len={len(kernel_else.rxn_cov_list)}")
+                    # --- DEBUG PRINTING END ---
+            
+            # --- DEBUG PRINTING START: Final rxn_ref before appending to self.rxn_ref_list ---
+            print(f"DEBUG add_reactions:   FINAL rxn_ref for reaction #{reaction_idx} before append to self.rxn_ref_list: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})")
+            # --- DEBUG PRINTING END ---
+            self.rxn_ref_list.append(rxn_ref)
+
+            # --- Noise Calculation and Debug Printing (Copied from your "latest version" in prompt 16, assumed to be correct by you) ---
+            raw_noise_val = rxn.get("noise")
+            raw_noise_factor = rxn.get("noise_factor")
+            raw_noise_rel_factor = rxn.get("noise_rel_factor")
+            raw_weight = rxn.get("weight")
+
+            if raw_noise_val is not None: # Renamed 'noise' to 'current_noise_calc' to avoid conflict if 'noise' key exists in rxn
+                current_noise_calc = raw_noise_val
+            elif raw_noise_factor is not None:
+                current_noise_calc = raw_noise_factor * self.default_noise
+            else:
+                current_noise_calc = self.default_noise
+            
+            noise_after_factor_or_direct = current_noise_calc
+
+            if raw_noise_rel_factor is not None:
+                abs_rxn_ref_val = np.abs(rxn_ref) if isinstance(rxn_ref, (np.ndarray, int, float)) else 0 
+                term_rel_factor = raw_noise_rel_factor * abs_rxn_ref_val
+                current_noise_calc += term_rel_factor
+            
+            noise_after_rel_factor = current_noise_calc
+
+            if raw_weight is not None:
+                if isinstance(raw_weight, (int, float, np.number)) and raw_weight > 0:
+                    if isinstance(current_noise_calc, (int, float, np.number, np.ndarray)):
+                        current_noise_calc /= np.sqrt(raw_weight)
+                    else:
+                        print(f"!!- WARNING add_reactions: current_noise_calc is unexpected type {type(current_noise_calc)} before weight division for reaction #{reaction_idx} -!!")
+                else:
+                    print(f"!!- WARNING add_reactions: raw_weight is {raw_weight} (type {type(raw_weight)}), skipping division for noise calc for reaction #{reaction_idx} -!!")
+            
+            final_calculated_noise = current_noise_calc 
+
+            print(f"DEBUG add_reactions:   --- Noise Calculation Summary for reaction #{reaction_idx} (Mode={mode}) ---")
+            print(f"DEBUG add_reactions:     Raw input 'noise': {raw_noise_val} (type: {type(raw_noise_val)})")
+            print(f"DEBUG add_reactions:     Raw input 'noise_factor': {raw_noise_factor} (type: {type(raw_noise_factor)})")
+            print(f"DEBUG add_reactions:     self.default_noise: {self.default_noise} (type: {type(self.default_noise)})")
+            print(f"DEBUG add_reactions:     Noise after factor/direct init: {noise_after_factor_or_direct} (type: {type(noise_after_factor_or_direct)}, shape: {getattr(noise_after_factor_or_direct, 'shape', 'N/A')})")
+            print(f"DEBUG add_reactions:     Value of rxn_ref used for rel_factor: {rxn_ref} (type: {type(rxn_ref)}, shape: {getattr(rxn_ref, 'shape', 'N/A')})") # This is the final rxn_ref for this reaction
+            print(f"DEBUG add_reactions:     Raw input 'noise_rel_factor': {raw_noise_rel_factor} (type: {type(raw_noise_rel_factor)})")
+            print(f"DEBUG add_reactions:     Noise after applying rel_factor: {noise_after_rel_factor} (type: {type(noise_after_rel_factor)}, shape: {getattr(noise_after_rel_factor, 'shape', 'N/A')})")
+            print(f"DEBUG add_reactions:     Raw input 'weight': {raw_weight} (type: {type(raw_weight)})")
+            print(f"DEBUG add_reactions:     FINAL calculated noise to be appended: {final_calculated_noise} (type: {type(final_calculated_noise)}, shape: {getattr(final_calculated_noise, 'shape', 'N/A')})")
+            if not isinstance(final_calculated_noise, (int, float, np.number)): 
+                print(f"!!- WARNING add_reactions: Non-scalar noise detected for reaction #{reaction_idx}! Summary for identification: {rxn_structs_info} -!!")
+            
+            self.rxn_noise_list.append(final_calculated_noise)
+            print(f"--- END DEBUG add_reactions: FINISHED RXN ENTRY #{reaction_idx} ---")
 
 class MOLGP2(MOLGP):
     """
@@ -742,15 +1001,60 @@ class MOLGP2(MOLGP):
                         drho_tmp = wt * drho_data[orb][1][:, i0:i1]
                         dvwrtt_tot[orb] += np.einsum("cdn,dn->c", dkm1[:, s], ddesc_tmp)
                         dvwrtt_tot[orb] += np.einsum("cdn,dn->c", dkm2[:, s], drho_tmp)
+
                         dbaseline[orb] += np.sum(da[s] * drho_tmp)
+                        
+                        # dbaseline[orb] += np.dot(da * drho_tmp, wt)
+                        # The below is what in misc_fixes_and_misc branch ab4295a (Modifies models.train.MOLGP2._compute_mol_covs and add some print statements. This version works for training complete band-gap scider model (trained with molecules and solids data), see execution_train_2025-05-16-05-38-54)
+                        # dbaseline[orb] += np.sum(da[s] * drho_tmp * wt)
             kernel.cov_dict[mol_id] = vwrtt_tot
             kernel.base_dict[mol_id] = baseline
+
+            # --- DEBUG PRINTING START for _compute_mol_covs (kernel.base_dict) ---
+            val_to_print = kernel.base_dict[mol_id]
+            # baseline is usually a scalar sum
+            print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}): Populating kernel.base_dict[{mol_id}]: {val_to_print} (type: {type(val_to_print)}, shape: {getattr(val_to_print, 'shape', 'N/A')})")
+            # --- DEBUG PRINTING END ---
+
             if save_refs:
                 self.exx_ref_dict[mol_id] = (data["val"] * weights).sum()
+
+                # --- DEBUG PRINTING START for _compute_mol_covs (exx_ref_dict) ---
+                val_to_print = self.exx_ref_dict[mol_id]
+                print(f"DEBUG _compute_mol_covs ({mol_id}): Populating self.exx_ref_dict[{mol_id}]: {val_to_print} (type: {type(val_to_print)}, shape: {getattr(val_to_print, 'shape', 'N/A')})")
+                # --- DEBUG PRINTING END ---
+
                 self.ks_baseline_dict[mol_id] = data["e_tot_orig"] - data["exc_orig"]
+
+                # --- DEBUG PRINTING START for _compute_mol_covs (ks_baseline_dict) ---
+                val_to_print = self.ks_baseline_dict[mol_id]
+                print(f"DEBUG _compute_mol_covs ({mol_id}): Populating self.ks_baseline_dict[{mol_id}]: {val_to_print} (type: {type(val_to_print)}, shape: {getattr(val_to_print, 'shape', 'N/A')})")
+                # --- DEBUG PRINTING END ---
+
             if deriv:
                 kernel.dcov_dict[mol_id] = dvwrtt_tot
+
+                # --- DEBUG PRINTING START for _compute_mol_covs (kernel.dbase_dict population) ---
+                print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}): Will assign the following 'dbaseline' to kernel.dbase_dict[{mol_id}]")
+                if isinstance(dbaseline, dict):
+                    for orb_key_debug, orb_val_debug in dbaseline.items(): # orb_key_debug is an orb_tuple like ('U',0)
+                        print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}):   dbaseline entry for orb_key [{orb_key_debug}]: type={type(orb_val_debug)}, shape={getattr(orb_val_debug, 'shape', 'N/A')}, value_summary={str(orb_val_debug)[:100]+'...' if isinstance(orb_val_debug, np.ndarray) and orb_val_debug.size > 10 else orb_val_debug}")
+                else:
+                    print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}):   dbaseline itself is not a dict: {dbaseline} (type: {type(dbaseline)})")
+                # --- DEBUG PRINTING END ---
+                
                 kernel.dbase_dict[mol_id] = dbaseline
+
+                # --- DEBUG PRINTING START for _compute_mol_covs (kernel.dbase_dict) ---
+                print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}): Populating kernel.dbase_dict[{mol_id}]")
+                db_val_to_print = kernel.dbase_dict[mol_id] # This is the 'dbaseline' dictionary
+                if isinstance(db_val_to_print, dict):
+                    for orb_key, orb_val in db_val_to_print.items():
+                        print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}):   dbase_dict[{mol_id}][{orb_key}]: {orb_val} (type: {type(orb_val)}, shape: {getattr(orb_val, 'shape', 'N/A')})")
+                else: # Should be a dict, but just in case
+                    print(f"DEBUG _compute_mol_covs ({mol_id}, kernel {type(kernel).__name__}):   dbase_dict[{mol_id}] (overall): {db_val_to_print} (type: {type(db_val_to_print)}, shape: {getattr(db_val_to_print, 'shape', 'N/A')})")
+                # --- DEBUG PRINTING END ---
+                
 
     def map(self, mapping_plans):
         """
