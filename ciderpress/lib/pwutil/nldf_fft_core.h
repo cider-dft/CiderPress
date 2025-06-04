@@ -33,7 +33,8 @@
 // 3) There is an abstraction layer on top of the FFTW interface so
 // that MKL can be used instead if desired, including with MPI.
 // However, unlike libvdwxc, use of PFFT is not implemented yet.
-// 4)
+// 4) Preliminary support for functionals with anisotropic features
+// (l=1 kernel) is provided in this module.
 
 #ifndef NLDF_FFT_CORE_H
 #define NLDF_FFT_CORE_H

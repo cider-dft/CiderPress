@@ -115,7 +115,7 @@ def get_convolution_data(settings, alphas, alpha_norms, betas, beta_norms):
         for spec in settings.l1_feat_specs:
             vi_expnts.append(viexp)
             if spec == "se_grad":
-                vi_facs.append(vifac)
+                vi_facs.append(0.5 * vifac)
                 k2pows.append(1)
             else:
                 raise NotImplementedError
@@ -684,6 +684,9 @@ class _PAWCiderContribs:
             ]
         else:
             raise ValueError
+        # print("ATOMFEAT", (rho_sxg[:, 0:1, :] * self.w_g).sum(axis=-1),
+        #       (feat_sig * rho_sxg[:, 0:1, :] * self.w_g).sum(axis=-1),
+        #       4 * np.pi * self.r_g[-1]**3 / 3, self.w_g.sum(), self.r_g[-1])
         vfeat_sig = self.cider_kernel.calculate(*args)
         td = time.monotonic()
         # print("XC INNER", tb - ta, tc - tb, td - tc, vfeat_sig.shape)
@@ -910,7 +913,6 @@ class CiderRadialEnergyCalculator:
         e_g, rho_sxg, vrho_sxg = self.xc.vec_radial_vars(
             n_sLg, Y_nL, dndr_sLg, rnablaY_nLv, ae
         )
-        # print("AE", ae)
         vf_srLq = self.xc.get_paw_atom_contribs_en(
             e_g, rho_sxg, vrho_sxg, f_srLq, feat_only=False
         )
@@ -1181,7 +1183,7 @@ class FastPASDWCiderKernel:
                 setup.ps_setup = PSSetup.from_setup(setup)
                 setup.pa_setup = PASetup.from_setup(setup)
                 sbt_rgd = SBTGridContainer.from_setup(
-                    setup, rmin=1e-4, N=1024, encut=5e7, d=0.02
+                    setup, rmin=1e-4, N=1024, encut=5e6, d=0.02
                 ).big_rgd
                 cider_proj = CiderCoreTermProjector.from_atco_and_setup(
                     self.plan,
@@ -1800,8 +1802,8 @@ class CiderCoreTermProjector:
         self._kernel_kba = facs * np.exp(-expnts * k2_g[:, None, None])
         # self._kernel_bak[na:] = 0.0
         p21 = self._get_p21_matrix()
-        p22 = self._get_p22_matrix(reg=1e-6)
-        self._zmat_l = self._combine_matrices(p21, p22, reg=1e-6)
+        p22 = self._get_p22_matrix(reg=1e-5)
+        self._zmat_l = self._combine_matrices(p21, p22, reg=1e-5)
 
     def get_c_and_df(self, y_skLb):
         t0 = time.monotonic()
