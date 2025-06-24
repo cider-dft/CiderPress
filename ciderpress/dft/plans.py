@@ -110,7 +110,6 @@ def _get_ovlp_fit_interpolation_coefficients(
                 feat_id = VJ_ID_MAP["se"]
             else:
                 feat_id = VJ_ID_MAP[plan.nldf_settings.feat_spec_list[i]] 
-    print(f"HERE: {feat_id}")
     if feat_id == VJ_ID_MAP["se_erf_rinv"]:
         extra_args = plan._get_extra_args(i)
         num_extra_args = len(extra_args)

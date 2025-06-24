@@ -147,7 +147,7 @@ class PyscfNLDFGenerator(LCAONLDFGenerator):
         grids_indexer,
         nspin,
         nldf_settings,
-        plan_type="gaussian",
+        plan_type="spline", #TODO mohamed June6: check changing to spline and rerun descrptor generation for pyscf, originally "gaussian"
         lmax=None,
         aux_lambd=1.6,
         aug_beta=None,
