@@ -32,6 +32,7 @@ from ciderpress.dft.settings import (
     FracLaplSettings,
     NLDFSettings,
     SDMXBaseSettings,
+    HybridSettings,
     SemilocalSettings,
 )
 from ciderpress.pyscf.analyzers import UHFAnalyzer
@@ -39,6 +40,12 @@ from ciderpress.pyscf.frac_lapl import FLNumInt
 from ciderpress.pyscf.gen_cider_grid import CiderGrids
 from ciderpress.pyscf.nldf_convolutions import DEFAULT_CIDER_LMAX, PyscfNLDFGenerator
 from ciderpress.pyscf.sdmx_slow import EXXSphGenerator
+from ciderpress.external.sgx_tools import get_jk_densities
+
+try:
+    from pyscf.sgx import sgx as _sgx_mod  # PySCF ≥ 2.2
+except ImportError:  # pragma: no cover – old PySCF fallback
+    _sgx_mod = None
 
 NLDF_VERSION_LIST = ["i", "j", "ij", "k"]
 
@@ -113,6 +120,8 @@ def get_descriptors(analyzer, settings, orbs=None, **kwargs):
         my_desc_getter = _sl_desc_getter
     elif isinstance(settings, NLDFSettings):
         my_desc_getter = _nldf_desc_getter
+    elif isinstance(settings, HybridSettings):
+        my_desc_getter = _hyb_desc_getter
     elif isinstance(settings, FracLaplSettings):
         my_desc_getter = _fl_desc_getter
     elif isinstance(settings, SDMXBaseSettings):
@@ -485,3 +494,31 @@ def _sdmx_desc_getter(mol, pgrids, dm, settings, coeffs=None, **kwargs):
     elif len(coeffs) == 0:
         return desc, 0
     return desc, ddesc
+
+
+def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, **kwargs):
+    """Compute exact-exchange energy density ε_x^EXX on *pgrids* and return
+    it as the single-component feature required by HybridPlan.
+    """
+    if coeffs is not None and len(coeffs):
+        raise NotImplementedError("Orbital-occupation derivatives are not yet supported for hybrids")
+
+    if _sgx_mod is None:
+        raise RuntimeError("PySCF compiled without SGX module – cannot compute exact exchange density")
+
+    # The SGX object internally generates a pruned grid. To ensure grid
+    # consistency with all other features, we must force it to use the full,
+    # unpruned grid from the main analyzer. We do this by creating the SGX
+    # object, letting it run its internal build, and then overwriting its
+    # .grids attribute with the correct, full grid object.
+    sgx_obj = _sgx_mod.SGX(mol)
+    sgx_obj.build()  # This creates sgx_obj.grids with pruning
+    sgx_obj.grids = pgrids  # Overwrite with the full grid
+
+    # Evaluate exchange *energy* density. This will now use the full pgrids.
+    _ej, ek = get_jk_densities(sgx_obj, dms, hermi=1)
+
+    # Feature array expected shape: (nfeat, ngrids)
+    feat = ek[0][None, :]
+
+    return feat

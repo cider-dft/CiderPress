@@ -883,47 +883,60 @@ class SDMXFullSettings(SDMXBaseSettings):
 
 class HybridSettings(BaseSettings):
     """
-    TODO very rough draft of hybrid settings, to be fully implemented later.
+    Settings object for local (or global) hybrid functionals.  For the first
+    implementation we only support a single learned mixing fraction
+    α(r) (no range–separation).  The settings object therefore contains just
+    one feature placeholder so that the GP kernel can attach to it.
     """
 
-    def __init__(self, alpha, beta, local):
-        self.alpha = alpha
-        self.beta = beta
-        self.local = local
+    def __init__(self, alpha_init: float = 0.25, local: bool = True):
+        """Create a HybridSettings instance.
+
+        Args:
+            alpha_init (float): Initial guess or global mixing constant.  This
+                value is **not** used by the model directly but is useful when
+                constructing a reasonable normaliser and UEG vector.
+            local (bool): If ``True`` the model is interpreted as a local
+                hybrid; if ``False`` it degenerates to a global hybrid with a
+                single scalar α.
+        """
+        if not (0.0 <= alpha_init <= 1.0):
+            raise ValueError("alpha_init must be in [0,1]")
+        self.alpha = float(alpha_init)
+        self.local = bool(local)
+
+    # ---------------------------------------------------------------------
+    # Required interface for *BaseSettings
+    # ---------------------------------------------------------------------
+    @property
+    def nfeat(self):
+        # One scalar feature: the exchange energy density ε_x^EXX.  The GP will
+        # output the mixing factor α(r).
+        return 1
+
+    def get_feat_usps(self):
+        # USP of exchange energy density is 4
+        return [4]
+
+    def ueg_vector(self, rho: float = 1.0):
+        # The uniform-electron-gas value of ε_x^EXX is the LDA exchange energy
+        # density.
+        return np.array([LDA_FACTOR * rho ** (4.0 / 3)], dtype=np.float64)
+
+    def get_reasonable_normalizer(self):
+        # Normalise by LDA exchange energy density to make feature scale-invariant.
+        return [DensityNormalizer(1.0 / LDA_FACTOR, power=-4.0 / 3)]
 
     @property
     def size(self):
-        if not self.local:
-            return 0
-        elif self.beta:  # beta is screened component
-            return 2
-        else:
-            return 1
-
-    @property
-    def nglob(self):
-        if self.local:
-            return 0
-        elif self.beta:
-            return 2
-        else:
-            return 1
-
-    @property
-    def nfeat(self):
-        # TODO
+        # For local hybrids the feature lives on the real-space grid; no global
+        # parameters are currently used, hence size == 0.
         return 0
 
     @property
-    def get_feat_usps(self):
-        raise NotImplementedError
-
-    @property
-    def ueg_vector(self, rho=1.0):
-        raise NotImplementedError
-
-    def get_reasonable_normalizer(self):
-        raise NotImplementedError
+    def nglob(self):
+        # Number of global (non-grid) parameters; none at the moment.
+        return 0
 
 
 ALLOWED_I_SPECS_L0 = ["se", "se_r2", "se_apr2", "se_ap", "se_ap2r2", "se_lapl"]
@@ -1750,8 +1763,7 @@ class FeatureSettings(BaseSettings):
             if normalizers is None
             else normalizers
         )
-        if self.hyb_settings.nfeat != 0:
-            raise NotImplementedError("Hybrid DFT")
+        # Hybrid features are now supported; no restriction here.
 
     @property
     def has_sl(self):

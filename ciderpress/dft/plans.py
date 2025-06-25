@@ -637,12 +637,12 @@ class FracLaplPlan:
                 target = vdrho
             else:
                 target = l1_vxc[:, 3 * j : 3 * j + 3]
-            target[:] += vfeat_tmp * self._cached_l1_data[k]
+            target[:] += vfeat_tmp * self._cached_l1_data[j]
             if k == -1:
                 target = vdrho
             else:
                 target = l1_vxc[:, 3 * k : 3 * k + 3]
-            target[:] += vfeat_tmp * self._cached_l1_data[j]
+            target[:] += vfeat_tmp * self._cached_l1_data[k]
         start = nk0 + len(self.settings.l1_dots)
         for i1 in range(len(self.settings.ld_dots)):
             j, k = self.settings.ld_dots[i1]
@@ -651,12 +651,12 @@ class FracLaplPlan:
                 target = vdrho
             else:
                 target = ld_vxc[:, 3 * j : 3 * j + 3]
-            target[:] += vfeat_tmp * self._cached_ld_data[k]
+            target[:] += vfeat_tmp * self._cached_ld_data[j]
             if k == -1:
                 target = vdrho
             else:
                 target = ld_vxc[:, 3 * k : 3 * k + 3]
-            target[:] += vfeat_tmp * self._cached_ld_data[j]
+            target[:] += vfeat_tmp * self._cached_ld_data[k]
         ndd = self.settings.ndd
         for i in range(ndd):
             ldd_vxc[:, i] += vfeat[:, i - ndd]
@@ -1270,15 +1270,72 @@ class SDMXIntPlan(SDMXBasePlan):
 
 
 class HybridPlan:
-    """Plan for hybrid DFT. Not yet implemented"""
-
     def __init__(self, settings, nspin):
-        """
-        Args:
-            settings (HybridSettings)
+        """Create a HybridPlan.
         """
         self.settings = settings
+        if nspin not in (1, 2):
+            raise ValueError("nspin must be 1 or 2")
         self.nspin = nspin
+
+    # ------------------------------------------------------------------
+    # Interface expected by training / mapping code (mirrors SemilocalPlan)
+    # ------------------------------------------------------------------
+
+    @property
+    def level(self):
+        # Hybrids do not rely on semilocal level; return placeholder.
+        return "HYB"
+
+    # Features  ----------------------------------------------------------
+    def get_feat(self, eps_exx):
+        """Return the raw feature tensor for hybrid kernel.
+
+        Parameters
+        ----------
+        eps_exx : np.ndarray
+            Shape (nspin, ngrids).  Exact-exchange energy density.
+        """
+        if eps_exx.ndim == 1:
+            eps_exx = eps_exx[None, :]
+        nspin, ngr = eps_exx.shape
+        assert nspin == self.nspin
+        feat = np.empty((nspin, self.settings.nfeat, ngr), dtype=eps_exx.dtype)
+        feat[:, 0, :] = eps_exx
+        return feat
+
+    def get_occd(self, *args, **kwargs):
+        # Orbital-occupation derivatives are not required in v1. TODO: implement derivatives
+        raise NotImplementedError("Orbital derivatives for HybridPlan postponed")
+
+    # Potentials ---------------------------------------------------------
+    def get_vxc(self, eps_exx, v_exx, alpha, dalpha=None):
+        """Compute hybrid contribution to the potential.
+
+        Parameters
+        ----------
+        eps_exx : array (nspin, ngrids)
+            Exact-exchange energy density.
+        v_exx : array (nspin, ngrids)
+            Conventional EXX potential (local part).  Provided by SGX.
+        alpha : array (ngrids,) or (nspin, ngrids)
+            Mixing fraction produced by the GP.
+        dalpha : dict or None
+            Derivatives of alpha w.r.t. ρ, σ, τ if available.  For now this
+            can be omitted, in which case only the first term α·vₓ^EXX is
+            returned.
+        """
+        if alpha.ndim == 1:
+            alpha = alpha[None, :]
+        if eps_exx.ndim == 1:
+            eps_exx = eps_exx[None, :]
+        vxc = np.zeros_like(v_exx)
+        vxc[:] = alpha * v_exx
+        # Extra term ε_exx * ∂α/∂ρ etc.  Ignored for now unless supplied.
+        if dalpha is not None:
+            # dalpha is expected to be a dict with keys 'vrho', 'vsigma', 'vtau'
+            vxc += eps_exx * dalpha.get("vrho", 0)
+        return vxc
 
 
 class NLDFAuxiliaryPlan(ABC):

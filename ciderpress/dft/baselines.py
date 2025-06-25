@@ -332,6 +332,26 @@ def mgga_c_r2scan(X0T):
     raise NotImplementedError
 
 
+def exx_energy_baseline(X0T):
+    """Multiplicative baseline that takes the last raw feature--assumed to be
+    the exact-exchange energy density ek--and returns it.
+    """
+    nspin, nfeat, nsamp = X0T.shape
+    m = X0T[:, -1]
+    dm = np.zeros_like(X0T)
+    dm[:, -1] = 1.0
+    return m, dm
+
+
+def exx_pbe_diff_baseline(X0T):
+    """Difference between exact-exchange and PBE exchange energy densities.
+    This is a baseline for the multiplicative part of a local hybrid model.
+    """
+    e_exx, d_exx = exx_energy_baseline(X0T)
+    e_pbe, d_pbe = gga_x_pbe(X0T)
+    return e_exx - e_pbe, d_exx - d_pbe
+
+
 BASELINE_CODES = {
     "RHO": nsp_rho_basline,
     "ZERO": zero_xc,
@@ -341,6 +361,8 @@ BASELINE_CODES = {
     "GGA_X_PBE": gga_x_pbe,
     "GGA_X_CHACHIYO": gga_x_chachiyo,
     "GGA_C_PBE": gga_c_pbe,
+    "HYB_EXX": exx_energy_baseline,
+    "HYB_PBE_DIFF": exx_pbe_diff_baseline,
 }
 
 LDA_CODES = {
