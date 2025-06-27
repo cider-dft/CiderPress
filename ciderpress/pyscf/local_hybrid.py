@@ -29,7 +29,7 @@ def nr_rks_lh(
     a1 = -1.00778
     a2 = 1.10507
     a1 = 0.25
-    a2 = 0.13
+    a2 = -0.13
 
     try:
         x_code, c_code = xc_code.split(",")
@@ -47,7 +47,6 @@ def nr_rks_lh(
                 sigma = numpy.einsum("xg,xg->g", rho[1:4], rho[1:4])
                 wa = sigma**0.25 / rho[0] ** 0.5
                 wa[:] = a1 + a2 * wa / (1 + wa)
-                print(numpy.std(sigma**0.25 / rho[0] ** 0.5))
                 wa[rho[0] < 1e-10] = 0
                 # wa[:] = 0.5
                 exc = ex * (1 - wa) + ec
@@ -59,7 +58,7 @@ def nr_rks_lh(
                 nelec[i] += den.sum()
                 excsum[i] += numpy.dot(den, exc)
                 wv = weight * vxc
-                wa[:] = numpy.sqrt(wa) * weight
+                wa[:] = wa * weight
                 yield i, ao, mask, wv, wa
 
     aow = None
@@ -119,11 +118,63 @@ def nr_rks_lh(
     ratio = numpy.sum(edms * ovlp) / numpy.sum(dms * ovlp)
     print(ratio)
     print(pamat + pamat.transpose(0, 2, 1))
-    vk = get_k(mol, edms, hermi)
-    vkp = numpy.einsum("xij,xjk->xik", vk, pamat)
-    vkp = 0.5 * (vkp + vkp.transpose(0, 2, 1))
-    vmat[:] -= 0.5 * vkp
-    excsum[:] -= 0.25 * numpy.einsum("xij,xij->x", edms, vk)
+    # vk = get_k(mol, ratio * dms, hermi)
+    vk2 = get_k(mol, edms, hermi)
+    vk1 = get_k(mol, dms, hermi)
+    # vkp = vk + vk2 * ratio  # numpy.einsum("xij,vjk->xik", vk2, amat)
+    # vkp = numpy.einsum("xij,xjk->xik", vk, pamat)
+    # vkp = numpy.einsum("xij,xjk->xik", vk, amat)
+    # vkp = 0.25 * (vkp + vkp.transpose(0, 2, 1))
+    vk2 = 0.5 * (vk2 + vk2.transpose(0, 2, 1))
+    vk3 = vk1.copy()
+    for idm in range(vk1.shape[0]):
+        sk = numpy.linalg.solve(ovlp, vk1[idm])
+        ask = amat[idm].dot(sk)
+        ask = ask + ask.T
+        sp = ovlp.dot(dms[idm])
+        apk = amat[idm].dot(dms[idm]).dot(vk1[idm])
+        vk3[idm] = dms[idm].dot(vk3[idm]).dot(dms[idm])
+        # vk1[idm] = numpy.linalg.solve(ovlp, vk1[idm])
+        # vk1[idm] = amat[idm].dot(vk1[idm])
+        vk1[idm] = 1.0 * apk - 0.5 * sp.dot(ask) + 0.5 * ask
+    vk1 = 0.5 * (vk1 + vk1.transpose(0, 2, 1))
+    vk3 = 0.5 * (vk3 + vk3.transpose(0, 2, 1))
+    vmat[:] -= 0.25 * (vk2 + vk1)
+    excsum[:] -= 0.25 * numpy.einsum("xij,xji->x", dms, vk2)
+
+    make_vrho = ni._gen_rho_evaluator(mol, -0.125 * vk3, hermi, False, grids)[0]
+
+    def block_loop(ao_deriv):
+        for ao, mask, weight, coords in ni.block_loop(
+            mol, grids, nao, ao_deriv, max_memory=max_memory
+        ):
+            for i in range(nset):
+                rho = make_rho(i, ao, mask, xctype)
+                va = make_vrho(i, ao[0], mask, "LDA")
+                ex = ni.eval_xc_eff(x_code + ",", rho, deriv=0, xctype=xctype)[0]
+                sigma = numpy.einsum("xg,xg->g", rho[1:4], rho[1:4])
+                wa = sigma**0.25 / rho[0] ** 0.5
+                dwdrho = -0.5 * wa / rho[0]
+                dwdsigma = 0.25 * wa / sigma
+                dw = a2 / (1 + wa) ** 2
+                vw = numpy.zeros_like(rho)
+                vw[0] = dw * dwdrho
+                vw[1:4] = 2 * dw * dwdsigma * rho[1:4]
+                vw[:, rho[0] < 1e-10] = 0
+                wv = weight * (va - ex * rho[0]) * vw
+                yield i, ao, mask, wv
+
+    v2 = numpy.zeros_like(vmat)
+    if xctype == "GGA":
+        ao_deriv = 1
+        for i, ao, mask, wv in block_loop(ao_deriv):
+            wv[0] *= 0.5  # *.5 because vmat + vmat.T at the end
+            aow = _scale_ao_sparse(ao[:4], wv[:4], mask, ao_loc, out=aow)
+            _dot_ao_ao_sparse(
+                ao[0], aow, None, nbins, mask, pair_mask, ao_loc, hermi=0, out=v2[i]
+            )
+        v2 = lib.hermi_sum(v2, axes=(0, 2, 1))
+        vmat[:] += v2
 
     if nset == 1:
         nelec = nelec[0]
@@ -352,3 +403,66 @@ class LHRKS(RKS):
         self._numint = LHNumInt()
 
     get_veff = get_veff_rks
+
+
+if __name__ == "__main__":
+    from pyscf import gto
+
+    # mol = gto.M(atom="H 0 0 0; H 0 0 0.7", basis="def2-qzvppd", verbose=4)
+    # mol = gto.M(atom="H 0 0 0; F 0 0 1.1", basis="def2-qzvppd", verbose=4)
+    mol = gto.M(atom="F 0 0 0; F 0 0 1.4", basis="def2-qzvppd", verbose=4)
+    ks = LHRKS(mol, xc="GGA_X_PBE,GGA_C_PBE")
+    ks.grids.level = 4
+    ks.kernel()
+    # ks = dft.RKS(mol, xc="0.25*HF+0.75*GGA_X_PBE+GGA_C_PBE")
+    # ks.kernel()
+
+    mo_coeff = ks.mo_coeff.copy()
+    mo_occ = ks.mo_occ
+    nocc = int(numpy.round(ks.mo_occ.sum())) // 2
+    etot = ks.e_tot
+
+    def _rotate(coeff, angle):
+        rot = numpy.identity(coeff.shape[0])
+        rot[nocc - 1, nocc - 1] = numpy.cos(angle)
+        rot[nocc, nocc] = numpy.cos(angle)
+        rot[nocc - 1, nocc] = -numpy.sin(angle)
+        rot[nocc, nocc - 1] = numpy.sin(angle)
+        return coeff.dot(rot)
+
+    mod_coeff = _rotate(ks.mo_coeff.copy(), numpy.pi / 4)
+    mod_dm = ks.make_rdm1(mo_coeff=mod_coeff, mo_occ=mo_occ)
+    emod = ks.energy_tot(dm=mod_dm)
+    print(etot, emod)
+
+    p_coeff = _rotate(mod_coeff, numpy.pi / 1000)
+    m_coeff = _rotate(mod_coeff, -numpy.pi / 1000)
+    p_dm = ks.make_rdm1(mo_coeff=p_coeff, mo_occ=mo_occ)
+    m_dm = ks.make_rdm1(mo_coeff=m_coeff, mo_occ=mo_occ)
+
+    ep = ks.energy_tot(dm=p_dm)
+    em = ks.energy_tot(dm=m_dm)
+
+    h1e = ks.get_hcore()
+    vhf = ks.get_veff(ks.mol, mod_dm)
+    heff = h1e + vhf
+    ddm = p_dm - m_dm
+    de_ref = ep - em
+    de_pred = (ddm * heff).sum()
+    import scipy
+
+    ovlp = mol.intor("int1e_ovlp")
+
+    def _test_eigvals(matrix):
+        L = scipy.linalg.cholesky(ovlp, lower=True)
+        matrix = L.T.dot(matrix).dot(L)
+        print(scipy.linalg.eigvalsh(matrix))
+
+    _test_eigvals(mod_dm)
+    _test_eigvals(p_dm)
+    _test_eigvals(m_dm)
+
+    print(de_pred, de_ref, numpy.sqrt((ddm * ddm).sum()))
+    tol = numpy.abs(de_pred - de_ref) / numpy.sqrt((ddm * ddm).sum())
+    print(tol)
+    assert tol < 1e-8
