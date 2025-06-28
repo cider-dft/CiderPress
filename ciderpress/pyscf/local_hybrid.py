@@ -1,6 +1,6 @@
 import numpy
 from pyscf.dft import numint
-from pyscf.dft.numint import NBINS, _dot_ao_ao_sparse, _scale_ao_sparse, _tau_dot_sparse
+from pyscf.dft.numint import NBINS, _dot_ao_ao_sparse, _scale_ao_sparse
 from pyscf.dft.rks import RKS, lib, logger
 
 
@@ -36,19 +36,42 @@ def nr_rks_lh(
     except Exception:
         raise ValueError("Need comma-separated XC for this")
 
+    ngrids = grids.weights.size
+    nrho = 1
+    if xctype == "GGA":
+        nrho = 4
+    else:
+        nrho = 5
+
+    wv_full = numpy.empty((nset, nrho, ngrids))
+    wda_full = numpy.empty((nset, nrho, ngrids))
+
+    def amix_and_deriv(rho):
+        sigma = numpy.einsum("xg,xg->g", rho[1:4], rho[1:4])
+        amix = sigma**0.25 / rho[0] ** 0.5
+        amix[rho[0] < 1e-10] = 0
+        dwdrho = -0.5 * amix / rho[0]
+        dwdsigma = 0.25 * amix / sigma
+        damix = a2 / (1 + amix) ** 2
+        amix[:] = a1 + a2 * amix / (1 + amix)
+        agrad = numpy.zeros_like(rho)
+        agrad[0] = damix * dwdrho
+        agrad[1:4] = 2 * damix * dwdsigma * rho[1:4]
+        agrad[:, rho[0] < 1e-10] = 0
+        return amix, agrad
+
     def block_loop(ao_deriv):
+        ip0 = 0
         for ao, mask, weight, coords in ni.block_loop(
             mol, grids, nao, ao_deriv, max_memory=max_memory
         ):
+            ip1 = ip0 + weight.size
             for i in range(nset):
                 rho = make_rho(i, ao, mask, xctype)
+                # rho_full[i, :, ip0 : ip1] = rho
                 ex, vx = ni.eval_xc_eff(x_code + ",", rho, deriv=1, xctype=xctype)[:2]
                 ec, vc = ni.eval_xc_eff("," + c_code, rho, deriv=1, xctype=xctype)[:2]
-                sigma = numpy.einsum("xg,xg->g", rho[1:4], rho[1:4])
-                wa = sigma**0.25 / rho[0] ** 0.5
-                wa[:] = a1 + a2 * wa / (1 + wa)
-                wa[rho[0] < 1e-10] = 0
-                # wa[:] = 0.5
+                wa, da = amix_and_deriv(rho)
                 exc = ex * (1 - wa) + ec
                 vxc = vx * (1 - wa) + vc
                 if xctype == "LDA":
@@ -57,22 +80,34 @@ def nr_rks_lh(
                     den = rho[0] * weight
                 nelec[i] += den.sum()
                 excsum[i] += numpy.dot(den, exc)
-                wv = weight * vxc
+                wv = weight * (vxc - ex * rho[0] * da)
+                wda_full[i, :, ip0:ip1] = weight * da
                 wa[:] = wa * weight
-                yield i, ao, mask, wv, wa
+                wv_full[i, :, ip0:ip1] = wv
+                yield i, ao, mask, wa
+            ip0 = ip1
 
     aow = None
     pair_mask = mol.get_overlap_cond() < -numpy.log(ni.cutoff)
     if xctype == "LDA":
         ao_deriv = 0
-        for i, ao, mask, wv, wa in block_loop(ao_deriv):
+    elif xctype == "GGA":
+        ao_deriv = 1
+    elif xctype == "MGGA":
+        ao_deriv = 1
+    else:
+        raise ValueError
+    for i, ao, mask, wa in block_loop(ao_deriv):
+        _dot_ao_ao_sparse(
+            ao[0], ao[0], wa, nbins, mask, pair_mask, ao_loc, hermi, amat[i]
+        )
+
+    """
+    if xctype == "LDA":
+        for i, ao, mask, wa in block_loop(ao_deriv):
             _dot_ao_ao_sparse(
                 ao, ao, wv, nbins, mask, pair_mask, ao_loc, hermi, vmat[i]
             )
-            _dot_ao_ao_sparse(
-                ao, ao, wa, nbins, mask, pair_mask, ao_loc, hermi, amat[i]
-            )
-
     elif xctype == "GGA":
         ao_deriv = 1
         for i, ao, mask, wv, wa in block_loop(ao_deriv):
@@ -85,7 +120,6 @@ def nr_rks_lh(
                 ao[0], ao[0], wa, nbins, mask, pair_mask, ao_loc, hermi, amat[i]
             )
         vmat = lib.hermi_sum(vmat, axes=(0, 2, 1))
-
     elif xctype == "MGGA":
         if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
             raise NotImplementedError("laplacian in meta-GGA method")
@@ -104,11 +138,11 @@ def nr_rks_lh(
             )
         vmat = lib.hermi_sum(vmat, axes=(0, 2, 1))
         vmat += v1
-
     elif xctype == "HF":
         pass
     else:
         raise NotImplementedError(f"numint.nr_uks for functional {xc_code}")
+    """
 
     if dms.ndim == 2:
         dms = dms[None, :, :]
@@ -145,24 +179,18 @@ def nr_rks_lh(
     make_vrho = ni._gen_rho_evaluator(mol, -0.125 * vk3, hermi, False, grids)[0]
 
     def block_loop(ao_deriv):
+        ip0 = 0
         for ao, mask, weight, coords in ni.block_loop(
             mol, grids, nao, ao_deriv, max_memory=max_memory
         ):
+            ip1 = ip0 + weight.size
             for i in range(nset):
-                rho = make_rho(i, ao, mask, xctype)
+                # rho = make_rho(i, ao, mask, xctype)
                 va = make_vrho(i, ao[0], mask, "LDA")
-                ex = ni.eval_xc_eff(x_code + ",", rho, deriv=0, xctype=xctype)[0]
-                sigma = numpy.einsum("xg,xg->g", rho[1:4], rho[1:4])
-                wa = sigma**0.25 / rho[0] ** 0.5
-                dwdrho = -0.5 * wa / rho[0]
-                dwdsigma = 0.25 * wa / sigma
-                dw = a2 / (1 + wa) ** 2
-                vw = numpy.zeros_like(rho)
-                vw[0] = dw * dwdrho
-                vw[1:4] = 2 * dw * dwdsigma * rho[1:4]
-                vw[:, rho[0] < 1e-10] = 0
-                wv = weight * (va - ex * rho[0]) * vw
-                yield i, ao, mask, wv
+                wda = wda_full[i, :, ip0:ip1].copy()
+                wv = va * wda
+                yield i, ao, mask, wv + wv_full[i, :, ip0:ip1]
+            ip0 = ip1
 
     v2 = numpy.zeros_like(vmat)
     if xctype == "GGA":
@@ -173,6 +201,7 @@ def nr_rks_lh(
             _dot_ao_ao_sparse(
                 ao[0], aow, None, nbins, mask, pair_mask, ao_loc, hermi=0, out=v2[i]
             )
+
         v2 = lib.hermi_sum(v2, axes=(0, 2, 1))
         vmat[:] += v2
 
@@ -371,18 +400,30 @@ def get_veff_uks(ks, mol=None, dm=None, dm_last=0, vhf_last=0, hermi=1):
 
 
 class LHNumInt(numint.NumInt):
-    def __init__(self):
+    def __init__(self, symmetric=False, correct_eigvals=True):
         """
+        Initialize a local hybrid numerical integrator.
 
         Args:
-            mlxc (MappedXC): Model for XC energy
-            slxc (str): semilocal contribution to XC energy
-            nldf_init (PySCFNLDFInitializer)
-            sdmx_init (PySCFSDMXInitializer)
-            xmix (float): Mixing fraction of ML functional
-            rhocut (float): Low density cutoff for numerical stability
+            symmetric: Whether effective exchange integral is symmetric
+                For symmetric=True, EXX = Ptilde(r,r') Ptilde(r',r) / |r-r'|.
+                For symmetric=False, EXX = Ptilde(r,r') P(r',r) / |r-r'|
+            correct_eigvals: Whether to add a term to make Ptilde "more linear"
+                in P. correct_eigvals=True ensures that if the mixing fraction
+                is a constant, then the eigenvalues are equal to those of the
+                corresponding global hybrid.
+                For correct_eigvals=True, Ptilde = P A P (matrix multiplication)
+                For correct_eigvals=False,
+                Ptilde = P A P + (P A + A P) / 2 - (P P A + A P P) / 2
+                Note these formulas assume orthogonal basis, but the overlap
+                is taken into account in the code. Note that
+                (P A + A P) / 2 - (P P A + A P P) / 2 = 0 for idempotent matrices,
+                so in practice Ptilde = P A P regardless, but this term
+                affects the functional derivative / eigenvalues.
         """
         super(LHNumInt, self).__init__()
+        self.symmetric = symmetric
+        self.correct_eigvals = correct_eigvals
 
     def method_not_implemented(self, *args, **kwargs):
         raise NotImplementedError
