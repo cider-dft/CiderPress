@@ -1279,6 +1279,7 @@ class NLDFAuxiliaryPlan(ABC):
         rhocut=1e-10,
         expcut=1e-10,
         raise_large_expnt_error=True,
+        use_smooth_expnt_cutoff=False,
     ):
         """
         Initialize NLDFAuxiliaryPlan
@@ -1306,16 +1307,21 @@ class NLDFAuxiliaryPlan(ABC):
                 value. It is generally best to set this to true to make
                 sure a calculation doesn't accidentally lose significant precision
                 to going outside the interpolation range.
+            use_smooth_expnt_cutoff (bool, False): If True, use a damping function
+                for large exponent to smoothly ensure that as the exponent goes
+                to infinity, the damped exponent goes to alpha_max. The
+                smoothing function is design to contribute insignificantly
+                except for near and beyond alpha_max.
         """
         if not isinstance(nldf_settings, NLDFSettings):
             raise ValueError("Require NLDFSettings object")
         self.nldf_settings = nldf_settings
         if alpha0 <= 0:
             raise ValueError("alpha0 must be positive")
-        self.alpha0 = alpha0
+        self.alpha0 = np.float64(alpha0)
         if lambd <= 1:
             raise ValueError("lambd must be > 1")
-        self.lambd = lambd
+        self.lambd = np.float64(lambd)
         if not isinstance(nalpha, int) or nalpha <= 0:
             raise ValueError("nalpha must be positive integer")
         self.nalpha = nalpha
@@ -1382,7 +1388,7 @@ class NLDFAuxiliaryPlan(ABC):
 
         # set up the list of interpolating exponents
         # and their normalization coefficients
-        self.alphas = self.get_q2a(np.arange(self.nalpha))
+        self.alphas = self.get_q2a(np.arange(self.nalpha, dtype=np.float64))
         if self.alpha_order == "decreasing":
             self.alphas = np.ascontiguousarray(np.flip(self.alphas))
         if self.proc_inds is not None:
@@ -1396,7 +1402,12 @@ class NLDFAuxiliaryPlan(ABC):
         else:
             self.alpha_norms = (np.pi / (2 * self.alphas)) ** -0.75
 
-        self._raise_large_expnt_error = raise_large_expnt_error
+        if use_smooth_expnt_cutoff:
+            # exponent will not overflow when this flag is true
+            self._raise_large_expnt_error = False
+        else:
+            self._raise_large_expnt_error = raise_large_expnt_error
+        self._use_smooth_expnt_cutoff = use_smooth_expnt_cutoff
         self._run_setup()
 
     def new(self, **kwargs):
@@ -1502,7 +1513,7 @@ class NLDFAuxiliaryPlan(ABC):
         from -1 (theta exponent) to the number of version j/k
         features minus 1.
 
-        Args:F
+        Args:
             rho (np.ndarray): density
             sigma (np.ndarray): squared gradient
             tau (np.ndarray): kinetic energy density
@@ -1547,10 +1558,26 @@ class NLDFAuxiliaryPlan(ABC):
                 nspin=self.nspin,
             )
             res = a, (dadn, dadsigma)
-        if self._raise_large_expnt_error and np.max(a) > np.max(self.alphas):
-            raise RuntimeError(
-                "NLDF exponent is too large! Please increase nalpha/alpha_max."
+        if self._use_smooth_expnt_cutoff:
+            derivs = [arr.ctypes.data_as(ctypes.c_void_p) for arr in res[1]]
+            nd = len(derivs)
+            libcider.smooth_cider_exponents(
+                res[0].ctypes.data_as(ctypes.c_void_p),
+                (ctypes.c_void_p * nd)(*derivs),
+                ctypes.c_double(np.max(self.alphas)),
+                ctypes.c_int(a.size),
+                ctypes.c_int(nd),
             )
+        if self._raise_large_expnt_error and a.size > 0:
+            # TODO if rhocut is small, might need to leave some buffer at small rho
+            ap = a[rho > self.rhocut]
+            if ap.size > 0 and np.max(ap) > np.max(self.alphas):
+                # print(np.max(ap), rho[rho > self.rhocut][np.argmax(ap)],
+                #      tau[rho > self.rhocut][np.argmax(ap)],
+                #      np.max(self.alphas), self.rhocut)
+                raise RuntimeError(
+                    "NLDF exponent is too large! Please increase nalpha/alpha_max."
+                )
         return res
 
     def _clear_l1_cache(self, s):
@@ -1638,18 +1665,33 @@ class NLDFAuxiliaryPlan(ABC):
         coeff_multipliers=None,
     ):
         """
+        Evaluate the raw features. IMPORTANT: For spin-polarized calculations,
+        spin must be passed explicitly and must be different for each
+        spin channel, otherwise cached data will get overwritten, leading
+        to incorrect gradients later on. If apply_transformation is True, f is overwritten.
 
         Args:
-            f:
-            rho: [n, dn/dx, dn/dy, dn/dz, (tau)]
-            drho:
-            tau:
-            feat:
-            dfeat:
-            cache_p:
+            f (np.ndarray): Feature interpolation coefficients, of shape
+                (ngrids, nalpha) for coef_order=="qg" else (nalpha, ngrids)
+            rho_data (np.ndarray): Density vector [n, dn/dx, dn/dy, dn/dz, (tau)]
+            spin (int, 0): Spin index of this density, for caching data.
+            feat (np.ndarray, None): Shape (nfeat, ngrids) optional buffer
+                for features
+            dfeat (np.ndarray, None): Shape (nfeat, ngrids) optional buffer
+                for feature derivatives
+            cache_p (bool, True): Cache nalpha x ngrids-size arrays for
+                interpolation coefficients. Slightly faster, but more memory
+                intensive.
+            apply_transformation (bool, False): For Gaussian interpolation,
+                apply the linear transformation from the projection values
+                to the interpolation coefficients.
+            coeff_multipliers (np.ndarray, None): If not None, multiply the
+                interpolation coefficients by this (nalpha,)-shapred array
 
         Returns:
-            If apply_transformation is True, f is overwritten
+            (np.ndarray, np.ndarray): Features (nfeat, ngrids)
+            and derivative of features (nfeat, ngrids) with respect to
+            the feat_params exponent.
         """
         if self.coef_order == "qg":
             f_qg = f
@@ -1764,25 +1806,25 @@ class NLDFAuxiliaryPlan(ABC):
         """
 
         Args:
-            vfeat:
-            vrho:
-            vdrho:
-            vtau:
-            dfeat:
-            rho:
-            drho:
-            tau:
-            drho:
-            p_i_qg:
-            vf:
+            vfeat (np.ndarray): (nfeat, ngrids) derivative of energy density
+                with respect to features
+            vrho_data (np.ndarray): (nrho, ngrids) derivative of energy density
+                with respect to density vector [n, dn/dx, dn/dy, dn/dz, (tau)]
+            dfeat (np.ndarray): (nfeat, ngrids) derivative of features
+                with respect to NLDF exponents.
+            rho_data (np.ndarray): density vector
+            p_i_qg (np.ndarray, None): Interpolation coefficients for features. If None,
+                the features must be cached using cache_p=True during
+                eval_rho_full
+            vf (np.ndarray, None): Optional buffer for vf
 
         Returns:
-            vf (nalpha + num_vi_ints + vf_buffer_nslot, ngrids)
-                    or transpose if coef_order == 'gq':
-                The last vf_buffer_nslot rows (qg) or columns (gq)
-                are zeros. The remaining rows are filled with the
-                functional derivatives with respect to the nonlocal
-                density integrals.
+            (np.ndarray): Shape (nalpha + num_vi_ints + vf_buffer_nslot, ngrids)
+            or transpose if coef_order == 'gq'.
+            The last vf_buffer_nslot rows (qg) or columns (gq)
+            are zeros. The remaining rows are filled with the
+            functional derivatives with respect to the nonlocal
+            density integrals.
         """
         vfeat[:] *= self.nspin
         if vf is None:
@@ -1982,6 +2024,7 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
         rhocut=1e-10,
         expcut=1e-10,
         raise_large_expnt_error=True,
+        use_smooth_expnt_cutoff=False,
     ):
         self._spline_size = nalpha if spline_size is None else spline_size
         self._local_alpha_transform = None
@@ -1997,6 +2040,7 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
             rhocut=rhocut,
             expcut=expcut,
             raise_large_expnt_error=raise_large_expnt_error,
+            use_smooth_expnt_cutoff=use_smooth_expnt_cutoff,
         )
 
     def _run_setup(self):

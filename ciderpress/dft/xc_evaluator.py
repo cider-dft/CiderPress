@@ -37,13 +37,14 @@ from ciderpress.models.kernels import (
     SubsetRBF,
 )
 
-libcider = load_library("libmcider.so")
+libcider = load_library("libmcider")
 
 
 def get_vec_eval(grid, coeffs, X, N):
     """
     Call the numba-accelerated spline evaluation routines from the
     interpolation package. Also returns derivatives
+
     Args:
         grid: start and end points + number of grids in each dimension
         coeffs: coefficients of the spline
