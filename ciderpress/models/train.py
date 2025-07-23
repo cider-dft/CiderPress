@@ -550,7 +550,7 @@ class MOLGP:
                         "structs": [mol_id],
                         "counts": [1],
                         "energy": refval[i] if mode > 0 else None,
-                        "noise": rel_noise * np.abs(refval[i]),
+                        "noise": rel_noise * np.abs(refval[i])+0.3,
                     }
                     rxn_list.append((mode, rxn))
                     if mode == 0:
