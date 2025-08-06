@@ -1278,7 +1278,7 @@ class NLDFAuxiliaryPlan(ABC):
         proc_inds=None,
         rhocut=1e-10,
         expcut=1e-10,
-        raise_large_expnt_error=True,
+        raise_large_expnt_error=False,
         use_smooth_expnt_cutoff=False,
     ):
         """
