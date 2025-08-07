@@ -40,7 +40,6 @@ from ciderpress.pyscf.frac_lapl import FLNumInt
 from ciderpress.pyscf.gen_cider_grid import CiderGrids
 from ciderpress.pyscf.nldf_convolutions import DEFAULT_CIDER_LMAX, PyscfNLDFGenerator
 from ciderpress.pyscf.sdmx_slow import EXXSphGenerator
-from ciderpress.external.sgx_tools import get_jk_densities
 
 try:
     from pyscf.sgx import sgx as _sgx_mod  # PySCF ≥ 2.2
@@ -496,9 +495,33 @@ def _sdmx_desc_getter(mol, pgrids, dm, settings, coeffs=None, **kwargs):
     return desc, ddesc
 
 
-def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, **kwargs):
+def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, sgx_cache=None, return_a_tensor=False, **kwargs):
     """Compute exact-exchange energy density ε_x^EXX on *pgrids* and return
     it as the single-component feature required by HybridPlan.
+    
+    Parameters
+    ----------
+    mol : Mole object
+        Molecule
+    pgrids : Grids object
+        Grid points  
+    dms : array
+        Density matrix
+    settings : HybridSettings
+        Hybrid functional settings
+    coeffs : array, optional
+        Orbital coefficients (not supported yet)
+    sgx_cache : dict, optional
+        Cache dictionary for SGX objects
+    return_a_tensor : bool, optional
+        If True, also return three-center integrals A tensor, this is needed for the non-local contributions to vxc in SCF calculations
+        
+    Returns
+    -------
+    feat : array (nfeat, ngrids)
+        Exchange energy density feature
+    a_tensor : array (ngrids, nao, nao), optional
+        Three-center integrals if return_a_tensor=True
     """
     if coeffs is not None and len(coeffs):
         raise NotImplementedError("Orbital-occupation derivatives are not yet supported for hybrids")
@@ -506,19 +529,48 @@ def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, **kwargs):
     if _sgx_mod is None:
         raise RuntimeError("PySCF compiled without SGX module – cannot compute exact exchange density")
 
-    # The SGX object internally generates a pruned grid. To ensure grid
-    # consistency with all other features, we must force it to use the full,
-    # unpruned grid from the main analyzer. We do this by creating the SGX
-    # object, letting it run its internal build, and then overwriting its
-    # .grids attribute with the correct, full grid object.
-    sgx_obj = _sgx_mod.SGX(mol)
-    sgx_obj.build()  # This creates sgx_obj.grids with pruning
-    sgx_obj.grids = pgrids  # Overwrite with the full grid
+    # Use caching if cache dict provided
+    sgx_obj = None
+    if sgx_cache is not None:
+        # Create cache key from mol and grids
+        cache_key = (id(mol), id(pgrids))
+        if cache_key in sgx_cache:
+            sgx_obj = sgx_cache[cache_key]
+    
+    if sgx_obj is None:
+        # The SGX object internally generates a pruned grid. To ensure grid
+        # consistency with all other features, we must force it to use the full,
+        # unpruned grid from the main analyzer. We do this by creating the SGX
+        # object, letting it run its internal build, and then overwriting its
+        # .grids attribute with the correct, full grid object.
+        sgx_obj = _sgx_mod.SGX(mol)
+        sgx_obj.build()  # This creates sgx_obj.grids with pruning
+        sgx_obj.grids = pgrids  # Overwrite with the full grid
+        
+        # Cache the SGX object if cache dict provided
+        if sgx_cache is not None:
+            sgx_cache[cache_key] = sgx_obj
 
-    # Evaluate exchange *energy* density. This will now use the full pgrids.
-    _ej, ek = get_jk_densities(sgx_obj, dms, hermi=1)
+    # Use the enhanced function that can return A tensor
+    from ciderpress.external.sgx_tools import get_jk_densities_and_a_tensor
+    result = get_jk_densities_and_a_tensor(sgx_obj, dms, hermi=1, return_a_tensor=return_a_tensor)
+    
+    if return_a_tensor:
+        _ej, ek, a_tensor = result
+    else:
+        _ej, ek = result
 
     # Feature array expected shape: (nfeat, ngrids)
-    feat = ek[0][None, :]
+    # Factor of 0.5 explanation for RKS (closed-shell):
+    # - In RKS, we use total density matrix P_total = 2 * P_alpha (factor of 2)
+    # - Exchange integral involves P^2, giving factor of 4 compared to spin-resolved
+    # - SGX returns -0.5 * exchange integral (factor of -0.5)
+    # - We need another 0.5 to get the correct per-particle exchange energy density
+    # - Final scaling: 4 * (-0.5) * 0.5 = -1, which is correct
+    # For UKS, this factor works as well, since we pass 2*P_alpha and 2*P_beta
+    feat = 0.5*ek[0][None, :]  # RKS-specific scaling for exchange energy density
 
-    return feat
+    if return_a_tensor:
+        return feat, a_tensor
+    else:
+        return feat

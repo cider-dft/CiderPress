@@ -889,21 +889,13 @@ class HybridSettings(BaseSettings):
     one feature placeholder so that the GP kernel can attach to it.
     """
 
-    def __init__(self, alpha_init: float = 0.25, local: bool = True):
+    def __init__(self, surrogate = False, **kwargs):
         """Create a HybridSettings instance.
 
         Args:
-            alpha_init (float): Initial guess or global mixing constant.  This
-                value is **not** used by the model directly but is useful when
-                constructing a reasonable normaliser and UEG vector.
-            local (bool): If ``True`` the model is interpreted as a local
-                hybrid; if ``False`` it degenerates to a global hybrid with a
-                single scalar α.
+            surrogate (bool): If False (default), the model uses actual seminumerical exchange, if True, the model uses a CIDER model (not implemented yet) for the exchange energy density.
         """
-        if not (0.0 <= alpha_init <= 1.0):
-            raise ValueError("alpha_init must be in [0,1]")
-        self.alpha = float(alpha_init)
-        self.local = bool(local)
+        self.surrogate = surrogate
 
     # ---------------------------------------------------------------------
     # Required interface for *BaseSettings
@@ -915,8 +907,8 @@ class HybridSettings(BaseSettings):
         return 1
 
     def get_feat_usps(self):
-        # USP of exchange energy density is 4
-        return [4]
+        # USP of exchange energy density is 4, but we have normalized it with LDA exchange energy density so it is 0
+        return [0]
 
     def ueg_vector(self, rho: float = 1.0):
         # The uniform-electron-gas value of ε_x^EXX is the LDA exchange energy
@@ -926,17 +918,6 @@ class HybridSettings(BaseSettings):
     def get_reasonable_normalizer(self):
         # Normalise by LDA exchange energy density to make feature scale-invariant.
         return [DensityNormalizer(1.0 / LDA_FACTOR, power=-4.0 / 3)]
-
-    @property
-    def size(self):
-        # For local hybrids the feature lives on the real-space grid; no global
-        # parameters are currently used, hence size == 0.
-        return 0
-
-    @property
-    def nglob(self):
-        # Number of global (non-grid) parameters; none at the moment.
-        return 0
 
 
 ALLOWED_I_SPECS_L0 = ["se", "se_r2", "se_apr2", "se_ap", "se_ap2r2", "se_lapl"]
@@ -1780,6 +1761,10 @@ class FeatureSettings(BaseSettings):
     @property
     def has_sdmx(self):
         return not self.sdmx_settings.is_empty
+
+    @property
+    def has_hyb(self):
+        return not self.hyb_settings.is_empty
 
     @property
     def nfeat(self):

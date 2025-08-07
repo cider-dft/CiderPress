@@ -87,3 +87,106 @@ def get_jk_densities(sgx, dm, hermi=1, direct_scf_tol=1e-13):
 
     ek *= -0.5
     return ej, ek
+
+
+def get_jk_densities_and_a_tensor(sgx, dm, hermi=1, direct_scf_tol=1e-13, return_a_tensor=False):
+    """
+    Get J/K densities with optional A tensor computation.
+    
+    Parameters
+    ----------
+    sgx : SGX object
+        Semi-grid exchange object from PySCF
+    dm : array-like
+        Density matrix or matrices
+    hermi : int, optional
+        Hermiticity flag (default: 1)
+    direct_scf_tol : float, optional
+        Direct SCF tolerance (default: 1e-13)
+    return_a_tensor : bool, optional
+        If True, also return the three-center integrals A_tensor (default: False)
+        
+    Returns
+    -------
+    ej : array (nset, ngrids)
+        Coulomb energy densities
+    ek : array (nset, ngrids)
+        Exchange energy densities  
+    a_tensor : array (ngrids, nao, nao), optional
+        Three-center integrals A_{gij} if return_a_tensor=True
+    """
+    t0 = time.monotonic(), time.time()
+    mol = sgx.mol
+    grids = sgx.grids
+    gthrd = sgx.grids_thrd
+
+    dms = numpy.asarray(dm)
+    dm_shape = dms.shape
+    nao = dm_shape[-1]
+    dms = dms.reshape(-1, nao, nao)
+    nset = dms.shape[0]
+
+    # Always use batch_nuc when A tensor is needed
+    if return_a_tensor or sgx.debug:
+        batch_nuc = _gen_batch_nuc(mol)
+    if not sgx.debug and not return_a_tensor:
+        batch_jk = _gen_jk_direct(
+            mol, "s2", True, True, direct_scf_tol, sgx._opt, pjs=False
+        )
+    logger.timer_debug1(mol, "sgX initialziation", *t0)
+
+    ngrids = grids.coords.shape[0]
+    max_memory = sgx.max_memory - lib.current_memory()[0]
+    sblk = sgx.blockdim
+    blksize = min(ngrids, max(4, int(min(sblk, max_memory * 1e6 / 8 / nao**2))))
+    tnuc = 0, 0
+    ej, ek = numpy.zeros((nset, ngrids)), numpy.zeros((nset, ngrids))
+    
+    # Initialize A tensor storage if requested
+    if return_a_tensor:
+        a_tensor = numpy.zeros((ngrids, nao, nao))
+    
+    for i0, i1 in lib.prange(0, ngrids, blksize):
+        coords = grids.coords[i0:i1]
+        ao = mol.eval_gto("GTOval", coords)
+        wao = ao * grids.weights[i0:i1, None]
+
+        fg = lib.einsum("gi,xij->xgj", wao, dms)
+        fgnw = lib.einsum("gi,xij->xgj", ao, dms)
+        mask = numpy.zeros(i1 - i0, dtype=bool)
+        for i in range(nset):
+            mask |= numpy.any(fg[i] > gthrd, axis=1)
+            mask |= numpy.any(fg[i] < -gthrd, axis=1)
+
+        inds = numpy.arange(i0, i1)
+
+        numpy.einsum("xgu,gu->xg", fg, ao)
+        rho = numpy.einsum("xgu,gu->xg", fgnw, ao)
+
+        if sgx.debug or return_a_tensor:
+            tnuc = tnuc[0] - time.monotonic(), tnuc[1] - time.time()
+            gbn = batch_nuc(mol, coords)
+            tnuc = tnuc[0] + time.monotonic(), tnuc[1] + time.time()
+            jg = numpy.einsum("gij,xij->xg", gbn, dms)
+            gv = lib.einsum("gvt,xgt->xgv", gbn, fgnw)
+            if return_a_tensor:
+                a_tensor[i0:i1] = gbn
+            gbn = None
+        else:
+            tnuc = tnuc[0] - time.monotonic(), tnuc[1] - time.time()
+            jg, gv = batch_jk(mol, coords, dms, fgnw.copy(), None)
+            tnuc = tnuc[0] + time.monotonic(), tnuc[1] + time.time()
+
+        jg = numpy.sum(jg, axis=0)
+        ej[:, inds] = jg * rho / 2.0
+        for i in range(nset):
+            ek[i, inds] = lib.einsum("gu,gu->g", fgnw[i], gv[i])
+
+        jg = gv = None
+
+    ek *= -0.5
+    
+    if return_a_tensor:
+        return ej, ek, a_tensor
+    else:
+        return ej, ek

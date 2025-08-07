@@ -18,6 +18,112 @@
 # Author: Kyle Bystrom <kylebystrom@gmail.com>
 #
 
+"""
+=====================================================================
+CIDER Numerical Integration Module - Architecture Overview
+=====================================================================
+
+This module implements numerical integration for CIDER functionals with support for:
+- Semi-local (SL) functionals  
+- SDMX (Semi-local Density Matrix eXpansion)
+- Hybrid functionals with local mixing (Laqua et al. 2018)
+- NLDF (Non-Local Density Functionals)
+- All combinations of the above
+
+COMPUTATIONAL FLOW
+==================
+
+The computation follows different strategies depending on features:
+
+1. WITHOUT NLDF (Standard Path):
+   - Single pass through grid blocks
+   - For each block:
+     a) Evaluate AO basis functions
+     b) Compute electron density ρ(r)
+     c) Compute SDMX features (if needed)
+     d) Compute hybrid features ε_x^ex (if needed)
+     e) Evaluate XC functional → exc, vxc
+     f) Build K matrix contribution for hybrids (if needed)
+     g) Contract vxc with AO functions → vmat
+   - Finalize K matrix and add to vmat
+
+2. WITH NLDF (Two-Pass Strategy):
+   First Pass:
+   - Loop through all grid blocks
+   - Compute and store full density ρ(r) for entire grid
+   - Compute NLDF features from full density
+   
+   Second Pass:
+   - Use extra_block_loop (includes extra AOs for NLDF)
+   - For each block:
+     a) Retrieve pre-computed density
+     b) Get NLDF features for block
+     c) Compute SDMX/hybrid features
+     d) Evaluate XC functional
+     e) Store weighted potentials
+   - After all blocks: Apply NLDF potential
+   - Contract to vmat with K matrix contributions
+
+BLOCK LOOPS
+===========
+- block_loop: Standard iteration over grid blocks
+  * Returns: (idm, ip0, ip1, ao, mask, weight, coords)
+  * ip0, ip1: indices for block in full grid
+  * Used for density computation and non-NLDF evaluation
+
+- extra_block_loop: Special loop for NLDF
+  * Includes extra AO functions needed for NLDF
+  * Returns: (mask, weight, coords)
+  * Used in second pass of NLDF evaluation
+
+RKS vs UKS DIFFERENCES
+======================
+nr_rks (Restricted):
+- Single set of orbitals (spin-paired)
+- Density matrix shape: (nset, nao, nao)
+- Features computed once for total density
+- Hybrid: Uses total density P_total = 2*P_α
+- K matrix: Single contribution, factor 0.5
+
+nr_uks (Unrestricted):
+- Separate α and β spin orbitals
+- Density matrices: dma (alpha), dmb (beta)
+- Features computed separately per spin
+- Hybrid: Uses 2*P_α and 2*P_β separately
+- K matrix: Separate α/β contributions, factor 1.0
+
+HYBRID FUNCTIONAL IMPLEMENTATION
+================================
+Following Laqua et al., J. Chem. Theory Comput. 2018, 14, 3451-3458:
+
+1. Exact Exchange Energy Density:
+   ε_X^ex(r) = -1/2 Σ_μνλσ χ_μ(r) P_μν A_νλ(r) P_λσ χ_σ(r)
+   where A_νλ(r) = ∫ χ_ν(r') χ_λ(r') / |r - r'| dr'
+
+2. Local Mixing Function:
+   α(r) = f(ε_X^ex(r)) - ML model output
+
+3. K Matrix (nonlocal contribution to Fock matrix):
+   K_μν = ∫ (∂α/∂ε_X^ex)(r) A_νλ(r) P_λσ χ_σ(r) χ_μ(r) dr
+
+The implementation:
+- Pre-computes ε_X^ex and A tensor on full grid
+- During block loop: evaluates ML model → α(r), ∂α/∂ε_X^ex
+- Builds K matrix contributions block by block
+- Finalizes with symmetrization: K → (K + K^T)/2
+
+FEATURE TYPES
+=============
+1. Semi-local (SL): ρ, ∇ρ, τ (kinetic energy density)
+2. SDMX: Density matrix expansion features
+3. Hybrid: ε_X^ex (exact exchange energy density)
+4. NLDF: Non-local density features via convolutions
+
+Each feature type has:
+- Forward pass: compute features from density/orbitals
+- Backward pass: apply potential (derivative of E_xc w.r.t. features)
+"""
+
 import numpy as np
 from ase.utils.timing import Timer
 from pyscf import lib
@@ -28,6 +134,7 @@ from pyscf.dft.numint import _dot_ao_ao_sparse, _scale_ao_sparse, eval_ao
 import ciderpress.pyscf.frac_lapl as nlof
 from ciderpress.dft.plans import (
     FracLaplPlan,
+    HybridPlan,
     SemilocalPlan,
     get_rho_tuple_with_grad_cross,
     vxc_tuple_to_array,
@@ -67,7 +174,8 @@ def _tau_dot_sparse(
 
 
 def _get_sdmx_orbs(ni, mol, coords, ao):
-    ni.timer.start("sdmx ao")
+    if hasattr(ni, 'timer'):
+        ni.timer.start("sdmx ao")
     if ni.has_sdmx and ni.sdmxgen.fast:
         if ao is None:
             sdmx_ao = eval_ao(mol, coords, deriv=0)
@@ -78,7 +186,8 @@ def _get_sdmx_orbs(ni, mol, coords, ao):
         sdmx_ao, sdmx_cao = ni.sdmxgen.get_orb_vals(mol, coords, save_buf=True)
     else:
         sdmx_ao, sdmx_cao = None, None
-    ni.timer.stop("sdmx ao")
+    if hasattr(ni, 'timer'):
+        ni.timer.stop("sdmx ao")
     return sdmx_ao, sdmx_cao
 
 
@@ -86,6 +195,12 @@ def nr_rks(
     ni, mol, grids, xc_code, dms, relativity=0, hermi=1, max_memory=2000, verbose=None
 ):
     """
+    Unified nr_rks implementation that supports all features:
+    - Semi-local (SL)
+    - SDMX
+    - Hybrid
+    - NLDF
+    - All combinations of the above
 
     Args:
         ni (CiderNumInt):
@@ -101,7 +216,8 @@ def nr_rks(
     Returns:
 
     """
-    ni.timer.start("nr_rks")
+    if hasattr(ni, 'timer'):
+        ni.timer.start("nr_rks")
     if relativity != 0:
         raise NotImplementedError
 
@@ -119,19 +235,207 @@ def nr_rks(
     nelec = np.zeros(nset)
     excsum = np.zeros(nset)
     vmat = np.zeros((nset, nao, nao))
+    
+    # Initialize for NLDF if needed
+    rho_full = None
+    wv_full = None
+    vxc_nldf_full = None
+    if ni.has_nldf:
+        if not hasattr(grids, "grids_indexer"):
+            raise ValueError("Grids object must have indexer for NLDF evaluation")
+        
+        nrho = 5 if xctype == "MGGA" else 4
+        if not ni.settings.nlof_settings.is_empty:
+            nrho += ni.settings.nlof_settings.nrho
+        
+        rho_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        wv_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        
+        num_nldf = ni.settings.nldf_settings.nfeat
+        vxc_nldf_full = np.zeros(
+            (nset, num_nldf, grids.weights.size), dtype=np.float64, order="C"
+        )
+    
+    # Compute exact exchange data for hybrid functionals if needed
+    eps_exx, a_tensor = None, None
+    alpha_ml = None
+    dalpha_deps = None
+    K_contrib = None
+    
+    if ni.hyb_plan is not None:
+        if hasattr(ni, 'timer'):
+            ni.timer.start("hybrid exx")
+        
+        # Compute exact exchange energy density on the full grid
+        # Following equation (2) from Laqua et al., J. Chem. Theory Comput. 2018:
+        # ε_X^ex(r_g) = -1/2 * Σ_μνλσ χ_μ(r_g) P_μν [∫ χ_ν(r') χ_λ(r') / |r' - r_g| dr'] P_λσ χ_σ(r_g)
+        eps_exx_all = np.zeros((nset, grids.coords.shape[0]))
+        sgx_cache = {}  # Cache for SGX data
+        
+        # Get A tensor and exact exchange for first density matrix
+        eps_exx_all[0], a_tensor = ni.hyb_plan.compute_a_tensor_and_exx(
+            mol, grids, dms[0], ni.settings.hyb_settings, 
+            sgx_cache=sgx_cache, return_a_tensor=True
+        )
+        
+        # For additional density matrices, reuse cached SGX object
+        for i in range(1, nset):
+            eps_exx_all[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
+                mol, grids, dms[i], ni.settings.hyb_settings, 
+                sgx_cache=sgx_cache, return_a_tensor=False
+            )
+        
+        eps_exx = eps_exx_all
+        
+        # Initialize arrays to store ML model outputs
+        alpha_ml = np.zeros((nset, grids.coords.shape[0]))
+        dalpha_deps = np.zeros((nset, grids.coords.shape[0]))
+        
+        # Initialize K contributions (accumulated during grid loop)
+        K_contrib = [np.zeros((nao, nao)) for _ in range(nset)]
+        
+        if hasattr(ni, 'timer'):
+            ni.timer.stop("hybrid exx")
 
-    def block_loop(ao_deriv):
-        if ni.has_sdmx:
-            extra_ao = ni.sdmxgen.get_extra_ao(mol)
-        else:
-            extra_ao = 0
+    def block_loop(ao_deriv, include_extra_ao=True):
+        ip0 = 0  # Initialize ip0 for hybrid functional block indexing
+        extra_ao = 0
+        if include_extra_ao:
+            if ni.has_sdmx:
+                extra_ao += ni.sdmxgen.get_extra_ao(mol)
+            if ni.has_nldf:
+                extra_ao += ni.nldfgen.get_extra_ao()
         for ao, mask, weight, coords in ni.block_loop(
             mol, grids, nao, ao_deriv, max_memory=max_memory, extra_ao=extra_ao
         ):
-            sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, ao)
+            ip1 = ip0 + weight.size  # Calculate end index for this block
             for i in range(nset):
+                yield i, ip0, ip1, ao, mask, weight, coords
+            ip0 = ip1
+    
+    # First pass: compute rho for all blocks (needed for NLDF)
+    if ni.has_nldf:
+        if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
+            raise NotImplementedError("laplacian in meta-GGA method")
+        ao_deriv = 1
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+            rho_full[i, :, ip0:ip1] = make_rho(i, ao, mask, xctype)
+        
+        # Compute NLDF features
+        nldf_feat = []
+        for idm in range(nset):
+            nldf_feat.append(ni.nldfgen.get_features(rho_full[idm]))
+    else:
+        nldf_feat = None
+    
+    # Second pass: compute XC and accumulate
+    # For NLDF case, use extra_block_loop; for non-NLDF, use regular block_loop
+    if ni.has_nldf:
+        # NLDF evaluation using extra_block_loop
+        ip0 = 0
+        extra_ao = 0
+        if ni.has_sdmx:
+            extra_ao += ni.sdmxgen.get_extra_ao(mol)
+        if ni.has_nldf:
+            extra_ao += ni.nldfgen.get_extra_ao()
+            
+        for mask, weight, coords in ni.extra_block_loop(
+            mol, grids, max_memory=max_memory, extra_ao=extra_ao
+        ):
+            ip1 = ip0 + weight.size
+            sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, None)
+            
+            for idm in range(nset):
+                # Get density for this block
+                rho = rho_full[idm, :, ip0:ip1]
+                
+                # Get SDMX features if needed
+                if ni.has_sdmx:
+                    sdmx_feat = ni.sdmxgen.get_features(
+                        dms[idm], mol, coords, ao=sdmx_ao, cao=sdmx_cao
+                    )
+                else:
+                    sdmx_feat = None
+                    
+                # Get hybrid features if needed
+                if ni.hyb_plan is not None:
+                    hyb_feat = eps_exx[idm][ip0:ip1]
+                    hyb_feat = hyb_feat[None, :]  # Shape: (1, ngrids)
+                else:
+                    hyb_feat = None
+                    
+                # Get NLDF features for this block
+                nldf_feat_block = nldf_feat[idm][:, ip0:ip1]
+                # Evaluate XC
+                result = ni.eval_xc_cider(
+                    xc_code,
+                    rho,
+                    nldf_feat_block,
+                    sdmx_feat,
+                    hyb_feat=hyb_feat,
+                    deriv=1,
+                    xctype=xctype,
+                )
+                exc = result[0]
+                vxc, vxc_nldf, vxc_sdmx, vxc_hyb = result[1][:4]
+                f_raw = result[4] if len(result) > 4 else None
+                
+                # Handle SDMX
+                if ni.has_sdmx and vxc_sdmx is not None:
+                    ni.sdmxgen.get_vxc_(vmat[idm], vxc_sdmx[0] * weight)
+                
+                # Handle NLDF potential
+                if vxc_nldf is not None:
+                    vxc_nldf_full[idm, :, ip0:ip1] = vxc_nldf * weight
+                    
+                # Store weighted vxc for later contraction
+                wv_full[idm, :, ip0:ip1] = weight * vxc
+                
+                # Accumulate energy and density
+                den = rho[0] * weight
+                nelec[idm] += den.sum()
+                excsum[idm] += np.dot(den, exc)
+                
+                # Handle hybrid ML outputs and K matrix
+                if ni.hyb_plan is not None and vxc_hyb is not None:
+                    # Store derivative
+                    dalpha_deps[idm, ip0:ip1] = vxc_hyb[0]
+                    
+                    # Store ML output
+                    if f_raw is not None:
+                        if isinstance(f_raw, np.ndarray):
+                            if f_raw.ndim == 2:
+                                alpha_ml[idm, ip0:ip1] = f_raw[0, :]
+                            elif f_raw.ndim == 1:
+                                alpha_ml[idm, ip0:ip1] = f_raw[:]
+                            else:
+                                raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+            ip0 = ip1
+        
+        # Apply NLDF potential
+        for idm in range(nset):
+            wv_full[idm, :, :] += ni.nldfgen.get_potential(vxc_nldf_full[idm])
+    
+    else:
+        # Non-NLDF evaluation using regular block loop
+        ao_deriv = 1
+        if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
+            raise NotImplementedError("laplacian in meta-GGA method")
+        
+        def non_nldf_block_loop():
+            for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv):
+                sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, ao)
                 rho = make_rho(i, ao, mask, xctype)
-                ni.timer.start("sdmx fwd")
+            
+                # Extract hybrid features for this block
+                hyb_feat = None
+                if ni.hyb_plan is not None:
+                    # Slice the exact exchange data for this block
+                    eps_block = eps_exx[i, ip0:ip1]  # Shape: (ngrids_block,)
+                    hyb_feat = eps_block[None, :]  # Shape: (1, ngrids_block) for single feature
+                
+                if hasattr(ni, 'timer'):
+                    ni.timer.start("sdmx fwd")
                 if ni.has_sdmx:
                     sdmx_feat = ni.sdmxgen.get_features(
                         dms[i],
@@ -142,34 +446,114 @@ def nr_rks(
                     )
                 else:
                     sdmx_feat = None
-                ni.timer.stop("sdmx fwd")
-                ni.timer.start("xc cider")
-                exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
-                    xc_code, rho, None, sdmx_feat, deriv=1, xctype=xctype
-                )[:2]
-                ni.timer.stop("xc cider")
+                if hasattr(ni, 'timer'):
+                    ni.timer.stop("sdmx fwd")
+                if hasattr(ni, 'timer'):
+                    ni.timer.start("xc cider")
+                xc_result = ni.eval_xc_cider(
+                    xc_code, rho, None, sdmx_feat, hyb_feat=hyb_feat, deriv=1, xctype=xctype
+                )
+                exc = xc_result[0]
+                vxc, vxc_nldf, vxc_sdmx, vxc_hyb = xc_result[1]
+                # Extract raw ML output (alpha) if available
+                f_raw = xc_result[4] if len(xc_result) > 4 else None
+                if hasattr(ni, 'timer'):
+                    ni.timer.stop("xc cider")
                 assert vxc_nldf is None
-                ni.timer.start("sdmx bwd")
+                
+                # Build K matrix contribution for local hybrid if needed
+                if ni.hyb_plan is not None and vxc_hyb is not None and a_tensor is not None:
+                    if hasattr(ni, 'timer'):
+                        ni.timer.start("hybrid K build")
+                    
+                    # Extract derivative from vxc_hyb (this is local contribution to d(E_xc)/d(eps_exx))
+                    dalpha_deps[i, ip0:ip1] = vxc_hyb[0]
+                    
+                    
+                    if f_raw is not None:
+                        # f_raw contains the raw ML output (alpha values) for this block only
+                        if isinstance(f_raw, np.ndarray):
+                            if f_raw.ndim == 2:
+                                alpha_ml[i, ip0:ip1] = f_raw[0, :]
+                            elif f_raw.ndim == 1:
+                                alpha_ml[i, ip0:ip1] = f_raw[:]
+                            else:
+                                raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+                        elif isinstance(f_raw, list) and len(f_raw) > 0:
+                            raw_output = f_raw[0]
+                            if hasattr(raw_output, 'shape'):
+                                alpha_ml[i, ip0:ip1] = raw_output.ravel()[:]
+                            else:
+                                raise ValueError(f"Unexpected raw output format: {type(raw_output)}")
+                        else:
+                            raise ValueError(f"Unexpected f_raw type: {type(f_raw)}")
+                    
+                    # Build K matrix contribution using HybridPlan
+                    K_block = ni.hyb_plan.build_k_matrix_block(
+                        ao, dms[i], a_tensor[ip0:ip1], 
+                        dalpha_deps[i, ip0:ip1], weight
+                    )
+                    K_contrib[i] += K_block
+                    
+                    if hasattr(ni, 'timer'):
+                        ni.timer.stop("hybrid K build")
+                
+                if hasattr(ni, 'timer'):
+                    ni.timer.start("sdmx bwd")
                 if ni.has_sdmx:
                     ni.sdmxgen.get_vxc_(vmat[i], vxc_sdmx[0] * weight)
-                ni.timer.stop("sdmx bwd")
+                if hasattr(ni, 'timer'):
+                    ni.timer.stop("sdmx bwd")
                 den = rho[0] * weight
                 nelec[i] += den.sum()
+                
+                
+                
                 excsum[i] += np.dot(den, exc)
                 wv = weight * vxc
                 yield i, ao, mask, wv
-        # if ni.has_sdmx:
-        #     ni.sdmxgen.reset_buffers()
-
+    
+    # Contract weighted vxc to vmat
     buffers = None
     pair_mask = mol.get_overlap_cond() < -np.log(ni.cutoff)
-    if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
-        raise NotImplementedError("laplacian in meta-GGA method")
-    ao_deriv = 1
     v1 = np.zeros_like(vmat)
-    for i, ao, mask, wv in block_loop(ao_deriv):
-        vmats, buffers = ni.contract_wv(
-            ao,
+    
+    if ni.has_nldf:
+        # Contract from wv_full for NLDF case
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+            wv = wv_full[i, :, ip0:ip1]
+            vmats, buffers = ni.contract_wv(
+                ao,
+                wv,
+                nbins,
+                mask,
+                pair_mask,
+                ao_loc,
+                vmats=(vmat[i], v1[i]),
+                buffers=buffers,
+            )
+            
+            # Build K matrix for hybrid if needed (NLDF case)
+            if ni.hyb_plan is not None and a_tensor is not None:
+                if dalpha_deps[i, ip0:ip1].any():
+                    if hasattr(ni, 'timer'):
+                        ni.timer.start("hybrid K build")
+                    
+                    # Build K matrix contribution using HybridPlan
+                    K_block = ni.hyb_plan.build_k_matrix_block(
+                        ao, dms[i], a_tensor[ip0:ip1], 
+                        dalpha_deps[i, ip0:ip1], weight
+                    )
+                    K_contrib[i] += K_block
+                    
+                    if hasattr(ni, 'timer'):
+                        ni.timer.stop("hybrid K build")
+    else:
+        # Contract directly for non-NLDF case  
+        # The non-NLDF block loop yields (i, ao, mask, wv) after computing everything
+        for i, ao, mask, wv in non_nldf_block_loop():
+            vmats, buffers = ni.contract_wv(
+                ao,
             wv,
             nbins,
             mask,
@@ -178,6 +562,12 @@ def nr_rks(
             vmats=(vmat[i], v1[i]),
             buffers=buffers,
         )
+    
+    # Add K contribution and symmetrize
+    if ni.hyb_plan is not None and K_contrib is not None:
+        # Finalize K matrix with proper symmetrization and factors
+        ni.hyb_plan.finalize_k_matrix(K_contrib, vmat, spin=None)
+    
     vmat = lib.hermi_sum(vmat, axes=(0, 2, 1))
     vmat += v1
 
@@ -196,14 +586,28 @@ def nr_rks(
         vmat = np.asarray(vmat, dtype=dtype)
     # if ni.has_sdmx:
     #    ni.sdmxgen.reset_buffers()
-    ni.timer.stop("nr_rks")
+    if hasattr(ni, 'timer'):
+        ni.timer.stop("nr_rks")
     return nelec, excsum, vmat
 
 
 def nr_uks(
     ni, mol, grids, xc_code, dms, relativity=0, hermi=1, max_memory=2000, verbose=None
 ):
-    ni.timer.start("nr_uks")
+    """
+    Unified nr_uks implementation that supports all features:
+    - Semi-local (SL)
+    - SDMX  
+    - Hybrid
+    - NLDF
+    - All combinations of the above
+    
+    Key differences from RKS:
+    - Handles spin-polarized density matrices
+    - Separate alpha and beta spin channels
+    """
+    if hasattr(ni, 'timer'):
+        ni.timer.start("nr_uks")
     if relativity != 0:
         raise NotImplementedError
 
@@ -223,7 +627,10 @@ def nr_uks(
     ao_loc = mol.ao_loc_nr()
     cutoff = grids.cutoff * 1e2
     nbins = NBINS * 2 - int(NBINS * np.log(cutoff) / np.log(grids.cutoff))
+    
+    # Format density matrices for SDMX
     if ni.has_sdmx:
+        # Create combined density matrices for SDMX (matching standard nr_uks)
         dm_for_sdmx = [np.stack([dma[i], dmb[i]]) for i in range(nset)]
     else:
         dm_for_sdmx = None
@@ -231,327 +638,255 @@ def nr_uks(
     nelec = np.zeros((2, nset))
     excsum = np.zeros(nset)
     vmat = np.zeros((2, nset, nao, nao))
+    
+    # Initialize for NLDF if needed
+    rho_full_a = None
+    rho_full_b = None
+    wv_full = None
+    vxc_nldf_full = None
+    if ni.has_nldf:
+        if not hasattr(grids, "grids_indexer"):
+            raise ValueError("Grids object must have indexer for NLDF evaluation")
+        
+        nrho = 5 if xctype == "MGGA" else 4
+        if not ni.settings.nlof_settings.is_empty:
+            nrho += ni.settings.nlof_settings.nrho
+        
+        # For UKS, we need spin-up and spin-down densities
+        rho_full_a = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        rho_full_b = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        wv_full = np.zeros((2, nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        
+        num_nldf = ni.settings.nldf_settings.nfeat
+        vxc_nldf_full = np.zeros(
+            (2, nset, num_nldf, grids.weights.size), dtype=np.float64, order="C"
+        )
+    
+    # Initialize for hybrid if needed
+    eps_exx_a, eps_exx_b, a_tensor_a, a_tensor_b = None, None, None, None
+    alpha_ml = None
+    dalpha_deps = None  
+    K_contrib = None
+    
+    if ni.hyb_plan is not None:
+        if hasattr(ni, 'timer'):
+            ni.timer.start("hybrid exx")
+        
+        # Compute exact exchange energy density for both spins
+        eps_exx_all_a = np.zeros((nset, grids.coords.shape[0]))
+        eps_exx_all_b = np.zeros((nset, grids.coords.shape[0]))
+        sgx_cache = {}
+        
+        # Get A tensor and exact exchange for first density matrix set
+        # For UKS, match training convention: each spin gets 2*P_spin
+        # This gives same features as RKS for closed-shell but different for open-shell
+        eps_exx_all_a[0], a_tensor_a = ni.hyb_plan.compute_a_tensor_and_exx(
+            mol, grids, 2 * dma[0], ni.settings.hyb_settings, 
+            sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
+        )
+        
+        # For beta spin 
+        eps_exx_all_b[0], a_tensor_b = ni.hyb_plan.compute_a_tensor_and_exx(
+            mol, grids, 2 * dmb[0], ni.settings.hyb_settings, 
+            sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
+        )
+        
+        # For additional density matrices
+        for i in range(1, nset):
+            # Each spin gets features from its own doubled density matrix
+            eps_exx_all_a[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
+                mol, grids, 2 * dma[i], ni.settings.hyb_settings, 
+                sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+            )
+            
+            # Beta
+            eps_exx_all_b[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
+                mol, grids, 2 * dmb[i], ni.settings.hyb_settings, 
+                sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+            )
+        
+        eps_exx_a = eps_exx_all_a
+        eps_exx_b = eps_exx_all_b
+        
+        # Initialize arrays for ML outputs
+        alpha_ml = np.zeros((2, nset, grids.coords.shape[0]))
+        dalpha_deps = np.zeros((2, nset, grids.coords.shape[0]))
+        K_contrib = np.zeros((2, nset, nao, nao))
+        
+        if hasattr(ni, 'timer'):
+            ni.timer.stop("hybrid exx")
 
-    def block_loop(ao_deriv):
-        if ni.has_sdmx:
-            extra_ao = ni.sdmxgen.get_extra_ao(mol)
-        else:
-            extra_ao = 0
+    def block_loop(ao_deriv, include_extra_ao=True):
+        ip0 = 0
+        extra_ao = 0
+        if include_extra_ao:
+            if ni.has_sdmx:
+                extra_ao += ni.sdmxgen.get_extra_ao(mol)
+            if ni.has_nldf:
+                extra_ao += ni.nldfgen.get_extra_ao()
         for ao, mask, weight, coords in ni.block_loop(
             mol, grids, nao, ao_deriv, max_memory=max_memory, extra_ao=extra_ao
         ):
-            sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, ao)
-            for i in range(nset):
-                rho_a = make_rhoa(i, ao, mask, xctype)
-                rho_b = make_rhob(i, ao, mask, xctype)
-                rho = (rho_a, rho_b)
-                ni.timer.start("sdmx fwd")
-                if ni.has_sdmx:
-                    sdmx_feat = ni.sdmxgen.get_features(
-                        dm_for_sdmx[i],
-                        mol,
-                        coords,
-                        ao=sdmx_ao,
-                        cao=sdmx_cao,
-                    )
-                else:
-                    sdmx_feat = None
-                ni.timer.stop("sdmx fwd")
-                ni.timer.start("xc cider")
-                exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
-                    xc_code, rho, None, sdmx_feat, deriv=1, xctype=xctype
-                )[:2]
-                ni.timer.stop("xc cider")
-                assert vxc_nldf is None
-                ni.timer.start("sdmx bwd")
-                if ni.has_sdmx:
-                    ni.sdmxgen.get_vxc_(vmat[:, i], vxc_sdmx * weight)
-                ni.timer.stop("sdmx bwd")
-                den_a = rho_a[0] * weight
-                den_b = rho_b[0] * weight
-                nelec[0, i] += den_a.sum()
-                nelec[1, i] += den_b.sum()
-                excsum[i] += np.dot(den_a, exc)
-                excsum[i] += np.dot(den_b, exc)
-                wv = weight * vxc
-                yield i, ao, mask, wv
-
-    buffers = None
-    pair_mask = mol.get_overlap_cond() < -np.log(ni.cutoff)
-    if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
-        raise NotImplementedError("laplacian in meta-GGA method")
-    ao_deriv = 1
-    v1 = np.zeros_like(vmat)
-    for i, ao, mask, wv in block_loop(ao_deriv):
-        buffers = ni.contract_wv(
-            ao,
-            wv[0],
-            nbins,
-            mask,
-            pair_mask,
-            ao_loc,
-            vmats=(vmat[0, i], v1[0, i]),
-            buffers=buffers,
-        )[1]
-        buffers = ni.contract_wv(
-            ao,
-            wv[1],
-            nbins,
-            mask,
-            pair_mask,
-            ao_loc,
-            vmats=(vmat[1, i], v1[1, i]),
-            buffers=buffers,
-        )[1]
-    vmat = lib.hermi_sum(vmat.reshape(-1, nao, nao), axes=(0, 2, 1)).reshape(
-        2, nset, nao, nao
-    )
-    vmat += v1
-
-    if ni.has_sdmx:
-        ni.sdmxgen._cached_ao_data = None
-
-    if isinstance(dma, np.ndarray) and is_2d:
-        vmat = vmat[:, 0]
-        nelec = nelec.reshape(2)
-        excsum = excsum[0]
-
-    dtype = np.result_type(dma, dmb)
-    if vmat.dtype != dtype:
-        vmat = np.asarray(vmat, dtype=dtype)
-    ni.timer.stop("nr_uks")
-    return nelec, excsum, vmat
-
-
-def nr_rks_nldf(
-    ni, mol, grids, xc_code, dms, relativity=0, hermi=1, max_memory=2000, verbose=None
-):
-    """
-
-    Args:
-        ni (NLDFNumInt):
-        mol (pyscf.gto.Mole):
-        grids (pyscf.dft.gen_grid.Grids):
-        xc_code (str):
-        dms (numpy.ndarray):
-        relativity:
-        hermi:
-        max_memory:
-        verbose:
-
-    Returns:
-
-    """
-    if not hasattr(grids, "grids_indexer"):
-        raise ValueError("Grids object must have indexer for NLDF evaluation")
-
-    if relativity != 0:
-        raise NotImplementedError
-
-    xctype = ni.settings.sl_settings.level
-    ni.initialize_feature_generators(mol, grids, 1)
-    assert ni.has_nldf
-
-    make_rho, nset, nao = ni._gen_rho_evaluator(mol, dms, hermi, False, grids)
-    ao_loc = mol.ao_loc_nr()
-    cutoff = grids.cutoff * 1e2
-    nbins = NBINS * 2 - int(NBINS * np.log(cutoff) / np.log(grids.cutoff))
-
-    if dms.ndim == 2:
-        dms = dms[None, :, :]
-
-    nelec = np.zeros(nset)
-    excsum = np.zeros(nset)
-    vmat = np.zeros((nset, nao, nao))
-    nrho = 5 if xctype == "MGGA" else 4
-    if not ni.settings.nlof_settings.is_empty:
-        nrho += ni.settings.nlof_settings.nrho
-    rho_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-    wv_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-
-    num_nldf = ni.settings.nldf_settings.nfeat
-    vxc_nldf_full = np.zeros(
-        (nset, num_nldf, grids.weights.size), dtype=np.float64, order="C"
-    )
-
-    def block_loop(ao_deriv):
-        ip0 = 0
-        for ao, mask, weight, coords in ni.block_loop(
-            mol, grids, nao, ao_deriv, max_memory=max_memory
-        ):
             ip1 = ip0 + weight.size
             for i in range(nset):
                 yield i, ip0, ip1, ao, mask, weight, coords
             ip0 = ip1
-
-    if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
-        raise NotImplementedError("laplacian in meta-GGA method")
-    ao_deriv = 1
-    for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv):
-        rho_full[i, :, ip0:ip1] = make_rho(i, ao, mask, xctype)
-
-    par_atom = False
-    extra_ao = ni.nldfgen.get_extra_ao()
-    if ni.has_sdmx:
-        extra_ao += ni.sdmxgen.get_extra_ao(mol)
-    if par_atom:
-        raise NotImplementedError
-    else:
+    
+    # First pass: compute rho for all blocks (needed for NLDF)
+    if ni.has_nldf:
+        if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
+            raise NotImplementedError("laplacian in meta-GGA method")
+        ao_deriv = 1
+        # For NLDF density computation, don't include extra_ao (matching backup implementation)
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+            rho_full_a[i, :, ip0:ip1] = make_rhoa(i, ao, mask, xctype)
+            rho_full_b[i, :, ip0:ip1] = make_rhob(i, ao, mask, xctype)
+        
+        # Compute NLDF features
         nldf_feat = []
         for idm in range(nset):
-            nldf_feat.append(ni.nldfgen.get_features(rho_full[idm]))
-        ip0 = 0
-        for mask, weight, coords in ni.extra_block_loop(
-            mol, grids, max_memory=max_memory, extra_ao=extra_ao
-        ):
-            ip1 = ip0 + weight.size
-            sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, None)
-            for idm in range(nset):
-                rho = rho_full[idm, :, ip0:ip1]
-                if ni.has_sdmx:
-                    sdmx_feat = ni.sdmxgen.get_features(
-                        dms[idm], mol, coords, ao=sdmx_ao, cao=sdmx_cao
-                    )
-                else:
-                    sdmx_feat = None
-                exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
-                    xc_code,
-                    rho,
-                    nldf_feat[idm][:, ip0:ip1],
-                    sdmx_feat,
-                    deriv=1,
-                    xctype=xctype,
-                )[:2]
-                if ni.has_sdmx:
-                    ni.sdmxgen.get_vxc_(vmat[idm], vxc_sdmx[0] * weight)
-                vxc_nldf_full[idm, :, ip0:ip1] = vxc_nldf * weight
-                den = rho[0] * weight
-                nelec[idm] += den.sum()
-                excsum[idm] += np.dot(den, exc)
-                wv_full[idm, :, ip0:ip1] = weight * vxc
-            ip0 = ip1
-        for idm in range(nset):
-            wv_full[idm, :, :] += ni.nldfgen.get_potential(vxc_nldf_full[idm])
-
-    buffers = None
-    pair_mask = mol.get_overlap_cond() < -np.log(ni.cutoff)
-    v1 = np.zeros_like(vmat)
-    for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv):
-        wv = wv_full[i, :, ip0:ip1]
-        vmats, buffers = ni.contract_wv(
-            ao,
-            wv,
-            nbins,
-            mask,
-            pair_mask,
-            ao_loc,
-            vmats=(vmat[i], v1[i]),
-            buffers=buffers,
-        )
-    vmat = lib.hermi_sum(vmat, axes=(0, 2, 1))
-    vmat += v1
-
-    if nset == 1:
-        nelec = nelec[0]
-        excsum = excsum[0]
-        vmat = vmat[0]
-    if isinstance(dms, np.ndarray):
-        dtype = dms.dtype
-    else:
-        dtype = np.result_type(*dms)
-    if vmat.dtype != dtype:
-        vmat = np.asarray(vmat, dtype=dtype)
-    return nelec, excsum, vmat
-
-
-def nr_uks_nldf(
-    ni, mol, grids, xc_code, dms, relativity=0, hermi=1, max_memory=2000, verbose=None
-):
-    ni.timer.start("nr_uks")
-    if relativity != 0:
-        raise NotImplementedError
-
-    xctype = ni.settings.sl_settings.level
-    ni.initialize_feature_generators(mol, grids, 2)
-
-    dma, dmb = numint._format_uks_dm(dms)
-    if dma.ndim == 2:
-        dma = dma[None, :, :]
-        dmb = dmb[None, :, :]
-        is_2d = True
-    else:
-        is_2d = False
-    nao = dma.shape[-1]
-    make_rhoa, nset = ni._gen_rho_evaluator(mol, dma, hermi, False, grids)[:2]
-    make_rhob = ni._gen_rho_evaluator(mol, dmb, hermi, False, grids)[0]
-    ao_loc = mol.ao_loc_nr()
-    cutoff = grids.cutoff * 1e2
-    nbins = NBINS * 2 - int(NBINS * np.log(cutoff) / np.log(grids.cutoff))
-    if ni.has_sdmx:
-        dm_for_sdmx = [np.stack([dma[i], dmb[i]]) for i in range(nset)]
-    else:
-        dm_for_sdmx = None
-
-    nelec = np.zeros((2, nset))
-    excsum = np.zeros(nset)
-    vmat = np.zeros((2, nset, nao, nao))
-    nrho = 5 if xctype == "MGGA" else 4
-    if not ni.settings.nlof_settings.is_empty:
-        nrho += ni.settings.nlof_settings.nrho
-    rhoa_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-    rhob_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-    wva_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-    wvb_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-
-    num_nldf = ni.settings.nldf_settings.nfeat
-    vxc_nldf_full = np.zeros(
-        (nset, 2, num_nldf, grids.weights.size), dtype=np.float64, order="C"
-    )
-
-    def block_loop(ao_deriv):
-        ip0 = 0
-        for ao, mask, weight, coords in ni.block_loop(
-            mol, grids, nao, ao_deriv, max_memory=max_memory
-        ):
-            ip1 = ip0 + weight.size
-            for i in range(nset):
-                yield i, ip0, ip1, ao, mask, weight, coords
-            ip0 = ip1
-
-    if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
-        raise NotImplementedError("laplacian in meta-GGA method")
-    ao_deriv = 1
-    for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv):
-        rhoa_full[i, :, ip0:ip1] = make_rhoa(i, ao, mask, xctype)
-        rhob_full[i, :, ip0:ip1] = make_rhob(i, ao, mask, xctype)
-
-    par_atom = False
-    extra_ao = ni.nldfgen.get_extra_ao()
-    if ni.has_sdmx:
-        extra_ao += ni.sdmxgen.get_extra_ao(mol)
-    if par_atom:
-        raise NotImplementedError
-    else:
-        nldf_feat = []
-        for idm in range(nset):
+            # For UKS, compute features separately for each spin
             nldf_feat.append(
                 np.stack(
                     [
-                        ni.nldfgen.get_features(rhoa_full[idm], spin=0),
-                        ni.nldfgen.get_features(rhob_full[idm], spin=1),
+                        ni.nldfgen.get_features(rho_full_a[idm], spin=0),
+                        ni.nldfgen.get_features(rho_full_b[idm], spin=1),
                     ]
                 )
             )
+    else:
+        nldf_feat = None
+    
+    # Second pass: compute XC and accumulate
+    # For NLDF case, use extra_block_loop; for non-NLDF, use regular block_loop
+    if ni.has_nldf:
+        # NLDF evaluation using extra_block_loop
         ip0 = 0
+        extra_ao = 0
+        if ni.has_sdmx:
+            extra_ao += ni.sdmxgen.get_extra_ao(mol)
+        if ni.has_nldf:
+            extra_ao += ni.nldfgen.get_extra_ao()
+            
         for mask, weight, coords in ni.extra_block_loop(
             mol, grids, max_memory=max_memory, extra_ao=extra_ao
         ):
             ip1 = ip0 + weight.size
             sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, None)
+            
             for idm in range(nset):
-                rho_a = rhoa_full[idm, :, ip0:ip1]
-                rho_b = rhob_full[idm, :, ip0:ip1]
-                rho = (rho_a, rho_b)
+                # Get density for this block
+                rho_a = rho_full_a[idm, :, ip0:ip1]
+                rho_b = rho_full_b[idm, :, ip0:ip1]
+                rho = np.array([rho_a, rho_b])
+                
+                # Get SDMX features if needed
+                if ni.has_sdmx:
+                    sdmx_feat = ni.sdmxgen.get_features(
+                        dm_for_sdmx[idm], mol, coords, ao=sdmx_ao, cao=sdmx_cao
+                    )
+                else:
+                    sdmx_feat = None
+                    
+                # Get hybrid features if needed
+                if ni.hyb_plan is not None:
+                    # For UKS, we have separate exchange densities for each spin
+                    hyb_feat_a = eps_exx_a[idm][ip0:ip1]
+                    hyb_feat_b = eps_exx_b[idm][ip0:ip1]
+                    # Stack them: shape (2, 1, ngrids) - each spin has 1 feature
+                    hyb_feat = np.stack([hyb_feat_a[None, :], hyb_feat_b[None, :]])
+                else:
+                    hyb_feat = None
+                    
+                # Get NLDF features for this block
+                nldf_feat_block = nldf_feat[idm][..., ip0:ip1]
+                
+                # Evaluate XC
+                result = ni.eval_xc_cider(
+                    xc_code,
+                    rho,
+                    nldf_feat_block,
+                    sdmx_feat,
+                    hyb_feat=hyb_feat,
+                    deriv=1,
+                    xctype=xctype,
+                )
+                exc = result[0]
+                vxc, vxc_nldf, vxc_sdmx, vxc_hyb = result[1][:4]
+                f_raw = result[4] if len(result) > 4 else None
+                
+                # Handle SDMX
+                if ni.has_sdmx and vxc_sdmx is not None:
+                    ni.sdmxgen.get_vxc_(vmat[:, idm], vxc_sdmx * weight)
+                
+                # Handle NLDF potential
+                if vxc_nldf is not None:
+                    vxc_nldf_full[:, idm, :, ip0:ip1] = vxc_nldf * weight
+                    
+                # Store weighted vxc for later contraction
+                wv_full[0, idm, :, ip0:ip1] = weight * vxc[0]
+                wv_full[1, idm, :, ip0:ip1] = weight * vxc[1]
+                
+                # Accumulate energy and density
+                den_a = rho[0, 0] * weight
+                den_b = rho[1, 0] * weight
+                nelec[0, idm] += den_a.sum()
+                nelec[1, idm] += den_b.sum()
+                excsum[idm] += np.dot(den_a + den_b, exc)
+                
+                # Handle hybrid ML outputs and K matrix
+                if ni.hyb_plan is not None and vxc_hyb is not None:
+                    # Store derivative for each spin
+                    if vxc_hyb.ndim == 3 and vxc_hyb.shape[1] == 1:
+                        dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0, 0, :]
+                        dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1, 0, :]
+                    else:
+                        dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
+                        dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+                    
+                    # Store ML output
+                    if f_raw is not None:
+                        if f_raw.ndim == 1:
+                            # If ML model returns single output, use for both spins
+                            alpha_ml[0, idm, ip0:ip1] = f_raw
+                            alpha_ml[1, idm, ip0:ip1] = f_raw
+                        elif f_raw.ndim == 2 and f_raw.shape[0] == 2:
+                            # f_raw has shape (2, ngrids) for UKS
+                            alpha_ml[0, idm, ip0:ip1] = f_raw[0]
+                            alpha_ml[1, idm, ip0:ip1] = f_raw[1]
+                        else:
+                            raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+            ip0 = ip1
+        
+        # Apply NLDF potential
+        for idm in range(nset):
+            wv_full[0, idm, :, :] += ni.nldfgen.get_potential(vxc_nldf_full[0, idm])
+            wv_full[1, idm, :, :] += ni.nldfgen.get_potential(vxc_nldf_full[1, idm])
+    
+    else:
+        # Non-NLDF evaluation using regular block loop
+        ao_deriv = 1
+        if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
+            raise NotImplementedError("laplacian in meta-GGA method")
+        
+        def non_nldf_block_loop():
+            for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv):
+                sdmx_ao, sdmx_cao = _get_sdmx_orbs(ni, mol, coords, ao)
+                rho_a = make_rhoa(i, ao, mask, xctype)
+                rho_b = make_rhob(i, ao, mask, xctype)
+                rho = np.array([rho_a, rho_b])
+                
+                # Extract hybrid features for this block
+                hyb_feat = None
+                if ni.hyb_plan is not None:
+                    # For UKS, we have separate exchange densities for each spin
+                    hyb_feat_a = eps_exx_a[i][ip0:ip1]
+                    hyb_feat_b = eps_exx_b[i][ip0:ip1]
+                    # Stack them: shape (2, 1, ngrids) - each spin has 1 feature
+                    hyb_feat = np.stack([hyb_feat_a[None, :], hyb_feat_b[None, :]])
+                
+                if hasattr(ni, 'timer'):
+                    ni.timer.start("sdmx fwd")
                 if ni.has_sdmx:
                     sdmx_feat = ni.sdmxgen.get_features(
                         dm_for_sdmx[i],
@@ -562,64 +897,172 @@ def nr_uks_nldf(
                     )
                 else:
                     sdmx_feat = None
-                exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
-                    xc_code,
-                    rho,
-                    nldf_feat[idm][..., ip0:ip1],
-                    sdmx_feat,
-                    deriv=1,
-                    xctype=xctype,
-                )[:2]
+                if hasattr(ni, 'timer'):
+                    ni.timer.stop("sdmx fwd")
+                if hasattr(ni, 'timer'):
+                    ni.timer.start("xc cider")
+                xc_result = ni.eval_xc_cider(
+                    xc_code, rho, None, sdmx_feat, hyb_feat=hyb_feat, deriv=1, xctype=xctype
+                )
+                exc = xc_result[0]
+                vxc, vxc_nldf, vxc_sdmx, vxc_hyb = xc_result[1][:4]
+                # Extract raw ML output (alpha) if available
+                f_raw = xc_result[4] if len(xc_result) > 4 else None
+                if hasattr(ni, 'timer'):
+                    ni.timer.stop("xc cider")
+                assert vxc_nldf is None
+                
+                # Build K matrix contribution for local hybrid if needed
+                if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and vxc_hyb is not None and a_tensor_a is not None:
+                    if hasattr(ni, 'timer'):
+                        ni.timer.start("hybrid K build")
+                    
+                    # Extract derivative from vxc_hyb
+                    if vxc_hyb.ndim == 3 and vxc_hyb.shape[1] == 1:
+                        dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0, 0, :]
+                        dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1, 0, :]
+                    else:
+                        dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
+                        dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+                    
+                    # Extract alpha from ML model
+                    if f_raw is not None:
+                        if isinstance(f_raw, np.ndarray):
+                            if f_raw.ndim == 1:
+                                # Single output for both spins
+                                alpha_ml[0, i, ip0:ip1] = f_raw
+                                alpha_ml[1, i, ip0:ip1] = f_raw
+                            elif f_raw.ndim == 2 and f_raw.shape[0] == 2:
+                                # Separate outputs for each spin
+                                alpha_ml[0, i, ip0:ip1] = f_raw[0]
+                                alpha_ml[1, i, ip0:ip1] = f_raw[1]
+                            else:
+                                raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+                    
+                    # Build K matrix contributions using HybridPlan
+                    # Alpha spin
+                    K_block_a = ni.hyb_plan.build_k_matrix_block(
+                        ao, 2*dma[i], a_tensor_a[ip0:ip1], 
+                        dalpha_deps[0, i, ip0:ip1], weight
+                    )
+                    K_contrib[0, i] += K_block_a
+                    
+                    # Beta spin
+                    K_block_b = ni.hyb_plan.build_k_matrix_block(
+                        ao, 2*dmb[i], a_tensor_b[ip0:ip1], 
+                        dalpha_deps[1, i, ip0:ip1], weight
+                    )
+                    K_contrib[1, i] += K_block_b
+                    
+                    if hasattr(ni, 'timer'):
+                        ni.timer.stop("hybrid K build")
+                
+                if hasattr(ni, 'timer'):
+                    ni.timer.start("sdmx bwd")
                 if ni.has_sdmx:
                     ni.sdmxgen.get_vxc_(vmat[:, i], vxc_sdmx * weight)
-                vxc_nldf_full[idm, ..., ip0:ip1] = vxc_nldf * weight
-                den_a = rho_a[0] * weight
-                den_b = rho_b[0] * weight
+                if hasattr(ni, 'timer'):
+                    ni.timer.stop("sdmx bwd")
+                den_a = rho[0, 0] * weight
+                den_b = rho[1, 0] * weight
                 nelec[0, i] += den_a.sum()
                 nelec[1, i] += den_b.sum()
-                excsum[i] += np.dot(den_a, exc)
-                excsum[i] += np.dot(den_b, exc)
-                wva_full[idm, :, ip0:ip1] = weight * vxc[0]
-                wvb_full[idm, :, ip0:ip1] = weight * vxc[1]
-            ip0 = ip1
-        for idm in range(nset):
-            wva_full[idm, :, :] += ni.nldfgen.get_potential(
-                vxc_nldf_full[idm, 0], spin=0
-            )
-            wvb_full[idm, :, :] += ni.nldfgen.get_potential(
-                vxc_nldf_full[idm, 1], spin=1
-            )
-
+                excsum[i] += np.dot(den_a + den_b, exc)
+                wv = weight * vxc
+                yield i, ao, mask, wv
+    
+    # Contract weighted vxc to vmat
     buffers = None
     pair_mask = mol.get_overlap_cond() < -np.log(ni.cutoff)
-    if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
-        raise NotImplementedError("laplacian in meta-GGA method")
-    ao_deriv = 1
     v1 = np.zeros_like(vmat)
-    for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv):
-        wva = wva_full[i, :, ip0:ip1]
-        wvb = wvb_full[i, :, ip0:ip1]
-        buffers = ni.contract_wv(
-            ao,
-            wva,
-            nbins,
-            mask,
-            pair_mask,
-            ao_loc,
-            vmats=(vmat[0, i], v1[0, i]),
-            buffers=buffers,
-        )[1]
-        buffers = ni.contract_wv(
-            ao,
-            wvb,
-            nbins,
-            mask,
-            pair_mask,
-            ao_loc,
-            vmats=(vmat[1, i], v1[1, i]),
-            buffers=buffers,
-        )[1]
-
+    
+    if ni.has_nldf:
+        # Contract from wv_full for NLDF case
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+            wv_a = wv_full[0, i, :, ip0:ip1]
+            wv_b = wv_full[1, i, :, ip0:ip1]
+            
+            # Contract alpha
+            vmats_a, buffers = ni.contract_wv(
+                ao,
+                wv_a,
+                nbins,
+                mask,
+                pair_mask,
+                ao_loc,
+                vmats=(vmat[0, i], v1[0, i]),
+                buffers=buffers,
+            )
+            # Contract beta
+            vmats_b, buffers = ni.contract_wv(
+                ao,
+                wv_b,
+                nbins,
+                mask,
+                pair_mask,
+                ao_loc,
+                vmats=(vmat[1, i], v1[1, i]),
+                buffers=buffers,
+            )
+            
+            # Build K matrix for hybrid if needed (NLDF case)
+            if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and a_tensor_a is not None:
+                # Check if we have non-zero derivatives for this block
+                if dalpha_deps[0, i, ip0:ip1].any() or dalpha_deps[1, i, ip0:ip1].any():
+                    if hasattr(ni, 'timer'):
+                        ni.timer.start("hybrid K build")
+                    
+                    # Build K matrix contributions using HybridPlan
+                    # Alpha spin
+                    if dalpha_deps[0, i, ip0:ip1].any():
+                        K_block_a = ni.hyb_plan.build_k_matrix_block(
+                            ao, 2*dma[i], a_tensor_a[ip0:ip1], 
+                            dalpha_deps[0, i, ip0:ip1], weight
+                        )
+                        K_contrib[0, i] += K_block_a
+                    
+                    # Beta spin
+                    if dalpha_deps[1, i, ip0:ip1].any():
+                        K_block_b = ni.hyb_plan.build_k_matrix_block(
+                            ao, 2*dmb[i], a_tensor_b[ip0:ip1], 
+                            dalpha_deps[1, i, ip0:ip1], weight
+                        )
+                        K_contrib[1, i] += K_block_b
+                    
+                    if hasattr(ni, 'timer'):
+                        ni.timer.stop("hybrid K build")
+    else:
+        # Contract directly for non-NLDF case  
+        # The non-NLDF block loop yields (i, ao, mask, wv) after computing everything
+        for i, ao, mask, wv in non_nldf_block_loop():
+            # Contract alpha
+            vmats_a, buffers = ni.contract_wv(
+                ao,
+                wv[0],
+                nbins,
+                mask,
+                pair_mask,
+                ao_loc,
+                vmats=(vmat[0, i], v1[0, i]),
+                buffers=buffers,
+            )
+            # Contract beta
+            vmats_b, buffers = ni.contract_wv(
+                ao,
+                wv[1],
+                nbins,
+                mask,
+                pair_mask,
+                ao_loc,
+                vmats=(vmat[1, i], v1[1, i]),
+                buffers=buffers,
+            )
+    
+    # Add K contribution and symmetrize
+    if ni.hyb_plan is not None and K_contrib is not None:
+        # Finalize K matrix with proper symmetrization and factors for UKS
+        ni.hyb_plan.finalize_k_matrix(K_contrib, vmat, spin='uks')
+    
     vmat = lib.hermi_sum(vmat.reshape(-1, nao, nao), axes=(0, 2, 1)).reshape(
         2, nset, nao, nao
     )
@@ -636,7 +1079,8 @@ def nr_uks_nldf(
     dtype = np.result_type(dma, dmb)
     if vmat.dtype != dtype:
         vmat = np.asarray(vmat, dtype=dtype)
-    ni.timer.stop("nr_uks")
+    if hasattr(ni, 'timer'):
+        ni.timer.stop("nr_uks")
     return nelec, excsum, vmat
 
 
@@ -686,6 +1130,13 @@ class CiderNumIntMixin:
     def initialize_feature_generators(self, mol, grids, nspin):
         self.sl_plan = SemilocalPlan(self.settings.sl_settings, nspin)
         self.fl_plan = FracLaplPlan(self.settings.nlof_settings, nspin)
+        
+        # Initialize HybridPlan if needed
+        if self.settings.has_hyb:
+            self.hyb_plan = HybridPlan(self.settings.hyb_settings, nspin)
+        else:
+            self.hyb_plan = None
+            
         cond = self.sdmxgen is None
         cond = cond or self.mol != mol
         cond = cond or self.sdmxgen.plan.nspin != nspin
@@ -700,6 +1151,7 @@ class CiderNumIntMixin:
         rho,
         nldf_feat,
         sdmx_feat,
+        hyb_feat=None,
         deriv=1,
         omega=None,
         xctype=None,
@@ -754,6 +1206,7 @@ class CiderNumIntMixin:
         has_nldf = not self.settings.nldf_settings.is_empty
         has_nlof = not self.settings.nlof_settings.is_empty
         has_sdmx = not self.settings.sdmx_settings.is_empty
+        has_hyb = not self.settings.hyb_settings.is_empty
         if has_sl:
             nfeat_tmp = self.settings.sl_settings.nfeat
             X0T[:, start : start + nfeat_tmp] = self.sl_plan.get_feat(rho[:, :5])
@@ -778,13 +1231,41 @@ class CiderNumIntMixin:
             nfeat_tmp = self.settings.sdmx_settings.nfeat
             X0T[:, start : start + nfeat_tmp] = sdmx_feat
             start += nfeat_tmp
+        if has_hyb:
+            if hyb_feat is not None:
+                if hyb_feat.ndim == 2:
+                    hyb_feat = hyb_feat[None, :]
+                assert hyb_feat.shape[0] == nspin, f"hyb_feat.shape[0]={hyb_feat.shape[0]} != nspin={nspin}"
+                assert hyb_feat.ndim == 3
+                nfeat_tmp = self.settings.hyb_settings.nfeat
+                X0T[:, start : start + nfeat_tmp] = hyb_feat
+                start += nfeat_tmp
         if start != nfeat:
             raise RuntimeError("nfeat mismatch, this should not happen!")
 
         X0TN = self.settings.normalizers.get_normalized_feature_vector(X0T)
         xmix = self.xmix
+        f_raw = None
         if isinstance(self.mlxc, MappedXC):
-            exc_ml, dexcdX0TN_ml = self.mlxc(X0TN, rhocut=self.rhocut)
+            # For hybrid functionals, we need to get the raw ML output
+            if has_hyb and hyb_feat is not None:
+                exc_ml, dexcdX0TN_ml, f_raw_total, df_raw_total = self.mlxc(
+                    X0TN, rhocut=self.rhocut, return_raw_ml_output=True
+                )
+                # Extract the raw output for this block
+                if hasattr(f_raw_total, 'shape'):
+                    if f_raw_total.ndim == 2 and f_raw_total.shape[0] == 1:
+                        f_raw = f_raw_total[0, :]
+                    elif f_raw_total.ndim == 1:
+                        f_raw = f_raw_total
+                    elif f_raw_total.ndim == 2 and f_raw_total.shape[0] == nspin:
+                        # For UKS, keep the spin dimension
+                        f_raw = f_raw_total
+                    else:
+                        # For other cases, flatten (maintains RKS compatibility)
+                        f_raw = f_raw_total.ravel()
+            else:
+                exc_ml, dexcdX0TN_ml = self.mlxc(X0TN, rhocut=self.rhocut)
         elif isinstance(self.mlxc, MappedXC2):
             rho_tuple = get_rho_tuple_with_grad_cross(rho, is_mgga=True)
             exc_ml, dexcdX0TN_ml, vrho_tuple = self.mlxc(
@@ -823,13 +1304,24 @@ class CiderNumIntMixin:
             start += nfeat_tmp
         else:
             vxc_sdmx = None
+        if has_hyb:
+            if hyb_feat is not None:
+                nfeat_tmp = self.settings.hyb_settings.nfeat
+                vxc_hyb = vxc_ml[:, start : start + nfeat_tmp]
+                start += nfeat_tmp
+            else:
+                vxc_hyb = None
+        else:
+            vxc_hyb = None
         if start != nfeat:
             raise RuntimeError("nfeat mismatch, this should not happen!")
 
         if closed:
             vxc = vxc[0]
+            if vxc_hyb is not None:
+                vxc_hyb = vxc_hyb[0]
 
-        return exc, (vxc, vxc_nldf, vxc_sdmx), None, None
+        return exc, (vxc, vxc_nldf, vxc_sdmx, vxc_hyb), None, None, f_raw
 
 
 class CiderNumInt(CiderNumIntMixin, numint.NumInt):
@@ -855,6 +1347,7 @@ class CiderNumInt(CiderNumIntMixin, numint.NumInt):
         self.sdmx_init = sdmx_init
         self.sdmxgen = None
         self.nldfgen = None
+        self.hyb_plan = None
         self._nlc_coeff = nlc_coeff
         super(CiderNumInt, self).__init__()
 
@@ -1083,8 +1576,8 @@ class _FLNumIntMixin:
 
 class _NLDFMixin:
 
-    nr_rks = nr_rks_nldf
-    nr_uks = nr_uks_nldf
+    nr_rks = nr_rks
+    nr_uks = nr_uks
 
     def extra_block_loop(
         self,
@@ -1164,4 +1657,29 @@ class NLDFNLOFNumInt(_NLDFMixin, _FLNumIntMixin, CiderNumInt):
                 mol, grids.grids_indexer, nspin
             )
         super().initialize_feature_generators(mol, grids, nspin)
+        self.grids = grids
+
+
+class HybridNLDFNumInt(_NLDFMixin, CiderNumInt):
+    """NumInt class that supports both NLDF and Hybrid features"""
+    
+    grids = None
+    nr_rks = nr_rks
+    nr_uks = nr_uks
+    
+    def initialize_feature_generators(self, mol, grids, nspin):
+        """Initialize both NLDF and standard feature generators"""
+        # Initialize NLDF generator
+        cond = self.nldfgen is None
+        cond = cond or self.grids != grids
+        cond = cond or self.mol != mol
+        cond = cond or self.nldfgen.plan.nspin != nspin
+        if cond:
+            self.nldfgen = self.nldf_init.initialize_nldf_generator(
+                mol, grids.grids_indexer, nspin
+            )
+            self.nldfgen.interpolator.set_coords(grids.coords)
+        
+        # Initialize standard generators (including any hybrid setup)
+        CiderNumInt.initialize_feature_generators(self, mol, grids, nspin)
         self.grids = grids
