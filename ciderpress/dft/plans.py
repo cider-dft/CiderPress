@@ -1283,100 +1283,10 @@ class HybridPlan:
     def level(self):
         return "HYB"
 
-    def get_feat(self, eps_exx):
-        """Return the raw feature tensor for hybrid kernel.
-
-        Parameters
-        ----------
-        eps_exx : np.ndarray
-            Shape (nspin, ngrids).  Exact-exchange energy density.
-        """
-        if eps_exx.ndim == 1:
-            eps_exx = eps_exx[None, :]
-        nspin, ngr = eps_exx.shape
-        assert nspin == self.nspin
-        feat = np.empty((nspin, self.settings.nfeat, ngr), dtype=eps_exx.dtype)
-        feat[:, 0, :] = eps_exx
-        return feat
-
     def get_occd(self, *args, **kwargs):
         # Orbital-occupation derivatives are not required in v1. TODO: implement derivatives
         raise NotImplementedError("Orbital derivatives for HybridPlan postponed")
 
-    # Potentials ---------------------------------------------------------
-    def get_vxc(self, eps_exx, eps_sl, vxc_hyb, vxc=None, baseline_type='HYB_PBE_DIFF'):
-        """Compute local hybrid contributions to the XC potential.
-        
-        This computes the local contributions K^ρ, K^γ, K^τ from theory_2.tex eq. 14:
-        K_μν^ρ = ∫ ε_x^ex(r) (∂α/∂ρ) χ_μ χ_ν dr
-        K_μν^γ = ∫ ε_x^ex(r) (∂α/∂γ) ∇ρ·∇(χ_μ χ_ν) dr  
-        K_μν^τ = ∫ ε_x^ex(r) (∂α/∂τ) ∇χ_μ·∇χ_ν dr
-        
-        The weight function depends on baseline:
-        - For HYB_EXX: weight = ε_x^ex
-        - For HYB_PBE_DIFF: weight = (ε_x^ex - ε_x^sl)
-
-        Parameters
-        ----------
-        eps_exx : array (nspin, ngrids)
-            Exact-exchange energy density
-        eps_sl : array (nspin, ngrids)
-            Semilocal exchange energy density
-        vxc_hyb : array (nspin, nfeat, ngrids)
-            Derivatives from ML model w.r.t. hybrid feature (∂α/∂ε_x^ex)
-        vxc : array (nspin, 5, ngrids), optional
-            XC potential array to add contributions to
-        baseline_type : str, optional
-            Type of baseline: 'HYB_EXX' or 'HYB_PBE_DIFF'
-            
-        Returns
-        -------
-        vxc : array (nspin, 5, ngrids)
-            Updated XC potential with local hybrid contributions
-        """
-        if eps_exx.ndim == 1:
-            eps_exx = eps_exx[None, :]
-        if eps_sl.ndim == 1:
-            eps_sl = eps_sl[None, :]
-        if vxc_hyb.ndim == 2:
-            vxc_hyb = vxc_hyb[:, None, :]
-            
-        nspin = eps_exx.shape[0]
-        ngrids = eps_exx.shape[1]
-        
-        if vxc is None:
-            vxc = np.zeros((nspin, 5, ngrids))
-            
-        # Determine weight function based on baseline
-        if baseline_type == 'HYB_EXX' or (hasattr(baseline_type, '__name__') and 'exx_energy_baseline' in baseline_type.__name__):
-            # For HYB_EXX: weight = ε_x^ex
-            weight = eps_exx
-        else:
-            # For HYB_PBE_DIFF: weight = (ε_x^ex - ε_x^sl)
-            weight = eps_exx - eps_sl
-            
-        # The derivative ∂α/∂ε_x^ex is in vxc_hyb[:, 0, :]
-        # This is already multiplied by the ML chain rule
-        # We need to multiply by the weight to get the local contributions
-        
-        # Note: The local contributions are already handled through the 
-        # standard vxc machinery in eval_xc_cider. The vxc_hyb derivatives
-        # are w.r.t. the normalized features and have already been 
-        # transformed back to physical derivatives.
-        #
-        # What we need here is to ensure these derivatives are properly
-        # weighted by the baseline-dependent function when constructing
-        # the local K contributions.
-        
-        # Actually, upon further inspection of the code and theory,
-        # the local contributions should already be included in the main
-        # vxc through the standard derivative machinery. The issue might
-        # be elsewhere.
-        
-        # For now, this method is a placeholder that doesn't modify vxc
-        # The real fix needs to be in how vxc_hyb is processed in eval_xc_cider
-        
-        return vxc
     
     def compute_a_tensor_and_exx(self, mol, grids, dm, settings, 
                                   sgx_cache=None, return_a_tensor=True, is_uks=False):
@@ -1505,7 +1415,6 @@ class HybridPlan:
             for i in range(nset):
                 K_contrib[i] = 0.5 * (K_contrib[i] + K_contrib[i].T)
             
-            # Add to vmat with factor 0.5 (RKS convention)
             for i in range(nset):
                 vmat[i] += 0.5 * K_contrib[i]
         
