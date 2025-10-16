@@ -108,6 +108,8 @@ PSETUP_LIST4 = (
     [0, 2, 4, 6, 8, 1, 3, 5, 7, 2, 4, 6, 8, 3, 5, 7, 4, 6, 8],
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4],
 )
+PSETUP_LIST3 = PSETUP_LIST2
+PSETUP_LIST4 = PSETUP_LIST2
 
 
 def get_psetup_func_counts(Z, big=False):
@@ -477,10 +479,11 @@ class _PAWCiderContribs:
 
     def vec_radial_vars(self, n_sLg, Y_nL, dndr_sLg, rnablaY_nLv, ae):
         nspin = len(n_sLg)
-        ngrid = n_sLg.shape[-1] * weight_n.size
+        nrad = n_sLg.shape[-1]
+        nsph = weight_n.size
         nx = 5 if self.is_mgga else 4
-        rho_sxg = np.empty((nspin, nx, ngrid))
-        rho_sxg[:, 0] = np.dot(Y_nL, n_sLg).transpose(1, 2, 0).reshape(nspin, -1)
+        rho_sxg = np.empty((nspin, nx, nrad, nsph))
+        rho_sxg[:, 0] = np.dot(Y_nL, n_sLg).transpose(1, 2, 0)  # .reshape(nspin, -1)
         b_vsgn = np.dot(rnablaY_nLv.transpose(0, 2, 1), n_sLg).transpose(1, 2, 3, 0)
         b_vsgn[..., 1:, :] /= self.xcc.rgd.r_g[1:, None]
         b_vsgn[..., 0, :] = b_vsgn[..., 1, :]
@@ -489,7 +492,9 @@ class _PAWCiderContribs:
         N = Y_nL.shape[0]
         e_g = self.xcc.rgd.empty(N).reshape(-1)
         e_g[:] = 0
-        rho_sxg[:, 1:4] = b_vsgn.transpose(1, 0, 2, 3).reshape(nspin, 3, -1)
+        rho_sxg[:, 1:4] = b_vsgn.transpose(1, 0, 2, 3)  # .reshape(nspin, 3, -1)
+        rho_sxg[:, :, 0, :] = rho_sxg[:, :, 1, :]
+        rho_sxg.shape = (nspin, nx, nrad * nsph)
         if self.is_mgga:
             rho_sxg[:, 4] = self.get_kinetic_energy(ae)
         vrho_sxg = np.zeros_like(rho_sxg)
@@ -1125,7 +1130,22 @@ class CiderRadialExpansion:
         n_sLg[:, 0] += nc0_sg
         dndr_sLg = np.dot(D_sLq, dndr_qg)
         dndr_sLg[:, 0] += dnc0dr_sg
+        xcc = self.rcalc.xc.xcc
         nspins, Lmax, nq = D_sLq.shape
+        if ae:
+            tauc = xcc.tauc_g / (np.sqrt(4 * np.pi) * nspins)
+        else:
+            tauc = xcc.tauct_g / (np.sqrt(4 * np.pi) * nspins)
+        print(
+            "MINPAW",
+            ae,
+            rgd.integrate(tauc),
+            rgd.integrate(nc0_sg[0]) / np.sqrt(4 * np.pi),
+            tauc.shape,
+            np.min(tauc),
+            np.min(dnc0dr_sg**2 / (8 * nc0_sg + 1e-10)),
+            np.min(tauc - dnc0dr_sg**2 / (8 * nc0_sg + 1e-10) / np.sqrt(4 * np.pi)),
+        )
         if self.rcalc.mode == "feature":
             # We call it wx_srLq because it is multiplied
             # by the grid weights already

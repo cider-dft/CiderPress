@@ -135,6 +135,8 @@ PSETUP_LIST4 = (
     [0, 2, 4, 6, 8, 1, 3, 5, 7, 2, 4, 6, 8, 3, 5, 7, 4, 6, 8],
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4],
 )
+PSETUP_LIST3 = PSETUP_LIST2
+PSETUP_LIST4 = PSETUP_LIST2
 
 
 def get_psetup_func_counts(Z, big=False):
@@ -1773,8 +1775,8 @@ class CiderCoreTermProjector:
         self._kernel_kba = facs * np.exp(-expnts * k2_g[:, None, None])
         # self._kernel_bak[na:] = 0.0
         p21 = self._get_p21_matrix()
-        p22 = self._get_p22_matrix(reg=1e-6)
-        self._zmat_l = self._combine_matrices(p21, p22, reg=1e-6)
+        p22 = self._get_p22_matrix(reg=1e-4)
+        self._zmat_l = self._combine_matrices(p21, p22, reg=1e-4)
 
     def get_c_and_df(self, y_skLb):
         t0 = time.monotonic()

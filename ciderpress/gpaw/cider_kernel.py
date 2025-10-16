@@ -94,6 +94,7 @@ class CiderKernel(XCKernel):
         xmix = self.xmix
         if isinstance(self.mlfunc, MappedXC):
             exc_ml, dexcdX0TN_ml = self.mlfunc(X0TN, rhocut=self.rhocut)
+            # dexcdX0TN_ml[:, 2] = 0
         elif isinstance(self.mlfunc, MappedXC2):
             if tau_sg is None:
                 rho_tuple = (n_sg.view(), sigma_xg.view())

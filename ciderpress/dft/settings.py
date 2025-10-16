@@ -33,6 +33,7 @@ from ciderpress.dft.feat_normalizer import (
 LDA_FACTOR = -3.0 / 4.0 * (3.0 / np.pi) ** (1.0 / 3)
 CFC = (3.0 / 10) * (3 * np.pi**2) ** (2.0 / 3)
 ALPHA_TOL = 1e-10
+ALPHA_ETA = 0
 
 
 def _check_l1_dots(l1_dots, nl1):
@@ -1852,16 +1853,47 @@ def ds2(rho, sigma):
 
 def get_alpha(rho, sigma, tau):
     cond = rho < ALPHA_TOL
+    # if (rho < 0).any():
+    #    print("NEGATIVE DENSITY", np.min(rho))
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
-    tauw = get_single_orbital_tau(rho, np.sqrt(sigma))
+    tauw = sigma / (8 * rho)  # get_single_orbital_tau(rho, np.sqrt(sigma))
+    cond = np.logical_and(cond, tauw > tau)
+    # if (tauw > tau).any():
+    #    amin = np.argmin(tau - tauw, axis=-1)
+    #    print("NEGATIVE ALPHA", tau[..., amin] - tauw[..., amin],
+    #          rho[..., amin], sigma[..., amin], tau[..., amin],
+    #          amin, tau.shape)
     # TODO this numerical stability trick is a bit of a hack.
     # Should make spline support small negative alpha
     # instead, for the sake of clean code and better stability.
-    alpha = np.maximum((tau - tauw), 0) / tau0
+    # alpha = np.maximum((tau - tauw), 0) / tau0
+    alpha = (tau - tauw) / (tau0 + ALPHA_ETA * tauw)
+    # if rho.shape[-1] == 27450:
+    #    alpha[:] = 0
     alpha[cond] = 0
     return alpha
     # return np.maximum((tau - tauw), 0) / tau0
+
+
+"""
+def get_alpha(n, sigma, tau):
+    # tau LSDA
+    aux = (3. / 10.) * (3.0 * np.pi * np.pi)**(2. / 3.)
+    tau_lsda = aux * n**(5. / 3.)
+
+    # von Weisaecker
+    ind = (n != 0.).nonzero()
+    gdms = np.maximum(sigma, 1e-40)  # |nabla rho|^2
+    tau_w = np.zeros(np.shape(n))
+    tau_w[ind] = np.maximum(np.divide(gdms[ind], 8.0 * n[ind]), 1e-40)
+
+    # z and alpha
+    tau_ = np.maximum(tau_w, tau)
+    alpha = np.divide(tau_ - tau_w, tau_lsda)
+    assert alpha.all() >= 0.0
+    return alpha
+"""
 
 
 def dalpha(rho, sigma, tau):
@@ -1877,4 +1909,52 @@ def dalpha(rho, sigma, tau):
     dadn[cond] = 0
     dadsigma[cond] = 0
     dadtau[cond] = 0
+    # if rho.shape[-1] == 27450:
+    #    dadn[:] = 0
+    #    dadsigma[:] = 0
+    #    dadtau[:] = 0
     return dadn, dadsigma, dadtau
+
+
+def _dalpha(rho, sigma, tau):
+    cond = rho < ALPHA_TOL
+    rho = np.maximum(ALPHA_TOL, rho)
+    tau0 = get_uniform_tau(rho)
+    tauw = sigma / (8 * rho)
+    cond = np.logical_and(cond, tauw > tau)
+    denom = tau0 + ALPHA_ETA * tauw
+    dwdn, dwds = -sigma / (8 * rho * rho), 1 / (8 * rho)
+    numer = tau - tauw
+    dadd = -numer / denom / denom
+    dadn = 5.0 / 3 * dadd
+    dadsigma = ALPHA_ETA * dwds * dadd
+    dadn *= rho ** (2.0 / 3) + ALPHA_ETA * dwdn
+    dadn -= dwdn / denom
+    dadsigma -= dwds / denom
+    dadtau = 1 / denom
+    # cond = (tau - tauw) / tau0 < -0.1
+    dadn[cond] = 0
+    dadsigma[cond] = 0
+    dadtau[cond] = 0
+    return dadn, dadsigma, dadtau
+
+
+"""
+def dalpha(n, sigma, tau):
+    # tau LSDA
+    aux = (3. / 10.) * (3.0 * np.pi * np.pi)**(2. / 3.)
+    tau_lsda = aux * n**(5. / 3.)
+
+    # von Weisaecker
+    ind = (n != 0.).nonzero()
+    gdms = np.maximum(sigma, 1e-40)  # |nabla rho|^2
+    tau_w = np.zeros(np.shape(n))
+    tau_w[ind] = np.maximum(np.divide(gdms[ind], 8.0 * n[ind]), 1e-40)
+
+    # z and alpha
+    tau_ = np.maximum(tau_w, tau)
+    alpha = np.divide(tau_ - tau_w, tau_lsda)
+    return _dalpha()
+    assert alpha.all() >= 0.0
+    return alpha
+"""

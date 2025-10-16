@@ -24,7 +24,7 @@ import numpy as np
 from gpaw.xc.gga import GGA
 from gpaw.xc.mgga import MGGA
 
-from ciderpress.gpaw.atom_utils2 import FastAtomPASDWSlice, FastPASDWCiderKernel
+from ciderpress.gpaw.atom_utils import FastAtomPASDWSlice, FastPASDWCiderKernel
 from ciderpress.gpaw.cider_fft import (
     CIDERPW_GRAD_MODE_FORCE,
     CIDERPW_GRAD_MODE_NONE,
@@ -593,6 +593,7 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
 
             taut_sg = np.empty_like(n_sg)
 
+            print("FFTSUM", self.tauct_G.sum() * self.wfs.gd.dv, self.tauct_G.shape)
             for taut_G, taut_g in zip(taut_sG, taut_sg):
                 taut_G += 1.0 / self.wfs.nspins * self.tauct_G
                 self.distribute_and_interpolate(taut_G, taut_g)
