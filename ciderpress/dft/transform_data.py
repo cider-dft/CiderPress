@@ -1164,28 +1164,21 @@ class OmegaMap(FeatureNormalizer):
             input_s = np.clip(input_s, -1e10, 1e10)
             input_alpha = np.clip(input_alpha, -1e10, 1e10)
             
-            # NST → NPA conversion (only in NST mode)
+            # use simplified formula for NST mode
             if self.slmode == "nst":
-                # input_s = sigma, input_alpha = tau → convert to s², alpha
-                sigma = input_s
+                # alpha + 5/3 * s² = tau / tau0
+                # So inner_term = B + C * tau / tau0
                 tau = input_alpha
-                
-                # s² = sigma / (CFAC * n^(8/3))
-                s2 = sigma / (self.CFAC * np.power(n, 8.0 / 3))
-                
-                # alpha = (tau - sigma/(8n)) / (CFC * n^(5/3))
-                alpha = (tau - sigma / (8 * n)) / (self.CFC * np.power(n, 5.0 / 3))
-                
-                # again clip the converted values (to maintain numerical stability)
-                s2 = np.clip(s2, -1e10, 1e10)
-                alpha = np.clip(alpha, -1e10, 1e10)
+                tau0 = self.CFC * np.power(n, 5.0 / 3)
+                tau0 = np.maximum(tau0, 1e-10)  # 防止除零
+                inner_term = np.maximum(self.B + self.C * tau / tau0, 1e-10)
             else:
-                # NPA mode: directly use the input values
+                # NPA mode: original implementation
                 s2 = input_s
                 alpha = input_alpha
+                inner_term = np.maximum(self.B + self.C * (alpha + 5.0 / 3 * s2), 1e-10)
             
-            # Omega calculation (same as original implementation)
-            inner_term = np.maximum(self.B + self.C * (alpha + 5.0 / 3 * s2), 1e-10)
+            # Omega calculation (same formula)
             omega = np.sqrt(n ** (2.0 / 3) * inner_term)
             denominator = np.maximum(1 + self.c * omega, 1e-10)
             y[:] = self.c * omega / denominator
@@ -1200,84 +1193,69 @@ class OmegaMap(FeatureNormalizer):
         input_s = np.clip(x[self.i_s], -1e10, 1e10)
         input_alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
         
-        # NST → NPA conversion (if needed)
         if self.slmode == "nst":
-            sigma = input_s
+            # use simplified formula for NST mode
             tau = input_alpha
+            tau0 = self.CFC * np.power(n, 5.0 / 3)
+            tau0 = np.maximum(tau0, 1e-10)
             
-            # convert to s², alpha
-            s2 = sigma / (self.CFAC * np.power(n, 8.0 / 3))
-            alpha = (tau - sigma / (8 * n)) / (self.CFC * np.power(n, 5.0 / 3))
-            s2 = np.clip(s2, -1e10, 1e10)
-            alpha = np.clip(alpha, -1e10, 1e10)
+            inner_term = np.maximum(self.B + self.C * tau / tau0, 1e-10)
+            omega = np.sqrt(n ** (2.0 / 3) * inner_term)
+            omega = np.maximum(omega, 1e-10)
+            denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
+            
+            # f = c * omega / (1 + c * omega)
+            # ∂f/∂omega = c / (1 + c * omega)^2
+            # Note: df_domega already contains dfdy
+            df_domega = self.c * dfdy / denom
+            
+            # calculate various powers
+            n_pow_1_3 = np.power(n, 1.0 / 3, where=n > 1e-10)
+            n_pow_2_3 = np.power(n, 2.0 / 3, where=n > 1e-10)
+            n_pow_5_3 = np.power(n, 5.0 / 3, where=n > 1e-10)
+            n_pow_8_3 = np.power(n, 8.0 / 3, where=n > 1e-10)
+            
+            # ∂inner_term/∂n = C * tau * (-5/3) / (CFC * n^(8/3))
+            dinnerterm_dn = -5.0 / 3 * self.C * tau / (self.CFC * n_pow_8_3)
+            
+            # ∂ω/∂n = 1/(2ω) * [2/3 * n^(-1/3) * inner_term + n^(2/3) * ∂inner_term/∂n]
+            domega_dn_part1 = (1.0 / (2.0 * omega)) * (2.0 / 3) * inner_term / n_pow_1_3
+            domega_dn_part2 = (1.0 / (2.0 * omega)) * n_pow_2_3 * dinnerterm_dn
+            domega_dn = domega_dn_part1 + domega_dn_part2
+            
+            # ∂inner_term/∂τ = C / (CFC * n^(5/3))
+            dinnerterm_dtau = self.C / (self.CFC * n_pow_5_3)
+            domega_dtau = (1.0 / (2.0 * omega)) * n_pow_2_3 * dinnerterm_dtau
+            
+            # chain rule (note: df_domega already contains dfdy, so domega_* does not contain dfdy)
+            dfdx[self.i_n] += df_domega * domega_dn
+            # dfdx[self.i_s] is not updated (∂ω/∂σ = 0)
+            dfdx[self.i_alpha] += df_domega * domega_dtau
+            
         else:
+            # NPA mode: original implementation
             s2 = input_s
             alpha = input_alpha
-        
-        # calculate Omega and intermediate variables (same as original implementation)
-        inner_term = np.maximum(self.B + self.C * (alpha + 5.0 / 3 * s2), 1e-10)
-        omega = np.sqrt(n ** (2.0 / 3) * inner_term)
-        denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
-        
-        # calculate the derivative of omega with respect to n, s², alpha
-        # ∂ω/∂n = c·ω / [3n·(1+c·ω)²]
-        term1 = np.divide(dfdy * self.c, 3 * denom, where=denom != 0)
-        term2 = np.power(n, -2.0 / 3, where=n != 0)
-        term3 = np.sqrt(np.abs(inner_term))
-        domega_dn = term1 * term2 * term3
-        
-        # common terms for ∂ω/∂s² and ∂ω/∂α
-        term4 = np.divide(
-            dfdy * self.c, 2 * denom * omega, where=(denom != 0) & (omega != 0)
-        )
-        term5 = np.power(n, 2.0 / 3, where=n != 0)
-        
-        # ∂ω/∂s² = c·n^(2/3)·5C/3 / [2Ω·(1+c·Ω)²]
-        domega_ds2 = term4 * term5 * self.C * 5.0 / 3
-        
-        # ∂ω/∂α = c·n^(2/3)·C / [2Ω·(1+c·Ω)²]
-        domega_dalpha = term4 * term5 * self.C
-        
-        # calculate the final derivative according to the mode
-        if self.slmode == "nst":
-            # NST mode: use the chain rule
             
-            # calculate the derivative of s², alpha with respect to n, sigma, tau
-            n_pow_8_3 = np.power(n, 8.0 / 3, where=n != 0)
-            n_pow_11_3 = np.power(n, 11.0 / 3, where=n != 0)
-            n_pow_5_3 = np.power(n, 5.0 / 3, where=n != 0)
+            inner_term = np.maximum(self.B + self.C * (alpha + 5.0 / 3 * s2), 1e-10)
+            omega = np.sqrt(n ** (2.0 / 3) * inner_term)
+            omega = np.maximum(omega, 1e-10)
+            denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
             
-            # ∂s²/∂n, ∂s²/∂σ
-            ds2_dn = -8.0 / 3 * sigma / (self.CFAC * n_pow_11_3)
-            ds2_dsigma = 1.0 / (self.CFAC * n_pow_8_3)
+            # Note: term1, term4 already contains dfdy
+            term1 = np.divide(dfdy * self.c, 3 * denom, where=denom != 0)
+            term2 = np.power(n, -2.0 / 3, where=n != 0)
+            term3 = np.sqrt(np.abs(inner_term))
+            domega_dn = term1 * term2 * term3
             
-            # ∂α/∂n, ∂α/∂σ, ∂α/∂τ
-            dalpha_dn = (
-                -5.0 / 3 * tau / (self.CFC * n_pow_8_3)
-                + sigma / (3 * self.CFC * n_pow_11_3)
+            term4 = np.divide(
+                dfdy * self.c, 2 * denom * omega, where=(denom != 0) & (omega != 0)
             )
-            dalpha_dsigma = -1.0 / (8 * self.CFC * n_pow_8_3)
-            dalpha_dtau = 1.0 / (self.CFC * n_pow_5_3)
+            term5 = np.power(n, 2.0 / 3, where=n != 0)
             
-            # chain rule to calculate the final derivative
-            # ∂ω/∂n_NST = ∂ω/∂n + ∂ω/∂s²·∂s²/∂n + ∂ω/∂α·∂α/∂n
-            dfdx[self.i_n] += (
-                domega_dn
-                + domega_ds2 * ds2_dn
-                + domega_dalpha * dalpha_dn
-            )
+            domega_ds2 = term4 * term5 * self.C * 5.0 / 3
+            domega_dalpha = term4 * term5 * self.C
             
-            # ∂ω/∂σ = ∂ω/∂s²·∂s²/∂σ + ∂ω/∂α·∂α/∂σ
-            dfdx[self.i_s] += (
-                domega_ds2 * ds2_dsigma
-                + domega_dalpha * dalpha_dsigma
-            )
-            
-            # ∂ω/∂τ = ∂ω/∂α·∂α/∂τ
-            dfdx[self.i_alpha] += domega_dalpha * dalpha_dtau
-            
-        else:
-            # NPA mode: direct derivative (same as original implementation)
             dfdx[self.i_n] += domega_dn
             dfdx[self.i_s] += domega_ds2
             dfdx[self.i_alpha] += domega_dalpha

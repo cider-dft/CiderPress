@@ -76,7 +76,7 @@ class TestOmegaMapNST(unittest.TestCase):
         return np.stack([n, s2, alpha])
 
     def test_nst_conversion_formula(self):
-        """Test that NST -> NPA conversion formulas are correct."""
+        """Test that alpha + 5/3*s² = tau/tau0."""
         omega_nst = OmegaMap(
             i_n=0, i_s=1, i_alpha=2, 
             c=self.c, B=self.B, C=self.C, 
@@ -100,6 +100,26 @@ class TestOmegaMapNST(unittest.TestCase):
             y_nst, y_npa, rtol=1e-6, atol=1e-10,
             err_msg="NST and NPA modes should produce the same Omega values"
         )
+        
+        # Additional verification: alpha + 5/3*s² = tau/tau0
+        n = self.test_vec_nst[0]
+        sigma = self.test_vec_nst[1]
+        tau = self.test_vec_nst[2]
+        
+        # Calculate s^2 and alpha manually (original method)
+        s2 = sigma / (self.CFAC * np.power(n, 8.0 / 3))
+        alpha = (tau - sigma / (8 * n)) / (self.CFC * np.power(n, 5.0 / 3))
+        
+        lhs = alpha + 5.0 / 3 * s2
+        
+        tau0 = self.CFC * np.power(n, 5.0 / 3)
+        rhs = tau / tau0
+        
+        assert_allclose(
+            lhs, rhs, rtol=1e-10, atol=1e-14,
+            err_msg="alpha + 5/3*s² = tau/tau0 should hold exactly"
+        )
+        print("Formula verified: alpha + 5/3*s² = tau/tau0")
 
     def test_npa_backward_compatibility(self):
         """Test that NPA mode behaves identically to the original implementation."""
@@ -156,6 +176,29 @@ class TestOmegaMapNST(unittest.TestCase):
             gradfd, grada, rtol=1e-3, atol=1e-6,
             err_msg="NST mode gradients should match finite difference"
         )
+
+    def test_gradient_nst_sigma_independence(self):
+        """Test that in NST mode with Kyle's optimization, ∂ω/∂σ = 0."""
+        flist = FeatureList([
+            OmegaMap(i_n=0, i_s=1, i_alpha=2, c=self.c, B=self.B, C=self.C, slmode="nst")
+        ])
+        
+        # Compute analytical gradient
+        vec = self.test_vec_nst
+        deriv = np.zeros(vec.shape)
+        feat = np.zeros((flist.nfeat, vec.shape[1]))
+        flist.fill_vals_(feat, vec)
+        fderiv = np.ones(feat.shape)
+        flist.fill_derivs_(deriv, fderiv, vec)
+        
+        # Test that ∂ω/∂σ should be zero (or very close to zero)
+        grad_sigma = deriv[1]  # sigma is index 1
+        
+        assert_allclose(
+            grad_sigma, np.zeros_like(grad_sigma), atol=1e-12,
+            err_msg="Kyle's optimization: ∂ω/∂σ should be zero in NST mode"
+        )
+        print("Verified: ∂ω/∂σ = 0 in NST mode")
 
     def test_serialization_with_slmode(self):
         """Test that slmode is correctly saved and loaded."""
@@ -268,8 +311,6 @@ class TestOmegaMapNST(unittest.TestCase):
         # Omega should be in [0, 1) due to the formula: c*Ω/(1+c*Ω)
         self.assertTrue(np.all(y >= 0), "Omega should be non-negative")
         self.assertTrue(np.all(y < 1), "Omega should be less than 1")
-
-    # ========== Helper Methods (CORRECTED TO MATCH ORIGINAL TEST LOGIC) ==========
     
     def _get_grad_fd(self, vec, feat_list, delta=1e-6):
         """
@@ -308,12 +349,12 @@ class TestOmegaMapPhysics(unittest.TestCase):
     """Additional tests for physical correctness."""
     
     def test_uniform_electron_gas_limit(self):
-        """Test behavior for uniform electron gas (σ=0, α≈1)."""
+        """Test behavior for uniform electron gas (alpha=0, alpha≈1)."""
         CFC = 0.3 * (3 * np.pi**2) ** (2.0 / 3)
         
-        # Uniform electron gas: σ=0, τ=CFC*n^(5/3)
+        # Uniform electron gas: alpha=0, tau=CFC*n^(5/3)
         rho = 1.0
-        sigma = 0.0
+        alpha = 0.0
         tau_ueg = CFC * rho ** (5.0 / 3)
         
         vec_nst = np.array([[rho], [sigma], [tau_ueg]])
