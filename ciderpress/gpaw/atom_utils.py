@@ -477,10 +477,11 @@ class _PAWCiderContribs:
 
     def vec_radial_vars(self, n_sLg, Y_nL, dndr_sLg, rnablaY_nLv, ae):
         nspin = len(n_sLg)
-        ngrid = n_sLg.shape[-1] * weight_n.size
+        nrad = n_sLg.shape[-1]
+        nsph = weight_n.size
         nx = 5 if self.is_mgga else 4
-        rho_sxg = np.empty((nspin, nx, ngrid))
-        rho_sxg[:, 0] = np.dot(Y_nL, n_sLg).transpose(1, 2, 0).reshape(nspin, -1)
+        rho_sxg = np.empty((nspin, nx, nrad, nsph))
+        rho_sxg[:, 0] = np.dot(Y_nL, n_sLg).transpose(1, 2, 0)  # .reshape(nspin, -1)
         b_vsgn = np.dot(rnablaY_nLv.transpose(0, 2, 1), n_sLg).transpose(1, 2, 3, 0)
         b_vsgn[..., 1:, :] /= self.xcc.rgd.r_g[1:, None]
         b_vsgn[..., 0, :] = b_vsgn[..., 1, :]
@@ -489,7 +490,9 @@ class _PAWCiderContribs:
         N = Y_nL.shape[0]
         e_g = self.xcc.rgd.empty(N).reshape(-1)
         e_g[:] = 0
-        rho_sxg[:, 1:4] = b_vsgn.transpose(1, 0, 2, 3).reshape(nspin, 3, -1)
+        rho_sxg[:, 1:4] = b_vsgn.transpose(1, 0, 2, 3)  # .reshape(nspin, 3, -1)
+        rho_sxg[:, :, 0, :] = rho_sxg[:, :, 1, :]
+        rho_sxg.shape = (nspin, nx, nrad * nsph)
         if self.is_mgga:
             rho_sxg[:, 4] = self.get_kinetic_energy(ae)
         vrho_sxg = np.zeros_like(rho_sxg)

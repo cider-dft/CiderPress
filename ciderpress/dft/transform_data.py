@@ -22,9 +22,6 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import yaml
-import logging
-from datetime import datetime
-import sys
 
 
 class FeatureNormalizer(ABC):
@@ -1112,6 +1109,7 @@ class SLDMap(FeatureNormalizer):
 
 class OmegaMap(FeatureNormalizer):
     code = "Omega"
+
     def __init__(self, i_n, i_s, i_alpha, c, B, C, bounds=None):
         self.i_n = i_n
         self.i_s = i_s
@@ -1146,8 +1144,9 @@ class OmegaMap(FeatureNormalizer):
             s2_nan_mask = np.isnan(s2)
             alpha_nan_mask = np.isnan(alpha)
 
-            n = np.abs(n)
-            n[n_nan_mask | n_zero_mask] = 1e-10
+            # n^(1/3), bounded by 0.01
+            n13 = (n * n + 1e-12) ** (1.0 / 6)
+            n13[n_nan_mask | n_zero_mask] = 1e-10
 
             s2[s2_nan_mask] = 0
             alpha[alpha_nan_mask] = 0
@@ -1156,8 +1155,8 @@ class OmegaMap(FeatureNormalizer):
             alpha = np.clip(alpha, -1e10, 1e10)
 
             inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-            omega = np.sqrt(n ** (2 / 3) * inner_term)
-            denominator = np.maximum(1 + self.c * omega, 1e-10)
+            omega = n13 * np.sqrt(inner_term)
+            denominator = 1 + self.c * omega
             y[:] = self.c * omega / denominator
         except ValueError as e:
             print(f"Error in molecule {mol_id}: {str(e)}")
@@ -1169,21 +1168,19 @@ class OmegaMap(FeatureNormalizer):
         s2 = np.clip(x[self.i_s], -1e10, 1e10)
         alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
 
-        inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-        omega = np.sqrt(n ** (2 / 3) * inner_term)
-        denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
+        n13 = (n * n + 1e-12) ** (1.0 / 6)
+        dn13 = 1.0 / 3 * n * (n * n + 1e-12) ** (-5.0 / 6)
+        inner_term = np.sqrt(np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10))
+        omega = n13 * inner_term
+        dfdw = self.c / (1 + self.c * omega) ** 2
+        dfdw * inner_term * dn13
+        dfdi = dfdw * n13 / (2 * inner_term)
+        dfdi * (5.0 * self.C / 3)
+        dfdi * self.C
 
-        term1 = np.divide(dfdy * self.c, 3 * denom, where=denom != 0)
-        term2 = np.power(n, -2 / 3, where=n != 0)
-        term3 = np.sqrt(np.abs(inner_term))
-        dfdx[self.i_n] += term1 * term2 * term3
-
-        term4 = np.divide(
-            dfdy * self.c, 2 * denom * omega, where=(denom != 0) & (omega != 0)
-        )
-        term5 = np.power(n, 2 / 3, where=n != 0)
-        dfdx[self.i_s] += term4 * term5 * self.C * 5 / 3
-        dfdx[self.i_alpha] += term4 * term5 * self.C
+        # dfdx[self.i_n] += dfdn
+        # dfdx[self.i_s] += dfds
+        # dfdx[self.i_alpha] += dfda
 
     def as_dict(self):
         return {
