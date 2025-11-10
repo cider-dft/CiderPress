@@ -410,6 +410,7 @@ GGA_CODES = {
     "GGA_C_PBE": 130,
     "GGA_X_PBE_SOL": 116,
     "GGA_C_PBE_SOL": 133,
+    "GGA_X_PW86": 108,
 }
 
 MGGA_CODES = {

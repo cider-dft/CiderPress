@@ -161,7 +161,7 @@ def nr_rks(
                 sdmx_feat = None
             ni.timer.stop("sdmx fwd")
             ni.timer.start("xc cider")
-            exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
+            exc, (vxc, vxc_nldf, vxc_sdmx, vxc_hyb) = ni.eval_xc_cider(
                 xc_code, rho, None, sdmx_feat, deriv=1, xctype=xctype
             )[:2]
             ni.timer.stop("xc cider")
@@ -280,7 +280,7 @@ def nr_rks_dense(
             sdmx_feat = ni.sdmxgen.get_features_from_convolutions(
                 sdmx_dense[..., i0:i1], cell
             )
-        exc, (_vxc, _vxc_nldf, _vxc_sdmx) = ni.eval_xc_cider(
+        exc, (_vxc, _vxc_nldf, _vxc_sdmx, _vxc_hyb) = ni.eval_xc_cider(
             xc_code, rho_dense[..., i0:i1], None, sdmx_feat, deriv=1, xctype=xctype
         )[:2]
         den = weight * rho_dense[0, i0:i1]
@@ -404,7 +404,7 @@ def nr_uks(
             else:
                 sdmx_feat = None
             ni.timer.start("xc cider")
-            exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
+            exc, (vxc, vxc_nldf, vxc_sdmx, vxc_hyb) = ni.eval_xc_cider(
                 xc_code, rho, None, sdmx_feat, deriv=1, xctype=xctype
             )[:2]
             ni.timer.stop("xc cider")

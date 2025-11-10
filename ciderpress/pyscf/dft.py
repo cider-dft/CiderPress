@@ -24,7 +24,7 @@ from pyscf.dft.gen_grid import Grids
 from ciderpress.dft.model_utils import get_slxc_settings, load_cider_model
 from ciderpress.pyscf.gen_cider_grid import CiderGrids
 from ciderpress.pyscf.nldf_convolutions import PySCFNLDFInitializer
-from ciderpress.pyscf.numint import CiderNumInt, NLDFNLOFNumInt, NLDFNumInt, NLOFNumInt
+from ciderpress.pyscf.numint import CiderNumInt, NLDFNLOFNumInt, NLDFNumInt, NLOFNumInt, HybridNLDFNumInt
 from ciderpress.pyscf.sdmx import PySCFSDMXInitializer
 
 
@@ -170,7 +170,14 @@ class _CiderKS:
         settings = mlxc.settings
         has_nldf = not settings.nldf_settings.is_empty
         has_nlof = not settings.nlof_settings.is_empty
-        if has_nldf and has_nlof:
+        has_hyb = settings.has_hyb
+        
+        # Choose appropriate NumInt class based on features
+        if has_hyb and has_nldf:
+            cls = HybridNLDFNumInt
+        elif has_hyb:
+            cls = CiderNumInt
+        elif has_nldf and has_nlof:
             cls = NLDFNLOFNumInt
         elif has_nldf:
             cls = NLDFNumInt

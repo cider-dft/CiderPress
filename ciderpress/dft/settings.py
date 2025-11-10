@@ -949,7 +949,7 @@ se_rvec: squared-exponential times vector (r'-r)
 """
 #TODO: separate rinv4, rinv2
 ALLOWED_J_SPECS = ["se", "se_ar2", "se_a2r4", "se_erf_rinv",
-                    "se_rinv4", "rinv2_rinv4"] # Added vdW placeholders
+                    "se_rinv4", "rinv2_rinv4", "rinv4_rinv2", "se_rinv2"] # Added vdW placeholders
 """
 Allowed spec strings for version j features.
 Version k features have the same allowed spec strings
@@ -970,6 +970,10 @@ rinv2_rinv4: (1 / (a r^2 + 1)) * (1 / (a r^2 + 1))^2 for H_i feature
 rinv2: (1 / (a r^2 + 1))
 
 rinv4: (1 / (a r^2 + 1))^2
+
+rinv4_rinv2: (1 / (a r^2 + 1))^2 * (1 / (a r^2 + 1)) for G_i feature
+
+se_rinv2: squared-exponential * (1 / (a r^2 + 1)) for H_i feature
 
 """
 ALLOWED_K_SPECS = ALLOWED_J_SPECS
@@ -1014,6 +1018,8 @@ SPEC_USPS = {
     "grad_rho": 4,
     "se_rinv4": 0,
     "rinv2_rinv4": 0,
+    "rinv4_rinv2": 0,
+    "se_rinv2": 0,
 }
 """
 Uniform-scaling powers (USPs) descibe how features scale as the
@@ -1394,6 +1400,20 @@ class NLDFSettingsVJ(NLDFSettings):
                     term1 = (2 * a_i + a_0) * np.exp(ratio) * erfc(sqrt_ratio) / (a_0 ** 2.5)
                     term2 = 2.0 * sqrt_ratio / (np.sqrt(np.pi) * a_0 ** 2)
                     integral = np.pi * np.pi * (term1 - term2)
+            elif spec == "rinv4_rinv2": #placeholder, I DID NOT check this
+                a_i = expnt2
+                a_0 = _get_ueg_expnt(a0t, t0t, rho)
+                if a_i < 1e-12 or a_0 < 1e-12:
+                    integral = 0.0
+                else:
+                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1)**2 * a_0**1.5)
+            elif spec == "se_rinv2": #placeholder, I DID NOT check this
+                a_i = expnt2
+                a_0 = _get_ueg_expnt(a0t, t0t, rho)
+                if a_i < 1e-12 or a_0 < 1e-12:
+                    integral = 0.0
+                else:
+                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1)**2 * a_0**1.5)
             else:
                 raise ValueError
             ueg_feats.append(rho * rho_mult * integral)

@@ -261,29 +261,55 @@ def nr_rks(
     alpha_ml = None
     dalpha_deps = None
     K_contrib = None
+    use_blockwise_hybrid = False
+    sgx_cache = {}  # Cache for SGX data
     
     if ni.hyb_plan is not None:
         if hasattr(ni, 'timer'):
             ni.timer.start("hybrid exx")
         
-        # Compute exact exchange energy density on the full grid
-        # Following equation (2) from Laqua et al., J. Chem. Theory Comput. 2018:
-        # ε_X^ex(r_g) = -1/2 * Σ_μνλσ χ_μ(r_g) P_μν [∫ χ_ν(r') χ_λ(r') / |r' - r_g| dr'] P_λσ χ_σ(r_g)
-        eps_exx_all = np.zeros((nset, grids.coords.shape[0]))
-        sgx_cache = {}  # Cache for SGX data
+        # Check memory requirement for A tensor
+        memory_gb = ni.hyb_plan.estimate_memory_gb(grids.coords.shape[0], nao)
+        memory_threshold_gb = max_memory / 1000  # Convert MB to GB
         
-        # Get A tensor and exact exchange for first density matrix
-        eps_exx_all[0], a_tensor = ni.hyb_plan.compute_a_tensor_and_exx(
-            mol, grids, dms[0], ni.settings.hyb_settings, 
-            sgx_cache=sgx_cache, return_a_tensor=True
-        )
-        
-        # For additional density matrices, reuse cached SGX object
-        for i in range(1, nset):
-            eps_exx_all[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
-                mol, grids, dms[i], ni.settings.hyb_settings, 
-                sgx_cache=sgx_cache, return_a_tensor=False
+        if memory_gb > memory_threshold_gb:
+            # Use blockwise mode to avoid OOM
+            use_blockwise_hybrid = True
+            # Use logger.debug instead of print to reduce verbosity
+            lib.logger.debug(mol, f"Using blockwise hybrid mode: estimated A-tensor memory {memory_gb:.2f} GB > threshold {memory_threshold_gb:.2f} GB")
+            
+            # Compute exact exchange energy density on the full grid (but no A tensor)
+            eps_exx_all = np.zeros((nset, grids.coords.shape[0]))
+            
+            # Get only exchange energy density for all density matrices
+            for i in range(nset):
+                eps_exx_all[i] = ni.hyb_plan.compute_eps_exx_only(
+                    mol, grids, dms[i], ni.settings.hyb_settings, 
+                    sgx_cache=sgx_cache
+                )
+            
+            a_tensor = None  # Will compute blockwise later
+        else:
+            # Use existing full computation mode
+            use_blockwise_hybrid = False
+            
+            # Compute exact exchange energy density on the full grid
+            # Following equation (2) from Laqua et al., J. Chem. Theory Comput. 2018:
+            # ε_X^ex(r_g) = -1/2 * Σ_μνλσ χ_μ(r_g) P_μν [∫ χ_ν(r') χ_λ(r') / |r' - r_g| dr'] P_λσ χ_σ(r_g)
+            eps_exx_all = np.zeros((nset, grids.coords.shape[0]))
+            
+            # Get A tensor and exact exchange for first density matrix
+            eps_exx_all[0], a_tensor = ni.hyb_plan.compute_a_tensor_and_exx(
+                mol, grids, dms[0], ni.settings.hyb_settings, 
+                sgx_cache=sgx_cache, return_a_tensor=True
             )
+            
+            # For additional density matrices, reuse cached SGX object
+            for i in range(1, nset):
+                eps_exx_all[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
+                    mol, grids, dms[i], ni.settings.hyb_settings, 
+                    sgx_cache=sgx_cache, return_a_tensor=False
+                )
         
         eps_exx = eps_exx_all
         
@@ -462,7 +488,7 @@ def nr_rks(
                 assert vxc_nldf is None
                 
                 # Build K matrix contribution for local hybrid if needed
-                if ni.hyb_plan is not None and vxc_hyb is not None and a_tensor is not None:
+                if ni.hyb_plan is not None and vxc_hyb is not None:
                     if hasattr(ni, 'timer'):
                         ni.timer.start("hybrid K build")
                     
@@ -488,12 +514,15 @@ def nr_rks(
                         else:
                             raise ValueError(f"Unexpected f_raw type: {type(f_raw)}")
                     
-                    # Build K matrix contribution using HybridPlan
-                    K_block = ni.hyb_plan.build_k_matrix_block(
-                        ao, dms[i], a_tensor[ip0:ip1], 
-                        dalpha_deps[i, ip0:ip1], weight
-                    )
-                    K_contrib[i] += K_block
+                    # Build K matrix contribution
+                    if not use_blockwise_hybrid and a_tensor is not None:
+                        # Use pre-computed A tensor
+                        K_block = ni.hyb_plan.build_k_matrix_block(
+                            ao, dms[i], a_tensor[ip0:ip1], 
+                            dalpha_deps[i, ip0:ip1], weight
+                        )
+                        K_contrib[i] += K_block
+                    # For blockwise mode, K matrix will be built after all dalpha_deps are collected
                     
                     if hasattr(ni, 'timer'):
                         ni.timer.stop("hybrid K build")
@@ -564,6 +593,22 @@ def nr_rks(
         )
     
     # Add K contribution and symmetrize
+    # Build K matrix blockwise if using blockwise hybrid mode
+    if use_blockwise_hybrid and ni.hyb_plan is not None:
+        if hasattr(ni, 'timer'):
+            ni.timer.start("hybrid K blockwise")
+        
+        # Build K matrix blockwise for each density matrix
+        for i in range(nset):
+            if dalpha_deps[i].any():  # Only if we have non-zero derivatives
+                K_contrib[i] = ni.hyb_plan.build_k_matrix_blockwise(
+                    mol, grids, dms[i], dalpha_deps[i], 
+                    max_memory=max_memory, sgx_cache=sgx_cache
+                )
+        
+        if hasattr(ni, 'timer'):
+            ni.timer.stop("hybrid K blockwise")
+    
     if ni.hyb_plan is not None and K_contrib is not None:
         # Finalize K matrix with proper symmetrization and factors
         ni.hyb_plan.finalize_k_matrix(K_contrib, vmat, spin=None)
@@ -667,43 +712,75 @@ def nr_uks(
     alpha_ml = None
     dalpha_deps = None  
     K_contrib = None
+    use_blockwise_hybrid = False
+    sgx_cache = {}  # Cache for SGX data
     
     if ni.hyb_plan is not None:
         if hasattr(ni, 'timer'):
             ni.timer.start("hybrid exx")
         
-        # Compute exact exchange energy density for both spins
-        eps_exx_all_a = np.zeros((nset, grids.coords.shape[0]))
-        eps_exx_all_b = np.zeros((nset, grids.coords.shape[0]))
-        sgx_cache = {}
+        # Check memory requirement for A tensor
+        memory_gb = ni.hyb_plan.estimate_memory_gb(grids.coords.shape[0], nao)
+        memory_threshold_gb = max_memory / 1000  # Convert MB to GB
         
-        # Get A tensor and exact exchange for first density matrix set
-        # For UKS, match training convention: each spin gets 2*P_spin
-        # This gives same features as RKS for closed-shell but different for open-shell
-        eps_exx_all_a[0], a_tensor_a = ni.hyb_plan.compute_a_tensor_and_exx(
-            mol, grids, 2 * dma[0], ni.settings.hyb_settings, 
-            sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
-        )
-        
-        # For beta spin 
-        eps_exx_all_b[0], a_tensor_b = ni.hyb_plan.compute_a_tensor_and_exx(
-            mol, grids, 2 * dmb[0], ni.settings.hyb_settings, 
-            sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
-        )
-        
-        # For additional density matrices
-        for i in range(1, nset):
-            # Each spin gets features from its own doubled density matrix
-            eps_exx_all_a[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
-                mol, grids, 2 * dma[i], ni.settings.hyb_settings, 
-                sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+        if memory_gb > memory_threshold_gb:
+            # Use blockwise mode to avoid OOM
+            use_blockwise_hybrid = True
+            # Use logger.debug instead of print to reduce verbosity
+            lib.logger.debug(mol, f"UKS: Using blockwise hybrid mode: estimated A-tensor memory {memory_gb:.2f} GB > threshold {memory_threshold_gb:.2f} GB")
+            
+            # Compute exact exchange energy density for both spins (but no A tensors)
+            eps_exx_all_a = np.zeros((nset, grids.coords.shape[0]))
+            eps_exx_all_b = np.zeros((nset, grids.coords.shape[0]))
+            
+            # Get only exchange energy density for all density matrices
+            for i in range(nset):
+                # For UKS, match training convention: each spin gets 2*P_spin
+                eps_exx_all_a[i] = ni.hyb_plan.compute_eps_exx_only(
+                    mol, grids, 2 * dma[i], ni.settings.hyb_settings, 
+                    sgx_cache=sgx_cache
+                )
+                eps_exx_all_b[i] = ni.hyb_plan.compute_eps_exx_only(
+                    mol, grids, 2 * dmb[i], ni.settings.hyb_settings, 
+                    sgx_cache=sgx_cache
+                )
+            
+            a_tensor_a = a_tensor_b = None  # Will compute blockwise later
+        else:
+            # Use existing full computation mode
+            use_blockwise_hybrid = False
+            
+            # Compute exact exchange energy density for both spins
+            eps_exx_all_a = np.zeros((nset, grids.coords.shape[0]))
+            eps_exx_all_b = np.zeros((nset, grids.coords.shape[0]))
+            
+            # Get A tensor and exact exchange for first density matrix set
+            # For UKS, match training convention: each spin gets 2*P_spin
+            # This gives same features as RKS for closed-shell but different for open-shell
+            eps_exx_all_a[0], a_tensor_a = ni.hyb_plan.compute_a_tensor_and_exx(
+                mol, grids, 2 * dma[0], ni.settings.hyb_settings, 
+                sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
             )
             
-            # Beta
-            eps_exx_all_b[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
-                mol, grids, 2 * dmb[i], ni.settings.hyb_settings, 
-                sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+            # For beta spin 
+            eps_exx_all_b[0], a_tensor_b = ni.hyb_plan.compute_a_tensor_and_exx(
+                mol, grids, 2 * dmb[0], ni.settings.hyb_settings, 
+                sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
             )
+            
+            # For additional density matrices
+            for i in range(1, nset):
+                # Each spin gets features from its own doubled density matrix
+                eps_exx_all_a[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
+                    mol, grids, 2 * dma[i], ni.settings.hyb_settings, 
+                    sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+                )
+                
+                # Beta
+                eps_exx_all_b[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
+                    mol, grids, 2 * dmb[i], ni.settings.hyb_settings, 
+                    sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+                )
         
         eps_exx_a = eps_exx_all_a
         eps_exx_b = eps_exx_all_b
@@ -913,7 +990,7 @@ def nr_uks(
                 assert vxc_nldf is None
                 
                 # Build K matrix contribution for local hybrid if needed
-                if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and vxc_hyb is not None and a_tensor_a is not None:
+                if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and vxc_hyb is not None:
                     if hasattr(ni, 'timer'):
                         ni.timer.start("hybrid K build")
                     
@@ -939,20 +1016,23 @@ def nr_uks(
                             else:
                                 raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
                     
-                    # Build K matrix contributions using HybridPlan
-                    # Alpha spin
-                    K_block_a = ni.hyb_plan.build_k_matrix_block(
-                        ao, 2*dma[i], a_tensor_a[ip0:ip1], 
-                        dalpha_deps[0, i, ip0:ip1], weight
-                    )
-                    K_contrib[0, i] += K_block_a
-                    
-                    # Beta spin
-                    K_block_b = ni.hyb_plan.build_k_matrix_block(
-                        ao, 2*dmb[i], a_tensor_b[ip0:ip1], 
-                        dalpha_deps[1, i, ip0:ip1], weight
-                    )
-                    K_contrib[1, i] += K_block_b
+                    # Build K matrix contributions
+                    if not use_blockwise_hybrid and a_tensor_a is not None:
+                        # Use pre-computed A tensors
+                        # Alpha spin
+                        K_block_a = ni.hyb_plan.build_k_matrix_block(
+                            ao, 2*dma[i], a_tensor_a[ip0:ip1], 
+                            dalpha_deps[0, i, ip0:ip1], weight
+                        )
+                        K_contrib[0, i] += K_block_a
+                        
+                        # Beta spin
+                        K_block_b = ni.hyb_plan.build_k_matrix_block(
+                            ao, 2*dmb[i], a_tensor_b[ip0:ip1], 
+                            dalpha_deps[1, i, ip0:ip1], weight
+                        )
+                        K_contrib[1, i] += K_block_b
+                    # For blockwise mode, K matrix will be built after all dalpha_deps are collected
                     
                     if hasattr(ni, 'timer'):
                         ni.timer.stop("hybrid K build")
@@ -1057,6 +1137,30 @@ def nr_uks(
                 vmats=(vmat[1, i], v1[1, i]),
                 buffers=buffers,
             )
+    
+    # Build K matrix blockwise if using blockwise hybrid mode
+    if use_blockwise_hybrid and ni.hyb_plan is not None:
+        if hasattr(ni, 'timer'):
+            ni.timer.start("hybrid K blockwise")
+        
+        # Build K matrix blockwise for each density matrix and spin
+        for i in range(nset):
+            # Alpha spin
+            if dalpha_deps[0, i].any():  # Only if we have non-zero derivatives
+                K_contrib[0, i] = ni.hyb_plan.build_k_matrix_blockwise(
+                    mol, grids, 2 * dma[i], dalpha_deps[0, i], 
+                    max_memory=max_memory, sgx_cache=sgx_cache
+                )
+            
+            # Beta spin
+            if dalpha_deps[1, i].any():  # Only if we have non-zero derivatives
+                K_contrib[1, i] = ni.hyb_plan.build_k_matrix_blockwise(
+                    mol, grids, 2 * dmb[i], dalpha_deps[1, i], 
+                    max_memory=max_memory, sgx_cache=sgx_cache
+                )
+        
+        if hasattr(ni, 'timer'):
+            ni.timer.stop("hybrid K blockwise")
     
     # Add K contribution and symmetrize
     if ni.hyb_plan is not None and K_contrib is not None:
