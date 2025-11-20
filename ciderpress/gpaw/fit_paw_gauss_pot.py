@@ -60,6 +60,7 @@ def gauss_and_derivs(a, r):
 def get_ffunc(n, r, R):
     x = r / R
     xn = x**n
+    # y = (n + 1) * xn / (xn + 1)**2
     y = xn * (x * x - 1) * (x * x - 1)
     y[x > 1] = 0.0
     return y

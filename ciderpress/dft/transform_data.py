@@ -1173,14 +1173,14 @@ class OmegaMap(FeatureNormalizer):
         inner_term = np.sqrt(np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10))
         omega = n13 * inner_term
         dfdw = self.c / (1 + self.c * omega) ** 2
-        dfdw * inner_term * dn13
+        dfdn = dfdw * inner_term * dn13
         dfdi = dfdw * n13 / (2 * inner_term)
-        dfdi * (5.0 * self.C / 3)
-        dfdi * self.C
+        dfds = dfdi * (5.0 * self.C / 3)
+        dfda = dfdi * self.C
 
-        # dfdx[self.i_n] += dfdn
-        # dfdx[self.i_s] += dfds
-        # dfdx[self.i_alpha] += dfda
+        dfdx[self.i_n] += dfdn
+        dfdx[self.i_s] += dfds
+        dfdx[self.i_alpha] += dfda
 
     def as_dict(self):
         return {
