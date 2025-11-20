@@ -98,39 +98,41 @@ def get_ag_indices(fft_obj, gd, shape, spos_c, rmax, buffer=0, get_global_disps=
     return local_indices, local_fdisps
 
 
-PSETUP_LIST1 = ([0, 2, 1, 2], [0, 0, 1, 2])
-PSETUP_LIST2 = ([0, 2, 4, 1, 3, 2, 4, 3, 4], [0, 0, 0, 1, 1, 2, 2, 3, 4])
-PSETUP_LIST3 = (
+PA_SETUP_LIST1 = ([0, 2, 1, 2], [0, 0, 1, 2])
+PA_SETUP_LIST2 = ([0, 2, 4, 1, 3, 2, 4, 3, 4], [0, 0, 0, 1, 1, 2, 2, 3, 4])
+PA_SETUP_LIST3 = (
     [0, 2, 4, 6, 1, 3, 5, 2, 4, 6, 3, 5, 4, 6],
     [0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4],
 )
-PSETUP_LIST4 = (
+PA_SETUP_LIST4 = (
     [0, 2, 4, 6, 8, 1, 3, 5, 7, 2, 4, 6, 8, 3, 5, 7, 4, 6, 8],
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4],
 )
 
+PS_SETUP_LIST1 = ([0, 1, 2], [0, 1, 2])
+PS_SETUP_LIST2 = ([0, 1, 2, 3, 4], [0, 1, 2, 3, 4])
 
-def get_psetup_func_counts(Z, big=False):
+
+def get_ps_setup_func_counts(Z):
     if Z > 36:
-        if big:
-            return PSETUP_LIST4
-        else:
-            return PSETUP_LIST3
+        return PS_SETUP_LIST2
     elif Z > 18:
-        if big:
-            return PSETUP_LIST3
-        else:
-            return PSETUP_LIST2
+        return PS_SETUP_LIST2
     elif Z > 2:
-        if big:
-            return PSETUP_LIST3
-        else:
-            return PSETUP_LIST2
+        return PS_SETUP_LIST2
     else:
-        if big:
-            return PSETUP_LIST2
-        else:
-            return PSETUP_LIST1
+        return PS_SETUP_LIST1
+
+
+def get_pa_setup_func_counts(Z):
+    if Z > 36:
+        return PA_SETUP_LIST2
+    elif Z > 18:
+        return PA_SETUP_LIST2
+    elif Z > 2:
+        return PA_SETUP_LIST2
+    else:
+        return PA_SETUP_LIST1
 
 
 class SBTGridContainer:
@@ -1745,7 +1747,7 @@ class PAugSetup(PASDWData):
         interp_r_g = interp_rgd.r_g
         ng = rgd.r_g.size
 
-        nlist_j, llist_j = get_psetup_func_counts(setup.Z)
+        nlist_j, llist_j = get_pa_setup_func_counts(setup.Z)
         lp1 = np.max(llist_j) + 1
         nbas_lst = [0] * lp1
         for l in llist_j:
@@ -2044,7 +2046,7 @@ class _PSmoothSetupBase(PASDWData):
         rcut_feat = np.max(setup.rcut_j)
         rcut_func = rcut_feat * 1.00
 
-        nlist_j, llist_j = get_psetup_func_counts(setup.Z)
+        nlist_j, llist_j = get_ps_setup_func_counts(setup.Z)
         lp1 = int(np.sqrt(grid_nlm + 1e-8))
         nbas_lst = [0] * lp1
         for l in llist_j:
