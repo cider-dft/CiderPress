@@ -174,11 +174,12 @@ class DiffPAWXCCorrection:
             rgd = rgd.make_cut(gcut)
 
         def _interpc(func):
+            ng = xcc.rgd.r_g.size
             return interp1d(
-                np.arange(xcc.rgd.r_g.size),
+                np.arange(ng),
                 func,
                 kind="cubic",
-            )(xcc.rgd.r2g(rgd.r_g))
+            )(np.minimum(xcc.rgd.r2g(rgd.r_g), ng - 1))
 
         core_dens = {}
         names = ["nc_g", "nct_g", "nc_corehole_g"]
