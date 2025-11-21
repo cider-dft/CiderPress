@@ -28,7 +28,7 @@ from gpaw.mpi import world
 
 from ciderpress.gpaw.calculator import get_cider_functional
 
-USE_STORED_REF = True
+USE_STORED_REF = False
 
 
 def _run_pw_si_stress(xc, use_pp=False, s_numerical=None):
@@ -73,7 +73,7 @@ def run_pw_si_stress(xc, use_pp=False, s_numerical=None):
 
 
 def get_xc(fname, use_paw=True):
-    return get_cider_functional(fname, xmix=0.25, pasdw_ovlp_fit=False, use_paw=use_paw)
+    return get_cider_functional(fname, xmix=0.25, pasdw_ovlp_fit=True, use_paw=use_paw)
 
 
 class TestStress(unittest.TestCase):

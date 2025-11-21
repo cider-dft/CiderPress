@@ -87,6 +87,8 @@ class CiderPASDW_MPRoutines:
         self.atom_slices_a = {}
         self.global_slices_s = {}
         self.global_slices_a = {}
+        self.D_asiq = None
+        self.vc_asiq = None
         rank_a = self.atom_partition.rank_a
         comm = self.atom_partition.comm
         for a in range(len(self.setups)):
@@ -117,9 +119,14 @@ class CiderPASDW_MPRoutines:
                 self.global_slices_a[a] = FastAtomPASDWSlice.from_gd_and_setup(
                     *args, is_global=True, ovlp_fit=True, **kwargs
                 )
+        atoms = [[] for r in range(comm.size)]
+        for a in range(len(self.setups)):
+            atoms[rank_a[a]].append(a)
+        self._atom_lists_r = atoms
+        self._my_atom_list = atoms[comm.rank]
         self.timer.stop()
 
-    def write_augfeat_to_rbuf(self, s, pot=False):
+    def write_augfeat_to_rbuf(self, spin, pot=False):
         self.timer.start("PAW TO GRID")
         if self.atom_slices_s is None:
             self._setup_atom_slices()
@@ -128,9 +135,11 @@ class CiderPASDW_MPRoutines:
         if pot:
             atom_slices = self.atom_slices_a
             global_slices = self.global_slices_a
+            X_asiq = self.vD_asiq
         else:
             atom_slices = self.atom_slices_s
             global_slices = self.global_slices_s
+            X_asiq = self.c_asiq
 
         shapes = [
             (atom_slices[a].num_funcs, self._plan.nalpha)
@@ -140,24 +149,22 @@ class CiderPASDW_MPRoutines:
         rank_a = self.atom_partition.rank_a
         comm = self.atom_partition.comm
         if self.fft_obj.has_mpi:
-            atoms = [[] for r in range(comm.size)]
-            for a in range(len(self.setups)):
-                atoms[rank_a[a]].append(a)
             alocs = {}
             rlocs = []
             rsizes = []
             tot = 0
             for r in range(comm.size):
                 rlocs.append(tot)
-                for a in atoms[r]:
+                for a in self._atom_lists_r[r]:
                     alocs[a] = tot
                     tot += sizes[a]
                 rsizes.append(tot - rlocs[-1])
             sendbuf = np.empty(rsizes[comm.rank], dtype=np.float64)
             rtot = 0
-            for a in atoms[comm.rank]:
-                # assert c_abi[a].flags.c_contiguous
-                c_iq = self.c_asiq[a][s]
+            for a in self._my_atom_list:
+                c_iq = X_asiq[a][spin]
+                # print(a, self.setups[a].Z, atom_slices[a].num_funcs, pot, c_iq.shape, shapes[a], spin,
+                #      [self.c_asiq[a][spin].shape for spin in range(2)])
                 if self.pasdw_ovlp_fit:
                     sendbuf[rtot : rtot + sizes[a]] = np.ascontiguousarray(
                         # c_abi[a].dot(global_slices[a].sinv_pf.T)
@@ -194,7 +201,7 @@ class CiderPASDW_MPRoutines:
                 coefs_iq = np.ndarray(shapes[a], buffer=buf)
                 coefs_iq = np.ndarray(shapes[a], buffer=buf)
                 if comm.rank == rank_a[a]:
-                    coefs_iq[:] = self.c_asiq[a][s]
+                    coefs_iq[:] = X_asiq[a][spin]
                 comm.broadcast(coefs_iq, rank_a[a])
             if atom_slice is not None and atom_slices[a].rad_g.size > 0:
                 self.timer.start("funcs")
@@ -206,7 +213,17 @@ class CiderPASDW_MPRoutines:
                 self.timer.stop()
         self.timer.stop()
 
-    def interpolate_rbuf_onto_atoms(self, s, pot=False):
+    def _build_asiq_dict_(self, X_asiq, shapes, xshape=None):
+        if xshape is None:
+            xshape = ()
+        for a in self._my_atom_list:
+            have_a = a in X_asiq
+            ashape = xshape + shapes[a]
+            if not have_a or X_asiq[a].shape != ashape:
+                X_asiq[a] = np.zeros(ashape)
+
+    def interpolate_rbuf_onto_atoms(self, spin, pot=False):
+        # edits X_asiq
         self.timer.start("GRID TO PAW")
         if self.atom_slices_s is None:
             self._setup_atom_slices()
@@ -214,14 +231,22 @@ class CiderPASDW_MPRoutines:
         if pot:
             atom_slices = self.atom_slices_s
             global_slices = self.global_slices_s
+            if self.vc_asiq is None:
+                self.vc_asiq = {}
+            X_asiq = self.vc_asiq
         else:
             atom_slices = self.atom_slices_a
             global_slices = self.global_slices_a
+            if self.D_asiq is None:
+                self.D_asiq = {}
+            X_asiq = self.D_asiq
 
         shapes = [
             (atom_slices[a].num_funcs, self._plan.nalpha)
             for a in range(len(self.setups))
         ]
+        if spin == 0:
+            self._build_asiq_dict_(X_asiq, shapes, xshape=(self.nspin,))
 
         rank_a = self.atom_partition.rank_a
         comm = self.atom_partition.comm
@@ -231,10 +256,7 @@ class CiderPASDW_MPRoutines:
             if atom_slice.rad_g.size > 0:
                 funcs_ig = atom_slice.get_funcs()
                 funcs_gq = np.empty((funcs_ig.shape[1], self._plan.nalpha))
-                self.fft_obj.set_grid2paw(
-                    funcs_gq,
-                    atom_slice.indset,
-                )
+                self.fft_obj.set_grid2paw(funcs_gq, atom_slice.indset)
                 coefs_iq = np.dot(funcs_ig, funcs_gq)
                 coefs_iq[:] *= atom_slice.dv
             else:
@@ -242,15 +264,15 @@ class CiderPASDW_MPRoutines:
             coefs_a_iq[a] = coefs_iq
         for a in range(len(self.setups)):
             comm.sum(coefs_a_iq[a], rank_a[a])
-        for a in range(len(self.setups)):
+        for a in self._my_atom_list:
             coefs_iq = coefs_a_iq[a]
-            if rank_a[a] == comm.rank:
-                assert coefs_iq is not None
-                if self.pasdw_ovlp_fit:
-                    self.c_asiq[a][s] = global_slices[a].sinv_pf.T.dot(coefs_iq)
-                else:
-                    self.c_asiq[a][s] = coefs_iq
+            assert coefs_iq is not None
+            if self.pasdw_ovlp_fit:
+                X_asiq[a][spin] = global_slices[a].sinv_pf.T.dot(coefs_iq)
+            else:
+                X_asiq[a][spin] = coefs_iq
         self.timer.stop()
+        return X_asiq
 
     def interpolate_rbuf_onto_atoms_grad(self, s, pot=False):
         self.timer.start("GRID TO PAW GRAD")
@@ -260,14 +282,26 @@ class CiderPASDW_MPRoutines:
         if pot:
             atom_slices = self.atom_slices_s
             global_slices = self.global_slices_s
+            X_asiq = self.vc_asiq
         else:
             atom_slices = self.atom_slices_a
             global_slices = self.global_slices_a
+            X_asiq = self.D_asiq
 
         shapes = [
             (atom_slices[a].num_funcs, self._plan.nalpha)
             for a in range(len(self.setups))
         ]
+        if s == 0:
+            self._save_v_avsiq = {}
+            self._build_asiq_dict_(
+                self._save_v_avsiq,
+                shapes,
+                xshape=(
+                    3,
+                    self.nspin,
+                ),
+            )
 
         rank_a = self.atom_partition.rank_a
         comm = self.atom_partition.comm
@@ -288,30 +322,25 @@ class CiderPASDW_MPRoutines:
             coefs_a_viq[a] = coefs_viq
         for a in range(len(self.setups)):
             comm.sum(coefs_a_viq[a], rank_a[a])
-        for a in range(len(self.setups)):
+        for a in self._my_atom_list:
             coefs_viq = coefs_a_viq[a]
-            if rank_a[a] == comm.rank:
-                assert coefs_viq is not None
-                for v in range(3):
-                    if self.pasdw_ovlp_fit:
-                        self._save_v_avsiq[a][v, s] = global_slices[a].sinv_pf.T.dot(
-                            coefs_viq[v]
-                        )
-                    else:
-                        self._save_v_avsiq[a][v, s] = coefs_viq[v]
+            assert coefs_viq is not None
+            for v in range(3):
                 if self.pasdw_ovlp_fit:
-                    sl = global_slices[a]
-                    X_vii = sl.get_ovlp_deriv(
-                        sl.get_funcs(), sl.get_grads(), stress=False
+                    self._save_v_avsiq[a][v, s] = global_slices[a].sinv_pf.T.dot(
+                        coefs_viq[v]
                     )
-                    # TODO not sure if this line below is quite right but it seems to work
-                    # could also just be self.c_asiq[a][s]
-                    # but in principle we need to remove the sinv_pf from c_asiq before multiplying
-                    # in the derivative matrix
-                    coefs_iq = np.linalg.solve(sl.sinv_pf.T, self.c_asiq[a][s])
-                    self._save_v_avsiq[a][:, s] += np.einsum(
-                        "vij,iq->vjq", X_vii, coefs_iq
-                    )
+                else:
+                    self._save_v_avsiq[a][v, s] = coefs_viq[v]
+            if self.pasdw_ovlp_fit:
+                sl = global_slices[a]
+                X_vii = sl.get_ovlp_deriv(sl.get_funcs(), sl.get_grads(), stress=False)
+                # TODO not sure if this line below is quite right but it seems to work
+                # could also just be X_asiq[a][s]
+                # but in principle we need to remove the sinv_pf from X_asiq before multiplying
+                # in the derivative matrix
+                coefs_iq = np.linalg.solve(sl.sinv_pf.T, X_asiq[a][s])
+                self._save_v_avsiq[a][:, s] += np.einsum("vij,iq->vjq", X_vii, coefs_iq)
         self.timer.stop()
 
     def interpolate_rbuf_onto_atoms_stress(self, s, pot=False):
@@ -322,14 +351,27 @@ class CiderPASDW_MPRoutines:
         if pot:
             atom_slices = self.atom_slices_s
             global_slices = self.global_slices_s
+            X_asiq = self.vc_asiq
         else:
             atom_slices = self.atom_slices_a
             global_slices = self.global_slices_a
+            X_asiq = self.D_asiq
 
         shapes = [
             (atom_slices[a].num_funcs, self._plan.nalpha)
             for a in range(len(self.setups))
         ]
+        if s == 0:
+            self._save_v_avsiq = {}
+            self._build_asiq_dict_(
+                self._save_v_avsiq,
+                shapes,
+                xshape=(
+                    3,
+                    3,
+                    self.nspin,
+                ),
+            )
 
         rank_a = self.atom_partition.rank_a
         comm = self.atom_partition.comm
@@ -350,27 +392,24 @@ class CiderPASDW_MPRoutines:
             coefs_a_vviq[a] = coefs_vviq
         for a in range(len(self.setups)):
             comm.sum(coefs_a_vviq[a], rank_a[a])
-        for a in range(len(self.setups)):
+        for a in self._my_atom_list:
             coefs_vviq = coefs_a_vviq[a]
-            if rank_a[a] == comm.rank:
-                assert coefs_vviq is not None
-                for u in range(3):
-                    for v in range(3):
-                        if self.pasdw_ovlp_fit:
-                            self._save_v_avsiq[a][u, v, s] = global_slices[
-                                a
-                            ].sinv_pf.T.dot(coefs_vviq[u, v])
-                        else:
-                            self._save_v_avsiq[a][u, v, s] = coefs_vviq[u, v]
-                if self.pasdw_ovlp_fit:
-                    sl = global_slices[a]
-                    X_vvii = sl.get_ovlp_deriv(
-                        sl.get_funcs(), sl.get_grads(), stress=True
-                    )
-                    coefs_iq = np.linalg.solve(sl.sinv_pf.T, self.c_asiq[a][s])
-                    self._save_v_avsiq[a][:, :, s] += np.einsum(
-                        "uvij,iq->uvjq", X_vvii, coefs_iq
-                    )
+            assert coefs_vviq is not None
+            for u in range(3):
+                for v in range(3):
+                    if self.pasdw_ovlp_fit:
+                        self._save_v_avsiq[a][u, v, s] = global_slices[a].sinv_pf.T.dot(
+                            coefs_vviq[u, v]
+                        )
+                    else:
+                        self._save_v_avsiq[a][u, v, s] = coefs_vviq[u, v]
+            if self.pasdw_ovlp_fit:
+                sl = global_slices[a]
+                X_vvii = sl.get_ovlp_deriv(sl.get_funcs(), sl.get_grads(), stress=True)
+                coefs_iq = np.linalg.solve(sl.sinv_pf.T, X_asiq[a][s])
+                self._save_v_avsiq[a][:, :, s] += np.einsum(
+                    "uvij,iq->uvjq", X_vvii, coefs_iq
+                )
         self.timer.stop()
 
     def set_fft_work(self, s, pot=False):
@@ -379,16 +418,8 @@ class CiderPASDW_MPRoutines:
     def get_fft_work(self, s, pot=False, grad_mode=CIDERPW_GRAD_MODE_NONE):
         self.interpolate_rbuf_onto_atoms(s, pot=pot)
         if grad_mode == CIDERPW_GRAD_MODE_FORCE:
-            if s == 0:
-                self._save_v_avsiq = {}
-                for a, c_siq in self.c_asiq.items():
-                    self._save_v_avsiq[a] = np.zeros((3,) + c_siq.shape)
             self.interpolate_rbuf_onto_atoms_grad(s, pot=pot)
         elif grad_mode == CIDERPW_GRAD_MODE_STRESS:
-            if s == 0:
-                self._save_v_avsiq = {}
-                for a, c_siq in self.c_asiq.items():
-                    self._save_v_avsiq[a] = np.zeros((3, 3) + c_siq.shape)
             self.interpolate_rbuf_onto_atoms_stress(s, pot=pot)
 
     def _set_paw_terms(self):
@@ -397,30 +428,27 @@ class CiderPASDW_MPRoutines:
         if not (D_asp.partition.rank_a == self.atom_partition.rank_a).all():
             raise ValueError("rank_a mismatch")
         self.c_asiq = self.paw_kernel.calculate_paw_feat_corrections(self.setups, D_asp)
-        self._save_c_asiq = {k: v.copy() for k, v in self.c_asiq.items()}
         self.D_asp = D_asp
         self.timer.stop()
 
     def _calculate_paw_energy_and_potential(self, grad_mode=CIDERPW_GRAD_MODE_NONE):
         self.timer.start("PAW ENERGY")
-        if grad_mode == CIDERPW_GRAD_MODE_STRESS:
-            ctmp_asiq = {a: c_siq.copy() for a, c_siq in self.c_asiq.items()}
-        self.c_asiq, deltaE, deltaV = self.paw_kernel.calculate_paw_feat_corrections(
-            self.setups, self.D_asp, D_asiq=self.c_asiq
+        self.vD_asiq, deltaE, deltaV = self.paw_kernel.calculate_paw_feat_corrections(
+            self.setups, self.D_asp, D_asiq=self.D_asiq
         )
         self.E_a_tmp = deltaE
         self.deltaV = deltaV
         self.timer.stop()
         if grad_mode == CIDERPW_GRAD_MODE_STRESS:
             tot = 0
-            for a, ctmp_siq in ctmp_asiq.items():
-                tot += np.einsum("siq,siq->", self.c_asiq[a], ctmp_siq)
+            for a in self._my_atom_list:
+                tot += np.einsum("siq,siq->", self.vD_asiq[a], self.D_asiq[a])
             return tot
 
     def _get_dH_asp(self):
         self.timer.start("PAW POTENTIAL")
         dH_asp = self.paw_kernel.calculate_paw_feat_corrections(
-            self.setups, self.D_asp, vc_asiq=self.c_asiq
+            self.setups, self.D_asp, vc_asiq=self.vc_asiq
         )
         for a in self.D_asp.keys():
             dH_asp[a] += self.deltaV[a]

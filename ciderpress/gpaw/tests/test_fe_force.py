@@ -89,7 +89,7 @@ class TestForce(unittest.TestCase):
                 qmax=300,
                 lambd=1.8,
                 xmix=0.25,
-                pasdw_ovlp_fit=False,
+                pasdw_ovlp_fit=True,
                 pasdw_store_funcs=False,
             )
 

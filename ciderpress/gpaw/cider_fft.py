@@ -78,7 +78,9 @@ class _CiderBase:
         self.distribution = None
         self.fft_obj = None
         self.c_asiq = None
-        self._save_c_asiq = None
+        self.vc_asiq = None
+        self.D_asiq = None
+        self.vD_asiq = None
         self._save_v_avsiq = None
         self._global_redistributor = None
         self.aux_gd = None
@@ -251,11 +253,11 @@ class _CiderBase:
         if grad_mode == CIDERPW_GRAD_MODE_FORCE:
             fs = {}
             for a, v_vsiq in self._save_v_avsiq.items():
-                fs[a] = np.einsum("vsiq,siq->v", v_vsiq, self.c_asiq[a])
+                fs[a] = np.einsum("vsiq,siq->v", v_vsiq, self.vD_asiq[a])
         elif grad_mode == CIDERPW_GRAD_MODE_STRESS:
             fs = paw_res * np.eye(3)
             for a, v_vvsiq in self._save_v_avsiq.items():
-                fs += np.einsum("uvsiq,siq->uv", v_vvsiq, self.c_asiq[a])
+                fs += np.einsum("uvsiq,siq->uv", v_vvsiq, self.vD_asiq[a])
         else:
             fs = None
         for s in range(plan.nspin):
@@ -301,10 +303,10 @@ class _CiderBase:
             self.fft_obj.fill_vj_feature_(dedfun_sg[s], p_gq)
         if grad_mode == CIDERPW_GRAD_MODE_FORCE:
             for a, v_vsiq in self._save_v_avsiq.items():
-                fs[a] += np.einsum("vsiq,siq->v", v_vsiq, self._save_c_asiq[a])
+                fs[a] += np.einsum("vsiq,siq->v", v_vsiq, self.c_asiq[a])
         elif grad_mode == CIDERPW_GRAD_MODE_STRESS:
             for a, v_vvsiq in self._save_v_avsiq.items():
-                fs += np.einsum("uvsiq,siq->uv", v_vvsiq, self._save_c_asiq[a])
+                fs += np.einsum("uvsiq,siq->uv", v_vvsiq, self.c_asiq[a])
         dedarg_sg[:] *= fun_sg
         self._get_dH_asp()
         if fs is not None:

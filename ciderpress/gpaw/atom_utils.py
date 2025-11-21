@@ -135,6 +135,9 @@ def get_pa_setup_func_counts(Z):
         return PA_SETUP_LIST1
 
 
+# get_ps_setup_func_counts = get_pa_setup_func_counts
+
+
 class SBTGridContainer:
     def __init__(
         self,

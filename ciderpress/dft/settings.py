@@ -1855,8 +1855,8 @@ def get_alpha(rho, sigma, tau):
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
     tauw = sigma / (8 * rho)
-    if (tauw > tau).any():
-        print("SMALL TAU", tau.shape, np.min(tau - tauw))
+    # if (tauw > tau).any():
+    #    print("SMALL TAU", tau.shape, np.min(tau - tauw))
     # cond = np.logical_and(cond, tauw > tau - 1e-8)
     # TODO this numerical stability trick is a bit of a hack.
     # Should make spline support small negative alpha
