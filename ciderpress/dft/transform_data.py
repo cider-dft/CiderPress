@@ -1158,9 +1158,6 @@ class OmegaMap(FeatureNormalizer):
             input_s[s_nan_mask] = 0
             input_alpha[alpha_nan_mask] = 0
 
-            input_s = np.clip(input_s, -1e10, 1e10)
-            input_alpha = np.clip(input_alpha, -1e10, 1e10)
-
             # use simplified formula for NST mode
             if self.slmode == "nst":
                 # alpha + 5/3 * s² = tau / tau0
@@ -1170,6 +1167,8 @@ class OmegaMap(FeatureNormalizer):
                 tau0 = np.maximum(tau0, 1e-10)  # 防止除零
                 inner_term = np.maximum(self.B + self.C * tau / tau0, 1e-10)
             else:
+                input_s = np.clip(input_s, -1e10, 1e10)
+                input_alpha = np.clip(input_alpha, -1e10, 1e10)
                 # NPA mode: original implementation
                 s2 = input_s
                 alpha = input_alpha
@@ -1187,12 +1186,10 @@ class OmegaMap(FeatureNormalizer):
 
     def fill_deriv_(self, dfdx, dfdy, x):
         n = np.maximum(np.abs(x[self.i_n]), 1e-10)
-        input_s = np.clip(x[self.i_s], -1e10, 1e10)
-        input_alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
 
         if self.slmode == "nst":
             # use simplified formula for NST mode
-            tau = input_alpha
+            tau = x[self.i_alpha]
             tau0 = self.CFC * np.power(n, 5.0 / 3)
             tau0 = np.maximum(tau0, 1e-10)
 
@@ -1231,6 +1228,8 @@ class OmegaMap(FeatureNormalizer):
 
         else:
             # NPA mode: original implementation
+            input_s = np.clip(x[self.i_s], -1e10, 1e10)
+            input_alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
             s2 = input_s
             alpha = input_alpha
 
