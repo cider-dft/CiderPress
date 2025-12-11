@@ -231,13 +231,16 @@ class CiderGPAW(GPAW):
         xc = self.parameters.xc
         if isinstance(xc, dict) and "_cider_type" in xc:
             is_cider = "Cider" in xc["_cider_type"]
-            if is_cider:
-                if reading:
-                    self._mlfunc_data = self.reader.mlfunc.get("mlfunc_data")
-                xc["mlfunc"] = self._mlfunc_data
-            self.parameters.xc = cider_functional_from_dict(xc)
-            if is_cider:
-                del self._mlfunc_data
+            try:
+                if is_cider:
+                    if reading:
+                        self._mlfunc_data = self.reader.mlfunc.get("mlfunc_data")
+                    xc["mlfunc"] = self._mlfunc_data
+                self.parameters.xc = cider_functional_from_dict(xc)
+                if is_cider:
+                    del self._mlfunc_data
+            except AttributeError:
+                self.parameters.xc = {"name": "PBE", "type": "GGA"}
         GPAW.initialize(self, atoms, reading)
 
 
