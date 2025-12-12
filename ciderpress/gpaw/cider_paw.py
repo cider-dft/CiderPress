@@ -163,8 +163,6 @@ class CiderPASDW_MPRoutines:
             rtot = 0
             for a in self._my_atom_list:
                 c_iq = X_asiq[a][spin]
-                # print(a, self.setups[a].Z, atom_slices[a].num_funcs, pot, c_iq.shape, shapes[a], spin,
-                #      [self.c_asiq[a][spin].shape for spin in range(2)])
                 if self.pasdw_ovlp_fit:
                     sendbuf[rtot : rtot + sizes[a]] = np.ascontiguousarray(
                         # c_abi[a].dot(global_slices[a].sinv_pf.T)
@@ -644,7 +642,6 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
             self._add_from_cider_grid(tmp_dedrho_sxg[s], dedrho_sxg[s])
         v_sg[:] = tmp_dedrho_sxg[:, 0]
         add_gradient_correction(self.grad_v, tmp_dedrho_sxg, v_sg)
-
         if dedtaut_sg is not None:
             dedtaut_sg[:] = tmp_dedrho_sxg[:, 4]
             self.dedtaut_sG = self.wfs.gd.empty(self.wfs.nspins)

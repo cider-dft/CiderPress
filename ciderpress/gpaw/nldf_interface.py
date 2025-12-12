@@ -26,8 +26,9 @@ try:
     from gpaw import cgpaw
 except ImportError:
     import _gpaw as cgpaw
-from gpaw.grid_descriptor import GridDescriptor
+
 from gpaw.xc.libvdwxc import FFTDistribution, nulltimer
+from gpaw.xc.vdw import GridDescriptor
 
 from ciderpress.lib import c_null_ptr, load_library
 

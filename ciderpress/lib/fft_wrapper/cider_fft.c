@@ -31,16 +31,17 @@ void cider_fft_initialize() {
         MPI_Query_thread(&provided);
         int threads_ok = provided >= MPI_THREAD_FUNNELED;
 #if FFT_BACKEND == FFT_FFTW_BACKEND
-        if (threads_ok)
-            threads_ok = fftw_init_threads();
+        if (threads_ok) {
+            threads_ok = 0; // fftw_init_threads();
+        }
         fftw_mpi_init();
 #endif
         CIDER_FFT_THREADED = threads_ok;
     } else {
 #if FFT_BACKEND == FFT_FFTW_BACKEND
-        fftw_init_threads();
+        // fftw_init_threads();
 #endif
-        CIDER_FFT_THREADED = 1;
+        CIDER_FFT_THREADED = 0;
     }
 #else
 #if FFT_BACKEND == FFT_FFTW_BACKEND
@@ -71,11 +72,11 @@ void cider_fft_set_nthread(int nthread) {
             CIDER_FFT_MKL_NTHREAD = nthread;
         }
 #else
-        if (nthread == -1) {
-            fftw_plan_with_nthreads(omp_get_max_threads());
-        } else if (nthread > 0) {
-            fftw_plan_with_nthreads(nthread);
-        }
+        // if (nthread == -1) {
+        //     fftw_plan_with_nthreads(omp_get_max_threads());
+        // } else if (nthread > 0) {
+        //     fftw_plan_with_nthreads(nthread);
+        // }
 #endif
     }
 }

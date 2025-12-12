@@ -33,7 +33,7 @@ if (FFT_BACKEND EQUAL 1) # MKL
   endif()
 else() # FFTW
   target_link_libraries(fft_wrapper PRIVATE fftw3)
-  target_link_libraries(fft_wrapper PRIVATE fftw3_omp)
+  # target_link_libraries(fft_wrapper PRIVATE fftw3_omp)
   if (HAVE_MPI)
     target_link_libraries(fft_wrapper PRIVATE fftw3_mpi)
   endif()
