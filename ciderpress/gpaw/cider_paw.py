@@ -31,7 +31,6 @@ from ciderpress.gpaw.cider_fft import (
     CIDERPW_GRAD_MODE_STRESS,
     CiderGGA,
     CiderMGGA,
-    add_gradient_correction,
 )
 from ciderpress.gpaw.nldf_interface import pwutil as libpwutil
 
@@ -633,27 +632,8 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
         self.timer.stop()
         return taut_sg, dedtaut_sg, taut_sG
 
-    def calculate_impl(self, gd, n_sg, v_sg, e_g):
-        taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
-        _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, taut_sg)
-        tmp_dedrho_sxg = np.zeros((len(n_sg), rho_sxg.shape[1]) + e_g.shape)
-        e_g[:] = 0.0
-        self.calc_cider(_e, rho_sxg, dedrho_sxg)
-        self._add_from_cider_grid(e_g[None, :], _e[None, :])
-        for s in range(len(n_sg)):
-            self._add_from_cider_grid(tmp_dedrho_sxg[s], dedrho_sxg[s])
-        v_sg[:] = tmp_dedrho_sxg[:, 0]
-        add_gradient_correction(self.grad_v, tmp_dedrho_sxg, v_sg)
-
-        if dedtaut_sg is not None:
-            dedtaut_sg[:] = tmp_dedrho_sxg[:, 4]
-            self.dedtaut_sG = self.wfs.gd.empty(self.wfs.nspins)
-            self.ekin = 0.0
-            for s in range(self.wfs.nspins):
-                self.restrict_and_collect(dedtaut_sg[s], self.dedtaut_sG[s])
-                self.ekin -= self.wfs.gd.integrate(
-                    self.dedtaut_sG[s] * (taut_sG[s] - self.tauct_G / self.wfs.nspins)
-                )
+    def _core_kin_term(self):
+        return self.tauct_G * (1.0 / self.wfs.nspins)
 
     def calculate_force_contribs(self, F_av, n_sg):
         e_g = np.zeros(n_sg.shape[1:])

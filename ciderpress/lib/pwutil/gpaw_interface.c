@@ -22,9 +22,13 @@
 #include <mpi.h>
 #include <stdlib.h>
 
+// MPI_Comm unpack_gpaw_comm(PyObject *gpaw_mpi_obj) {
+//     MPIObject *gpaw_comm = (MPIObject *)gpaw_mpi_obj;
+//     return gpaw_comm->comm;
+// }
+
 MPI_Comm unpack_gpaw_comm(PyObject *gpaw_mpi_obj) {
-    MPIObject *gpaw_comm = (MPIObject *)gpaw_mpi_obj;
-    return gpaw_comm->comm;
+    return *((MPI_Comm *)PyLong_AsVoidPtr(gpaw_mpi_obj));
 }
 
 static void mpi_ensure_finalized(void) {

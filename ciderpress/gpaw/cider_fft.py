@@ -464,9 +464,10 @@ class _CiderBase:
         _e = self._distribute_to_cider_grid(np.zeros_like(n_sg[0])[None, :])[0]
         return _e, rho_sxg, dedrho_sxg
 
-    def calculate_impl(self, gd, n_sg, v_sg, e_g):
-        taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
-        _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, taut_sg)
+    def calculate_impl_new(self, n_sg, v_sg, e_g, tau_sg=None, dedtau_sg=None):
+        if tau_sg is not None:
+            assert dedtau_sg is not None
+        _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, tau_sg)
         tmp_dedrho_sxg = np.zeros((len(n_sg), rho_sxg.shape[1]) + e_g.shape)
         e_g[:] = 0.0
         self.calc_cider(_e, rho_sxg, dedrho_sxg)
@@ -474,15 +475,29 @@ class _CiderBase:
         for s in range(len(n_sg)):
             self._add_from_cider_grid(tmp_dedrho_sxg[s], dedrho_sxg[s])
         v_sg[:] = tmp_dedrho_sxg[:, 0]
-        add_gradient_correction(self.grad_v, tmp_dedrho_sxg, v_sg)
+        dedgrad_svg = tmp_dedrho_sxg[:, 1:4]
+        if dedtau_sg is not None:
+            dedtau_sg[:] = tmp_dedrho_sxg[:, 4]
+        return dedgrad_svg
+
+    def _core_kin_term(self):
+        return 0
+
+    def calculate_impl(self, gd, n_sg, v_sg, e_g):
+        taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
+        dedgrad_svg = self.calculate_impl_new(n_sg, v_sg, e_g, taut_sg, dedtaut_sg)
+        add_gradient_correction(self.grad_v, dedgrad_svg, v_sg)
 
         if dedtaut_sg is not None:
-            dedtaut_sg[:] = tmp_dedrho_sxg[:, 4]
+            dedtaut_sg[:] = dedtaut_sg
             self.dedtaut_sG = self.wfs.gd.empty(self.wfs.nspins)
             self.ekin = 0.0
+            ckt_G = self._core_kin_term()
             for s in range(self.wfs.nspins):
                 self.restrict_and_collect(dedtaut_sg[s], self.dedtaut_sG[s])
-                self.ekin -= self.wfs.gd.integrate(self.dedtaut_sG[s] * taut_sG[s])
+                self.ekin -= self.wfs.gd.integrate(
+                    self.dedtaut_sG[s] * (taut_sG[s] - ckt_G)
+                )
 
 
 class CiderGGA(_CiderBase, GGA):
@@ -575,6 +590,7 @@ def get_rho_sxg(n_sg, grad_v, tau_sg=None):
 
 
 def add_gradient_correction(grad_v, dedrho_sxg, v_sg):
+    assert dedrho_sxg.shape[1] == 3
     nspin = len(v_sg)
     vv_g = np.empty_like(v_sg[0])
     for v in range(3):
