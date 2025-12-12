@@ -20,13 +20,13 @@
 #include "gpaw_interface.h"
 #include <Python.h>
 #include <mpi.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 // MPI_Comm unpack_gpaw_comm(PyObject *gpaw_mpi_obj) {
 //     MPIObject *gpaw_comm = (MPIObject *)gpaw_mpi_obj;
 //     return gpaw_comm->comm;
 // }
-
 MPI_Comm unpack_gpaw_comm(PyObject *gpaw_mpi_obj) {
     return *((MPI_Comm *)PyLong_AsVoidPtr(gpaw_mpi_obj));
 }
@@ -58,8 +58,9 @@ void mpi_ensure_initialized(void) {
 //         use_threads = 1;
 // #endif
 #ifdef _OPENMP
-        use_threads = 1;
+        // use_threads = 1;
 #endif
+        printf("MPI USE THREADS %d\n", use_threads);
         if (!use_threads) {
             ierr = MPI_Init(NULL, NULL);
             if (ierr == MPI_SUCCESS) {

@@ -162,8 +162,6 @@ class CiderPASDW_MPRoutines:
             rtot = 0
             for a in self._my_atom_list:
                 c_iq = X_asiq[a][spin]
-                # print(a, self.setups[a].Z, atom_slices[a].num_funcs, pot, c_iq.shape, shapes[a], spin,
-                #      [self.c_asiq[a][spin].shape for spin in range(2)])
                 if self.pasdw_ovlp_fit:
                     sendbuf[rtot : rtot + sizes[a]] = np.ascontiguousarray(
                         # c_abi[a].dot(global_slices[a].sinv_pf.T)

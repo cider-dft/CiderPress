@@ -589,13 +589,13 @@ def get_rho_sxg(n_sg, grad_v, tau_sg=None):
     return rho_sxg
 
 
-def add_gradient_correction(grad_v, dedrho_sxg, v_sg):
-    assert dedrho_sxg.shape[1] == 3
+def add_gradient_correction(grad_v, dedgrad_sxg, v_sg):
+    assert dedgrad_sxg.shape[1] == 3
     nspin = len(v_sg)
     vv_g = np.empty_like(v_sg[0])
     for v in range(3):
         for s in range(nspin):
-            grad_v[v](dedrho_sxg[s, v + 1], vv_g)
+            grad_v[v](dedgrad_sxg[s, v], vv_g)
             v_sg[s] -= vv_g
 
 
