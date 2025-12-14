@@ -68,7 +68,7 @@ DEFAULT_CIDER_PAW_ALGO = "v1"
 USE_GAUSSIAN_SBT = True
 # if USE_GAUSSIAN_PAW_CONV is True, USE_GAUSSIAN_SBT must be True
 USE_GAUSSIAN_SBT = USE_GAUSSIAN_SBT or USE_GAUSSIAN_PAW_CONV
-
+print_ovlp = False
 
 def get_ag_indices(fft_obj, gd, shape, spos_c, rmax, buffer=0, get_global_disps=False):
     center = np.round(spos_c * shape).astype(int)
@@ -109,18 +109,26 @@ PSETUP_LIST4 = (
     [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4],
 )
 
+PSETUP_LIST5 = ([0, 1, 2, 3, 4], [0, 1, 2, 3, 4]) #add n=2 l = 0 , n=3 l = 1 and so on unrtil issues happen
+
+PSETUP_LIST6 = (
+    [0, 4, 1, 5, 2, 6, 3, 4],
+    [0, 0, 1, 1, 2, 2, 3, 4],
+)
 
 def get_psetup_func_counts(Z, big=False):
     if Z > 36:
         if big:
             return PSETUP_LIST4
         else:
-            return PSETUP_LIST3
+            print("Using PSETUP_LIST6")
+            return PSETUP_LIST6
     elif Z > 18:
         if big:
             return PSETUP_LIST3
         else:
-            return PSETUP_LIST2
+            print("Using PSETUP_LIST6")
+            return PSETUP_LIST6
     elif Z > 2:
         if big:
             return PSETUP_LIST3
@@ -1696,6 +1704,13 @@ class PAugSetup(PASDWData):
                 pfuncs_ng[nlist_j[jmin:jmax]],
                 dv_g * filt,
             )
+            #print condition number of ovlp
+            if print_ovlp:
+                try:
+                    print(f"Condition number of ovlp for l={l}: {np.linalg.cond(ovlp):.2e}")
+                except Exception:
+                    print (f"ovlp for l={l} is empty")
+                    continue
             c_and_l = cho_factor(ovlp)
             ffuncs_jg[jmin:jmax] = cho_solve(c_and_l, pfuncs_ng[nlist_j[jmin:jmax]])
             ffuncs_jt[jmin:jmax] = cho_solve(
@@ -2365,6 +2380,13 @@ class PSmoothSetupV1(_PSmoothSetupBase):
         self.p_l_ii = p_l_ii
         self.p_cl_l_ii = []
         for l in range(self.lmax + 1):
+            if print_ovlp:
+                try:
+                    #print in scientific notation
+                    print (f"condition number of p_l_ii for l={l}: {np.linalg.cond(p_l_ii[l]):.2e}")
+                except Exception:
+                    print (f"p_l_ii for l={l} is empty")
+                    continue
             c_and_l = cho_factor(p_l_ii[l])
             self.p_cl_l_ii.append(c_and_l)
 
@@ -2393,6 +2415,12 @@ class PSmoothSetupV1(_PSmoothSetupBase):
                     slice2 = slice(uloc_l[l] + m, uloc_l[l + 1] + m, nm)
                     b2 = all_b2_ia[slice2]
                     b = self.cat_b_vecs(b1, b2)
+                    if print_ovlp:
+                        try:
+                            print (f"condition number of p_cl_l_ii in c and df loop for l={l}: {np.linalg.cond(self.p_cl_l_ii[l][0]):.2e}")
+                        except Exception:
+                            print (f"p_cl_l_ii for l={l} is empty")
+                            continue
                     x = cho_solve(self.p_cl_l_ii[l], b)
                     n1 = b1.size
                     df_sub[s, slice1] += x[:n1].reshape(-1, nb)
@@ -2425,6 +2453,12 @@ class PSmoothSetupV1(_PSmoothSetupBase):
                         yy_skLq[s, :, l * l + m, :],
                     )
                     b = self.cat_b_vecs(b1, b2)
+                    if print_ovlp:
+                        try:
+                            print (f"condition number of p_cl_l_ii in c and df loop for l={l}: {np.linalg.cond(self.p_cl_l_ii[l][0]):.2e}")
+                        except Exception:
+                            print (f"p_cl_l_ii for l={l} is empty")
+                            continue
                     x = cho_solve(self.p_cl_l_ii[l], b)
                     n1 = b1.size
                     df_sub[s, slice1] += x[:n1].reshape(-1, nb)
@@ -2457,6 +2491,13 @@ class PSmoothSetupV1(_PSmoothSetupBase):
                     slice2 = slice(uloc_l[l] + m, uloc_l[l + 1] + m, nm)
                     x2 = vc_sia[s, slice2].ravel()
                     x = self.cat_b_vecs(x1, x2)
+                    #it is tuple, wanna check length of tuple and size of each element
+                    if print_ovlp:
+                        try:
+                            print (f"condition number of first element in tuple for p_cl_l_ii in vy and vyy loop for l={l}: {np.linalg.cond(self.p_cl_l_ii[l][0]):.2e}")
+                        except Exception:
+                            print (f"p_cl_l_ii for l={l} is empty")
+                            continue
                     b = cho_solve(self.p_cl_l_ii[l], x)
                     n1 = x1.size
                     all_vb1_ub[slice1] += b[:n1].reshape(-1, nb)
@@ -2486,6 +2527,13 @@ class PSmoothSetupV1(_PSmoothSetupBase):
                     slice2 = slice(uloc_l[l] + m, uloc_l[l + 1] + m, nm)
                     x2 = vc_sia[s, slice2].ravel()
                     x = self.cat_b_vecs(x1, x2)
+                    #print type of p_cl_l_ii in scientific notation
+                    if print_ovlp:
+                        try:
+                            print (f"condition number of first element in tuple for p_cl_l_ii in vy and vyy loop for l={l}: {np.linalg.cond(self.p_cl_l_ii[l][0]):.2e}")
+                        except Exception:
+                            print (f"p_cl_l_ii for l={l} is empty")
+                            continue
                     b = cho_solve(self.p_cl_l_ii[l], x)
                     n1 = x1.size
                     all_vb1_ub[slice1] += b[:n1].reshape(-1, nb)
