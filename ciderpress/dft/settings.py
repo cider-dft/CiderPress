@@ -1902,11 +1902,14 @@ def get_alpha(rho, sigma, tau):
     cond = rho < ALPHA_TOL
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
-    tauw = get_single_orbital_tau(rho, np.sqrt(sigma))
+    tauw = sigma / (8 * rho)
+    if (tauw > tau).any():
+        print("SMALL TAU", tau.shape, np.min(tau - tauw))
+    # cond = np.logical_and(cond, tauw > tau - 1e-8)
     # TODO this numerical stability trick is a bit of a hack.
     # Should make spline support small negative alpha
     # instead, for the sake of clean code and better stability.
-    alpha = np.maximum((tau - tauw), 0) / tau0
+    alpha = (tau - tauw) / tau0
     alpha[cond] = 0
     return alpha
     # return np.maximum((tau - tauw), 0) / tau0
@@ -1917,6 +1920,7 @@ def dalpha(rho, sigma, tau):
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
     tauw = sigma / (8 * rho)
+    # cond = np.logical_and(cond, tauw > tau - 1e-8)
     dwdn, dwds = -sigma / (8 * rho * rho), 1 / (8 * rho)
     dadn = 5.0 * (tauw - tau) / (3 * tau0 * rho) - dwdn / tau0
     dadsigma = -dwds / tau0

@@ -30,7 +30,7 @@ from scipy.interpolate import interp1d
 from ciderpress.gpaw.gpaw_grids import GCRadialGridDescriptor
 
 
-def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
+def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new, n_qg, d_qg):
     nj = len(phi_jg)
     dphidr_jg = np.zeros(np.shape(phi_jg))
     for j in range(nj):
@@ -39,6 +39,14 @@ def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
 
     phi_jg = _interpc(phi_jg)
     dphidr_jg = _interpc(dphidr_jg)
+
+    q = 0  # q: common index for j1, j2
+    for j1 in range(nj):
+        for j2 in range(j1, nj):
+            n_qg[q] = phi_jg[j1] * phi_jg[j2]
+            d_qg[q] = phi_jg[j1] * dphidr_jg[j2]
+            d_qg[q] += dphidr_jg[j1] * phi_jg[j2]
+            q += 1
 
     # second term
     for y in range(ny):
@@ -64,14 +72,15 @@ def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
             for j2, l2, L2 in xcc.jlL[i1:]:
                 temp = Ax_L[L1] * Ax_L[L2] + Ay_L[L1] * Ay_L[L2] + Az_L[L1] * Az_L[L2]
                 temp *= phi_jg[j1] * phi_jg[j2]
-                # temp[1:] /= r_g_new[1:]**2
-                # temp[0] = temp[1]
-                temp /= r_g_new**2
-                if r_g_new[0] == 0:
-                    temp[0] = temp[1]
+                temp[1:] /= r_g_new[1:] ** 2
+                temp[0] = temp[1]
+                # temp /= r_g_new**2
+                # if r_g_new[0] == 0:
+                #    temp[0] = temp[1]
                 tau_ypg[y, p, :] += temp
                 p += 1
             i1 += 1
+    tau_ypg[:, :, 0] = tau_ypg[:, :, 1]
     tau_ypg *= 0.5
 
 
@@ -114,8 +123,15 @@ class DiffPAWXCCorrection:
         self.Lmax = Lmax
         self.tau_npg = tau_npg
         self.taut_npg = taut_npg
-        self.tauc_g = tauc_g
-        self.tauct_g = tauct_g
+        # remove FHC violation from core kinetic energy density
+        self.tauc_g = np.maximum(
+            tauc_g,
+            np.sqrt(4 * np.pi) * self.dc_g**2 / (8 * self.nc_g + 1e-10),
+        )
+        self.tauct_g = np.maximum(
+            tauct_g,
+            np.sqrt(4 * np.pi) * self.dct_g**2 / (8 * self.nct_g + 1e-10),
+        )
         self.Y_nL = Y_nL
         if self.tau_npg is not None:
             NP = self.tau_npg.shape[1]
@@ -148,7 +164,7 @@ class DiffPAWXCCorrection:
         tab = np.array((2, 10, 18, 36, 54, 86, 118))
         (setup.Z > tab).sum()
         rcut = xcc.rgd.r_g[-1]
-        if setup.Z > 36 and hasattr(setup.rgd, "a") and hasattr(setup.rgd, "b"):
+        if setup.Z > 18 and hasattr(setup.rgd, "a") and hasattr(setup.rgd, "b"):
             rgd = AERadialGridDescriptor(setup.rgd.a, setup.rgd.b, setup.rgd.N)
             gcut = rgd.ceil(rcut)
             rgd = rgd.new(gcut)
@@ -185,9 +201,22 @@ class DiffPAWXCCorrection:
             ng = rgd.r_g.shape[0]
             tau_npg = np.zeros((nn, nii, ng))
             taut_npg = np.zeros((nn, nii, ng))
-            create_kinetic_diffpaw(xcc, nn, xcc.phi_jg, tau_npg, _interpc, rgd.r_g)
-            create_kinetic_diffpaw(xcc, nn, xcc.phit_jg, taut_npg, _interpc, rgd.r_g)
+            nq = len(xcc.n_qg)
+            n_qg = np.empty((nq, ng))
+            nt_qg = np.empty((nq, ng))
+            d_qg = np.empty((nq, ng))
+            dt_qg = np.empty((nq, ng))
+            create_kinetic_diffpaw(
+                xcc, nn, xcc.phi_jg, tau_npg, _interpc, rgd.r_g, n_qg, d_qg
+            )
+            create_kinetic_diffpaw(
+                xcc, nn, xcc.phit_jg, taut_npg, _interpc, rgd.r_g, nt_qg, dt_qg
+            )
         else:
+            n_qg = np.array([_interp(n_g) for n_g in xcc.n_qg])
+            nt_qg = np.array([_interp(n_g) for n_g in xcc.nt_qg])
+            d_qg = np.array([_interp(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
+            dt_qg = np.array([_interp(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
             tau_npg = None
             taut_npg = None
 
@@ -204,10 +233,10 @@ class DiffPAWXCCorrection:
             if xcc.nc_corehole_g is not None
             else None,
             xcc.B_pqL,
-            np.array([_interpc(n_g) for n_g in xcc.n_qg]),
-            np.array([_interpc(nt_g) for nt_g in xcc.nt_qg]),
-            np.array([_interpc(n_g) for n_g in d_qg]),
-            np.array([_interpc(nt_g) for nt_g in dt_qg]),
+            n_qg,
+            nt_qg,
+            d_qg,
+            dt_qg,
             xcc.e_xc0,
             xcc.Lmax,
             tau_npg,

@@ -150,6 +150,37 @@ def get_libxc_lda_baseline(xcid, rho):
     )
     return exc, vrho
 
+def get_libxc_lda_rs_baseline(xcid, rho, omega=0.0):
+    """
+    Range-separated LDA baseline function.
+    
+    Args:
+        xcid: Exchange-correlation functional ID (string or int)
+        rho: Density array
+        omega: Range-separation parameter
+    
+    Returns:
+        exc, vrho: Energy and potential arrays
+    """
+    if isinstance(xcid, str):
+        xcid = LDA_CODES[xcid]
+    nspin, size = rho.shape
+    rho = np.asfortranarray(rho)
+    exc = np.zeros(size)
+    vrho = np.zeros_like(rho, order="F")
+    
+    xc_helper.get_lda_rs_baseline(
+        ctypes.c_int(xcid),
+        ctypes.c_int(nspin),
+        ctypes.c_int(size),
+        rho.ctypes.data_as(ctypes.c_void_p),
+        exc.ctypes.data_as(ctypes.c_void_p),
+        vrho.ctypes.data_as(ctypes.c_void_p),
+        ctypes.c_double(omega),
+        ctypes.c_double(1e-12),
+    )
+    return exc, vrho
+
 
 def get_libxc_gga_baseline(xcid, rho, sigma):
     if isinstance(xcid, str):
@@ -254,11 +285,14 @@ def get_libxc_baseline_os(xcid, rho_tuple):
     return exc, vrho, vsigma
 
 
-def get_libxc_baseline(xcid, rho_tuple):
+def get_libxc_baseline(xcid, rho_tuple, omega=0.0):
     for r in rho_tuple:
         assert r.ndim == 2
     if xcid in LDA_CODES:
-        res = get_libxc_lda_baseline(xcid, rho_tuple[0])
+        if abs(omega) > 1e-11:
+            res = get_libxc_lda_rs_baseline(xcid, rho_tuple[0], omega)
+        else:
+            res = get_libxc_lda_baseline(xcid, rho_tuple[0])
     elif xcid in GGA_CODES:
         res = get_libxc_gga_baseline(xcid, rho_tuple[0], rho_tuple[1])
     elif xcid in MGGA_CODES:
@@ -403,6 +437,7 @@ BASELINE_CODES = {
 LDA_CODES = {
     "LDA_X": 1,
     "LDA_C_PW_MOD": 13,
+    "LDA_X_ERF": 546,
 }
 
 GGA_CODES = {

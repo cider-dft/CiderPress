@@ -796,6 +796,125 @@ class SLXMap(FeatureNormalizer):
         return cls(d["i"], d["j"], d["gamma"])
 
 
+class SLRMap(FeatureNormalizer):
+    code = "SLR"
+
+    def __init__(self, i, j, k):
+        self.i = i
+        self.j = j
+        self.k = k
+        from ciderpress.dft.settings import get_cider_exponent
+
+        self.get_exp = get_cider_exponent
+
+    @property
+    def bounds(self):
+        return (0, 1)
+
+    @property
+    def num_arg(self):
+        return 3
+
+    def fill_feat_(self, y, x):
+        a = self.get_exp(x[self.i], np.zeros_like(x[self.i]), x[self.j])[0]
+        rho = np.maximum(x[self.i], 1e-10)
+        y[:] = a / (rho * (x[self.k] + a))
+
+    def fill_deriv_(self, dfdx, dfdy, x):
+        a, dadi, _, dadj = self.get_exp(x[self.i], np.zeros_like(x[self.i]), x[self.j])
+        rho = np.maximum(x[self.i], 1e-10)
+        invax2 = 1.0 / (x[self.k] + a)
+        dfdx[self.i] -= a * invax2 / rho**2
+        invax2 *= invax2 / rho
+        dfdx[self.k] -= a * invax2
+        invax2 *= x[self.k]
+        dfdx[self.i] += invax2 * dadi
+        dfdx[self.j] += invax2 * dadj
+
+    def as_dict(self):
+        return {"code": self.code, "i": self.i, "j": self.j, "k": self.k}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["i"], d["j"], d["k"])
+
+
+class SLR2Map(FeatureNormalizer):
+    code = "SLR2"
+
+    def __init__(self, i, j):
+        self.i = i
+        self.j = j
+        from ciderpress.dft.settings import get_cider_exponent
+
+        self.get_exp = get_cider_exponent
+
+    @property
+    def bounds(self):
+        return (0, 1)
+
+    @property
+    def num_arg(self):
+        return 2
+
+    def fill_feat_(self, y, x):
+        rho = np.maximum(x[self.i], 1e-10)
+        rho[rho < 1e-10] = 1e100
+        y[:] = x[self.j] / rho
+
+    def fill_deriv_(self, dfdx, dfdy, x):
+        rho = np.maximum(x[self.i], 0)
+        rho[rho < 1e-10] = 1e100
+        dfdx[self.j] += 1 / rho
+        dfdx[self.i] -= x[self.j] / rho**2
+
+    def as_dict(self):
+        return {"code": self.code, "i": self.i, "j": self.j}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["i"], d["j"])
+
+
+class SLR3Map(FeatureNormalizer):
+    code = "SLR3"
+
+    def __init__(self, i, j):
+        self.i = i
+        self.j = j
+        from ciderpress.dft.settings import get_cider_exponent
+
+        self.get_exp = get_cider_exponent
+
+    @property
+    def bounds(self):
+        return (0, 1)
+
+    @property
+    def num_arg(self):
+        return 2
+
+    def fill_feat_(self, y, x):
+        rho = np.maximum(x[self.i], 1e-10)
+        y[:] = x[self.j] / (x[self.j] + rho)
+
+    def fill_deriv_(self, dfdx, dfdy, x):
+        rho = np.maximum(x[self.i], 1e-10)
+        inv2 = 1.0 / (x[self.j] + rho)
+        inv2[:] *= inv2
+        inv2[inv2 > 1e10] = 0
+        np.argmax(inv2)
+        dfdx[self.i] -= x[self.j] * inv2
+        dfdx[self.j] += x[self.i] * inv2
+
+    def as_dict(self):
+        return {"code": self.code, "i": self.i, "j": self.j}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["i"], d["j"])
+
+
 class SLBMap(FeatureNormalizer):
     """
     beta = (tau - tauw) / (tau + tau0)
@@ -989,6 +1108,8 @@ class SLDMap(FeatureNormalizer):
 
 
 class OmegaMap(FeatureNormalizer):
+    code = "Omega"
+
     def __init__(self, i_n, i_s, i_alpha, c, B, C, bounds=None):
         self.i_n = i_n
         self.i_s = i_s
@@ -1010,52 +1131,56 @@ class OmegaMap(FeatureNormalizer):
         return 3
 
     def fill_feat_(self, y, x, mol_id=None):
-        if x.size == 0:
-            raise ValueError("x is a zero-size array")
-        n = x[self.i_n]
-        s2 = x[self.i_s]
-        alpha = x[self.i_alpha]
-        if n.size == 0 or s2.size == 0 or alpha.size == 0:
-            raise ValueError("n, s2, or alpha is a zero-size array")
-        n_nan_mask = np.isnan(n)
-        n_zero_mask = n == 0
-        s2_nan_mask = np.isnan(s2)
-        alpha_nan_mask = np.isnan(alpha)
+        try:
+            if x.size == 0:
+                raise ValueError("x is a zero-size array")
+            n = x[self.i_n]
+            s2 = x[self.i_s]
+            alpha = x[self.i_alpha]
+            if n.size == 0 or s2.size == 0 or alpha.size == 0:
+                raise ValueError("n, s2, or alpha is a zero-size array")
+            n_nan_mask = np.isnan(n)
+            n_zero_mask = n == 0
+            s2_nan_mask = np.isnan(s2)
+            alpha_nan_mask = np.isnan(alpha)
 
-        n = np.abs(n)
-        n[n_nan_mask | n_zero_mask] = 1e-10
+            # n^(1/3), bounded by 0.01
+            n13 = (n * n + 1e-12) ** (1.0 / 6)
+            n13[n_nan_mask | n_zero_mask] = 1e-10
 
-        s2[s2_nan_mask] = 0
-        alpha[alpha_nan_mask] = 0
+            s2[s2_nan_mask] = 0
+            alpha[alpha_nan_mask] = 0
 
-        s2 = np.clip(s2, -1e10, 1e10)
-        alpha = np.clip(alpha, -1e10, 1e10)
+            s2 = np.clip(s2, -1e10, 1e10)
+            alpha = np.clip(alpha, -1e10, 1e10)
 
-        inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-        omega = np.sqrt(n ** (2 / 3) * inner_term)
-        denominator = np.maximum(1 + self.c * omega, 1e-10)
-        y[:] = self.c * omega / denominator
+            inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
+            omega = n13 * np.sqrt(inner_term)
+            denominator = 1 + self.c * omega
+            y[:] = self.c * omega / denominator
+        except ValueError as e:
+            print(f"Error in molecule {mol_id}: {str(e)}")
+            print("Setting y to zeros and continuing...")
+            y[:] = 0
 
     def fill_deriv_(self, dfdx, dfdy, x):
         n = np.maximum(np.abs(x[self.i_n]), 1e-10)
         s2 = np.clip(x[self.i_s], -1e10, 1e10)
         alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
 
-        inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-        omega = np.sqrt(n ** (2 / 3) * inner_term)
-        denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
+        n13 = (n * n + 1e-12) ** (1.0 / 6)
+        dn13 = 1.0 / 3 * n * (n * n + 1e-12) ** (-5.0 / 6)
+        inner_term = np.sqrt(np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10))
+        omega = n13 * inner_term
+        dfdw = self.c / (1 + self.c * omega) ** 2
+        dfdw * inner_term * dn13
+        dfdi = dfdw * n13 / (2 * inner_term)
+        dfdi * (5.0 * self.C / 3)
+        dfdi * self.C
 
-        term1 = np.divide(dfdy * self.c, 3 * denom, where=denom != 0)
-        term2 = np.power(n, -2 / 3, where=n != 0)
-        term3 = np.sqrt(np.abs(inner_term))
-        dfdx[self.i_n] += term1 * term2 * term3
-
-        term4 = np.divide(
-            dfdy * self.c, 2 * denom * omega, where=(denom != 0) & (omega != 0)
-        )
-        term5 = np.power(n, 2 / 3, where=n != 0)
-        dfdx[self.i_s] += term4 * term5 * self.C * 5 / 3
-        dfdx[self.i_alpha] += term4 * term5 * self.C
+        # dfdx[self.i_n] += dfdn
+        # dfdx[self.i_s] += dfds
+        # dfdx[self.i_alpha] += dfda
 
     def as_dict(self):
         return {
@@ -1100,6 +1225,9 @@ ALL_CLASSES = [
     SignedUMap,
     SLNMap,
     SLXMap,
+    SLRMap,
+    SLR2Map,
+    SLR3Map,
     SLBMap,
     SLTMap,
     SLTWMap,

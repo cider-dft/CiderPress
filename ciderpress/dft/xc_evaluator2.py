@@ -30,6 +30,7 @@ class KernelEvalBase2:
     feature_list = None
     _mul_basefunc: str = None
     _add_basefunc: str = None
+    omega: float = 0.0
 
     @property
     def N1(self):
@@ -96,11 +97,11 @@ class KernelEvalBase2:
             raise NotImplementedError
         return X1
 
-    def _get_baseline(self, xcid, rho_tuple):
+    def _get_baseline(self, xcid, rho_tuple, omega=0.0):
         if self.mode == "SEP":
             nspin = rho_tuple[0].shape[0]
             if nspin == 1:
-                res = list(get_libxc_baseline(xcid, rho_tuple))
+                res = list(get_libxc_baseline(xcid, rho_tuple, omega=omega))
                 res[0] = res[0][None, :]
                 return tuple(res)
             else:
@@ -117,7 +118,7 @@ class KernelEvalBase2:
                         tuple_s.append(4 * rho_tuple[1][2 * s : 2 * s + 1])
                     if len(rho_tuple) > 2:
                         tuple_s.append(2 * rho_tuple[2][s : s + 1])
-                    res = get_libxc_baseline(xcid, tuple_s)
+                    res = get_libxc_baseline(xcid, tuple_s, omega=omega)
                     sep_res[0][s] = 0.5 * res[0]
                     sep_res[1][s] = res[1]
                     if len(res) > 2:
@@ -126,15 +127,15 @@ class KernelEvalBase2:
                         sep_res[3][s] = res[3]
                 return sep_res
         else:
-            return get_libxc_baseline(xcid, rho_tuple)
+            return get_libxc_baseline(xcid, rho_tuple, omega=omega)
 
     def multiplicative_baseline(self, rho_tuple):
-        return self._get_baseline(self._mul_basefunc, rho_tuple)
+        return self._get_baseline(self._mul_basefunc, rho_tuple, omega=self.omega)
 
     def additive_baseline(self, rho_tuple):
         if self._add_basefunc is None:
             return None
-        return self._get_baseline(self._add_basefunc, rho_tuple)
+        return self._get_baseline(self._add_basefunc, rho_tuple, omega=self.omega)
 
     def apply_descriptor_grad(self, X0T, dfdX1, force_polarize=False):
         """
@@ -203,6 +204,7 @@ class MappedDFTKernel2(KernelEvalBase2, XCEvalSerializable):
         mode,
         multiplicative_baseline,
         additive_baseline=None,
+        omega=0.0,
     ):
         """
         fevals: FuncEvaluator
@@ -217,6 +219,7 @@ class MappedDFTKernel2(KernelEvalBase2, XCEvalSerializable):
         self.feature_list = feature_list
         self._mul_basefunc = multiplicative_baseline
         self._add_basefunc = additive_baseline
+        self.omega = omega
 
     @property
     def N1(self):
