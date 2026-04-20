@@ -118,7 +118,8 @@ def get_psetup_func_counts(Z, big=False):
             return PSETUP_LIST3
     elif Z > 18:
         if big:
-            return PSETUP_LIST3
+            # return PSETUP_LIST3
+            return PSETUP_LIST2
         else:
             return PSETUP_LIST2
     elif Z > 2:

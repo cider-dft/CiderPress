@@ -1112,7 +1112,7 @@ class SLDMap(FeatureNormalizer):
 
 class OmegaMap(FeatureNormalizer):
     code = "Omega"
-    def __init__(self, i_n, i_s, i_alpha, c, B, C, bounds=None):
+    def __init__(self, i_n, i_s, i_alpha, c, B, C, bounds=None, slmode="npa"):
         self.i_n = i_n
         self.i_s = i_s
         self.i_alpha = i_alpha
@@ -1120,6 +1120,11 @@ class OmegaMap(FeatureNormalizer):
         self.B = B
         self.C = C
         self._bounds = bounds or (0, 1)
+        self.slmode = slmode.lower()  # "npa" or "nst" default is "npa"
+        
+        self.CFC = 0.3 * (3 * np.pi**2) ** (2.0 / 3)
+        self.CFAC = 4 * (3 * np.pi**2) ** (2.0 / 3)
+
 
     def set_current_molecule_id(self, mol_id):
         self.current_molecule_id = mol_id
@@ -1136,29 +1141,48 @@ class OmegaMap(FeatureNormalizer):
         try:
             if x.size == 0:
                 raise ValueError("x is a zero-size array")
+            
             n = x[self.i_n]
-            s2 = x[self.i_s]
-            alpha = x[self.i_alpha]
-            if n.size == 0 or s2.size == 0 or alpha.size == 0:
-                raise ValueError("n, s2, or alpha is a zero-size array")
+            input_s = x[self.i_s]      # sigma (NST) or s² (NPA)
+            input_alpha = x[self.i_alpha]  # tau (NST) or alpha (NPA)
+            
+            if n.size == 0 or input_s.size == 0 or input_alpha.size == 0:
+                raise ValueError("n, input_s, or input_alpha is a zero-size array")
+            
+            # NaN/zero value handling
             n_nan_mask = np.isnan(n)
             n_zero_mask = n == 0
-            s2_nan_mask = np.isnan(s2)
-            alpha_nan_mask = np.isnan(alpha)
-
+            s_nan_mask = np.isnan(input_s)
+            alpha_nan_mask = np.isnan(input_alpha)
+            
             n = np.abs(n)
             n[n_nan_mask | n_zero_mask] = 1e-10
-
-            s2[s2_nan_mask] = 0
-            alpha[alpha_nan_mask] = 0
-
-            s2 = np.clip(s2, -1e10, 1e10)
-            alpha = np.clip(alpha, -1e10, 1e10)
-
-            inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-            omega = np.sqrt(n ** (2 / 3) * inner_term)
+            
+            input_s[s_nan_mask] = 0
+            input_alpha[alpha_nan_mask] = 0
+            
+            input_s = np.clip(input_s, -1e10, 1e10)
+            input_alpha = np.clip(input_alpha, -1e10, 1e10)
+            
+            # use simplified formula for NST mode
+            if self.slmode == "nst":
+                # alpha + 5/3 * s² = tau / tau0
+                # So inner_term = B + C * tau / tau0
+                tau = input_alpha
+                tau0 = self.CFC * np.power(n, 5.0 / 3)
+                tau0 = np.maximum(tau0, 1e-10)  # 防止除零
+                inner_term = np.maximum(self.B + self.C * tau / tau0, 1e-10)
+            else:
+                # NPA mode: original implementation
+                s2 = input_s
+                alpha = input_alpha
+                inner_term = np.maximum(self.B + self.C * (alpha + 5.0 / 3 * s2), 1e-10)
+            
+            # Omega calculation (same formula)
+            omega = np.sqrt(n ** (2.0 / 3) * inner_term)
             denominator = np.maximum(1 + self.c * omega, 1e-10)
             y[:] = self.c * omega / denominator
+            
         except ValueError as e:
             print(f"Error in molecule {mol_id}: {str(e)}")
             print("Setting y to zeros and continuing...")
@@ -1166,24 +1190,75 @@ class OmegaMap(FeatureNormalizer):
 
     def fill_deriv_(self, dfdx, dfdy, x):
         n = np.maximum(np.abs(x[self.i_n]), 1e-10)
-        s2 = np.clip(x[self.i_s], -1e10, 1e10)
-        alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
-
-        inner_term = np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10)
-        omega = np.sqrt(n ** (2 / 3) * inner_term)
-        denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
-
-        term1 = np.divide(dfdy * self.c, 3 * denom, where=denom != 0)
-        term2 = np.power(n, -2 / 3, where=n != 0)
-        term3 = np.sqrt(np.abs(inner_term))
-        dfdx[self.i_n] += term1 * term2 * term3
-
-        term4 = np.divide(
-            dfdy * self.c, 2 * denom * omega, where=(denom != 0) & (omega != 0)
-        )
-        term5 = np.power(n, 2 / 3, where=n != 0)
-        dfdx[self.i_s] += term4 * term5 * self.C * 5 / 3
-        dfdx[self.i_alpha] += term4 * term5 * self.C
+        input_s = np.clip(x[self.i_s], -1e10, 1e10)
+        input_alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
+        
+        if self.slmode == "nst":
+            # use simplified formula for NST mode
+            tau = input_alpha
+            tau0 = self.CFC * np.power(n, 5.0 / 3)
+            tau0 = np.maximum(tau0, 1e-10)
+            
+            inner_term = np.maximum(self.B + self.C * tau / tau0, 1e-10)
+            omega = np.sqrt(n ** (2.0 / 3) * inner_term)
+            omega = np.maximum(omega, 1e-10)
+            denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
+            
+            # f = c * omega / (1 + c * omega)
+            # ∂f/∂omega = c / (1 + c * omega)^2
+            # Note: df_domega already contains dfdy
+            df_domega = self.c * dfdy / denom
+            
+            # calculate various powers
+            n_pow_1_3 = np.power(n, 1.0 / 3, where=n > 1e-10)
+            n_pow_2_3 = np.power(n, 2.0 / 3, where=n > 1e-10)
+            n_pow_5_3 = np.power(n, 5.0 / 3, where=n > 1e-10)
+            n_pow_8_3 = np.power(n, 8.0 / 3, where=n > 1e-10)
+            
+            # ∂inner_term/∂n = C * tau * (-5/3) / (CFC * n^(8/3))
+            dinnerterm_dn = -5.0 / 3 * self.C * tau / (self.CFC * n_pow_8_3)
+            
+            # ∂ω/∂n = 1/(2ω) * [2/3 * n^(-1/3) * inner_term + n^(2/3) * ∂inner_term/∂n]
+            domega_dn_part1 = (1.0 / (2.0 * omega)) * (2.0 / 3) * inner_term / n_pow_1_3
+            domega_dn_part2 = (1.0 / (2.0 * omega)) * n_pow_2_3 * dinnerterm_dn
+            domega_dn = domega_dn_part1 + domega_dn_part2
+            
+            # ∂inner_term/∂τ = C / (CFC * n^(5/3))
+            dinnerterm_dtau = self.C / (self.CFC * n_pow_5_3)
+            domega_dtau = (1.0 / (2.0 * omega)) * n_pow_2_3 * dinnerterm_dtau
+            
+            # chain rule (note: df_domega already contains dfdy, so domega_* does not contain dfdy)
+            dfdx[self.i_n] += df_domega * domega_dn
+            # dfdx[self.i_s] is not updated (∂ω/∂σ = 0)
+            dfdx[self.i_alpha] += df_domega * domega_dtau
+            
+        else:
+            # NPA mode: original implementation
+            s2 = input_s
+            alpha = input_alpha
+            
+            inner_term = np.maximum(self.B + self.C * (alpha + 5.0 / 3 * s2), 1e-10)
+            omega = np.sqrt(n ** (2.0 / 3) * inner_term)
+            omega = np.maximum(omega, 1e-10)
+            denom = np.maximum((1 + self.c * omega) ** 2, 1e-10)
+            
+            # Note: term1, term4 already contains dfdy
+            term1 = np.divide(dfdy * self.c, 3 * denom, where=denom != 0)
+            term2 = np.power(n, -2.0 / 3, where=n != 0)
+            term3 = np.sqrt(np.abs(inner_term))
+            domega_dn = term1 * term2 * term3
+            
+            term4 = np.divide(
+                dfdy * self.c, 2 * denom * omega, where=(denom != 0) & (omega != 0)
+            )
+            term5 = np.power(n, 2.0 / 3, where=n != 0)
+            
+            domega_ds2 = term4 * term5 * self.C * 5.0 / 3
+            domega_dalpha = term4 * term5 * self.C
+            
+            dfdx[self.i_n] += domega_dn
+            dfdx[self.i_s] += domega_ds2
+            dfdx[self.i_alpha] += domega_dalpha
 
     def as_dict(self):
         return {
@@ -1195,6 +1270,7 @@ class OmegaMap(FeatureNormalizer):
             "B": self.B,
             "C": self.C,
             "bounds": self.bounds,
+            "slmode": self.slmode,
         }
 
     @classmethod
@@ -1207,6 +1283,7 @@ class OmegaMap(FeatureNormalizer):
             d["B"],
             d["C"],
             bounds=d.get("bounds"),
+            slmode=d.get("slmode", "npa"),  # default is "npa"
         )
 
 
