@@ -1204,10 +1204,14 @@ class OmegaMap(FeatureNormalizer):
             df_domega = self.c * dfdy / denom
 
             # calculate various powers
-            n_pow_1_3 = np.power(n, 1.0 / 3, where=n > 1e-10)
-            n_pow_2_3 = np.power(n, 2.0 / 3, where=n > 1e-10)
-            n_pow_5_3 = np.power(n, 5.0 / 3, where=n > 1e-10)
-            n_pow_8_3 = np.power(n, 8.0 / 3, where=n > 1e-10)
+            # n_pow_1_3 = np.power(n, 1.0 / 3, where=n > 1e-10)
+            # n_pow_2_3 = np.power(n, 2.0 / 3, where=n > 1e-10)
+            # n_pow_5_3 = np.power(n, 5.0 / 3, where=n > 1e-10)
+            # n_pow_8_3 = np.power(n, 8.0 / 3, where=n > 1e-10)
+            n_pow_1_3 = n ** (1.0 / 3)
+            n_pow_2_3 = n_pow_1_3 * n_pow_1_3
+            n_pow_5_3 = n_pow_2_3 * n
+            n_pow_8_3 = n_pow_5_3 * n
 
             # ∂inner_term/∂n = C * tau * (-5/3) / (CFC * n^(8/3))
             dinnerterm_dn = -5.0 / 3 * self.C * tau / (self.CFC * n_pow_8_3)
