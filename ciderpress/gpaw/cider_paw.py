@@ -21,6 +21,8 @@
 import ctypes
 
 import numpy as np
+from gpaw.core.atom_arrays import AtomArrays, AtomArraysLayout, AtomDistribution
+from gpaw.utilities import pack_density
 from gpaw.xc.gga import GGA
 from gpaw.xc.mgga import MGGA
 
@@ -39,14 +41,47 @@ class CiderPASDW_MPRoutines:
     has_paw = True
 
     def get_D_asp(self):
-        return self.atomdist.to_work(self.dens.D_asp)
+        if hasattr(self.atomdist, "to_work"):
+            D_asp = self.atomdist.to_work(self.dens.D_asp)
+            D_asp.partition
+            self.atom_partition
+            # assert p0.comm.size == p1.comm.size
+            # if not (p0.rank_a == p1.rank_a).all():
+            #    print(p0.rank_a, p1.rank_a)
+            #    assert False
+            # print(len(D_asp), D_asp[list(D_asp.keys())[0]].shape, self.world.rank)
+            return D_asp
+        else:
+            # print("ATOMS", self.world.rank, self.dens.D_asii)
+            # atom_array_layout = AtomArraysLayout(
+            #    [(setup.ni * (setup.ni + 1) // 2) for setup in builder.setups],
+            #    atomdist=builder.atomdist, dtype=dtype)
+            D_asp = {}
+            rank_a, comm = self.get_atom_rank_and_comm()
+            D_asii = self.dens.D_asii.gather(broadcast=True)
+            for a, D_sii in D_asii.items():
+                if rank_a[a] == comm.rank:
+                    D_asp[a] = np.array([pack_density(D_ii.real) for D_ii in D_sii])
+            return D_asp
 
     def add_forces(self, F_av):
-        nt_sg = self.dens.nt_xg
-        redist = self._hamiltonian.xc_redistributor
-        if redist is not None:
-            nt_sg = redist.distribute(nt_sg)
-        self.calculate_force_contribs(F_av, nt_sg)
+        if self.new_gpaw:
+            nt_sR = self.dens.nt_sR
+            nt_sr = self._interpolate(nt_sR)
+            taut_sR = self.dens.taut_sR
+            assert taut_sR is not None
+            taut_sr = self._interpolate(taut_sR)
+            # print(nrt_sR.data.shape, taut_sR.data.shape, nt_sr.data.shape, taut_sr.data.shape)
+            nt_sr.xp
+            nt_sr = nt_sr.to_xp(np)
+            taut_sr = taut_sr.to_xp(np)
+            self.calculate_force_contribs(F_av, nt_sr.data, taut_sg=taut_sr.data)
+        else:
+            nt_sg = self.dens.nt_xg
+            redist = self._hamiltonian.xc_redistributor
+            if redist is not None:
+                nt_sg = redist.distribute(nt_sg)
+            self.calculate_force_contribs(F_av, nt_sg)
 
     def _collect_paw_corrections(self):
         """
@@ -55,30 +90,64 @@ class CiderPASDW_MPRoutines:
         """
         dH_asp_tmp = self.dH_asp_tmp
         E_a_tmp = self.E_a_tmp
-        dH_asp_new = self.dens.setups.empty_atomic_matrix(
-            self.nspin, self.atom_partition
-        )
-        E_a_new = self.atom_partition.arraydict([(1,)] * len(self.dens.setups), float)
+        # dH_asp_new = self.setups.empty_atomic_matrix(
+        #    self.nspin, self.atom_partition
+        # )
+        # E_a_new = self.atom_partition.arraydict([(1,)] * len(self.setups), float)
+        dH_asp_new = self._empty_atomic_matrix()
+        E_a_new = self._empty_atomic_matrix([(1,)] * len(self.setups))
         for a, E in E_a_tmp.items():
             E_a_new[a][:] = E
             dH_asp_new[a][:] = dH_asp_tmp[a]
         dist = self.atomdist
+        # TODO
         self.E_a_tmp = dist.from_work(E_a_new)
         self.dH_asp_tmp = dist.from_work(dH_asp_new)
 
-    def initialize_paw_kernel(self, cider_kernel_inp, Nalpha_atom, encut_atom):
+    def initialize_paw_kernel(self, cider_kernel_inp):
         self.paw_kernel = FastPASDWCiderKernel(
             cider_kernel_inp,
             self._plan,
             self.aux_gd,
             self.cut_xcgrid,
         )
-        self.paw_kernel.initialize(
-            self.dens, self.atomdist, self.atom_partition, self.setups
-        )
+        # TODO seems redundant
+        self.paw_kernel.initialize(self.setups)
         self.paw_kernel.initialize_more_things(self.setups)
-        self.paw_kernel.interpolate_dn1 = self.interpolate_dn1
         self.atom_slices_s = None
+
+    @property
+    def new_gpaw(self):
+        # TODO better way of detecting new_gpaw
+        return hasattr(self.atomdist, "rank_a")
+
+    def get_atom_rank_and_comm(self):
+        if self.new_gpaw:
+            # print(self.world.rank, self.atomdist.comm.rank,
+            #      self.atomdist.comm.size,
+            #      (self.atomdist.rank_a == self.atomdist.comm.rank).sum())
+            natm = len(self.setups)
+            natm_per_proc = (natm + self.world.size - 1) // self.world.size
+            rank_a = np.arange(natm) // natm_per_proc
+            return rank_a, self.world
+        else:
+            return self.atom_partition.rank_a, self.atom_partition.comm
+
+    def _empty_atomic_matrix(self, shapes=None, dtype=float):
+        # TODO this won't work for new_gpaw
+        if shapes is None:
+            shapes = [
+                (self.nspin, setup.ni * (setup.ni + 1) // 2) for setup in self.setups
+            ]
+        if self.new_gpaw:
+            layout = AtomArraysLayout(
+                shapes,
+                self.atomdist,
+                dtype=dtype,
+            )
+            return layout.empty(self.nspin)
+        else:
+            return self.atom_partition.arraydict(shapes, dtype)
 
     def _setup_atom_slices(self):
         self.timer.start("ATOM SLICE SETUP")
@@ -88,8 +157,7 @@ class CiderPASDW_MPRoutines:
         self.global_slices_a = {}
         self.D_asiq = None
         self.vc_asiq = None
-        rank_a = self.atom_partition.rank_a
-        comm = self.atom_partition.comm
+        rank_a, comm = self.get_atom_rank_and_comm()
         for a in range(len(self.setups)):
             args = [
                 self.aux_gd,
@@ -145,8 +213,7 @@ class CiderPASDW_MPRoutines:
             for a in range(len(self.setups))
         ]
         sizes = np.array([s[0] * s[1] for s in shapes])
-        rank_a = self.atom_partition.rank_a
-        comm = self.atom_partition.comm
+        rank_a, comm = self.get_atom_rank_and_comm()
         if self.fft_obj.has_mpi:
             alocs = {}
             rlocs = []
@@ -245,8 +312,7 @@ class CiderPASDW_MPRoutines:
         if spin == 0:
             self._build_asiq_dict_(X_asiq, shapes, xshape=(self.nspin,))
 
-        rank_a = self.atom_partition.rank_a
-        comm = self.atom_partition.comm
+        rank_a, comm = self.get_atom_rank_and_comm()
         coefs_a_iq = {}
         for a in range(len(self.setups)):
             atom_slice: FastAtomPASDWSlice = atom_slices[a]
@@ -300,8 +366,7 @@ class CiderPASDW_MPRoutines:
                 ),
             )
 
-        rank_a = self.atom_partition.rank_a
-        comm = self.atom_partition.comm
+        rank_a, comm = self.get_atom_rank_and_comm()
         coefs_a_viq = {}
         for a in range(len(self.setups)):
             atom_slice: FastAtomPASDWSlice = atom_slices[a]
@@ -370,8 +435,7 @@ class CiderPASDW_MPRoutines:
                 ),
             )
 
-        rank_a = self.atom_partition.rank_a
-        comm = self.atom_partition.comm
+        rank_a, comm = self.get_atom_rank_and_comm()
         coefs_a_vviq = {}
         for a in range(len(self.setups)):
             atom_slice: FastAtomPASDWSlice = atom_slices[a]
@@ -422,7 +486,11 @@ class CiderPASDW_MPRoutines:
     def _set_paw_terms(self):
         self.timer.start("PAW TERMS")
         D_asp = self.get_D_asp()
-        if not (D_asp.partition.rank_a == self.atom_partition.rank_a).all():
+        # TODO add sanity check for new_gpaw
+        if (
+            not self.new_gpaw
+            and not (D_asp.partition.rank_a == self.atom_partition.rank_a).all()
+        ):
             raise ValueError("rank_a mismatch")
         self.c_asiq = self.paw_kernel.calculate_paw_feat_corrections(self.setups, D_asp)
         self.D_asp = D_asp
@@ -447,9 +515,27 @@ class CiderPASDW_MPRoutines:
         dH_asp = self.paw_kernel.calculate_paw_feat_corrections(
             self.setups, self.D_asp, vc_asiq=self.vc_asiq
         )
-        for a in self.D_asp.keys():
-            dH_asp[a] += self.deltaV[a]
-        self.dH_asp_tmp = dH_asp
+        if self.new_gpaw:
+            rank_a, comm = self.get_atom_rank_and_comm()
+            dist = AtomDistribution(rank_a, comm)
+            shapes = [
+                (self.nspin, setup.ni * (setup.ni + 1) // 2) for setup in self.setups
+            ]
+            layout = AtomArraysLayout(shapes, dist, dtype=float)
+            self.dH_asp_tmp = AtomArrays(layout)
+            for a in self.D_asp.keys():
+                self.dH_asp_tmp[a] = dH_asp[a] + self.deltaV[a]
+            self.dH_asp_tmp = self.dH_asp_tmp.gather(broadcast=True)
+            layout = AtomArraysLayout([1] * len(shapes), dist, dtype=float)
+            E_a_tmp = AtomArrays(layout)
+            for a in self.D_asp.keys():
+                E_a_tmp[a] = self.E_a_tmp[a]
+            self.E_a_tmp = E_a_tmp.gather(broadcast=True)
+            self.E_a_tmp = {a: self.E_a_tmp[a].item() for a in range(len(shapes))}
+        else:
+            for a in self.D_asp.keys():
+                dH_asp[a] += self.deltaV[a]
+            self.dH_asp_tmp = dH_asp
         self.timer.stop()
 
     def calculate_paw_correction(
@@ -461,10 +547,19 @@ class CiderPASDW_MPRoutines:
             dEdD_sp += self.dH_asp_tmp[a]
         return self.E_a_tmp[a]
 
-    def initialize_more_things(self):
-        self.setups = self._hamiltonian.setups
-        self.atomdist = self._hamiltonian.atomdist
-        self.atom_partition = self.get_D_asp().partition
+    @property
+    def atom_partition(self):
+        return self.atomdist.work_partition
+
+    def initialize_more_things(self, setups=None, atomdist=None):
+        if setups is None:
+            self.setups = self._hamiltonian.setups
+        else:
+            self.setups = setups
+        if atomdist is None:
+            self.atomdist = self._hamiltonian.atomdist
+        else:
+            self.atomdist = atomdist
 
         encut_atom = self.encut
         Nalpha_atom = self.Nalpha
@@ -472,7 +567,7 @@ class CiderPASDW_MPRoutines:
             encut_atom *= self.lambd
             Nalpha_atom += 1
 
-        self.initialize_paw_kernel(self.cider_kernel, Nalpha_atom, encut_atom)
+        self.initialize_paw_kernel(self.cider_kernel)
 
     @property
     def is_initialized(self):
@@ -495,7 +590,6 @@ class CiderGGAPASDW(CiderPASDW_MPRoutines, CiderGGA):
             **kwargs,
         )
         defaults_list = {
-            "interpolate_dn1": False,  # bool
             "encut_atom_min": 8000.0,  # float
             "cut_xcgrid": False,  # bool
             "pasdw_ovlp_fit": True,
@@ -509,6 +603,7 @@ class CiderGGAPASDW(CiderPASDW_MPRoutines, CiderGGA):
         self.__dict__.update(settings)
         self.k2_k = None
         self.setups = None
+        self.atomdist = None
 
     def todict(self):
         d = super(CiderGGAPASDW, self).todict()
@@ -537,10 +632,11 @@ class CiderGGAPASDW(CiderPASDW_MPRoutines, CiderGGA):
         self.setups = None
         self._check_parallelization(wfs)
 
-    def calculate_force_contribs(self, F_av, n_sg):
+    def calculate_force_contribs(self, F_av, n_sg, taut_sg=None):
         e_g = np.zeros(n_sg.shape[1:])
         Ftmp_av = np.zeros_like(F_av)
-        taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
+        if taut_sg is None:
+            taut_sg = self._get_taut(n_sg)[0]
         _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, taut_sg)
         e_g[:] = 0.0
         fs = self.calc_cider(_e, rho_sxg, dedrho_sxg, grad_mode=CIDERPW_GRAD_MODE_FORCE)
@@ -559,7 +655,6 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
             **kwargs,
         )
         defaults_list = {
-            "interpolate_dn1": False,  # bool
             "encut_atom_min": 8000.0,  # float
             "cut_xcgrid": False,  # bool
             "pasdw_ovlp_fit": True,
@@ -573,6 +668,7 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
         self.__dict__.update(settings)
         self.k2_k = None
         self.setups = None
+        self.atomdist = None
 
     def todict(self):
         d = super(CiderMGGAPASDW, self).todict()
@@ -586,7 +682,8 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
         CiderPASDW_MPRoutines.add_forces(self, F_av)
 
     def set_positions(self, spos_ac):
-        MGGA.set_positions(self, spos_ac)
+        if not self.new_gpaw:
+            MGGA.set_positions(self, spos_ac)
         self.spos_ac = spos_ac
         self.atom_slices_s = None
 
@@ -633,10 +730,11 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
     def _core_kin_term(self):
         return self.tauct_G * (1.0 / self.wfs.nspins)
 
-    def calculate_force_contribs(self, F_av, n_sg):
+    def calculate_force_contribs(self, F_av, n_sg, taut_sg=None):
         e_g = np.zeros(n_sg.shape[1:])
         Ftmp_av = np.zeros_like(F_av)
-        taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
+        if taut_sg is None:
+            taut_sg = self._get_taut(n_sg)[0]
         _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, taut_sg)
         e_g[:] = 0.0
         fs = self.calc_cider(_e, rho_sxg, dedrho_sxg, grad_mode=CIDERPW_GRAD_MODE_FORCE)
@@ -646,10 +744,47 @@ class CiderMGGAPASDW(CiderPASDW_MPRoutines, CiderMGGA):
         if self.world.rank == 0:
             F_av[:] += Ftmp_av
 
-    def stress_tensor_contribution(self, n_sg):
+    def stress_tensor_contribution_new(self, nt_sg, vt_sg, e_g, taut_sg, dedtaut_sg):
+        stress1_vv = np.zeros((3, 3))
+        _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(nt_sg, taut_sg)
+        np.zeros((len(nt_sg), rho_sxg.shape[1]) + e_g.shape)
+        fs = self.calc_cider(
+            _e, rho_sxg, dedrho_sxg, grad_mode=CIDERPW_GRAD_MODE_STRESS
+        )
+        stress1_vv[:] += 0.5 * (fs + fs.T)
+        P = 0
+        for s in range(self.nspin):
+            for x in range(1, 4):
+                P -= np.sum(dedrho_sxg[s, x] * rho_sxg[s, x]) * self.gd.dv
+        for v in range(3):
+            stress1_vv[v, v] += P
+        for s in range(self.nspin):
+            for v1 in range(3):
+                for v2 in range(3):
+                    stress1_vv[v1, v2] -= (
+                        np.sum(rho_sxg[s, v1 + 1] * dedrho_sxg[s, v2 + 1]) * self.gd.dv
+                    )
+        self.world.sum(stress1_vv, 0)
+        self.world.broadcast(stress1_vv, 0)
+        # if self.world.rank != 0:
+        #    stress1_vv[:] = 0.0
+
+        e_g[:] = 0.0
+        vt_sg[:] = 0.0
+        dedtaut_sg[:] = 0.0
+        self._add_from_cider_grid(e_g[None, :], _e[None, :])
+        for s in range(len(nt_sg)):
+            self._add_from_cider_grid(vt_sg[s, None], dedrho_sxg[s, 0:1])
+            self._add_from_cider_grid(dedtaut_sg[s, None], dedrho_sxg[s, 4:5])
+        return stress1_vv
+
+    def stress_tensor_contribution(self, n_sg, taut_sg=None):
         e_g = np.zeros(n_sg.shape[1:])
         stress1_vv = np.zeros((3, 3))
-        taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
+        if taut_sg is None:
+            taut_sg, dedtaut_sg, taut_sG = self._get_taut(n_sg)
+        else:
+            pass
         _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, taut_sg)
         tmp_dedrho_sxg = np.zeros((len(n_sg), rho_sxg.shape[1]) + e_g.shape)
         e_g[:] = 0.0

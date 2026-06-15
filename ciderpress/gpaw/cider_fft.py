@@ -19,6 +19,8 @@
 #
 
 
+import time
+
 import numpy as np
 import yaml
 from gpaw import mpi
@@ -104,15 +106,21 @@ class _CiderBase:
             "xc_params": xc_params,
         }
 
-    def _check_parallelization(self, wfs):
-        if wfs.world.size > self.gd.comm.size:
+    def _check_parallelization(self, wfs=None):
+        if wfs is None:
+            world = self.world
+            kptband_comm = self.kptband_comm
+        else:
+            world = wfs.world
+            kptband_comm = wfs.kptband_comm
+        if world.size > self.gd.comm.size:
             import warnings
 
             from gpaw.utilities.grid import GridRedistributor
 
-            self.aux_gd = self.gd.new_descriptor(comm=wfs.world)
+            self.aux_gd = self.gd.new_descriptor(comm=world)
             self._global_redistributor = GridRedistributor(
-                wfs.world, wfs.kptband_comm, self.gd, self.aux_gd
+                world, kptband_comm, self.gd, self.aux_gd
             )
             self.distribution = FFTDistribution(
                 self.aux_gd, [self.aux_gd.comm.size, 1, 1]
@@ -122,7 +130,7 @@ class _CiderBase:
                 "The internal Cider routines will redistribute the density "
                 "so that all cores can be used. Setting augment_grids=True in "
                 "the parallel option is recommended and might be more efficient."
-                % (self.gd.comm.size, wfs.world.size)
+                % (self.gd.comm.size, world.size)
             )
         else:
             self.aux_gd = self.gd
@@ -465,12 +473,16 @@ class _CiderBase:
         return _e, rho_sxg, dedrho_sxg
 
     def calculate_impl_new(self, n_sg, v_sg, e_g, tau_sg=None, dedtau_sg=None):
+
+        self.timer.start("impl")
         if tau_sg is not None:
             assert dedtau_sg is not None
         _e, rho_sxg, dedrho_sxg = self._get_cider_inputs(n_sg, tau_sg)
         tmp_dedrho_sxg = np.zeros((len(n_sg), rho_sxg.shape[1]) + e_g.shape)
         e_g[:] = 0.0
+        time.monotonic()
         self.calc_cider(_e, rho_sxg, dedrho_sxg)
+        time.monotonic()
         self._add_from_cider_grid(e_g[None, :], _e[None, :])
         for s in range(len(n_sg)):
             self._add_from_cider_grid(tmp_dedrho_sxg[s], dedrho_sxg[s])
@@ -478,6 +490,10 @@ class _CiderBase:
         dedgrad_svg = tmp_dedrho_sxg[:, 1:4]
         if dedtau_sg is not None:
             dedtau_sg[:] = tmp_dedrho_sxg[:, 4]
+        self.timer.stop("impl")
+
+        # if self.world.rank == 1:
+        #     print("impl time", t1 - t0, n_sg.shape, rho_sxg.shape)
         return dedgrad_svg
 
     def _core_kin_term(self):

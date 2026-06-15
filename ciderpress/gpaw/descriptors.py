@@ -578,18 +578,15 @@ class _FeatureMixin:
     def get_D_asp(self):
         return self.atomdist.to_work(self.dens.D_asp)
 
-    def initialize_paw_kernel(self, cider_kernel_inp, Nalpha_atom, encut_atom):
+    def initialize_paw_kernel(self, cider_kernel_inp):
         self.paw_kernel = PASDWCiderFeatureKernel(
             cider_kernel_inp,
             self._plan,
             self.gd,
             self.cut_xcgrid,
         )
-        self.paw_kernel.initialize(
-            self.dens, self.atomdist, self.atom_partition, self.setups
-        )
+        self.paw_kernel.initialize(self.setups)
         self.paw_kernel.initialize_more_things(self.setups)
-        self.paw_kernel.interpolate_dn1 = self.interpolate_dn1
         self.atom_slices_s = None
 
     def _collect_feat(self, feat_xg):

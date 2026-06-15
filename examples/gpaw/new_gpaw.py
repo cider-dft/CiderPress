@@ -4,23 +4,25 @@ import numpy as np
 from ase.build import bulk
 from gpaw import PW, Mixer
 
-from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional
+from ciderpress.gpaw.new_calculator import CiderGPAW
 
 # NOTE: Run this script as follows:
 # mpirun -np <NPROC> gpaw python simple_calc.py
 
 MODIFY_CELL = True
 
-atoms = bulk("C")
+atoms = bulk("Si")
+# atoms = atoms * [2, 2, 2]
 
 mlfunc = "functionals/{}.yaml".format(sys.argv[1])
 
 # This is the initializer for CIDER functionals for GPAW
-xc = get_cider_functional(
+xc = dict(
     # IMPORTANT: Path to a joblib or yaml file containing a CIDER functional.
     # Object stored in yaml/joblib must be MappedXC or MappedXC2.
     # Can also pass the object itself rather than a file name.
-    mlfunc,
+    name="CIDER",
+    model=mlfunc,
     # IMPORTANT: xmix is the mixing parameter for exact exchange. Default=0.25
     # gives the PBE0/CIDER surrogate hybrid.
     xmix=0.25,
@@ -56,7 +58,7 @@ atoms.calc = CiderGPAW(
     convergence={"energy": 1e-5},
     # Set augments_grids=True for CIDER functionals to parallelize
     # XC energy and potential evaluation more effectively
-    parallel={"augment_grids": False, "domain": 1},
+    parallel={"augment_grids": True, "domain": 1},
     # Customize the mixer object if desired.
     mixer=Mixer(0.7, 8, 50),
     # Turn spin polarization on or off.
@@ -72,3 +74,12 @@ if MODIFY_CELL:
 
 # run the calculation
 etot = atoms.get_potential_energy()
+
+pos = atoms.get_positions()
+pos[1, 1] += 0.1
+atoms.set_positions(pos)
+
+etot = atoms.get_potential_energy()
+
+print(atoms.calc.dft.pot_calc.xc.xc.timer)
+atoms.calc.dft.pot_calc.xc.xc.timer.write()

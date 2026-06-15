@@ -539,8 +539,7 @@ class _PAWCiderContribs:
         return self._dH_sp
 
     def get_paw_atom_contribs(self, rho_sxg):
-        nspin = self.nspin
-        assert len(rho_sxg) == nspin
+        nspin = len(rho_sxg)
         x_gq = self.grids_indexer.empty_gq(nalpha=self.plan.nalpha)
         x_srLq = np.stack(
             [
@@ -626,7 +625,7 @@ class _PAWCiderContribs:
         return vf_srLq
 
     def get_paw_atom_contribs_pot(self, rho_sxg, vrho_sxg, vx_srLq):
-        nspin = self.nspin
+        nspin = len(rho_sxg)
         vx_gq = self.grids_indexer.empty_gq(nalpha=self.plan.nalpha)
         for s in range(nspin):
             self.grids_indexer.reduce_angc_ylm_(vx_srLq[s], vx_gq, a2y=False, offset=0)
@@ -932,7 +931,7 @@ class PAWCiderContribsOrb(_PAWCiderContribs):
         indexer_out=None,
     ):
         theta_sgLq = np.ascontiguousarray(theta_sgLq)
-        nspin = self.nspin
+        nspin = len(theta_sgLq)
         nalpha = self.ccl.nalpha
         nbeta = self.ccl.nbeta
         is_not_vi = self.plan.nldf_settings.nldf_type != "i"
@@ -1303,19 +1302,12 @@ class FastPASDWCiderKernel:
     def alphas(self):
         return self.plan.alphas
 
-    def get_D_asp(self):
-        return self.atomdist.to_work(self.dens.D_asp)
-
-    def initialize(self, density, atomdist, atom_partition, setups):
-        self.dens = density
-        self.atomdist = atomdist
-        self.atom_partition = atom_partition
+    def initialize(self, setups):
         self.setups = setups
 
     def initialize_more_things(self, setups=None):
-        self.nspin = self.dens.nt_sg.shape[0]
         if setups is None:
-            setups = self.dens.setups
+            setups = self.setups
         for setup in setups:
             if not hasattr(setup, "cider_contribs") or setup.cider_contribs is None:
                 setup.xc_correction = DiffPAWXCCorrection.from_setup(

@@ -429,7 +429,7 @@ class LibCiderPW:
         Make a copy of the work array and return it. Note that this is the raw
         work array; it might contain some uninitialized buffer.
         """
-        arr = np.empty(self.get_work_size() * self.nalpha, dtype=np.complex128)
+        arr = np.empty(int(self.get_work_size() * self.nalpha), dtype=np.complex128)
         pwutil.ciderpw_copy_work_array(self._ptr, arr.ctypes.data_as(ctypes.c_void_p))
         return arr
 

@@ -148,12 +148,72 @@ class CiderKernel(XCKernel):
         raise NotImplementedError
 
 
+class ComboKernel:
+    name = "ComboKernel"
+
+    def __init__(self, xcstr):
+        xcterms = xcstr.strip().replace(" ", "").split("+")
+        fractions = []
+        kernels = []
+        for term in xcterms:
+            a, xc = term.split("*")
+            fractions.append(float(a))
+            kernels.append(LibXC(xc))
+        self._fractions = fractions
+        self._kernels = kernels
+        self.type = "GGA"
+        for k in self._kernels:
+            if k.type == "MGGA":
+                self.type = "MGGA"
+
+    def calculate(
+        self, e_g, n_sg, v_sg, sigma_xg, dedsigma_xg, tau_sg=None, dedtau_sg=None
+    ):
+        for arr in [e_g, v_sg, dedsigma_xg, dedtau_sg]:
+            if arr is not None:
+                arr[:] = 0.0
+        _e = np.empty_like(e_g)
+        _v = np.empty_like(v_sg)
+        _dedsigma = np.empty_like(dedsigma_xg)
+        if tau_sg is not None:
+            _dedtau = np.empty_like(dedtau_sg)
+        # for arr in [e_g, v_sg, dedsigma_xg, dedtau_sg]:
+        #    if arr is not None and world.rank == 0:
+        #        print("START", arr.sum())
+        for frac, xc in zip(self._fractions, self._kernels):
+            _e[:] = 0.0
+            _v[:] = 0.0
+            _dedsigma[:] = 0.0
+            if xc.type == "GGA":
+                xc.calculate(_e, n_sg, _v, sigma_xg, _dedsigma)
+            else:
+                _dedtau[:] = 0.0
+                xc.calculate(_e, n_sg, _v, sigma_xg, _dedsigma, tau_sg, _dedtau)
+                dedtau_sg[:] += frac * _dedtau
+            e_g[:] += frac * _e
+            v_sg[:] += frac * _v
+            dedsigma_xg[:] += frac * _dedsigma
+            # for arr in [e_g, v_sg, dedsigma_xg, dedtau_sg]:
+            #    if arr is not None and world.rank == 0:
+            #        print("FRAC", frac, arr.sum())
+
+
+def make_xckernel(xcstr):
+    if xcstr is None:
+        return None
+    try:
+        kernel = LibXC(xcstr)
+    except NameError:
+        kernel = ComboKernel(xcstr)
+    return kernel
+
+
 class CiderGGAHybridKernel(CiderKernel):
     def __init__(self, mlfunc, xmix, xstr, cstr, rhocut=GPAW_DEFAULT_RHO_TOL):
         self.type = "GGA"
         self.name = "CiderGGA"
-        self.xkernel = None if xstr is None else LibXC(xstr)
-        self.ckernel = None if cstr is None else LibXC(cstr)
+        self.xkernel = make_xckernel(xstr)
+        self.ckernel = make_xckernel(cstr)
         self.xmix = xmix
         self.mlfunc = mlfunc
         self.rhocut = rhocut
@@ -206,8 +266,8 @@ class CiderMGGAHybridKernel(CiderGGAHybridKernel):
     def __init__(self, mlfunc, xmix, xstr, cstr, rhocut=GPAW_DEFAULT_RHO_TOL):
         self.type = "MGGA"
         self.name = "CiderMGGA"
-        self.xkernel = None if xstr is None else LibXC(xstr)
-        self.ckernel = None if cstr is None else LibXC(cstr)
+        self.xkernel = make_xckernel(xstr)
+        self.ckernel = make_xckernel(cstr)
         self.xmix = xmix
         self.mlfunc = mlfunc
         self.rhocut = rhocut

@@ -2,25 +2,25 @@ import sys
 
 import numpy as np
 from ase.build import bulk
-from gpaw import PW, Mixer
-
-from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional
+from gpaw import GPAW, PW, Mixer
 
 # NOTE: Run this script as follows:
 # mpirun -np <NPROC> gpaw python simple_calc.py
 
 MODIFY_CELL = True
 
-atoms = bulk("C")
+atoms = bulk("Si")
+# atoms = atoms * [2, 2, 2]
 
 mlfunc = "functionals/{}.yaml".format(sys.argv[1])
 
 # This is the initializer for CIDER functionals for GPAW
-xc = get_cider_functional(
+xc = dict(
     # IMPORTANT: Path to a joblib or yaml file containing a CIDER functional.
     # Object stored in yaml/joblib must be MappedXC or MappedXC2.
     # Can also pass the object itself rather than a file name.
-    mlfunc,
+    name="CIDER",
+    model=mlfunc,
     # IMPORTANT: xmix is the mixing parameter for exact exchange. Default=0.25
     # gives the PBE0/CIDER surrogate hybrid.
     xmix=0.25,
@@ -39,11 +39,11 @@ xc = get_cider_functional(
 # Using CiderGPAW instead of the default GPAW calculator allows calculations
 # to be restarted. Calculations using GPAW (rather than CiderGPAW)
 # will run with CIDER functionals but cannot be saved and loaded properly.
-atoms.calc = CiderGPAW(
+atoms.calc = GPAW(
     # use a reasonably small grid spacing
     h=0.18,
     # assign the CIDER functional to xc
-    xc=xc,
+    xc="MGGA_X_R2SCAN+MGGA_C_R2SCAN",  # "PBE",
     # plane-wave mode with 520 eV cutoff
     mode=PW(520),
     # output file, '-' for stdout
@@ -56,7 +56,7 @@ atoms.calc = CiderGPAW(
     convergence={"energy": 1e-5},
     # Set augments_grids=True for CIDER functionals to parallelize
     # XC energy and potential evaluation more effectively
-    parallel={"augment_grids": False, "domain": 1},
+    parallel={"augment_grids": True, "domain": 4},
     # Customize the mixer object if desired.
     mixer=Mixer(0.7, 8, 50),
     # Turn spin polarization on or off.
