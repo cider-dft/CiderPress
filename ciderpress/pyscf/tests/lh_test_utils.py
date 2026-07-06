@@ -239,7 +239,8 @@ def _xc_energy_and_vmat(ni, mol, grids, dm, nspin):
 
 
 def fd_energy_potential_check(
-    ni, mol, grids, dm0, n_dirs=3, delta=1e-3, seed=0, deltas=None
+    ni, mol, grids, dm0, n_dirs=3, delta=1e-3, seed=0, deltas=None,
+    spin_mask=None,
 ):
     """Central-FD directional derivative of E_xc vs Tr(vxc . u).
 
@@ -290,6 +291,13 @@ def fd_energy_potential_check(
             u2 = 0.5 * (d2 + d2.T)
             u2 /= np.linalg.norm(u2)
             u = np.stack([u1, u2]) / np.sqrt(2.0)
+            if spin_mask is not None:
+                # zero perturbations on masked-out spin channels (e.g. an
+                # EMPTY channel, where negative-density excursions leave
+                # the functional's domain)
+                for s, keep in enumerate(spin_mask):
+                    if not keep:
+                        u[s] = 0.0
             rhs = np.einsum("sij,sij->", vmat0, u)
         entry = {}
         for dl in deltas:
