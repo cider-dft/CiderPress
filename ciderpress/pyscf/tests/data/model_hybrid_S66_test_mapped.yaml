@@ -1,0 +1,224 @@
+!!python/object:ciderpress.dft.xc_evaluator.MappedXC
+kernels:
+- !!python/object:ciderpress.dft.xc_evaluator.MappedDFTKernel
+  _add_basefunc: !!python/name:ciderpress.dft.baselines.gga_x_pbe ''
+  _mul_basefunc: !!python/name:ciderpress.dft.baselines.exx_pbe_diff_baseline ''
+  feature_list: !!python/object:ciderpress.dft.transform_data.FeatureList
+    feat_list:
+    - !!python/object:ciderpress.dft.transform_data.SLXMap
+      gamma: 0.24308265985843178
+      i: 0
+      j: 1
+    - !!python/object:ciderpress.dft.transform_data.SLTMap
+      i: 0
+      j: 2
+    - !!python/object:ciderpress.dft.transform_data.VMap
+      _bounds: !!python/tuple
+      - -0.5
+      - 0.5
+      center: 0.5
+      gamma: 0.5
+      i: 3
+      scale: 1.0
+    - !!python/object:ciderpress.dft.transform_data.VMap
+      _bounds: !!python/tuple
+      - -0.5
+      - 0.5
+      center: 0.5
+      gamma: 0.5
+      i: 4
+      scale: 1.0
+    - !!python/object:ciderpress.dft.transform_data.VMap
+      _bounds: !!python/tuple
+      - -0.5
+      - 0.5
+      center: 0.5
+      gamma: 0.5
+      i: 5
+      scale: 1.0
+    - !!python/object:ciderpress.dft.transform_data.VMap
+      _bounds: !!python/tuple
+      - -0.0
+      - 1.0
+      center: 0.0
+      gamma: 1.0
+      i: 6
+      scale: 1.0
+  fevals:
+  - !!python/object:ciderpress.dft.xc_evaluator.RBFEvaluator
+    _X1ctrl: !!python/object/apply:numpy.core.multiarray._reconstruct
+      args:
+      - &id001 !!python/name:numpy.ndarray ''
+      - !!python/tuple
+        - 0
+      - !!binary |
+        Yg==
+      state: !!python/tuple
+      - 1
+      - !!python/tuple
+        - 16
+        - 6
+      - &id002 !!python/object/apply:numpy.dtype
+        args:
+        - f8
+        - false
+        - true
+        state: !!python/tuple
+        - 3
+        - <
+        - null
+        - null
+        - null
+        - -1
+        - -1
+        - 0
+      - false
+      - !!binary |
+        U1ABylttxT9zrzKd9FPjP4K6AJqxkcK/EgWfEIZ3w78Ar06TzavBv2KPw6CG9+A/rQzExT/K7z+8
+        sge43fDvP1h7kLNfNN+/UZdck58o37/M8eLiGTLfv5Vc6Jvasuw/NyN2UmFK4j8hI1L4kjrqPxlf
+        hNjvjNW/ZJqwoiqj079wl/jDTQnRv90I2Eq10+M/wPSTOwW3tD+EWTDJzxfLvzL5mc3Txc6/5DJx
+        onN1zb9YqwujoLzKv1vlOEDyyN0/XYvosIwf6T9NxzJ11bbtP64FffC0J9q/Q71YO3/E2L/cRc+h
+        RNrWvyPNcmQ8l+Y/GWyOj9VrrD9s/M/I/k/Ov9ibSgnEu8a/ELJCUOh5w79wI0zy1yK9v5ie5EO9
+        k+A/lsKW+M+e1z8WBe/6jLLoPxTJPtfgD86/5Cf/kiHIyb8yJbDC+KfEvykdOgaoNOM/grBFRXMf
+        wD8H32nEM+PBP7DyuFmqYsi/QFP5VXOJxL9MSkz9/gm+vxJVld+HO+E/aP6DhwIR7z9P/uC2mrzv
+        P/83suEzJt6/Ubr6ZyTc3b+A3oxZ4Zrdv562+xZGmeo/fO3o9jSR4T/ssq4c7HDrP7R2EqDp1NK/
+        nPnYsyuz0L8usiJtBDTMvz403ezDReQ/LfZv+SySvT9WaI6hKvV2P6bdBQ37Os2/mG7qIUmQyr9i
+        kXRSUFHGvyP8pcLtBOA/kfs8eWnMtT/Bsz0Sq5u9v8pVMazz5cm/2ECTIYLoxr+gOch9qVvCv4mV
+        HVorTeA/PUEDEsv35z/NmoOc9jjtP1Z1dooEj9m/PxQn6xUI2L9sSJGNtObVv7SSIrf8NeY/AcmM
+        aK4+7z//0TsWgsnvP07T8jqQe96/CZWZCy4/3r/SpTpaiQrev8RTgIUVs+o/MdCQcuW94T9kzOn8
+        EsbpPzzimGVnqdW/NhRoJynG07/IO7IpFyPRv+8nPArmkeM/AL8k4iOc7z9QeHk+EubvPyIj2iaO
+        pN6/IMP4+YaN3r+ZT8dYwJnev0TkXmbs3es/
+    _alpha: !!python/object/apply:numpy.core.multiarray._reconstruct
+      args:
+      - *id001
+      - !!python/tuple
+        - 0
+      - !!binary |
+        Yg==
+      state: !!python/tuple
+      - 1
+      - !!python/tuple
+        - 16
+      - *id002
+      - false
+      - !!binary |
+        uAxja+3Rt783RV9iyR5bvwdFu55EyuK/sJtveDYltr8ffnYDCAukP0QczPZUw7k/zHnk7lZ+pb9S
+        l9wTM8Gav2yli4haUH6/MpUEErIrsT/6qkj9MBfPP+LewDAN28q/ezPJkp2Ghj9xur+WH1STP15A
+        bU95FeU/53WTcRu0Z78=
+    _exps: !!python/object/apply:numpy.core.multiarray._reconstruct
+      args:
+      - *id001
+      - !!python/tuple
+        - 0
+      - !!binary |
+        Yg==
+      state: !!python/tuple
+      - 1
+      - !!python/tuple
+        - 6
+      - &id003 !!python/object/apply:numpy.dtype
+        args:
+        - f8
+        - false
+        - true
+        state: !!python/tuple
+        - 3
+        - <
+        - null
+        - null
+        - null
+        - -1
+        - -1
+        - 0
+      - false
+      - !!binary |
+        s9+H/ioiDkBmDqcwCdcCQP20V3uzc0FACnyrXg2fP0DnSGAteRI6QGYW6U5IhDhA
+    _indexes: !!python/object/apply:numpy.core.multiarray._reconstruct
+      args:
+      - *id001
+      - !!python/tuple
+        - 0
+      - !!binary |
+        Yg==
+      state: !!python/tuple
+      - 1
+      - !!python/tuple
+        - 6
+      - !!python/object/apply:numpy.dtype
+        args:
+        - i4
+        - false
+        - true
+        state: !!python/tuple
+        - 3
+        - <
+        - null
+        - null
+        - null
+        - -1
+        - -1
+        - 0
+      - false
+      - !!binary |
+        AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAA
+    _nctrl: 16
+    _nfeat: 6
+  mode: NPOL
+libxc_baseline: null
+settings: !!python/object:ciderpress.dft.settings.FeatureSettings
+  hyb_settings: !!python/object:ciderpress.dft.settings.HybridSettings
+    alpha_init: 0.25
+    local: true
+  nldf_settings: !!python/object:ciderpress.dft.settings.NLDFSettingsVJ
+    feat_params:
+    - - 0.25
+      - 0.0
+      - 0.0078125
+    - - 0.5
+      - 0.0
+      - 0.015625
+    - - 1.0
+      - 0.0
+      - 0.03125
+    feat_specs:
+    - se
+    - se
+    - se
+    l0_feat_specs: []
+    l1_feat_dots: []
+    l1_feat_specs: []
+    rho_mult: one
+    theta_params:
+    - 0.5
+    - 0.0
+    - 0.015625
+  nlof_settings: !!python/object:ciderpress.dft.settings.EmptySettings {}
+  normalizers: !!python/object:ciderpress.dft.feat_normalizer.FeatNormalizerList
+    _normalizers:
+    - null
+    - null
+    - null
+    - !!python/object:ciderpress.dft.feat_normalizer.ConstantNormalizer
+      const: !!python/object/apply:numpy.core.multiarray.scalar
+      - *id003
+      - !!binary |
+        gTlCLtzI5D8=
+    - !!python/object:ciderpress.dft.feat_normalizer.ConstantNormalizer
+      const: !!python/object/apply:numpy.core.multiarray.scalar
+      - *id003
+      - !!binary |
+        AQAAAAAA8D8=
+    - !!python/object:ciderpress.dft.feat_normalizer.ConstantNormalizer
+      const: !!python/object/apply:numpy.core.multiarray.scalar
+      - *id003
+      - !!binary |
+        x7ENHtVk/T8=
+    - !!python/object:ciderpress.dft.feat_normalizer.DensityNormalizer
+      const: -1.3539883967510125
+      power: -1.3333333333333333
+    cutoff: 1.0e-10
+    slmode: nst
+  sdmx_settings: !!python/object:ciderpress.dft.settings.EmptySettings {}
+  sl_settings: !!python/object:ciderpress.dft.settings.SemilocalSettings
+    level: MGGA
+    mode: nst
