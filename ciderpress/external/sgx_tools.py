@@ -153,14 +153,9 @@ def get_jk_densities_and_a_tensor(sgx, dm, hermi=1, direct_scf_tol=1e-13, return
 
         fg = lib.einsum("gi,xij->xgj", wao, dms)
         fgnw = lib.einsum("gi,xij->xgj", ao, dms)
-        mask = numpy.zeros(i1 - i0, dtype=bool)
-        for i in range(nset):
-            mask |= numpy.any(fg[i] > gthrd, axis=1)
-            mask |= numpy.any(fg[i] < -gthrd, axis=1)
 
         inds = numpy.arange(i0, i1)
 
-        numpy.einsum("xgu,gu->xg", fg, ao)
         rho = numpy.einsum("xgu,gu->xg", fgnw, ao)
 
         if sgx.debug or return_a_tensor:
@@ -216,7 +211,8 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
     Returns
     -------
     K_contrib : array (nao, nao)
-        K matrix contribution (NOT symmetrized, factor of -0.5 already applied)
+        K matrix contribution (NOT symmetrized, factor of +0.5 already
+        applied; see HybridPlan.build_k_matrix_block for the convention)
     """
     t0 = time.monotonic(), time.time()
     mol = sgx.mol

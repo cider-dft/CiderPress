@@ -1301,38 +1301,11 @@ class HybridPlan:
         # Orbital-occupation derivatives are not required in v1. TODO: implement derivatives
         raise NotImplementedError("Orbital derivatives for HybridPlan postponed")
 
-    
-    def compute_a_tensor_and_exx(self, mol, grids, dm, settings, 
-                                  sgx_cache=None, return_a_tensor=True, is_uks=False):
-        """
-        Compute A tensor and exact exchange energy density.
-        Note: dm should already be scaled (2*dm for UKS) if needed.
-        
-        Parameters:
-        - mol: Molecule object
-        - grids: Grid object
-        - dm: Density matrix (already scaled if needed)
-        - settings: Hybrid settings
-        - sgx_cache: Cache for SGX object
-        - return_a_tensor: Whether to return A tensor
-        - is_uks: Whether this is for UKS calculation (not used anymore, kept for compatibility)
-        
-        Returns:
-        - eps_exx: Exchange energy density
-        - a_tensor: A tensor for K matrix (if return_a_tensor=True)
-        """
-        from ciderpress.pyscf.descriptors import _hyb_desc_getter
-        result = _hyb_desc_getter(
-            mol, grids, dm, settings, 
-            sgx_cache=sgx_cache, return_a_tensor=return_a_tensor
-        )
-        if return_a_tensor:
-            feat, a_tensor = result
-            return feat[0], a_tensor  # feat[0] to extract from (1, ngrids) shape
-        else:
-            return result[0], None  # result[0] to extract from (1, ngrids) shape
-    
-    def build_k_matrix_block(self, ao, dm, a_tensor_block, 
+    # NOTE: eps_exx/A-tensor computation and blockwise K assembly live in
+    # ciderpress.pyscf.hybrid_scf.HybridSCFHelper (they require the pyscf
+    # SGX machinery; this dft-layer class stays pure numpy).
+
+    def build_k_matrix_block(self, ao, dm, a_tensor_block,
                              dalpha_deps_block, weight):
         """
         Build K matrix contribution for a grid block.
@@ -1386,127 +1359,6 @@ class HybridPlan:
         - Memory requirement in GB
         """
         return ngrids * nao * nao * 8 / 1e9
-    
-    def compute_eps_exx_only(self, mol, grids, dm, settings, sgx_cache=None):
-        """
-        Compute only the exchange energy density without A tensor.
-        
-        Parameters:
-        - mol: Molecule object
-        - grids: Grid object
-        - dm: Density matrix (already scaled if needed)
-        - settings: Hybrid settings
-        - sgx_cache: Cache for SGX object
-        
-        Returns:
-        - eps_exx: Exchange energy density
-        """
-        from ciderpress.pyscf.descriptors import _hyb_desc_getter
-        result = _hyb_desc_getter(
-            mol, grids, dm, settings, 
-            sgx_cache=sgx_cache, return_a_tensor=False
-        )
-        return result[0] if isinstance(result, tuple) else result
-    
-    def build_k_matrix_blockwise(self, mol, grids, dm, dalpha_deps, 
-                                 max_memory=2000, sgx_cache=None):
-        """
-        Build K matrix contribution blockwise without storing full A tensor.
-        
-        Parameters:
-        - mol: Molecule object
-        - grids: Grid object
-        - dm: Density matrix (already scaled: dm for RKS, 2*dm_spin for UKS)
-        - dalpha_deps: Derivative of alpha w.r.t. exchange energy density
-        - max_memory: Maximum memory in MB
-        - sgx_cache: Cache for SGX object
-        
-        Returns:
-        - K_contrib: K matrix contribution (NOT symmetrized)
-        """
-        from ciderpress.external.sgx_tools import build_k_matrix_blockwise
-        from pyscf.sgx import sgx
-        
-        # Get or create SGX object
-        if sgx_cache and 'sgx' in sgx_cache:
-            sgx_obj = sgx_cache['sgx']
-        else:
-            sgx_obj = sgx.SGX(mol)
-            sgx_obj.grids = grids
-            if sgx_cache is not None:
-                sgx_cache['sgx'] = sgx_obj
-        
-        # Build K matrix blockwise
-        K_contrib = build_k_matrix_blockwise(
-            sgx_obj, dm, dalpha_deps, 
-            grids_weights=grids.weights, max_memory=max_memory
-        )
-        
-        return K_contrib
-    
-    def finalize_k_matrix(self, K_contrib, vmat, spin=None):
-        """
-        Finalize K matrix with proper symmetrization and factors.
-        Handles both RKS and UKS cases.
-        
-        Parameters:
-        - K_contrib: K matrix contributions
-            - For RKS: list of shape (nset,) with each element (nao, nao)
-            - For UKS: shape (2, nset, nao, nao) or two lists for alpha/beta
-        - vmat: Fock matrix to update
-            - For RKS: shape (nset, nao, nao)
-            - For UKS: shape (2, nset, nao, nao)
-        - spin: None for RKS, 'uks' for UKS
-        
-        Returns:
-        - Updated vmat
-        """
-        import numpy as np
-        
-        if spin == 'uks':
-            # UKS case
-            if isinstance(K_contrib, tuple) or (isinstance(K_contrib, list) and 
-                                                 len(K_contrib) == 2 and 
-                                                 isinstance(K_contrib[0], np.ndarray)):
-                # Separate alpha/beta lists
-                K_contrib_alpha, K_contrib_beta = K_contrib
-                nset = len(K_contrib_alpha) if isinstance(K_contrib_alpha, list) else K_contrib_alpha.shape[0]
-                
-                # Handle both list and array formats
-                if isinstance(K_contrib_alpha, list):
-                    # List format
-                    for i in range(nset):
-                        K_contrib_alpha[i] = 0.5 * (K_contrib_alpha[i] + K_contrib_alpha[i].T)
-                        K_contrib_beta[i] = 0.5 * (K_contrib_beta[i] + K_contrib_beta[i].T)
-                        vmat[0, i] += K_contrib_alpha[i]
-                        vmat[1, i] += K_contrib_beta[i]
-                else:
-                    # Array format
-                    for i in range(nset):
-                        K_contrib_alpha[i] = 0.5 * (K_contrib_alpha[i] + K_contrib_alpha[i].T)
-                        K_contrib_beta[i] = 0.5 * (K_contrib_beta[i] + K_contrib_beta[i].T)
-                        vmat[0, i] += K_contrib_alpha[i]
-                        vmat[1, i] += K_contrib_beta[i]
-            else:
-                # K_contrib already in shape (2, nset, nao, nao)
-                nset = K_contrib.shape[1]
-                for i in range(nset):
-                    K_contrib[0, i] = 0.5 * (K_contrib[0, i] + K_contrib[0, i].T)
-                    K_contrib[1, i] = 0.5 * (K_contrib[1, i] + K_contrib[1, i].T)
-                    vmat[0, i] += K_contrib[0, i]
-                    vmat[1, i] += K_contrib[1, i]
-        else:
-            # RKS case
-            nset = len(K_contrib)
-            
-            # Symmetrize
-            for i in range(nset):
-                K_contrib[i] = 0.5 * (K_contrib[i] + K_contrib[i].T)
-            
-            for i in range(nset):
-                vmat[i] += 0.5 * K_contrib[i]
-        
-        return vmat
 
 
 class NLDFAuxiliaryPlan(ABC):
