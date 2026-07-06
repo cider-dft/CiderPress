@@ -39,6 +39,16 @@ def get_veff(ks_grad, mol=None, dm=None):
         mol = ks_grad.mol
     if dm is None:
         dm = ks_grad.base.make_rdm1()
+    ni = ks_grad.base._numint
+    if getattr(ni, "settings", None) is not None and ni.settings.has_hyb:
+        if not getattr(ks_grad, "_cider_hyb_grad_warned", False):
+            logger.warn(
+                ks_grad.base,
+                "CIDER local-hybrid nuclear gradients neglect the nonlocal "
+                "exact-exchange (A-tensor) response terms; gradients are "
+                "approximate.",
+            )
+            ks_grad._cider_hyb_grad_warned = True
     t0 = (logger.process_clock(), logger.perf_counter())
 
     mf = ks_grad.base
