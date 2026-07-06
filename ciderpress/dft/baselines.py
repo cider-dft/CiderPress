@@ -367,37 +367,35 @@ def mgga_c_r2scan(X0T):
 
 
 def exx_energy_baseline(X0T):
-    """Multiplicative baseline that takes the last raw feature--assumed to be
-    the exact-exchange energy density ek--and returns it.
-    
-    NOTE: The feature is normalized by LDA exchange during feature generation,
-    so we need to denormalize it here to get the actual exchange energy density.
+    """Multiplicative baseline returning the exact-exchange energy density.
+
+    CONVENTION (training/SCF contract, see descriptors._hyb_desc_getter):
+    the last feature is the LDA-normalized exact-exchange energy density
+        x_norm = feat_raw / (LDA_FACTOR * rho^(4/3)),
+    with feat_raw = -0.5*ek = +|eps_x^exact| >= 0 and LDA_FACTOR < 0, so
+    x_norm <= 0. The (negative) exchange energy density is recovered as
+        e = -feat_raw = x_norm * LDA_FACTOR * rho^(4/3) * (-1)
+    which is smooth in the features (the historical -abs(...) form
+    introduced a spurious derivative kink at x_norm = 0 and silently
+    accepted sign-inconsistent inputs).
     """
     nspin, nfeat, nsamp = X0T.shape
-    
-    # Initialize outputs
+
     e = np.zeros(nsamp)
     dedx = np.zeros_like(X0T)
-    
-    # Handle each spin channel separately
+
     for s in range(nspin):
-        rho_s = X0T[s, 0]  # First feature is unnormalized density
-        normalized_exx_s = X0T[s, -1]  # Last feature is normalized exx
-        
-        # Compute energy contribution for this spin
-        e_s = -1.0 * np.abs(normalized_exx_s * LDA_FACTOR * rho_s**(4.0/3.0))
-        
-        # Add to total energy
-        e += e_s
-        
-        # Compute derivatives for this spin
-        sign_factor = np.sign(normalized_exx_s * LDA_FACTOR)
-        dedx[s, -1] = -1.0 * sign_factor * LDA_FACTOR * rho_s**(4.0/3.0)  # d/d(normalized_exx)
-        dedx[s, 0] = -1.0 * sign_factor * normalized_exx_s * LDA_FACTOR * (4.0/3.0) * rho_s**(1.0/3.0)  # d/drho
-    
+        rho_s = X0T[s, 0]  # first feature is the (unnormalized) density
+        x_norm = X0T[s, -1]  # last feature is the normalized exx (<= 0)
+
+        # e_s = -feat_raw = -(x_norm * LDA_FACTOR * rho^(4/3))
+        e += -1.0 * x_norm * LDA_FACTOR * rho_s ** (4.0 / 3.0)
+        dedx[s, -1] = -1.0 * LDA_FACTOR * rho_s ** (4.0 / 3.0)
+        dedx[s, 0] = -1.0 * x_norm * LDA_FACTOR * (4.0 / 3.0) * rho_s ** (1.0 / 3.0)
+
     e /= nspin
     dedx /= nspin
-    
+
     return e, dedx
 
 

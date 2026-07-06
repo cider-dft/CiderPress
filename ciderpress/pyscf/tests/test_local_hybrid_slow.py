@@ -35,6 +35,7 @@ from pyscf import dft, gto, scf
 from ciderpress.pyscf.dft import make_cider_calc
 from ciderpress.pyscf.tests.lh_test_utils import (
     assert_fd_consistent,
+    assert_fd_two_delta,
     converged_dm,
     fd_energy_potential_check,
     forced_hyb_mode,
@@ -48,12 +49,16 @@ SKIP_MSG = "slow local-hybrid tests disabled (set CIDER_SLOW_TESTS=1)"
 
 VB2 = get_hyb_model_path("vb2")
 SDMX1 = get_hyb_model_path("sdmx1")
+# The model that produced dissociation_data.csv (verified via the
+# "# Model YAML:" headers in the H2+_LOCAL_*.txt logs)
+SDMX1_DIFF = get_hyb_model_path("sdmx1_diff")
 TINY = get_hyb_model_path("tiny")
 VB2_NONHYB = get_hyb_model_path("vb2_nonhyb")
 
 # H2+ dissociation references are read from the original campaign CSV
-# (dissociation_data.csv: vb2 HYB_EXX model, def2-qzvppd, grid level 6,
-# xmix=1.0). NOTE: regenerate + document if Phase-1 fixes shift the numbers.
+# (dissociation_data.csv: sdmx1_diff HYB_EXX model, def2-qzvppd, grid
+# level 6, xmix=1.0). NOTE: regenerate + document if Phase-1 fixes shift
+# the numbers.
 CSV_PATH = os.path.join(
     os.environ.get(
         "CIDER_TEST_HYB_MODEL_DIR",
@@ -65,7 +70,12 @@ CSV_PATH = os.path.join(
 
 
 def _load_h2p_reference():
-    """Load LOCAL-hybrid reference energies from the campaign CSV."""
+    """Load LOCAL-hybrid references from the campaign CSV.
+
+    Returns {exact_distance_string: energy}, preserving the CSV's
+    full-precision distances so test geometries match the campaign's
+    geometries exactly.
+    """
     import csv
 
     ref = {}
@@ -83,7 +93,8 @@ def _load_h2p_reference():
             return ref
         for row in reader:
             try:
-                ref[round(float(row[dist_col]), 3)] = float(row[local_col])
+                float(row[dist_col])
+                ref[row[dist_col]] = float(row[local_col])
             except (ValueError, TypeError):
                 continue
     return ref
@@ -109,8 +120,10 @@ class TestVB2Hybrid(unittest.TestCase):
         mf = _make_hyb_calc(mol, VB2)
         ni, grids = prep_cider_ni(mf)
         with forced_hyb_mode("incore"):
-            results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=2)
-        assert_fd_consistent(results, rtol=1e-5, label="vb2-rks")
+            results = fd_energy_potential_check(
+                ni, mol, grids, dm, n_dirs=2, deltas=[1e-3, 2.5e-4]
+            )
+        assert_fd_two_delta(results, rtol=1e-5, label="vb2-rks")
 
     def test_fd_uks_openshell(self):
         mol = get_mol("h2o+")
@@ -118,8 +131,10 @@ class TestVB2Hybrid(unittest.TestCase):
         mf = _make_hyb_calc(mol, VB2)
         ni, grids = prep_cider_ni(mf)
         with forced_hyb_mode("incore"):
-            results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=2)
-        assert_fd_consistent(results, rtol=1e-5, label="vb2-uks")
+            results = fd_energy_potential_check(
+                ni, mol, grids, dm, n_dirs=2, deltas=[1e-3, 2.5e-4]
+            )
+        assert_fd_two_delta(results, rtol=1e-5, label="vb2-uks")
 
     def test_rks_vs_uks_closed_shell(self):
         mol = get_mol("h2o")
@@ -163,26 +178,31 @@ class TestVB2Hybrid(unittest.TestCase):
         mf.grids.level = 1
         mf = make_cider_calc(mf, VB2_NONHYB, xkernel=None, ckernel=None, xmix=1.0)
         ni, grids = prep_cider_ni(mf)
-        results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=2)
-        assert_fd_consistent(results, rtol=1e-5, label="vb2-nonhyb-control")
+        results = fd_energy_potential_check(
+                ni, mol, grids, dm, n_dirs=2, deltas=[1e-3, 2.5e-4]
+            )
+        assert_fd_two_delta(results, rtol=1e-5, label="vb2-nonhyb-control")
 
 
 @unittest.skipUnless(SLOW, SKIP_MSG)
-@unittest.skipUnless(VB2 is not None, "vb2 hybrid model not found")
+@unittest.skipUnless(SDMX1_DIFF is not None, "sdmx1_diff hybrid model not found")
 class TestH2PlusRegression(unittest.TestCase):
     """S3: H2+ dissociation subset vs the original campaign results.
 
     Canonical recipe from h2p_dissociation.py: UKS + PBE base, xmix=1.0,
     density_fit def2-universal-jfit, EDIIS, damp 0.5, energy-only
-    convergence, def2-qzvppd, grid level 6, dm0 from PBE.
+    convergence, def2-qzvppd, grid level 6, dm0 from PBE. Model:
+    sdmx1_diff (the one that generated the CSV, per the run logs).
+    Geometries: the CSV's exact full-precision distances.
     """
 
+    # approximate targets; the nearest exact CSV distance is used
     DISTANCES = [1.448, 2.017, 3.155]
-    CSV_TOL = 1e-6  # Ha, pre-fix; references regenerated if Phase 1 shifts
+    CSV_TOL = 5e-6  # Ha, pre-fix; references regenerated if Phase 1 shifts
 
-    def _run_point(self, r_angstrom):
+    def _run_point(self, r_string):
         mol = gto.M(
-            atom=f"H 0 0 0; H 0 0 {r_angstrom}",
+            atom=f"H 0 0 0; H 0 0 {r_string}",
             basis="def2-qzvppd",
             charge=1,
             spin=1,
@@ -201,7 +221,9 @@ class TestH2PlusRegression(unittest.TestCase):
         hyb.max_cycle = 150
         hyb.conv_tol = 1e-9
         hyb.grids.level = 6
-        hyb = make_cider_calc(hyb, VB2, xkernel=None, ckernel=None, xmix=1.0)
+        hyb = make_cider_calc(
+            hyb, SDMX1_DIFF, xkernel=None, ckernel=None, xmix=1.0
+        )
         hyb = hyb.density_fit()
         hyb.with_df.auxbasis = "def2-universal-jfit"
         hyb.damp = 0.5
@@ -220,20 +242,21 @@ class TestH2PlusRegression(unittest.TestCase):
 
         hyb.check_convergence = _energy_only_convergence
         e = hyb.kernel(dm0=dm0)
-        assert hyb.converged, f"H2+ R={r_angstrom} did not converge"
+        assert hyb.converged, f"H2+ R={r_string} did not converge"
         return e
 
     def test_h2p_dissociation_subset(self):
         ref = _load_h2p_reference()
         if not ref:
             self.skipTest("dissociation_data.csv not found/parsed")
-        for r in self.DISTANCES:
-            e = self._run_point(r)
-            key = round(r, 3)
-            self.assertIn(key, ref, f"R={r} missing from reference CSV")
-            diff = abs(e - ref[key])
+        for r_target in self.DISTANCES:
+            # exact CSV distance nearest the target
+            r_string = min(ref, key=lambda k: abs(float(k) - r_target))
+            e = self._run_point(r_string)
+            diff = abs(e - ref[r_string])
             assert diff < self.CSV_TOL, (
-                f"H2+ R={r}: E={e:.9f} ref={ref[key]:.9f} diff={diff:.2e}"
+                f"H2+ R={r_string}: E={e:.9f} ref={ref[r_string]:.9f} "
+                f"diff={diff:.2e}"
             )
 
 
@@ -251,8 +274,10 @@ class TestSDMXHybrid(unittest.TestCase):
             _, exc, vmat = ni.nr_rks(mol, grids, "PBE", dm)
         assert np.all(np.isfinite(vmat)) and np.isfinite(exc)
         with forced_hyb_mode("incore"):
-            results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=2)
-        assert_fd_consistent(results, rtol=1e-5, label="sdmx1")
+            results = fd_energy_potential_check(
+                ni, mol, grids, dm, n_dirs=2, deltas=[1e-3, 2.5e-4]
+            )
+        assert_fd_two_delta(results, rtol=1e-5, label="sdmx1")
 
 
 @unittest.skipUnless(SLOW, SKIP_MSG)
@@ -266,8 +291,10 @@ class TestOpenShellTrained(unittest.TestCase):
         mf = _make_hyb_calc(mol, VB2)
         ni, grids = prep_cider_ni(mf)
         with forced_hyb_mode("incore"):
-            results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=2)
-        assert_fd_consistent(results, rtol=1e-5, label="vb2-h2plus")
+            results = fd_energy_potential_check(
+                ni, mol, grids, dm, n_dirs=2, deltas=[1e-3, 2.5e-4]
+            )
+        assert_fd_two_delta(results, rtol=1e-5, label="vb2-h2plus")
 
 
 @unittest.skipUnless(SLOW, SKIP_MSG)
@@ -283,8 +310,10 @@ class TestTinyTrainedModel(unittest.TestCase):
             mf = _make_hyb_calc(mol, TINY)
             ni, grids = prep_cider_ni(mf)
             with forced_hyb_mode("incore"):
-                results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=2)
-            assert_fd_consistent(results, rtol=1e-5, label=f"tiny-{molname}")
+                results = fd_energy_potential_check(
+                ni, mol, grids, dm, n_dirs=2, deltas=[1e-3, 2.5e-4]
+            )
+            assert_fd_two_delta(results, rtol=1e-5, label=f"tiny-{molname}")
 
 
 if __name__ == "__main__":

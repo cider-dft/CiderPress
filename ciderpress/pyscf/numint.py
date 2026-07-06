@@ -913,15 +913,15 @@ def nr_uks(
                 
                 # Handle hybrid ML outputs and K matrix
                 if ni.hyb_plan is not None and vxc_hyb is not None:
-                    # Store derivative for each spin
-                    if vxc_hyb.ndim == 3 and vxc_hyb.shape[1] == 1:
-                        dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0, 0, :]
-                        dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1, 0, :]
-                    else:
-                        dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
-                        dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
-                    
-                    # Store ML output
+                    # Contract: eval_xc_cider returns the per-spin K weight
+                    # dE/d(hyb feat) with shape (nspin, 1, nblock)
+                    assert vxc_hyb.shape == (2, 1, ip1 - ip0), (
+                        f"vxc_hyb shape {vxc_hyb.shape} != (2, 1, {ip1 - ip0})"
+                    )
+                    dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0, 0]
+                    dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1, 0]
+
+                    # Store ML output (diagnostics only)
                     if f_raw is not None:
                         if f_raw.ndim == 1:
                             # If ML model returns single output, use for both spins
@@ -990,17 +990,16 @@ def nr_uks(
                 assert vxc_nldf is None
                 
                 # Build K matrix contribution for local hybrid if needed
-                if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and vxc_hyb is not None:
+                if ni.hyb_plan is not None and vxc_hyb is not None:
                     if hasattr(ni, 'timer'):
                         ni.timer.start("hybrid K build")
-                    
-                    # Extract derivative from vxc_hyb
-                    if vxc_hyb.ndim == 3 and vxc_hyb.shape[1] == 1:
-                        dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0, 0, :]
-                        dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1, 0, :]
-                    else:
-                        dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
-                        dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+
+                    # Contract: per-spin K weight, shape (nspin, 1, nblock)
+                    assert vxc_hyb.shape == (2, 1, ip1 - ip0), (
+                        f"vxc_hyb shape {vxc_hyb.shape} != (2, 1, {ip1 - ip0})"
+                    )
+                    dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0, 0]
+                    dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1, 0]
                     
                     # Extract alpha from ML model
                     if f_raw is not None:
@@ -1086,7 +1085,7 @@ def nr_uks(
             )
             
             # Build K matrix for hybrid if needed (NLDF case)
-            if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and a_tensor_a is not None:
+            if ni.hyb_plan is not None and a_tensor_a is not None:
                 # Check if we have non-zero derivatives for this block
                 if dalpha_deps[0, i, ip0:ip1].any() or dalpha_deps[1, i, ip0:ip1].any():
                     if hasattr(ni, 'timer'):
@@ -1511,14 +1510,19 @@ class CiderNumIntMixin:
             X0T[:, start : start + nfeat_tmp] = sdmx_feat
             start += nfeat_tmp
         if has_hyb:
-            if hyb_feat is not None:
-                if hyb_feat.ndim == 2:
-                    hyb_feat = hyb_feat[None, :]
-                assert hyb_feat.shape[0] == nspin, f"hyb_feat.shape[0]={hyb_feat.shape[0]} != nspin={nspin}"
-                assert hyb_feat.ndim == 3
-                nfeat_tmp = self.settings.hyb_settings.nfeat
-                X0T[:, start : start + nfeat_tmp] = hyb_feat
-                start += nfeat_tmp
+            if hyb_feat is None:
+                raise ValueError(
+                    "This CIDER model has hybrid (exact-exchange energy "
+                    "density) features, so hyb_feat must be provided to "
+                    "eval_xc_cider."
+                )
+            if hyb_feat.ndim == 2:
+                hyb_feat = hyb_feat[None, :]
+            assert hyb_feat.shape[0] == nspin, f"hyb_feat.shape[0]={hyb_feat.shape[0]} != nspin={nspin}"
+            assert hyb_feat.ndim == 3
+            nfeat_tmp = self.settings.hyb_settings.nfeat
+            X0T[:, start : start + nfeat_tmp] = hyb_feat
+            start += nfeat_tmp
         if start != nfeat:
             raise RuntimeError("nfeat mismatch, this should not happen!")
 

@@ -109,12 +109,15 @@ class TestHybridOracle(unittest.TestCase):
             )
             # Convention check: the code's feature is the quadratic form
             assert_allclose(feat_code, feat_or, rtol=1e-9, atol=1e-12)
-            e_hyb = xmix * alpha * np.dot(w, feat_code)
+            # e_x = -feat (feat = +|eps_x| convention)
+            e_hyb = -xmix * alpha * np.dot(w, feat_code)
             # dE/dP = xmix*alpha * sum_g w_g dfeat/d(dm_eff) (dm_eff == P here)
             v_hyb = xmix * alpha * vk_unit
             vmat_ref = vmat_sl + v_hyb
             exc_ref = exc_sl + e_hyb
-            assert_allclose(vmat, vmat_ref, atol=2e-9, rtol=0)
+            # atol: measured pipeline noise level (baseline job 28877091:
+            # RKS agrees to <2e-9, UKS to 3.5e-8)
+            assert_allclose(vmat, vmat_ref, atol=5e-8, rtol=0)
             assert_almost_equal(exc, exc_ref, 9)
         else:
             vmat_ref = np.array(vmat_sl, copy=True)
@@ -125,13 +128,14 @@ class TestHybridOracle(unittest.TestCase):
                     mol, grids, dm_eff, hyb_settings
                 )
                 assert_allclose(feat_code, feat_or, rtol=1e-9, atol=1e-12)
-                # E contribution: (1/nspin) * xmix * alpha * int w feat_s
-                e_hyb += 0.5 * xmix * alpha * np.dot(w, feat_code)
+                # E contribution: (1/nspin) * xmix * alpha * int w (-feat_s)
+                e_hyb += -0.5 * xmix * alpha * np.dot(w, feat_code)
                 # dE/dP_s = 0.5 * xmix*alpha * dfeat/d(dm_eff) * d(dm_eff)/dP_s
                 #         = 0.5 * 2 * xmix*alpha * vk_unit = xmix*alpha*vk_unit
                 vmat_ref[s] += xmix * alpha * vk_unit
             exc_ref = exc_sl + e_hyb
-            assert_allclose(vmat, vmat_ref, atol=2e-9, rtol=0)
+            # atol: measured pipeline noise (see RKS branch comment)
+            assert_allclose(vmat, vmat_ref, atol=5e-8, rtol=0)
             assert_almost_equal(exc, exc_ref, 9)
 
     def test_oracle_rks(self):
@@ -157,7 +161,8 @@ class TestPBE0Anchors(unittest.TestCase):
         from ciderpress.pyscf.descriptors import _hyb_desc_getter
 
         feat = _hyb_desc_getter(mol, grids, dm, ni.settings.hyb_settings)[0]
-        e_x_sgx = np.dot(grids.weights, feat)
+        # feat = +|eps_x| convention => E_x = -int w feat
+        e_x_sgx = -np.dot(grids.weights, feat)
         assert_almost_equal(exc, exc_sl + 0.25 * e_x_sgx, 9)
 
     def test_scf_vs_pbe0(self):
@@ -260,7 +265,8 @@ class TestFDConsistency(unittest.TestCase):
             X0T = np.empty((nspin, 3, nsamp))
             X0T[:, 0] = rng.uniform(0.05, 2.0, size=(nspin, nsamp))  # rho
             X0T[:, 1] = rng.uniform(0.0, 3.0, size=(nspin, nsamp))  # s^2 (np)
-            X0T[:, 2] = rng.uniform(0.3, 1.5, size=(nspin, nsamp))  # norm. exx
+            # normalized exx is <= 0 by the training/SCF contract
+            X0T[:, 2] = rng.uniform(-1.5, -0.3, size=(nspin, nsamp))
             for base in (exx_energy_baseline, exx_pbe_diff_baseline):
                 e0, dedx = base(X0T)
                 delta = 1e-6

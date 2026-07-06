@@ -234,7 +234,9 @@ class KernelEvalBase:
 
         """
         m, dm = self.multiplicative_baseline(X0T)
-        add_base = add_base and self.additive_baseline is not None
+        # NOTE: check the underlying function, not the bound method
+        # `self.additive_baseline` (which is always truthy).
+        add_base = add_base and self._add_basefunc is not None
         if add_base:
             a, da = self.additive_baseline(X0T)
 
@@ -672,12 +674,23 @@ class MappedXC:
             if len(f_raw_list) == 1:
                 f_raw_total = f_raw_list[0]
                 df_raw_total = df_raw_list[0]
-            else:                
-                # Collect raw outputs from EXX kernels (assumption: only one EXX-containing kernel)
+            else:
+                # Collect raw outputs from EXX kernels (assumption: only one
+                # EXX-containing kernel)
+                f_raw_total = df_raw_total = None
                 for i, kernel in enumerate(self.kernels):
-                    if kernel._mul_basefunc.__name__ in {"exx_energy_baseline", "exx_pbe_diff_baseline"}:
+                    if kernel._mul_basefunc.__name__ in {
+                        "exx_energy_baseline",
+                        "exx_pbe_diff_baseline",
+                    }:
                         f_raw_total = f_raw_list[i]
                         df_raw_total = df_raw_list[i]
+                if f_raw_total is None:
+                    raise ValueError(
+                        "return_raw_ml_output=True with multiple kernels "
+                        "requires one kernel with an EXX multiplicative "
+                        "baseline"
+                    )
             return res, dres, f_raw_total, df_raw_total
         else:
             return res, dres

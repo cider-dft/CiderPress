@@ -561,14 +561,31 @@ def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, sgx_cache=None, re
         _ej, ek = result
 
     # Feature array expected shape: (nfeat, ngrids)
-    # Factor of 0.5 explanation for RKS (closed-shell):
-    # - In RKS, we use total density matrix P_total = 2 * P_alpha (factor of 2)
-    # - Exchange integral involves P^2, giving factor of 4 compared to spin-resolved
-    # - SGX returns -0.5 * exchange integral (factor of -0.5)
-    # - We need another 0.5 to get the correct per-particle exchange energy density
-    # - Final scaling: 4 * (-0.5) * 0.5 = -1, which is correct
-    # For UKS, this factor works as well, since we pass 2*P_alpha and 2*P_beta
-    feat = 0.5*ek[0][None, :]  # RKS-specific scaling for exchange energy density
+    #
+    # CONVENTION (training/SCF contract): the raw hybrid feature is
+    #     feat = -0.5 * ek = +|exchange energy density|  (>= 0),
+    # where ek = -0.5 * F^T A F (F = dm_eff . chi) from sgx_tools, with
+    # dm_eff = P_total for RKS and 2*P_spin per spin for UKS.
+    #
+    # Why the MINUS sign: after the LDA normalizer
+    # (DensityNormalizer(1/LDA_FACTOR, -4/3), LDA_FACTOR < 0), the
+    # normalized feature is NEGATIVE with magnitudes up to ~1e3 in
+    # low-density regions. This matches the convention the trained hybrid
+    # models were built for: the featlist transforms use
+    # VMap(gamma=-0.001) with the design note "gamma ~ -1/|min(x)|, keeps
+    # pole far right", i.e. negative x with |min| ~ 1e3, and the mapped
+    # models' spline grids only cover the image of NEGATIVE features.
+    # With the opposite sign (a historical regression), 100% of grid
+    # points evaluated the ML mixing function out of the trained spline
+    # domain, where the interpolation package returns inconsistent
+    # value/gradient pairs (broken potentials) and unphysical
+    # extrapolated alpha(r).
+    #
+    # The 0.5 magnitude: dm_eff conventions above give int w . |feat| =
+    # |E_x^exact| for both RKS (P_total) and UKS (sum_s 0.5 * 2P_s).
+    # This function is shared by training-data generation and SCF, so the
+    # contract holds on both sides going forward.
+    feat = -0.5 * ek[0][None, :]
 
     if return_a_tensor:
         return feat, a_tensor

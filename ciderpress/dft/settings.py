@@ -911,9 +911,11 @@ class HybridSettings(BaseSettings):
         return [0]
 
     def ueg_vector(self, rho: float = 1.0):
-        # The uniform-electron-gas value of ε_x^EXX is the LDA exchange energy
-        # density.
-        return np.array([LDA_FACTOR * rho ** (4.0 / 3)], dtype=np.float64)
+        # Raw-feature convention: feat = +|eps_x| (see
+        # descriptors._hyb_desc_getter). At the UEG, |eps_x^LDA| =
+        # -LDA_FACTOR * rho^(4/3) (LDA_FACTOR < 0), so the normalized
+        # feature value is -1 there.
+        return np.array([-LDA_FACTOR * rho ** (4.0 / 3)], dtype=np.float64)
 
     def get_reasonable_normalizer(self):
         # Normalise by LDA exchange energy density to make feature scale-invariant.
@@ -1903,8 +1905,9 @@ def get_alpha(rho, sigma, tau):
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
     tauw = sigma / (8 * rho)
-    if (tauw > tau).any():
-        print("SMALL TAU", tau.shape, np.min(tau - tauw))
+    # NOTE: tauw > tau (slightly negative alpha) occurs routinely at
+    # numerical-noise level in low-density regions; it is handled by the
+    # cond mask below and not worth a per-block diagnostic.
     # cond = np.logical_and(cond, tauw > tau - 1e-8)
     # TODO this numerical stability trick is a bit of a hack.
     # Should make spline support small negative alpha

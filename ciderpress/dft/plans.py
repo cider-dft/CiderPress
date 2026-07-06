@@ -1358,16 +1358,20 @@ class HybridPlan:
         
         # Equation (7): F_λg = Σ_σ P_λσ χ_σ(r_g)
         F = np.dot(dm, ao_val.T)  # Shape: (nao, ngrids)
-        
-        # Equation (8): G_νg = w_g (∂α/∂ε_x^ex)(r_g) Σ_λ A_νλg F_λg
+
+        # Equation (8): G_νg = w_g (∂E/∂feat)(r_g) Σ_λ A_νλg F_λg
         gv_alpha = np.einsum('gij,jg->ig', a_tensor_block, F)
         gv_alpha *= dalpha_deps_block[None, :]
         gv_alpha *= weight[None, :]
-        
+
         # Equation (9): K_μν = Σ_g χ_μ(r_g) G_νg
-        # Apply the EXACT factor of -0.5 used in both RKS and UKS
-        K_contrib = -0.5 * np.dot(ao_val.T, gv_alpha.T)
-        
+        # Factor +0.5: with the raw hybrid feature feat = -0.5*ek
+        # = +0.25 * F^T A F (see descriptors._hyb_desc_getter), the
+        # unsymmetrized derivative is d(feat_g)/dP_{μν} = +0.5 χ_μ (A F)_ν.
+        # The weight dalpha_deps = dE/d(feat) carries the rest of the
+        # chain, so K = Σ_g w_g (dE/dfeat) d(feat)/dP.
+        K_contrib = 0.5 * np.dot(ao_val.T, gv_alpha.T)
+
         return K_contrib
     
     def estimate_memory_gb(self, ngrids, nao):

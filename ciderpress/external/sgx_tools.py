@@ -285,8 +285,10 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
         a_tensor_block = None
         gv = None
     
-    # Apply factor of -0.5 (consistent with existing implementation)
-    K_contrib *= -0.5
+    # Factor +0.5: matches HybridPlan.build_k_matrix_block -- the raw
+    # hybrid feature is feat = -0.5*ek = +0.25 F^T A F, so
+    # d(feat_g)/dP_{mu nu} = +0.5 chi_mu (A F)_nu (unsymmetrized).
+    K_contrib *= 0.5
     
     logger.timer_debug1(mol, f"build_k_matrix_blockwise ({ngrids} points, {blksize} blocksize)", *t0)
     logger.timer_debug1(mol, "  nuclear integral time", *tnuc)
