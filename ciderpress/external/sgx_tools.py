@@ -263,20 +263,13 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
         a_tensor_block = batch_nuc(mol, coords)  # Shape: (block_size, nao, nao)
         tnuc = tnuc[0] + time.monotonic(), tnuc[1] + time.time()
         
-        # Build K matrix contribution for this block
-        # Following equations from theory:
-        # F_λg = Σ_σ P_λσ χ_σ(r_g)
-        F = numpy.dot(dm, ao.T)  # Shape: (nao, block_size)
-        
-        # G_νg = α_eff(r_g) Σ_λ A_νλg F_λg
-        # Note: dalpha_deps acts as α_eff here
-        gv = numpy.einsum('gij,jg->ig', a_tensor_block, F)
-        gv *= dalpha_deps[i0:i1][None, :]
-        gv *= grids_weights[i0:i1][None, :]
-        
-        # K_μν += Σ_g χ_μ(r_g) G_νg
-        K_contrib += numpy.dot(ao.T, gv.T)
-        
+        # Build K matrix contribution for this block (all-BLAS; see
+        # HybridPlan.build_k_matrix_block for the equations/conventions)
+        F = numpy.dot(ao, dm.T)  # (block_size, nao)
+        F *= (grids_weights[i0:i1] * dalpha_deps[i0:i1])[:, None]
+        gv = numpy.matmul(a_tensor_block, F[:, :, None])[:, :, 0]
+        K_contrib += numpy.dot(ao.T, gv)
+
         # Clear large arrays to free memory
         a_tensor_block = None
         gv = None

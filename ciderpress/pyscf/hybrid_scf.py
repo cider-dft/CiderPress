@@ -178,17 +178,46 @@ class HybridSCFHelper:
             return result[0][0], result[1]
         return result[0], None
 
+    def _feat_from_a_tensor(self, dm_eff):
+        """feat_g = +1/4 F_g^T A_g F_g from the stored A tensor -- pure
+        BLAS, no integral evaluation. Used when A is (cache-)available."""
+        from pyscf.dft.numint import eval_ao
+
+        feat = np.empty(self.ngrids)
+        blk = 8192
+        for i0 in range(0, self.ngrids, blk):
+            i1 = min(self.ngrids, i0 + blk)
+            ao = eval_ao(self.mol, self.grids.coords[i0:i1])
+            F = ao @ dm_eff.T  # (nblk, nao)
+            G = np.matmul(self.a_tensor[i0:i1], F[:, :, None])[:, :, 0]
+            feat[i0:i1] = 0.25 * np.einsum("gn,gn->g", F, G)
+        return feat
+
     def compute_eps_exx(self):
         """Compute the raw hybrid feature on the full grid for all spins
         and sets. In incore mode the A tensor is computed ONCE (it is
-        density-independent) and reused for every spin/set K build."""
+        density-independent), reused for every spin/set K build, and
+        cached across SCF iterations on the numint (ni._hyb_cache,
+        invalidated in build()/reset() with the molecule; the (ngrids,
+        nao) key guards against grid pruning). With a cached A, the
+        feature is a cheap BLAS contraction -- no integral work at all
+        after the first SCF iteration."""
         self._timer("start", "hybrid exx")
+        a_key = ("a_tensor", self.ngrids, self.nao)
+        if not self.use_blockwise:
+            self.a_tensor = self.sgx_cache.get(a_key)
         for s in range(self.nspin):
             for i in range(self.nset):
-                need_a = not self.use_blockwise and self.a_tensor is None
+                if self.a_tensor is not None:
+                    self.eps_exx[s, i] = self._feat_from_a_tensor(
+                        self.dm_effs[s][i]
+                    )
+                    continue
+                need_a = not self.use_blockwise
                 feat, a = self._compute_feat(self.dm_effs[s][i], return_a=need_a)
                 if need_a:
                     self.a_tensor = a
+                    self.sgx_cache[a_key] = a
                 self.eps_exx[s, i] = feat
         self._timer("stop", "hybrid exx")
 
