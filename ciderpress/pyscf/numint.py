@@ -1198,11 +1198,184 @@ class CiderNumIntMixin:
     xmix: float
     rhocut: float
 
+    # Semilocal stand-in functional for second functional derivatives (fxc).
+    # None -> constructed automatically by get_fxc_proxy_xc(). Users can set
+    # this (libxc string) via make_cider_calc(..., fxc_proxy_xc=...).
+    fxc_proxy_xc = None
+    _fxc_proxy_warned = False
+    _plain_ni = None
+
     def nlc_coeff(self, xc_code):
         if self._nlc_coeff is not None:
             return self._nlc_coeff
         else:
             return super().nlc_coeff(xc_code)
+
+    def _get_plain_numint(self):
+        # Plain pyscf NumInt used to evaluate the proxy fxc kernel. The CIDER
+        # block_loop/eval_rho overrides (esp. the frac-Laplacian variants) are
+        # not compatible with pyscf's stock cache_xc_kernel/nr_*_fxc, so all
+        # kernel work is delegated to this instance.
+        if self._plain_ni is None:
+            self._plain_ni = numint.NumInt()
+        return self._plain_ni
+
+    def get_fxc_proxy_xc(self):
+        """Semilocal stand-in XC used for second functional derivatives.
+
+        The SCF potential and energy remain the exact CIDER ones (they go
+        through nr_rks/nr_uks); this proxy only enters response-type
+        quantities (SOSCF/newton step direction, stability analysis, TDDFT
+        kernels). Since the SCF gradient is exact, second-order solvers
+        converge to the exact CIDER solution regardless of this choice.
+        """
+        if self.fxc_proxy_xc is not None:
+            return self.fxc_proxy_xc
+        mgga = self.settings.sl_settings.level == "MGGA"
+        slxc = (self.slxc or "").strip()
+        if not slxc:
+            # Full-XC ML model with no semilocal baseline
+            return "{}*{}".format(self.xmix, "R2SCAN" if mgga else "PBE")
+        if self.xmix == 0:
+            return slxc
+        return "{} + {}*{}".format(
+            slxc, self.xmix, "MGGA_X_R2SCAN" if mgga else "GGA_X_PBE"
+        )
+
+    def _fxc_proxy_warn(self, mol):
+        if not self._fxc_proxy_warned:
+            lib.logger.warn(
+                mol,
+                "CIDER: the XC response kernel (fxc) is approximated by the "
+                "semilocal proxy '%s'. SCF energies and potentials are exact "
+                "and second-order SCF converges to the exact CIDER solution, "
+                "but response properties (TDDFT, stability eigenvalues) are "
+                "approximate. Set mf.fd_response = True for finite-difference "
+                "response.",
+                self.get_fxc_proxy_xc(),
+            )
+            if self.settings.has_hyb:
+                lib.logger.warn(
+                    mol,
+                    "CIDER: the local-hybrid exact-exchange response is not "
+                    "included in the proxy fxc kernel.",
+                )
+            self._fxc_proxy_warned = True
+
+    def cache_xc_kernel(
+        self, mol, grids, xc_code, mo_coeff, mo_occ, spin=0, max_memory=2000
+    ):
+        self._fxc_proxy_warn(mol)
+        return self._get_plain_numint().cache_xc_kernel(
+            mol,
+            grids,
+            self.get_fxc_proxy_xc(),
+            mo_coeff,
+            mo_occ,
+            spin=spin,
+            max_memory=max_memory,
+        )
+
+    def cache_xc_kernel1(self, mol, grids, xc_code, dm, spin=0, max_memory=2000):
+        self._fxc_proxy_warn(mol)
+        return self._get_plain_numint().cache_xc_kernel1(
+            mol,
+            grids,
+            self.get_fxc_proxy_xc(),
+            dm,
+            spin=spin,
+            max_memory=max_memory,
+        )
+
+    def nr_rks_fxc(
+        self,
+        mol,
+        grids,
+        xc_code,
+        dm0,
+        dms,
+        relativity=0,
+        hermi=0,
+        rho0=None,
+        vxc=None,
+        fxc=None,
+        max_memory=2000,
+        verbose=None,
+    ):
+        return self._get_plain_numint().nr_rks_fxc(
+            mol,
+            grids,
+            self.get_fxc_proxy_xc(),
+            dm0,
+            dms,
+            relativity=relativity,
+            hermi=hermi,
+            rho0=rho0,
+            vxc=vxc,
+            fxc=fxc,
+            max_memory=max_memory,
+            verbose=verbose,
+        )
+
+    def nr_uks_fxc(
+        self,
+        mol,
+        grids,
+        xc_code,
+        dm0,
+        dms,
+        relativity=0,
+        hermi=0,
+        rho0=None,
+        vxc=None,
+        fxc=None,
+        max_memory=2000,
+        verbose=None,
+    ):
+        return self._get_plain_numint().nr_uks_fxc(
+            mol,
+            grids,
+            self.get_fxc_proxy_xc(),
+            dm0,
+            dms,
+            relativity=relativity,
+            hermi=hermi,
+            rho0=rho0,
+            vxc=vxc,
+            fxc=fxc,
+            max_memory=max_memory,
+            verbose=verbose,
+        )
+
+    def nr_rks_fxc_st(
+        self,
+        mol,
+        grids,
+        xc_code,
+        dm0,
+        dms_alpha,
+        relativity=0,
+        singlet=True,
+        rho0=None,
+        vxc=None,
+        fxc=None,
+        max_memory=2000,
+        verbose=None,
+    ):
+        return self._get_plain_numint().nr_rks_fxc_st(
+            mol,
+            grids,
+            self.get_fxc_proxy_xc(),
+            dm0,
+            dms_alpha,
+            relativity=relativity,
+            singlet=singlet,
+            rho0=rho0,
+            vxc=vxc,
+            fxc=fxc,
+            max_memory=max_memory,
+            verbose=verbose,
+        )
 
     @property
     def settings(self):
@@ -1223,6 +1396,7 @@ class CiderNumIntMixin:
         self.fl_plan = None
         self.sdmxgen = None
         self.nldfgen = None
+        self._plain_ni = None
 
     def reset(self, mol=None):
         self.mol = mol
@@ -1230,6 +1404,7 @@ class CiderNumIntMixin:
         self.fl_plan = None
         self.sdmxgen = None
         self.nldfgen = None
+        self._plain_ni = None
 
     def initialize_feature_generators(self, mol, grids, nspin):
         self.sl_plan = SemilocalPlan(self.settings.sl_settings, nspin)
@@ -1461,11 +1636,10 @@ class CiderNumInt(CiderNumIntMixin, numint.NumInt):
     nr_rks = nr_rks
     nr_uks = nr_uks
 
-    nr_rks_fxc = method_not_implemented
-    nr_uks_fxc = method_not_implemented
-    nr_rks_fxc_st = method_not_implemented
-    cache_xc_kernel = method_not_implemented
-    cache_xc_kernel1 = method_not_implemented
+    # nr_rks_fxc / nr_uks_fxc / nr_rks_fxc_st / cache_xc_kernel /
+    # cache_xc_kernel1 are provided by CiderNumIntMixin (proxy semilocal
+    # kernel delegated to a plain pyscf NumInt), enabling second-order SCF
+    # (newton), stability analysis, and approximate TDDFT kernels.
 
     def contract_wv(
         self,

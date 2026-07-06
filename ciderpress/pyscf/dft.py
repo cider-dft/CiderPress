@@ -207,6 +207,22 @@ def _strip_present_dispersion_wrappers(mf):
         _rebind("dump_flags")
 
 
+def _pre_kernel_vdw_setup(mf):
+    """Reset the per-kernel-call vdW guard and strip stale dispersion
+    wrappers before running SCF, per the trained-model vdW contract.
+    Shared by _CiderKS.kernel, _CiderDF.kernel, and _CiderSOSCF.kernel."""
+    mf._cider_vdw_applied = False
+    if getattr(mf, "_cider_vdw_contract_enabled", False):
+        vdw_term = getattr(mf, "_cider_vdw_fit_term", None)
+        vdw_info = getattr(mf, "_cider_vdw_fit_info", None)
+        kind = None
+        if isinstance(vdw_info, dict):
+            kind = (vdw_info.get("kind") or "").lower()
+        wants_disp = kind in {"d3", "d4"}
+        if (vdw_term is None) or (not wants_disp):
+            _strip_present_dispersion_wrappers(mf)
+
+
 def make_cider_calc(
     ks,
     mlfunc,
@@ -219,6 +235,7 @@ def make_cider_calc(
     nldf_init=None,
     sdmx_init=None,
     rhocut=None,
+    fxc_proxy_xc=None,
 ):
     """
     Decorate the PySCF DFT object ks with a CIDER functional mlfunc.
@@ -253,6 +270,16 @@ def make_cider_calc(
         nldf_init (PySCFNLDFInitializer)
         sdmx_init (PySCFSDMXInitializer)
         rhocut (float)
+        fxc_proxy_xc (str or None): libxc string used as a semilocal
+            stand-in for the second functional derivative (fxc) in
+            response-type calculations (second-order SCF via newton(),
+            stability analysis, TDDFT kernels). If None, a default is
+            constructed from the semilocal baseline plus xmix times
+            PBE-X (GGA) or R2SCAN-X (MGGA). The SCF energy and potential
+            are unaffected by this choice; second-order SCF converges to
+            the exact CIDER solution regardless. For an exact (but much
+            more expensive) response, set ``fd_response = True`` on the
+            returned object instead.
 
     Returns:
         A decorated Kohn-Sham object for performing a CIDER calculation.
@@ -276,6 +303,8 @@ def make_cider_calc(
         rhocut=rhocut,
         nlc_coeff=nlc_coeff,
     )
+    if fxc_proxy_xc is not None:
+        new_ks._numint.fxc_proxy_xc = fxc_proxy_xc
     new_ks = lib.set_class(new_ks, (_CiderKS, ks.__class__))
 
     # vdW contract propagation (joblib -> mapped YAML -> SCF):
@@ -299,6 +328,11 @@ def make_cider_calc(
 class _CiderKS:
 
     grids = None
+    # Opt-in exact finite-difference response for second-order SCF
+    # (newton) and stability analysis. When False (default), the proxy
+    # semilocal fxc kernel is used (see CiderNumIntMixin.get_fxc_proxy_xc).
+    fd_response = False
+    fd_response_delta = 1e-4
 
     def __init__(
         self,
@@ -419,21 +453,33 @@ class _CiderKS:
         return new_self
 
     def kernel(self, *args, **kwargs):
-        # Reset per-kernel-call guard to ensure vdW is applied once at the end.
-        self._cider_vdw_applied = False
-        # If the trained model contract does not want a D3/D4 dispersion term,
-        # disable any dispersion wrapper inherited from a restarted baseline job.
-        if getattr(self, "_cider_vdw_contract_enabled", False):
-            vdw_term = getattr(self, "_cider_vdw_fit_term", None)
-            vdw_info = getattr(self, "_cider_vdw_fit_info", None)
-            kind = None
-            if isinstance(vdw_info, dict):
-                kind = (vdw_info.get("kind") or "").lower()
-            wants_disp = kind in {"d3", "d4"}
-            if (vdw_term is None) or (not wants_disp):
-                _strip_present_dispersion_wrappers(self)
+        _pre_kernel_vdw_setup(self)
         super().kernel(*args, **kwargs)
         return _apply_post_density_vdw_energy(self)
+
+    def gen_response(self, mo_coeff=None, mo_occ=None, **kwargs):
+        # Response function for second-order SCF (newton), stability
+        # analysis, and CPHF/TDDFT-type solvers. Default: pyscf's stock
+        # response generator, which uses the proxy semilocal fxc kernel
+        # implemented on the CIDER numint. Opt-in (fd_response = True):
+        # exact matrix-free response via finite differences of the CIDER
+        # XC potential (2 full CIDER XC builds per inner iteration).
+        if getattr(self, "fd_response", False):
+            from ciderpress.pyscf.soscf import gen_fd_response
+
+            return gen_fd_response(self, mo_coeff, mo_occ, **kwargs)
+        return super().gen_response(mo_coeff, mo_occ, **kwargs)
+
+    def newton(self):
+        # Wrap with _CiderSOSCF so the post-SCF vdW energy contract
+        # survives the SOSCF kernel() override. NOTE: use mf.newton(),
+        # not scf.newton(mf), or this glue is bypassed (the SCF energy
+        # itself would still be correct; only the vdW contract delta
+        # would be skipped).
+        from ciderpress.pyscf.soscf import _CiderSOSCF
+
+        mf = super().newton()
+        return lib.set_class(mf, (_CiderSOSCF, mf.__class__))
 
     def nuc_grad_method(self):
         from pyscf import dft
@@ -472,15 +518,6 @@ class _CiderDF:
     nuc_grad_method = _CiderKS.nuc_grad_method
 
     def kernel(self, *args, **kwargs):
-        self._cider_vdw_applied = False
-        if getattr(self, "_cider_vdw_contract_enabled", False):
-            vdw_term = getattr(self, "_cider_vdw_fit_term", None)
-            vdw_info = getattr(self, "_cider_vdw_fit_info", None)
-            kind = None
-            if isinstance(vdw_info, dict):
-                kind = (vdw_info.get("kind") or "").lower()
-            wants_disp = kind in {"d3", "d4"}
-            if (vdw_term is None) or (not wants_disp):
-                _strip_present_dispersion_wrappers(self)
+        _pre_kernel_vdw_setup(self)
         super().kernel(*args, **kwargs)
         return _apply_post_density_vdw_energy(self)
