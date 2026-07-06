@@ -28,6 +28,185 @@ from ciderpress.pyscf.numint import CiderNumInt, NLDFNLOFNumInt, NLDFNumInt, NLO
 from ciderpress.pyscf.sdmx import PySCFSDMXInitializer
 
 
+def _sanitize_vdw_value(v):
+    try:
+        import numpy as _np
+
+        if isinstance(v, _np.generic):
+            return v.item()
+    except Exception:
+        pass
+    if isinstance(v, bytes):
+        return v.decode("utf-8", errors="replace")
+    if isinstance(v, dict):
+        return {str(_sanitize_vdw_value(k)): _sanitize_vdw_value(val) for k, val in v.items()}
+    if isinstance(v, (list, tuple)):
+        return type(v)(_sanitize_vdw_value(x) for x in v)
+    return v
+
+
+def _get_present_dispersion_energy_ha(mf):
+    """
+    Attempt to detect and compute an already-enabled dispersion correction on a PySCF
+    mean-field object (e.g. via dftd4.pyscf.energy wrapper). Returns 0.0 if none found.
+    """
+    if getattr(mf, "_cider_vdw_applied", False) and hasattr(mf, "e_vdw_expected"):
+        return float(getattr(mf, "e_vdw_expected"))
+    wd4 = getattr(mf, "with_dftd4", None)
+    if wd4 is not None:
+        try:
+            return float(wd4.kernel()[0])
+        except Exception:
+            pass
+    wd3 = getattr(mf, "with_dftd3", None)
+    if wd3 is not None:
+        try:
+            return float(wd3.kernel()[0])
+        except Exception:
+            pass
+    return 0.0
+
+
+def _compute_expected_vdw_energy_ha(mf, vdw_fit_info, vdw_eval_mode):
+    """
+    Compute the vdW term specified by vdw_fit_info.
+
+    Contract: post-density evaluation (energy-only; no vxc feedback).
+    """
+    if vdw_fit_info is None:
+        return 0.0
+    vdw_fit_info = _sanitize_vdw_value(vdw_fit_info)
+    kind = (vdw_fit_info.get("kind") or "").lower()
+    params = vdw_fit_info.get("params") or {}
+    mol = mf.mol
+
+    if kind == "d3":
+        try:
+            from pyscf.dispersion import dftd3
+        except Exception as e:
+            raise RuntimeError(
+                "vdW term kind='d3' requested but pyscf-dispersion is unavailable."
+            ) from e
+        xc = params.get("xc")
+        version = params.get("version")
+        atm = bool(params.get("atm", False))
+        disp = dftd3.DFTD3Dispersion(mol, xc=xc, version=version, atm=atm)
+        return float(disp.get_dispersion()["energy"])
+
+    if kind == "d4":
+        try:
+            from pyscf.dispersion import dftd4
+        except Exception as e:
+            raise RuntimeError(
+                "vdW term kind='d4' requested but pyscf-dispersion is unavailable."
+            ) from e
+        xc = params.get("xc")
+        disp = dftd4.DFTD4Dispersion(mol, xc=xc)
+        return float(disp.get_dispersion()["energy"])
+
+    if kind == "nlc":
+        if vdw_eval_mode not in (None, "post_density"):
+            raise ValueError(f"Unsupported vdW eval mode for NLC: {vdw_eval_mode!r}")
+        from pyscf.dft import numint
+
+        xc_code = params.get("xc_code") or "GGA_XC_VV10"
+        grids_level = params.get("grids_level", None)
+        grids = Grids(mol)
+        if grids_level is None:
+            grids.level = getattr(getattr(mf, "grids", None), "level", None) or 3
+        else:
+            grids.level = int(grids_level)
+        grids.build(with_non0tab=True)
+        dm = mf.make_rdm1()
+        if hasattr(dm, "ndim") and dm.ndim == 3:
+            dm = dm[0] + dm[1]
+        ni = numint.NumInt()
+        _, excsum, _ = numint.nr_nlc_vxc(ni, mol, grids, xc_code, dm)
+        return float(excsum)
+
+    raise ValueError(f"Unsupported vdW kind in vdw_fit_info: {vdw_fit_info!r}")
+
+
+def _apply_post_density_vdw_energy(mf):
+    """
+    Adjust mf.e_tot to be consistent with the trained-model vdW contract.
+
+    If the incoming mean-field object already includes a dispersion correction
+    (e.g. via DFTD4 wrapper), replace that contribution with the expected one.
+    """
+    if not getattr(mf, "_cider_vdw_contract_enabled", False):
+        return mf.e_tot
+    # Guard against multiple applications when kernel() is wrapped multiple times
+    # (e.g. density_fit objects can have both _CiderDF.kernel and _CiderKS.kernel
+    # in the MRO). The outermost kernel() should reset this flag before running SCF.
+    if getattr(mf, "_cider_vdw_applied", False):
+        return mf.e_tot
+
+    vdw_term = getattr(mf, "_cider_vdw_fit_term", None)
+    vdw_info = getattr(mf, "_cider_vdw_fit_info", None)
+    vdw_eval_mode = getattr(mf, "_cider_vdw_eval_mode", None)
+
+    present = _get_present_dispersion_energy_ha(mf)
+    expected = 0.0 if vdw_term is None else _compute_expected_vdw_energy_ha(mf, vdw_info, vdw_eval_mode)
+
+    mf.e_tot_base = float(mf.e_tot)
+    mf.e_vdw_present = float(present)
+    mf.e_vdw_expected = float(expected)
+    mf.e_vdw_delta = float(expected - present)
+    mf.e_tot = mf.e_tot_base + mf.e_vdw_delta
+    mf._cider_vdw_applied = True
+    return mf.e_tot
+
+
+def _strip_present_dispersion_wrappers(mf):
+    """
+    If the starting mean-field object has a dispersion wrapper (D3/D4) enabled
+    via external PySCF wrappers (e.g. dftd4.pyscf.energy), disable it before
+    running SCF. This avoids confusing tags/prints and ensures the base SCF
+    energy is not dispersion-shifted when the model contract expects no
+    dispersion (or an NLC term).
+
+    Note: D3/D4 are energy-only corrections in these wrappers; they do not affect
+    the Fock matrix. Disabling them primarily affects reported energies/logging.
+    """
+
+    def _pick_base_cls(method_name: str):
+        for cls in mf.__class__.mro():
+            mod = getattr(cls, "__module__", "") or ""
+            if mod.startswith(("dftd4", "dftd3")):
+                continue
+            if hasattr(cls, method_name):
+                return cls
+        return None
+
+    def _rebind(method_name: str):
+        base_cls = _pick_base_cls(method_name)
+        if base_cls is None:
+            return
+        meth = getattr(base_cls, method_name, None)
+        if meth is None:
+            return
+        setattr(mf, method_name, meth.__get__(mf, base_cls))
+
+    had = False
+    if getattr(mf, "with_dftd4", None) is not None:
+        had = True
+        try:
+            mf.with_dftd4 = None
+        except Exception:
+            pass
+    if getattr(mf, "with_dftd3", None) is not None:
+        had = True
+        try:
+            mf.with_dftd3 = None
+        except Exception:
+            pass
+    if had:
+        # Restore base behaviors that wrappers commonly override.
+        _rebind("energy_elec")
+        _rebind("dump_flags")
+
+
 def make_cider_calc(
     ks,
     mlfunc,
@@ -97,7 +276,24 @@ def make_cider_calc(
         rhocut=rhocut,
         nlc_coeff=nlc_coeff,
     )
-    return lib.set_class(new_ks, (_CiderKS, ks.__class__))
+    new_ks = lib.set_class(new_ks, (_CiderKS, ks.__class__))
+
+    # vdW contract propagation (joblib -> mapped YAML -> SCF):
+    # If the mapped model carries vdW metadata, enforce it by replacing any
+    # already-enabled dispersion term on the starting mean-field object with the
+    # expected one (post-density evaluation).
+    if hasattr(mlfunc, "vdw_fit_term") or hasattr(mlfunc, "vdw_fit_info"):
+        new_ks._cider_vdw_contract_enabled = True
+        new_ks._cider_vdw_fit_term = getattr(mlfunc, "vdw_fit_term", None)
+        new_ks._cider_vdw_fit_info = getattr(mlfunc, "vdw_fit_info", None)
+        new_ks._cider_vdw_eval_mode = getattr(mlfunc, "vdw_eval_mode", None)
+    else:
+        new_ks._cider_vdw_contract_enabled = False
+        new_ks._cider_vdw_fit_term = None
+        new_ks._cider_vdw_fit_info = None
+        new_ks._cider_vdw_eval_mode = None
+
+    return new_ks
 
 
 class _CiderKS:
@@ -210,8 +406,34 @@ class _CiderKS:
         new_self = super().density_fit(
             auxbasis=auxbasis, with_df=with_df, only_dfj=only_dfj
         )
+        # Preserve vdW contract across density_fit() wrapper.
+        for k in (
+            "_cider_vdw_contract_enabled",
+            "_cider_vdw_fit_term",
+            "_cider_vdw_fit_info",
+            "_cider_vdw_eval_mode",
+        ):
+            if hasattr(self, k):
+                setattr(new_self, k, getattr(self, k))
         lib.set_class(new_self, (_CiderDF, new_self.__class__))
         return new_self
+
+    def kernel(self, *args, **kwargs):
+        # Reset per-kernel-call guard to ensure vdW is applied once at the end.
+        self._cider_vdw_applied = False
+        # If the trained model contract does not want a D3/D4 dispersion term,
+        # disable any dispersion wrapper inherited from a restarted baseline job.
+        if getattr(self, "_cider_vdw_contract_enabled", False):
+            vdw_term = getattr(self, "_cider_vdw_fit_term", None)
+            vdw_info = getattr(self, "_cider_vdw_fit_info", None)
+            kind = None
+            if isinstance(vdw_info, dict):
+                kind = (vdw_info.get("kind") or "").lower()
+            wants_disp = kind in {"d3", "d4"}
+            if (vdw_term is None) or (not wants_disp):
+                _strip_present_dispersion_wrappers(self)
+        super().kernel(*args, **kwargs)
+        return _apply_post_density_vdw_energy(self)
 
     def nuc_grad_method(self):
         from pyscf import dft
@@ -248,3 +470,17 @@ class _CiderKS:
 
 class _CiderDF:
     nuc_grad_method = _CiderKS.nuc_grad_method
+
+    def kernel(self, *args, **kwargs):
+        self._cider_vdw_applied = False
+        if getattr(self, "_cider_vdw_contract_enabled", False):
+            vdw_term = getattr(self, "_cider_vdw_fit_term", None)
+            vdw_info = getattr(self, "_cider_vdw_fit_info", None)
+            kind = None
+            if isinstance(vdw_info, dict):
+                kind = (vdw_info.get("kind") or "").lower()
+            wants_disp = kind in {"d3", "d4"}
+            if (vdw_term is None) or (not wants_disp):
+                _strip_present_dispersion_wrappers(self)
+        super().kernel(*args, **kwargs)
+        return _apply_post_density_vdw_energy(self)

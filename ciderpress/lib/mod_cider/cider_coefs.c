@@ -192,9 +192,12 @@ static inline double erfcx(double x) {
     double term2_num = 2.0 * SQRT_PI * sqrt_aval * sqrt_alpha;             \
     /* Common denominator */                                               \
     double common_den = 4.0 * a_pow_2_5;                                   \
-    /* Final p = 4π * (term1_num - term2_num) / common_den */              \
-    /* double p_nofix = FOUR_PI * (term1_num_nofix - term2_num) / common_den; \ */
-    /* double p_zerofix = FOUR_PI * (term1_num_zerofix - term2_num) / common_den; \ */
+    /* Final p = 4pi * (term1_num - term2_num) / common_den */             \
+    /* 2026-06-13: deleted two dead commented p_nofix/p_zerofix lines here; \
+       each ended with a backslash just before its close-comment at true    \
+       end-of-line, which spliced the next line into the comment and broke  \
+       this macro continuation, throwing the declarations below to file     \
+       scope. (libmcider.so predated that edit, so it was never recompiled.) */ \
     double p_erfcx = FOUR_PI * (term1_num_erfcx - term2_num) / common_den; \
     p[ind] = p_erfcx;  /* Use erfcx method */                              \
     /* Print detailed comparison - COMMENTED TO AVOID SEGFAULT */          \
