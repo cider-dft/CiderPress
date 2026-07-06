@@ -1,0 +1,23 @@
+{
+  "description": "H2+ dissociation regression reference, regenerated after the exx-feature train/eval sign-convention fix. The pre-fix campaign (dissociation_data.csv) evaluated alpha(r) via out-of-domain spline extrapolation; deltas quantify the effect for the sdmx1_diff model.",
+  "model": "model_hybrid_GMTK_25970658_HYB_EXX_sdmx1_kplan_hybrid_diff_sdmx_mapped.yaml",
+  "recipe": "UKS PBE base, make_cider_calc(xmix=1.0), density_fit def2-universal-jfit, EDIIS damp=0.5, energy-only conv 1e-9, def2-qzvppd, grids level 6, dm0 from PBE",
+  "generated_at_commit": "2142488",
+  "points": {
+    "1.4482758620689655": {
+      "energy_ha": -0.6010253262574188,
+      "campaign_csv_energy_ha": -0.6009851407193001,
+      "delta_vs_campaign_ha": -4.018553811868664e-05
+    },
+    "2.0172413793103448": {
+      "energy_ha": -0.5755803271394585,
+      "campaign_csv_energy_ha": -0.5754687334825647,
+      "delta_vs_campaign_ha": -0.00011159365689383804
+    },
+    "3.155172413793103": {
+      "energy_ha": -0.5523645446900628,
+      "campaign_csv_energy_ha": -0.5519947979665984,
+      "delta_vs_campaign_ha": -0.0003697467234643481
+    }
+  }
+}
