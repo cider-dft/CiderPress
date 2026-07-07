@@ -61,11 +61,17 @@ the validation suite, the campaign findings, and open items.
 
 ## Known issues / follow-ups
 
-- **NLDF UKS spin-polarized FD inconsistency (~3e-3 rel)**: pre-existing,
-  NOT hybrid-specific (non-hybrid vb2 control fails identically;
-  evaluator-level chain is clean; NLDF-free hybrid passes UKS). Likely
-  related to the long-standing `test_nldf test_same_spin_issue` failure.
-  Tests marked expectedFailure. Separate work item.
+- **NLDF UKS spin-polarized FD inconsistency: FIXED.** Root cause: nr_uks
+  called `nldfgen.get_potential` without the `spin` argument for both
+  channels, so the beta potential was built from the alpha channel's
+  cached forward derivatives (exact at spin symmetry, systematic for
+  open shells). Diagnosis: `soscf_test_logs/NLDF_UKS_DIAGNOSIS.md`;
+  regression guard: `tests/test_nldf_scf.py` (linear-probe FD through
+  numint). Open-shell converged energies shifted (lower) by ~4e-5 Ha
+  (H2O+) to ~1.2e-4 Ha (O2); closed shells unaffected. The historical
+  `test_same_spin_issue` flakiness was a separate test-stability issue
+  (symmetry-broken O2+ UHF reference multiplicity), fixed by seeding the
+  second reference with the spin-swapped converged density.
 - Blockwise mode still runs two SGX sweeps per iteration (eps via
   direct-JK, K via batch_nuc); a lean fused sweep is a documented
   follow-up, as are Laqua-style P/S-junction screening and

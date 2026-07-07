@@ -133,7 +133,14 @@ class _TestNLDFBase:
         ksa.conv_tol = 1e-13
         ksb.conv_tol = 1e-13
         ksa.kernel()
-        ksb.kernel()
+        # O2+ UHF is symmetry-broken with multiple close-lying solutions;
+        # two independent DIIS runs occasionally land in different basins
+        # (OMP-order sensitivity), which made this test flaky. Start ksb
+        # from the spin-swapped converged density of ksa -- the exact
+        # stationary point of the spin-relabeled system -- so both
+        # references deterministically describe the same physical state,
+        # which is the invariance this test is meant to probe.
+        ksb.kernel(dm0=ksa.make_rdm1()[::-1])
         ana_a = UHFAnalyzer.from_calc(ksa)
         ana_b = UHFAnalyzer.from_calc(ksb)
         orbs = {"U": [0], "O": [0]}

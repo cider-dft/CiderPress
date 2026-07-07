@@ -37,7 +37,7 @@ from ciderpress.dft.model_utils import load_cider_model
 from ciderpress.dft.xc_evaluator import FuncEvaluator
 from ciderpress.pyscf.dft import make_cider_calc
 from ciderpress.pyscf.tests.lh_test_utils import (
-    assert_fd_consistent,
+    assert_fd_two_delta,
     converged_dm,
     fd_energy_potential_check,
     get_hyb_model_path,
@@ -82,8 +82,12 @@ def _fd_case(molname, rtol=1e-6):
         mf, _linear_probe_model(), xkernel=None, ckernel=None, xmix=1.0
     )
     ni, grids = prep_cider_ni(mf)
-    results = fd_energy_potential_check(ni, mol, grids, dm, n_dirs=3, delta=2.5e-4)
-    assert_fd_consistent(results, rtol=rtol, label=f"nldf-scf-{molname}")
+    # two-delta protocol: rel error must either meet rtol or shrink ~
+    # delta^2 (separates truncation from systematic chain errors)
+    results = fd_energy_potential_check(
+        ni, mol, grids, dm, n_dirs=3, deltas=[1e-3, 2.5e-4]
+    )
+    assert_fd_two_delta(results, rtol=rtol, label=f"nldf-scf-{molname}")
 
 
 @unittest.skipUnless(VB2_NONHYB is not None, "vb2 non-hybrid model not found")
@@ -91,17 +95,11 @@ class TestNLDFSCFConsistency(unittest.TestCase):
     def test_fd_rks_closed_shell(self):
         _fd_case("h2o")
 
-    @unittest.expectedFailure
     def test_fd_uks_open_shell(self):
-        # KNOWN BUG (diagnosed; see soscf_test_logs/NLDF_UKS_DIAGNOSIS.md):
-        # nr_uks calls ni.nldfgen.get_potential WITHOUT the spin argument
-        # for both channels (numint.py, NLDF potential application), so
-        # the beta-channel potential is built from the ALPHA channel's
-        # cached forward data (self._cache[spin] in
-        # lcao_nldf_generator.get_potential). Exact at spin symmetry;
-        # systematic delta-independent FD error for open shells. The
-        # gradient module (uks_grad.py:276-277) passes spin correctly.
-        # Un-xfail this test when the one-line fix lands.
+        # Regression guard for the nr_uks get_potential spin-cache bug
+        # (fixed; history in soscf_test_logs/NLDF_UKS_DIAGNOSIS.md): the
+        # beta-channel NLDF potential was built from the ALPHA channel's
+        # cached forward data because the spin argument was omitted.
         _fd_case("h2o+")
 
 

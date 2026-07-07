@@ -703,10 +703,15 @@ def nr_uks(
                     hyb.store_weight(idm, ip0, ip1, vxc_hyb)
             ip0 = ip1
         
-        # Apply NLDF potential
+        # Apply NLDF potential (spin must match the get_features calls
+        # above so each channel uses its own cached derivatives)
         for idm in range(nset):
-            wv_full[0, idm, :, :] += ni.nldfgen.get_potential(vxc_nldf_full[0, idm])
-            wv_full[1, idm, :, :] += ni.nldfgen.get_potential(vxc_nldf_full[1, idm])
+            wv_full[0, idm, :, :] += ni.nldfgen.get_potential(
+                vxc_nldf_full[0, idm], spin=0
+            )
+            wv_full[1, idm, :, :] += ni.nldfgen.get_potential(
+                vxc_nldf_full[1, idm], spin=1
+            )
     
     else:
         # Non-NLDF evaluation using regular block loop

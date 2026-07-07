@@ -27,7 +27,7 @@ CIDER_SLOW_TESTS=1 python -m pytest ciderpress/pyscf/tests/test_local_hybrid_slo
 SLOW_STATUS=$?
 
 echo "=== Regression: newton + feature suites ==="
-python -m pytest ciderpress/pyscf/tests/test_newton.py ciderpress/pyscf/tests/test_sl.py -v --durations=5
+python -m pytest ciderpress/pyscf/tests/test_newton.py ciderpress/pyscf/tests/test_sl.py ciderpress/pyscf/tests/test_nldf_scf.py ciderpress/pyscf/tests/test_nldf.py -v --durations=5
 REG_STATUS=$?
 
 echo "=== SUMMARY ==="
