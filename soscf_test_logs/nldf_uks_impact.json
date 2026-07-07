@@ -1,0 +1,195 @@
+{
+  "model": "/n/holystore01/LABS/kozinsky_lab/Lab/User/mabdallah/CIDER_gpaw/self_consistent_training_pyscf_final/runs/nod4_14164596_G400_scaetm/model_nldf_totalreaction_XCkernel_nod4_14164596_G400_scaetm_vb2_SEP_NPOL_0.05_iter2_mapped.yaml",
+  "basis": "def2-qzvppd",
+  "grids_level": 3,
+  "species": {
+    "H": {
+      "spin": 1,
+      "fixed": -0.49990084517869443,
+      "fixed_converged": true,
+      "buggy": -0.49990084517951006,
+      "buggy_converged": true,
+      "delta_ha": -8.156253450408713e-13,
+      "delta_kcal": -5.118126312991316e-10
+    },
+    "Li": {
+      "spin": 1,
+      "fixed": -7.478919766410026,
+      "fixed_converged": true,
+      "buggy": -7.478908427453894,
+      "buggy_converged": true,
+      "delta_ha": 1.1338956132256328e-05,
+      "delta_kcal": 0.007115302398976731
+    },
+    "B": {
+      "spin": 1,
+      "fixed": -24.649395852817342,
+      "fixed_converged": true,
+      "buggy": -24.649365847922553,
+      "buggy_converged": true,
+      "delta_ha": 3.0004894789215086e-05,
+      "delta_kcal": 0.018828355748499007
+    },
+    "C": {
+      "spin": 2,
+      "fixed": -37.84164221928763,
+      "fixed_converged": true,
+      "buggy": -37.84156681095186,
+      "buggy_converged": true,
+      "delta_ha": 7.540833576769046e-05,
+      "delta_kcal": 0.04731944511755709
+    },
+    "N": {
+      "spin": 3,
+      "fixed": -54.58818154687097,
+      "fixed_converged": true,
+      "buggy": -54.5880035027632,
+      "buggy_converged": true,
+      "delta_ha": 0.00017804410776989243,
+      "delta_kcal": 0.1117243644267191
+    },
+    "O": {
+      "spin": 2,
+      "fixed": -75.06776461429249,
+      "fixed_converged": true,
+      "buggy": -75.06766317930212,
+      "buggy_converged": true,
+      "delta_ha": 0.00010143499036985304,
+      "delta_kcal": 0.06365141745858209
+    },
+    "F": {
+      "spin": 1,
+      "fixed": -99.73114660016125,
+      "fixed_converged": true,
+      "buggy": -99.73108560906743,
+      "buggy_converged": true,
+      "delta_ha": 6.099109381807466e-05,
+      "delta_kcal": 0.03827248920431322
+    },
+    "Na": {
+      "spin": 1,
+      "fixed": -162.24561525052673,
+      "fixed_converged": true,
+      "buggy": -162.24561185364774,
+      "buggy_converged": true,
+      "delta_ha": 3.396878980765905e-06,
+      "delta_kcal": 0.0021315737426764124
+    },
+    "Al": {
+      "spin": 1,
+      "fixed": -242.34926467719862,
+      "fixed_converged": true,
+      "buggy": -242.3492532690299,
+      "buggy_converged": true,
+      "delta_ha": 1.140816871725292e-05,
+      "delta_kcal": 0.00715873395178649
+    },
+    "Si": {
+      "spin": 2,
+      "fixed": -289.35907056347037,
+      "fixed_converged": true,
+      "buggy": -289.35904775126403,
+      "buggy_converged": true,
+      "delta_ha": 2.281220633904013e-05,
+      "delta_kcal": 0.01431487560202999
+    },
+    "P": {
+      "spin": 3,
+      "fixed": -341.2550625465335,
+      "fixed_converged": true,
+      "buggy": -341.2550022076496,
+      "buggy_converged": true,
+      "delta_ha": 6.033888388401465e-05,
+      "delta_kcal": 0.037863221291612494
+    },
+    "S": {
+      "spin": 2,
+      "fixed": -398.1053076128858,
+      "fixed_converged": true,
+      "buggy": -398.10516307712055,
+      "buggy_converged": true,
+      "delta_ha": 0.0001445357652301027,
+      "delta_kcal": 0.09069756202284944
+    },
+    "Cl": {
+      "spin": 1,
+      "fixed": -460.14529871590236,
+      "fixed_converged": true,
+      "buggy": -460.1452298414721,
+      "buggy_converged": true,
+      "delta_ha": 6.887443026926121e-05,
+      "delta_kcal": 0.04321935751465976
+    },
+    "Cr": {
+      "spin": 6,
+      "fixed": -1044.3701484883009,
+      "fixed_converged": true,
+      "buggy": -1044.3697269451773,
+      "buggy_converged": true,
+      "delta_ha": 0.0004215431235934375,
+      "delta_kcal": 0.2645223037810343
+    },
+    "Mn": {
+      "spin": 5,
+      "fixed": -1150.9301858887118,
+      "fixed_converged": true,
+      "buggy": -1150.929364718933,
+      "buggy_converged": true,
+      "delta_ha": 0.0008211697788738093,
+      "delta_kcal": 0.5152918160576162
+    },
+    "OH": {
+      "spin": 1,
+      "fixed": -75.73695943892074,
+      "fixed_converged": true,
+      "buggy": -75.73690077787448,
+      "buggy_converged": true,
+      "delta_ha": 5.86610462534054e-05,
+      "delta_kcal": 0.036810362282465606
+    },
+    "NO": {
+      "spin": 1,
+      "fixed": -129.89511097933956,
+      "fixed_converged": true,
+      "buggy": -129.894942885587,
+      "buggy_converged": true,
+      "delta_ha": 0.00016809375256343628,
+      "delta_kcal": 0.10548042226437478
+    },
+    "CH3": {
+      "spin": 1,
+      "fixed": -39.83334355363476,
+      "fixed_converged": true,
+      "buggy": -39.833277825849464,
+      "buggy_converged": true,
+      "delta_ha": 6.572778529800871e-05,
+      "delta_kcal": 0.0412448079836858
+    },
+    "O2": {
+      "spin": 2,
+      "fixed": -150.3191903716373,
+      "fixed_converged": true,
+      "buggy": -150.31867586022403,
+      "buggy_converged": true,
+      "delta_ha": 0.0005145114132574236,
+      "delta_kcal": 0.32286078633262816
+    },
+    "H2O_closed_ctrl": {
+      "spin": 0,
+      "fixed": -76.43686321247444,
+      "fixed_converged": true,
+      "buggy": -76.4368632124226,
+      "buggy_converged": true,
+      "delta_ha": 5.184119800105691e-11,
+      "delta_kcal": 3.2530842892444254e-08
+    }
+  },
+  "ae_corrections_kcal": {
+    "H2O": 0.06365141643495684,
+    "CH4": 0.04731944307030657,
+    "NH3": 0.11172436289128121,
+    "C6H6": 0.28391666763446677,
+    "SiO2-like (SiO2)": 0.14161771051919417,
+    "Cr2-like (2Cr)": 0.5290446075620686
+  }
+}

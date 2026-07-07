@@ -93,3 +93,41 @@ stabilize the test (deterministic init guess or newton() convergence for
 the two UHF references, and/or set the tolerance from a measured
 run-to-run spread), not C-code archaeology — unless stabilized UHF
 still shows spread, which would then indicate a real race.
+
+## Quantified campaign impact (job 28967146; nod4 iter2 scaetm model, def2-qzvppd, grids level 3)
+
+Per-species converged-energy error delta = E_buggy - E_fixed (campaign
+energies were too HIGH by delta; closed-shell control exactly 0;
+full table in `nldf_uks_impact.json`):
+
+| species | spin | delta (kcal/mol) |   | species | spin | delta (kcal/mol) |
+|---|---|---|---|---|---|---|
+| H  | 1 | 0.0000 |   | P   | 3 | +0.038 |
+| Li | 1 | +0.007 |   | S   | 2 | +0.091 |
+| B  | 1 | +0.019 |   | Cl  | 1 | +0.043 |
+| C  | 2 | +0.047 |   | **Cr** | 6 | **+0.264** |
+| N  | 3 | +0.112 |   | **Mn** | 5 | **+0.515** |
+| O  | 2 | +0.064 |   | OH  | 1 | +0.037 |
+| F  | 1 | +0.038 |   | NO  | 1 | +0.106 |
+| Na | 1 | +0.002 |   | CH3 | 1 | +0.041 |
+| Al | 1 | +0.007 |   | O2  | 2 | +0.323 |
+| Si | 2 | +0.014 |   |     |   |        |
+
+Key observations:
+- H atom is exactly unaffected (empty beta channel) -> hydrogen-rich
+  AEs barely shift.
+- Light main group: 0.01-0.11 kcal/mol per atom, growing with spin.
+- **High-spin transition metals are hit hardest: Cr +0.26, Mn +0.52
+  kcal/mol** -- directly relevant to the AE/TM campaign focus.
+- Open-shell MOLECULES also shift, so AE corrections are NOT uniformly
+  positive when the molecule is open-shell: e.g. O2 atomization
+  correction = 2*delta(O) - delta(O2) = -0.20 kcal/mol.
+
+Sample closed-shell-molecule AE overestimations (buggy - true):
+H2O +0.06, CH4 +0.05, NH3 +0.11, C6H6 +0.28, SiO2 +0.14, Cr2 +0.53
+kcal/mol. TM-containing reactions can shift by ~0.3-1 kcal/mol.
+
+These per-species deltas can be applied as additive corrections to
+existing campaign reaction energies without rerunning (error is purely
+per-species at convergence), or the open-shell mol_ids can be
+re-converged with the fixed code for exact numbers.
