@@ -133,7 +133,10 @@ class _TestNLDFBase:
         ksa.conv_tol = 1e-13
         ksb.conv_tol = 1e-13
         ksa.kernel()
-        ksb.kernel()
+        # Start from the spin-exchanged converged density.  Independent atomic
+        # guesses can enter slightly different symmetry-broken UHF basins,
+        # making this spin-exchange invariance check nondeterministic.
+        ksb.kernel(dm0=ksa.make_rdm1()[::-1])
         ana_a = UHFAnalyzer.from_calc(ksa)
         ana_b = UHFAnalyzer.from_calc(ksb)
         orbs = {"U": [0], "O": [0]}

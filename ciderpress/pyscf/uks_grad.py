@@ -162,9 +162,11 @@ def get_vxc(
         rho_b = make_rhob(0, ao, mask, xctype)
         rho = (rho_a, rho_b)
         ni.timer.start("xc cider")
-        exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
+        exc, (vxc, vxc_nldf, vxc_sdmx, vxc_hyb) = ni.eval_xc_cider(
             xc_code, rho, None, None, deriv=1, xctype=xctype
         )[:2]
+        if vxc_hyb is not None:
+            raise NotImplementedError("Local-hybrid nuclear gradients")
         ni.timer.stop("xc cider")
         assert vxc_nldf is None
         wv = weight * vxc
@@ -251,7 +253,7 @@ def get_vxc_nldf(
             rho_a = rhoa_full[:, ip0:ip1]
             rho_b = rhob_full[:, ip0:ip1]
             rho = (rho_a, rho_b)
-            exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
+            exc, (vxc, vxc_nldf, vxc_sdmx, vxc_hyb) = ni.eval_xc_cider(
                 xc_code,
                 rho,
                 nldf_feat[..., ip0:ip1],
@@ -259,6 +261,8 @@ def get_vxc_nldf(
                 deriv=1,
                 xctype=xctype,
             )[:2]
+            if vxc_hyb is not None:
+                raise NotImplementedError("Local-hybrid nuclear gradients")
             vxc_nldf_full[..., ip0:ip1] = vxc_nldf * weight
             wva_full[:, ip0:ip1] = weight * vxc[0]
             wvb_full[:, ip0:ip1] = weight * vxc[1]
@@ -333,9 +337,11 @@ def get_vxc_full_response(
         rho_b = make_rhob(0, ao, mask, xctype)
         rho = (rho_a, rho_b)
         ni.timer.start("xc cider")
-        exc, (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
+        exc, (vxc, vxc_nldf, vxc_sdmx, vxc_hyb) = ni.eval_xc_cider(
             xc_code, rho, None, None, deriv=1, xctype=xctype
         )[:2]
+        if vxc_hyb is not None:
+            raise NotImplementedError("Local-hybrid nuclear gradients")
         ni.timer.stop("xc cider")
         assert vxc_nldf is None
         wv = weight * vxc
@@ -438,7 +444,7 @@ def get_vxc_nldf_full_response(
             weight = weight[: ip1 - ip0]
             inds = grids.grids_indexer.idx_map[ip0:ip1]
             rho = (rho_full[0][..., inds], rho_full[1][..., inds])
-            exc[inds], (vxc, vxc_nldf, vxc_sdmx) = ni.eval_xc_cider(
+            exc[inds], (vxc, vxc_nldf, vxc_sdmx, vxc_hyb) = ni.eval_xc_cider(
                 xc_code,
                 rho,
                 np.ascontiguousarray(nldf_feat[..., ip0:ip1]),
@@ -446,6 +452,8 @@ def get_vxc_nldf_full_response(
                 deriv=1,
                 xctype=xctype,
             )[:2]
+            if vxc_hyb is not None:
+                raise NotImplementedError("Local-hybrid nuclear gradients")
             vxc_nldf_full[..., ip0:ip1] = vxc_nldf * weight
             wv_full[..., inds] = weight * vxc
             ip0 = ip1

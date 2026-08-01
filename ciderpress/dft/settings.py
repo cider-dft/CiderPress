@@ -21,7 +21,8 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from scipy.special import gamma as gamma_func, erfc
+from scipy.special import erfcx
+from scipy.special import gamma as gamma_func
 
 from ciderpress.dft.feat_normalizer import (
     ConstantNormalizer,
@@ -889,7 +890,7 @@ class HybridSettings(BaseSettings):
     one feature placeholder so that the GP kernel can attach to it.
     """
 
-    def __init__(self, surrogate = False, **kwargs):
+    def __init__(self, surrogate=False, **kwargs):
         """Create a HybridSettings instance.
 
         Args:
@@ -947,9 +948,14 @@ se_grad: gradient of squared-exponential
 
 se_rvec: squared-exponential times vector (r'-r)
 """
-#TODO: separate rinv4, rinv2
-ALLOWED_J_SPECS = ["se", "se_ar2", "se_a2r4", "se_erf_rinv",
-                    "se_rinv4", "rinv2_rinv4", "rinv4_rinv2", "se_rinv2"] # Added vdW placeholders
+STANDARD_J_SPECS = ["se", "se_ar2", "se_a2r4", "se_erf_rinv"]
+EXPERIMENTAL_VDW_J_SPECS = [
+    "se_rinv4",
+    "rinv2_rinv4",
+    "rinv4_rinv2",
+    "se_rinv2",
+]
+ALLOWED_J_SPECS = STANDARD_J_SPECS + EXPERIMENTAL_VDW_J_SPECS
 """
 Allowed spec strings for version j features.
 Version k features have the same allowed spec strings
@@ -963,7 +969,10 @@ se_a2r4: squared-exponential * a^2 * r^4
 se_erf_rinv: squared-exponential * 1/r with short-range
 erf damping
 
-se_rinv4: squared-exponential * (1 / (a r^2 + 1))^2 for G_i feature
+The rational-kernel specs below are experimental and require
+``vdw_param=True`` when constructing ``NLDFSettingsVJ``.
+
+se_rinv4: squared-exponential * (1 / (a r^2 + 1))^2
 
 rinv2_rinv4: (1 / (a r^2 + 1)) * (1 / (a r^2 + 1))^2 for H_i feature
 
@@ -971,9 +980,9 @@ rinv2: (1 / (a r^2 + 1))
 
 rinv4: (1 / (a r^2 + 1))^2
 
-rinv4_rinv2: (1 / (a r^2 + 1))^2 * (1 / (a r^2 + 1)) for G_i feature
+rinv4_rinv2: (1 / (a r^2 + 1))^2 * (1 / (a r^2 + 1))
 
-se_rinv2: squared-exponential * (1 / (a r^2 + 1)) for H_i feature
+se_rinv2: squared-exponential * (1 / (a r^2 + 1))
 
 """
 ALLOWED_K_SPECS = ALLOWED_J_SPECS
@@ -1286,7 +1295,7 @@ class NLDFSettingsVI(NLDFSettings):
                 raise NotImplementedError
         return norms
 
-#TODO: feat_specs, theta_spec default, -1 is the theta params when call_coeffs (passed integer)
+
 class NLDFSettingsVJ(NLDFSettings):
 
     version = "j"
@@ -1297,7 +1306,8 @@ class NLDFSettingsVJ(NLDFSettings):
         theta_params,
         rho_mult,
         feat_specs,
-        feat_params, vdw_param = False, #TODO Apr25: should add optional argument for vdW feat_params
+        feat_params,
+        vdw_param=False,
     ):
         """
         Initialize NLDFSettingsVJ
@@ -1324,12 +1334,20 @@ class NLDFSettingsVJ(NLDFSettings):
                 has an additional parameter erf_mul for the ratio of the
                 erf / rinv exponent to the squared-exponential exponent.
                 tau_mul is ignored if sl_level="GGA" and may therefore be excluded.
+            vdw_param (bool): Enable the experimental rational-kernel feature
+                specs in ``EXPERIMENTAL_VDW_J_SPECS``.
         """
         super(NLDFSettingsVJ, self).__init__(sl_level, theta_params, rho_mult)
         self.feat_params = feat_params
         self.feat_specs = feat_specs
         self.vdw_param = vdw_param
         self._check_specs(self.feat_specs, ALLOWED_J_SPECS)
+        if not self.vdw_param and any(
+            spec in EXPERIMENTAL_VDW_J_SPECS for spec in self.feat_specs
+        ):
+            raise ValueError(
+                "Experimental rational-kernel specs require vdw_param=True"
+            )
         if len(self.feat_params) != len(self.feat_specs):
             raise ValueError("specs and params must have same length")
         for s, p in zip(self.feat_specs, self.feat_params):
@@ -1388,7 +1406,7 @@ class NLDFSettingsVJ(NLDFSettings):
                 if a_i < 1e-12 or a_0 < 1e-12:
                     integral = 0.0
                 else:
-                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1)**2 * a_0**1.5)
+                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1) ** 2 * a_0**1.5)
             elif spec == "se_rinv4":
                 a_i = expnt2
                 a_0 = _get_ueg_expnt(a0t, t0t, rho)
@@ -1397,23 +1415,33 @@ class NLDFSettingsVJ(NLDFSettings):
                 else:
                     ratio = a_i / a_0
                     sqrt_ratio = np.sqrt(ratio)
-                    term1 = (2 * a_i + a_0) * np.exp(ratio) * erfc(sqrt_ratio) / (a_0 ** 2.5)
-                    term2 = 2.0 * sqrt_ratio / (np.sqrt(np.pi) * a_0 ** 2)
+                    term1 = (2 * a_i + a_0) * erfcx(sqrt_ratio) / a_0**2.5
+                    term2 = 2.0 * np.sqrt(a_i) / (np.sqrt(np.pi) * a_0**2)
                     integral = np.pi * np.pi * (term1 - term2)
-            elif spec == "rinv4_rinv2": #placeholder, I DID NOT check this
+            elif spec == "rinv4_rinv2":
                 a_i = expnt2
                 a_0 = _get_ueg_expnt(a0t, t0t, rho)
                 if a_i < 1e-12 or a_0 < 1e-12:
                     integral = 0.0
                 else:
-                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1)**2 * a_0**1.5)
-            elif spec == "se_rinv2": #placeholder, I DID NOT check this
+                    denominator = np.sqrt(a_i) * (np.sqrt(a_i) + np.sqrt(a_0)) ** 2
+                    integral = np.pi**2 / denominator
+            elif spec == "se_rinv2":
                 a_i = expnt2
                 a_0 = _get_ueg_expnt(a0t, t0t, rho)
                 if a_i < 1e-12 or a_0 < 1e-12:
                     integral = 0.0
                 else:
-                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1)**2 * a_0**1.5)
+                    ratio = a_i / a_0
+                    integral = (
+                        2
+                        * np.pi
+                        / a_0
+                        * (
+                            np.sqrt(np.pi / a_i)
+                            - np.pi / np.sqrt(a_0) * erfcx(np.sqrt(ratio))
+                        )
+                    )
             else:
                 raise ValueError
             ueg_feats.append(rho * rho_mult * integral)

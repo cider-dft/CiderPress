@@ -147,7 +147,10 @@ class PyscfNLDFGenerator(LCAONLDFGenerator):
         grids_indexer,
         nspin,
         nldf_settings,
-        plan_type="spline", #TODO mohamed June6: check changing to spline and rerun descrptor generation for pyscf, originally "gaussian"
+        # The production molecular models use the spline NLDF representation.
+        # Callers loading older Gaussian-reference models can still request
+        # ``plan_type="gaussian"`` through PySCFNLDFInitializer.
+        plan_type="spline",
         lmax=None,
         aux_lambd=1.6,
         aug_beta=None,
@@ -156,6 +159,7 @@ class PyscfNLDFGenerator(LCAONLDFGenerator):
         alpha_formula=None,
         rhocut=1e-10,
         expcut=1e-10,
+        raise_large_expnt_error=False,
         gbuf=2.0,
         interpolator_type="onsite_direct",
         aparam=0.03,
@@ -192,6 +196,7 @@ class PyscfNLDFGenerator(LCAONLDFGenerator):
             proc_inds=None,
             rhocut=rhocut,
             expcut=expcut,
+            raise_large_expnt_error=raise_large_expnt_error,
         )
         basis = aug_etb_for_cider(mol, lmax=lmax, beta=aug_beta)
         mol = gto.M(

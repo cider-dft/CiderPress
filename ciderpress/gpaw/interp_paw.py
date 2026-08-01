@@ -30,6 +30,22 @@ from scipy.interpolate import interp1d
 from ciderpress.gpaw.gpaw_grids import GCRadialGridDescriptor
 
 
+def _get_interpolation_coordinates(rgd, r_g, size):
+    """Map radii to a tabulated grid, tolerating endpoint roundoff only."""
+    g_g = np.asarray(rgd.r2g(r_g), dtype=float)
+    gmax = float(size - 1)
+    # r2g() can return an endpoint a few ulps outside the closed source
+    # interval (545.0000000000001 was observed for Co).  Scale the tolerance
+    # with the grid index, but preserve scipy's error for real extrapolation.
+    tol = 32 * np.finfo(float).eps * max(1.0, gmax)
+    if np.any(g_g < -tol) or np.any(g_g > gmax + tol):
+        raise ValueError(
+            "Target radial grid extends beyond the PAW source grid "
+            f"[0, {gmax}] (mapped range [{g_g.min()}, {g_g.max()}])"
+        )
+    return np.clip(g_g, 0.0, gmax)
+
+
 def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new, n_qg, d_qg):
     nj = len(phi_jg)
     dphidr_jg = np.zeros(np.shape(phi_jg))
@@ -174,11 +190,12 @@ class DiffPAWXCCorrection:
             rgd = rgd.make_cut(gcut)
 
         def _interpc(func):
+            g_new = _get_interpolation_coordinates(xcc.rgd, rgd.r_g, xcc.rgd.r_g.size)
             return interp1d(
                 np.arange(xcc.rgd.r_g.size),
                 func,
                 kind="cubic",
-            )(xcc.rgd.r2g(rgd.r_g))
+            )(g_new)
 
         core_dens = {}
         names = ["nc_g", "nct_g", "nc_corehole_g"]
@@ -213,10 +230,10 @@ class DiffPAWXCCorrection:
                 xcc, nn, xcc.phit_jg, taut_npg, _interpc, rgd.r_g, nt_qg, dt_qg
             )
         else:
-            n_qg = np.array([_interp(n_g) for n_g in xcc.n_qg])
-            nt_qg = np.array([_interp(n_g) for n_g in xcc.nt_qg])
-            d_qg = np.array([_interp(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
-            dt_qg = np.array([_interp(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
+            n_qg = np.array([_interpc(n_g) for n_g in xcc.n_qg])
+            nt_qg = np.array([_interpc(n_g) for n_g in xcc.nt_qg])
+            d_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
+            dt_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
             tau_npg = None
             taut_npg = None
 

@@ -1164,23 +1164,23 @@ class OmegaMap(FeatureNormalizer):
             y[:] = 0
 
     def fill_deriv_(self, dfdx, dfdy, x):
-        n = np.maximum(np.abs(x[self.i_n]), 1e-10)
+        n = x[self.i_n]
         s2 = np.clip(x[self.i_s], -1e10, 1e10)
         alpha = np.clip(x[self.i_alpha], -1e10, 1e10)
 
         n13 = (n * n + 1e-12) ** (1.0 / 6)
         dn13 = 1.0 / 3 * n * (n * n + 1e-12) ** (-5.0 / 6)
-        inner_term = np.sqrt(np.maximum(self.B + self.C * (alpha + 5 / 3 * s2), 1e-10))
+        inner_arg = self.B + self.C * (alpha + 5.0 / 3.0 * s2)
+        inner_term = np.sqrt(np.maximum(inner_arg, 1e-10))
         omega = n13 * inner_term
         dfdw = self.c / (1 + self.c * omega) ** 2
-        dfdw * inner_term * dn13
-        dfdi = dfdw * n13 / (2 * inner_term)
-        dfdi * (5.0 * self.C / 3)
-        dfdi * self.C
+        dfdx[self.i_n] += dfdy * dfdw * inner_term * dn13
 
-        # dfdx[self.i_n] += dfdn
-        # dfdx[self.i_s] += dfds
-        # dfdx[self.i_alpha] += dfda
+        active = inner_arg > 1e-10
+        dfdi = dfdy * dfdw * n13 / (2 * inner_term)
+        dfdi = np.where(active, dfdi, 0.0)
+        dfdx[self.i_s] += dfdi * (5.0 * self.C / 3.0)
+        dfdx[self.i_alpha] += dfdi * self.C
 
     def as_dict(self):
         return {

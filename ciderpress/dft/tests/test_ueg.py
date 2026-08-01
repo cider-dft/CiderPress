@@ -21,17 +21,20 @@
 import unittest
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_allclose, assert_almost_equal
+from scipy.integrate import quad
 
 from ciderpress.dft.debug_numint import get_get_exponent, get_nonlocal_features
 from ciderpress.dft.settings import (
     ALLOWED_I_SPECS_L0,
     ALLOWED_I_SPECS_L1,
-    ALLOWED_J_SPECS,
+    EXPERIMENTAL_VDW_J_SPECS,
+    STANDARD_J_SPECS,
     NLDFSettingsVI,
     NLDFSettingsVIJ,
     NLDFSettingsVJ,
     NLDFSettingsVK,
+    _get_ueg_expnt,
 )
 
 # constants for uniform grid
@@ -90,7 +93,7 @@ class TestUEGVector(unittest.TestCase):
             "MGGA",
             theta_params,
             "one",
-            feat_specs=ALLOWED_J_SPECS,
+            feat_specs=STANDARD_J_SPECS,
             feat_params=feat_params,
         )
         ijsettings = NLDFSettingsVIJ(
@@ -100,7 +103,7 @@ class TestUEGVector(unittest.TestCase):
             l0_feat_specs_i=ALLOWED_I_SPECS_L0,
             l1_feat_specs_i=ALLOWED_I_SPECS_L1,
             l1_feat_dots_i=[(-1, 0), (-1, 1), (0, 1)],
-            feat_specs_j=ALLOWED_J_SPECS,
+            feat_specs_j=STANDARD_J_SPECS,
             feat_params_j=feat_params,
         )
         ksettings = NLDFSettingsVK(
@@ -169,6 +172,48 @@ class TestUEGVector(unittest.TestCase):
         num *= 0.7
         gg_kwargs = {"a0": 1.0 * num, "fac_mul": 0.03125 * num, "amin": 0.0625 * num}
         self._run_ueg_test(0.8, gg_kwargs, vv_gg_kwargs)
+
+    def test_experimental_vdw_ueg_integrals(self):
+        rho = 0.8
+        theta_params = [0.7, 0.0, 0.03]
+        feat_params = [1.3, 0.0, 0.07]
+        a_0 = _get_ueg_expnt(theta_params[0], theta_params[2], rho)
+        a_i = _get_ueg_expnt(feat_params[0], feat_params[2], rho)
+
+        def radial_kernel(spec, r):
+            if spec == "se_rinv4":
+                return np.exp(-a_i * r * r) / (1 + a_0 * r * r) ** 2
+            if spec == "rinv2_rinv4":
+                return 1 / ((1 + a_i * r * r) * (1 + a_0 * r * r) ** 2)
+            if spec == "rinv4_rinv2":
+                return 1 / ((1 + a_i * r * r) ** 2 * (1 + a_0 * r * r))
+            if spec == "se_rinv2":
+                return np.exp(-a_i * r * r) / (1 + a_0 * r * r)
+            raise ValueError(spec)
+
+        for spec in EXPERIMENTAL_VDW_J_SPECS:
+            settings = NLDFSettingsVJ(
+                "MGGA",
+                theta_params,
+                "one",
+                feat_specs=[spec],
+                feat_params=[feat_params],
+                vdw_param=True,
+            )
+            numerical = (
+                4 * np.pi * quad(lambda r: r * r * radial_kernel(spec, r), 0, np.inf)[0]
+            )
+            assert_allclose(settings.ueg_vector(rho), [rho * numerical], rtol=1e-10)
+
+    def test_experimental_vdw_specs_require_opt_in(self):
+        with self.assertRaisesRegex(ValueError, "require vdw_param=True"):
+            NLDFSettingsVJ(
+                "MGGA",
+                [0.7, 0.0, 0.03],
+                "one",
+                feat_specs=["se_rinv2"],
+                feat_params=[[1.3, 0.0, 0.07]],
+            )
 
 
 if __name__ == "__main__":
