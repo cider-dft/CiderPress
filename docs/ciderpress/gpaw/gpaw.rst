@@ -19,6 +19,10 @@ It also provides a subclass of the ``GPAW`` calculator object.
 See the :ref:`calculator<GPAW Calculator Interface>` module documentation
 for examples and API documentation.
 
+For production model selection, complete examples, and suggested fallback
+settings, see :doc:`../../usage/production_models`,
+:doc:`../../usage/gpaw`, and :doc:`../../usage/convergence`.
+
 Note that CIDER does not support ``gpaw.new`` yet.
 
 .. toctree::
@@ -26,4 +30,3 @@ Note that CIDER does not support ``gpaw.new`` yet.
    :caption: Contents:
 
    calculator
-

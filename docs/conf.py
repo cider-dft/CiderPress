@@ -6,10 +6,11 @@
 import sys
 from pathlib import Path
 from datetime import datetime
-from ciderpress import __version__
 
-# sys.path.insert(0, str(Path('..').resolve()))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.append("./tools/extensions")
+
+from ciderpress import __version__
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -58,7 +59,5 @@ napoleon_use_param = False
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
 html_logo = "logos/cider_logo_and_name.png"
 html_theme_options = {'logo_only': True}
-

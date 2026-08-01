@@ -472,11 +472,12 @@ class _SubsetMixin(_IndexMixin):
     """
 
     def __init__(self, indexes, *args, **kwargs):
-        """
-        Initialize SubsetKernel
+        """Initialize a kernel that acts on a subset of features.
+
         Args:
             indexes: list/tuple of indexes or slice
-            *args and **kwargs: arguments to parent kernel
+            *args: positional arguments to the parent kernel
+            **kwargs: keyword arguments to the parent kernel
         """
         self._locked = False
         self.indexes = indexes
@@ -552,11 +553,13 @@ class _SpinSymMixin(_IndexMixin):
     """
 
     def __init__(self, alpha_ind, beta_ind, *args, **kwargs):
-        """
+        """Initialize a kernel with alpha/beta spin symmetry.
+
         Args:
             alpha_ind: list/tuple of indexes or slice for alpha spin
             beta_ind: list/tuple of indexes or slice for beta spin
-            *args and **kwargs: arguments to parent kernel
+            *args: positional arguments to the parent kernel
+            **kwargs: keyword arguments to the parent kernel
         """
         self._locked = False
         self.alpha_ind = alpha_ind
@@ -1580,32 +1583,32 @@ class SpinSymKernel(ADKernel):
 
 
 class SubsetRBF(_SubsetMixin, DiffRBF):
-    pass
+    """RBF kernel evaluated on a subset of input features."""
 
 
 class SubsetARBF(_SubsetMixin, DiffARBF):
-    pass
+    """Anisotropic RBF kernel evaluated on a subset of input features."""
 
 
 class SubsetAddLLRBF(_SubsetMixin, DiffAddLLRBF):
-    pass
+    """Additive log-linear RBF kernel evaluated on selected features."""
 
 
 class SubsetAddRQ(_SubsetMixin, DiffAddRQ):
-    pass
+    """Additive rational-quadratic kernel evaluated on selected features."""
 
 
 class SubsetPoly(_SubsetMixin, DiffPolyKernel):
-    pass
+    """Polynomial kernel evaluated on a subset of input features."""
 
 
 class SpinSymRBF(_SpinSymMixin, DiffRBF):
-    pass
+    """RBF kernel with symmetry between alpha and beta spin features."""
 
 
 class SpinSymARBF(_SpinSymMixin, DiffARBF):
-    pass
+    """Anisotropic RBF kernel with alpha/beta spin symmetry."""
 
 
 class SpinSymPoly(_SpinSymMixin, DiffPolyKernel):
-    pass
+    """Polynomial kernel with symmetry between alpha and beta spin features."""

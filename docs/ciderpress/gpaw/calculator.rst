@@ -13,12 +13,13 @@ class, which modifies the ``GPAW`` calculator object
 to be able to read and write calculations that use CIDER
 functionals. ::
 
-    xc = get_cider_functional(...)
+    xc = get_cider_functional(
+        "CIDER26XCSURFSCI", xmix=1.0, xkernel=None, ckernel=None)
     atoms.calc = CiderGPAW(xc=xc, ...)
     atoms.get_potential_energy()
 
 For a full example, see :source:`examples/gpaw/simple_calc.py`
-and the other examples in :source:`examples/gpaw`
+and :doc:`../../usage/gpaw`.
 
 .. automodule:: ciderpress.gpaw.calculator
     :members:

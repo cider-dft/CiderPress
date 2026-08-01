@@ -48,8 +48,7 @@ jobs:
         pip install sphinx breathe sphinx_rtd_theme sphinxcontrib-bibtex
         cd docs
         doxygen Doxyfile.in
-        sphinx-build ./ _build
-        make html
+        sphinx-build -W --keep-going -b html . _build/html
         cd ..
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3

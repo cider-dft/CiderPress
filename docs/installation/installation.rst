@@ -26,7 +26,9 @@ Installation of CiderPress requires the following:
 
 CiderPress uses cmake to build its C backend. If you use ``pip``, cmake is automatically installed as a dependency to enable the build process. The C compiler and linear algebra libraries must be findable by cmake.
 
-Also, if you use ``pip``, all Python package dependencies are installed automatically, with the exception of the optional dependency Pytorch. Pytorch is only needed if you plan to use the ``CIDER24X`` functionals. To install Pytorch with CUDA 11.8, you can use the following: ::
+The production CIDER26XC models do not require PyTorch.  PyTorch remains an
+optional requirement for legacy ``CIDER24X`` models.  To install PyTorch with
+CUDA 11.8, for example, use::
 
     pip3 install torch --index-url https://download.pytorch.org/whl/cu118
 
@@ -43,6 +45,10 @@ You can install with the usual::
 
     pip install ciderpress
 
+For the D4-corrected molecular model, install the optional D4 dependency::
+
+    pip install 'ciderpress[d4]'
+
 Currently only the sdist is available (no wheels yet), so it will take some time to build. The C backend of CiderPress is built using cmake, so you can customize the installation by setting the ``CMAKE_CONFIGURE_ARGS`` environment variable. For example, by default, CiderPress builds its own FFTW and searches for a (non-MKL) BLAS/LAPACK installation to link to. To use the Intel Math Kernel Library (MKL) as the FFT and linear algebra backend instead, use the following: ::
 
     export CMAKE_CONFIGURE_ARGS="-DBUILD_WITH_MKL=ON"
@@ -50,12 +56,23 @@ Currently only the sdist is available (no wheels yet), so it will take some time
 
 NOTE: If CiderPress will link to MKL as its linear algebra backend, make sure that you set ``-DBUILD_WITH_MKL=ON``. Otherwise, CiderPress might link to MKL and FFTW, which can cause runtime crashes because MKL contains an FFTW wrapper with identical function names.
 
+For GPAW calculations, build CiderPress and GPAW against one consistent FFT,
+MPI, and OpenMP stack.  In particular, do not combine a CiderPress extension
+that embeds its own FFTW with a GPAW build that loads MKL's FFTW compatibility
+symbols in the same process.  Either use MKL for both, or link both programs to
+the same external FFTW installation.  For parallel calculations, also verify
+that both builds use the same MPI implementation; a serial CiderPress extension
+cannot be used from an MPI GPAW calculation.
+
 Here is a list of cmake build options with their default values:
 
 * ``BUILD_WITH_MKL (OFF)``: If ON, use Intel Math Kernel Library as the linear algebra and FFT backends. If OFF, link to whatever BLAS/LAPACK version is found by cmake and link to FFTW as the FFT backend.
-* ``BUILD_LIBXC (OFF)``: If ON, libxc is downloaded, compiled, and linked to CiderPress during the compilation process. If OFF, a libxc installation must be available to link to and findable by cmake at compile time.
+* ``BUILD_LIBXC (ON)``: If ON, libxc is downloaded, compiled, and linked to CiderPress during the compilation process. If OFF, a libxc installation must be available to link to and findable by cmake at compile time.
 * ``BUILD_FFTW (ON)``: Ignored if ``BUILD_WITH_MKL=ON``. Otherwise, if ON, FFTW is built and linked to by cmake during compilation. If OFF, an FFTW installation must be available to link to and findable by cmake at compile time.
 * ``BUILD_MARCH_NATIVE (OFF)``: If ON, use the ``-march=native`` C compiler flag, which enables instruction sets on the CPU used for compilation, potentially resulting in higher performance.
+* ``BUILD_WITH_MPI (ON)``: If ON, use the MPI installation found by cmake.  Set
+  this explicitly and inspect the cmake summary when preparing a parallel GPAW
+  environment.
 
 To further customize the installation, you can build from source and edit the ``CMakeLists.txt`` files in ``ciderpress/lib`` and its subdirectories.
 
@@ -85,7 +102,7 @@ Installation in a conda environment follows the same procedure as above, but wit
 
 The ``<=2024.0`` is to fix a compatibility issue with PyTorch and MKL, so you can remove it if you don't need PyTorch (i.e. if you don't want to use CIDER24X models). In principle, it is also possible to pip install the MKL dependencies, but we have had trouble getting the libraries to link. Then you install CiderPress using MKL::
 
-    CMAKE_CONFIGURE_ARGS=``-DBUILD_WITH_MKL=ON`` pip install .
+    CMAKE_CONFIGURE_ARGS="-DBUILD_WITH_MKL=ON" pip install .
 
 Step-by-step Installation with Conda, Micromamba, etc.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,7 +119,7 @@ This section covers how to install CiderPress and its dependencies from a fresh 
    Python 3.9-3.12 are supported.
 
 3. Install dependencies. The scripts ``.github/workflows/mm_install_torch.sh`` and
-   ``.github/workflows/mm_install_mpi.h`` can both be used to set up an environment
+   ``.github/workflows/mm_install_mpi.sh`` can both be used to set up an environment
    for running CIDER calculations. ``mm_install_torch.sh`` installs MKL, libxc, FFTW,
    and pytorch, so it is useful if you want to run calculations with CIDER24X
    functionals, which require pytorch. ``mm_install_mpi.sh`` installs MKL, libxc,
@@ -131,22 +148,39 @@ Notes on External Code Performance and Compatibility
 
 * CiderPress automatically installs PySCF as a dependency, and GPAW can be installed simply by ``pip install gpaw``. However, both codes will in general have better performance if compiled from source. See the `PySCF installation instructions <https://pyscf.org/install.html>`_ and the `GPAW installation instructions <https://gpaw.readthedocs.io/install.html>`_ for details.
 * GPAW uses MPI for parallelization, and the CiderPress extensions must also link to MPI to run parallel GPAW calculations. Make sure cmake can find OpenMPI or an equivalent installation and that you have a working ``mpicc`` compiler before building CiderPress and GPAW together.
+* CiderPress and GPAW must resolve the same FFT and MPI implementations at
+  runtime.  A successful import is not a sufficient compatibility check; run a
+  small CIDER plane-wave calculation with the same launcher and rank layout
+  intended for production before submitting large jobs.
 * The CiderPress C extensions must use the same OpenMP as PySCF and GPAW, otherwise you will run into parallelization issues and code crashes. The ``gpaw_siteconfig.py`` provided in the CiderPress repository (see Step 5 of step-by-step instructions above) assumes Intel's ``iomp5`` as the OpenMP library by default. If you are using GNU OpenMP, you should change ``iomp5`` to ``gomp`` in ``gpaw_siteconfig.py``. CiderPress will find OpenMP automatically using cmake, so please make sure this version is the one used to build PySCF and GPAW.
 * To run the CIDER24X functionals, you also need to install Pytorch.
+* To run ``CIDER26XCCHEMD4``, install ``dftd4`` through
+  ``pip install 'ciderpress[d4]'``.  The other production models do not require
+  this extra.
 
 How can I run a CIDER calculation?
 ----------------------------------
 
-The ML models that define CIDER functionals are stored in ``yaml`` files. To use previously developed functionals, you can download them using::
+CiderPress 0.5.0 packages three production models, so no separate model
+download is required:
 
-    cd <CiderPress>
-    python scripts/download_functionals.py
+* ``CIDER26XCCHEM`` for molecular chemistry without explicit dispersion.
+* ``CIDER26XCCHEMD4`` for molecular chemistry with post-density D4.
+* ``CIDER26XCSURFSCI`` for solids, surfaces, adsorption, and combined-domain
+  applications.
 
-See the ``examples`` directory for details on how to load and use the functionals.
+Molecular calculations use
+:func:`ciderpress.pyscf.dft.make_cider_calc`; periodic plane-wave PAW
+calculations use :func:`ciderpress.gpaw.calculator.get_cider_functional` and
+:class:`ciderpress.gpaw.calculator.CiderGPAW`.  See
+:doc:`../usage/production_models` for model selection,
+:doc:`../usage/pyscf` and :doc:`../usage/gpaw` for complete examples, and
+:doc:`../usage/convergence` for suggested fallback settings.
 
-CIDER calculations can be run in PySCF (for non-periodic, all-electron calculations) and GPAW (for periodic, plane-wave PAW calculations) using the functional initializers ``ciderpress.pyscf.dft.make_cider_calc`` and ``ciderpress.gpaw.calculator.get_cider_functional``, respectively. Periodic PySCF calculations are not yet supported, except for the CIDER24X functionals with uniform grids and pseudopotentials. See ``examples/pyscf/simple_calc.py`` and ``examples/gpaw/simple_calc.py`` for a demonstration of setting up a typical calculation, and refer to the docstrings of the initializers for a more detailed explanation of all the input options. As explained in the docstrings, the defaults are sufficient for most of the input options. The recommended functional for most applications in which the goal is to reproduce hybrid DFT is the ``CIDER23X_NL_MGGA_DTR`` exchange functional, which is a meta-GGA with nonlocal features of the density.
-
-The more recent ``CIDER24Xne`` and ``CIDER24Xe`` functionals use more powerful descriptors and are therefore more accurate than any of the ``CIDER23X`` functionals, but they are also more expensive and only available for use in PySCF. ``CIDER24Xe`` is fit to molecular HOMO-LUMO gaps, so it might be useful for properties where band gaps are important.
+Older downloaded YAML/joblib models and explicit model paths remain supported.
+The legacy CIDER23X and CIDER24X models have different intended energy forms
+and dependencies; do not copy their exchange-only mixing settings into a
+CIDER26XC full-XC calculation.
 
 How can I train a CIDER functional?
 -----------------------------------
@@ -158,11 +192,19 @@ Known Issues
 
 CiderPress has a few known issues that we are currently investigating. Please be aware of these when attempting calculations with CIDER functionals. We will make a note and publish a new release when we fix these issues. If you run into any other problems, please post an issue on the Github repository.
 
-* For some periodic systems in GPAW within the PAW formalism, significant numerical instability issues arise for the nonlocal functionals. In our experience thus far, these issues are uncommon and seem to be caused by the nonlocal PAW corrections to the CIDER features as opposed to the functionals themselves.
-* For the GPAW interface, the memory overhead for the nonlocal features can be fairly high, occasionally causing memory issues. Please be aware that you might need to allocate more memory for a nonlocal CIDER calculation than for, say, a PBE calculation.
-* For the PySCF interface, there are (mostly minor) convergence issues for some systems. These issues are much less common and less severe for our most robust functionals (like NL-MGGA-DTR). Even for NL-MGGA-DTR, occasionally a system will not quite converge. Usually the energy convergence is fine, but the orbital gradients are somewhat unstable; it might be necessary to set ``conv_tol_grad`` to a higher value than the default. These issues are likely a mix between inherent functional stability and the stability of the fast feature evaluation algorithm.
-* The code spits out a lot of divide-by-zero and invalid value warnings from numpy, which occur because (as with many functionals) some terms in CIDER functionals become numerically unstable at very small densities. These issues are corrected by setting the XC energy and potential at very low density to zero, and we will clean up various warnings and unnecessary debug statements as soon as possible.
-* The construction of the CIDER PAW corrections within GPAW have a very small numerical stability issue that results in different energies on different runs (with energy differences of roughly :math:`10^{-11}` eV). The difference is so small that it is insignificant for most applications, but it might affect finite difference calculations with very small perturbations.
+* Nonlocal CIDER features add memory overhead in GPAW.  Allocate more memory
+  than for a comparable PBE calculation, use augmented-grid parallelization,
+  and consider running fallback rungs in separate processes for large systems.
+* Difficult molecular, metallic, magnetic, and near-degenerate systems can
+  require conservative mixing, smearing, level shifting, or a baseline-density
+  restart.  See :doc:`../usage/convergence`; never infer convergence from the
+  total energy alone.
+* The GPAW interface in version 0.5.0 supports the classic calculator, not
+  ``gpaw.new``.  Plane-wave mode with PAW setups is recommended.
+* ``CIDER26XCCHEMD4`` is supported only in PySCF.  GPAW rejects the model rather
+  than omitting its fitted D4 contribution.
+* D4 is an energy-only post-density correction.  Forces from the D4 component
+  are not included in the CIDER PySCF nuclear-gradient interface.
 
 Questions and Comments
 ----------------------
@@ -172,6 +214,12 @@ Kyle Bystrom at kylebystrom@gmail.com AND/OR create an issue on the `Github page
 
 Citing
 ------
+
+The CIDER26XC production models are described in the forthcoming manuscript
+``Machine-Learned Exchange-Correlation Functionals in the CIDER Framework and
+Application to Chemistry and Surface Science`` by Mohamed Samy Abdallah,
+Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom.  Its public identifier is
+pending and will be added when available.
 
 If you find CiderPress or CIDER functionals useful in your research, please cite the following article::
 

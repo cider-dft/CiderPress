@@ -137,7 +137,7 @@ def get_cider_functional(
     if vdw_kind == "d4" or vdw_term == "d4":
         raise NotImplementedError(
             "D4 post-density evaluation is supported by the PySCF backend only; "
-            "GPAW cannot evaluate CIDER_D4_mol in CiderPress 0.5.0."
+            "GPAW cannot evaluate CIDER26XCCHEMD4 in CiderPress 0.5.0."
         )
     sl_level = mlfunc.settings.sl_settings.level
     if not mlfunc.settings.nlof_settings.is_empty:

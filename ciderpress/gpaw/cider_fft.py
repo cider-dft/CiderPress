@@ -94,6 +94,7 @@ class _CiderBase:
     def todict(self):
         kernel_params = self.cider_kernel.todict()
         xc_params = {
+            "Nalpha": self.Nalpha,
             "lambd": self.lambd,
             "encut": self.encut,
         }

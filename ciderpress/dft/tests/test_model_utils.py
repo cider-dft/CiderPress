@@ -10,10 +10,12 @@ from ciderpress.dft.model_utils import BUILTIN_MODELS, load_cider_model
 from ciderpress.dft.xc_evaluator2 import MappedXC2
 
 EXPECTED_HASHES = {
-    "CIDER_mol": "fd2e0b5cd7408cd4b0ff09495bb026b109b5066bc2f1267c011ce5f0408bdf1d",
-    "CIDER_D4_mol": "ee6824e258625246180efb75fdec7c1e23310a6fe2fcdf2ab836ec90d29bb00c",
-    "CIDER_comb": "e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e",
+    "CIDER26XCCHEM": "fd2e0b5cd7408cd4b0ff09495bb026b109b5066bc2f1267c011ce5f0408bdf1d",
+    "CIDER26XCCHEMD4": "ee6824e258625246180efb75fdec7c1e23310a6fe2fcdf2ab836ec90d29bb00c",
+    "CIDER26XCSURFSCI": "e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e",
 }
+
+OLD_MODEL_NAMES = ("CIDER_mol", "CIDER_D4_mol", "CIDER_comb")
 
 
 def _model_path(name):
@@ -69,7 +71,7 @@ def test_builtin_model_vdw_contracts_and_portability():
         model = load_cider_model(name)
         values = list(_iter_strings(model))
         assert not any(value.startswith("/n/") for value in values)
-        if name == "CIDER_D4_mol":
+        if name == "CIDER26XCCHEMD4":
             assert model.vdw_fit_term == "d4"
             assert model.vdw_eval_mode == "post_density"
             assert model.vdw_fit_info == {
@@ -86,7 +88,13 @@ def test_builtin_model_vdw_contracts_and_portability():
 
 def test_builtin_model_rejects_non_yaml_format():
     with pytest.raises(ValueError, match="Built-in CIDER models use YAML"):
-        load_cider_model("CIDER_mol", "joblib")
+        load_cider_model("CIDER26XCCHEM", "joblib")
+
+
+@pytest.mark.parametrize("name", OLD_MODEL_NAMES)
+def test_unreleased_old_model_names_are_not_aliases(name):
+    with pytest.raises(ValueError, match="Unsupported file format"):
+        load_cider_model(name)
 
 
 def test_unknown_model_name_is_not_treated_as_builtin():

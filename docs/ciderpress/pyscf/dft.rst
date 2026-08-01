@@ -11,17 +11,17 @@ is similar to native PySCF routines like :py:func:`density_fit`,
 in which the input SCF object is "decorated" with the
 necessary routines to evaluate the CIDER functional.
 
-The basic use case is::
+The basic full-XC use case is::
     
     from pyscf.dft import RKS
     from pyscf import gto
     mol = gto.M(...)
     ks = dft.RKS(mol)
-    ks = make_cider_calc(ks, mlfunc, ...)
+    ks = make_cider_calc(ks, "CIDER26XCCHEM")
     etot = ks.kernel()
 
 For a complete example, please see :source:`examples/pyscf/simple_calc.py`
-and the other examples in :source:`examples/pyscf`.
+and :doc:`../../usage/pyscf`.
 
 .. automodule:: ciderpress.pyscf.dft
     :members:

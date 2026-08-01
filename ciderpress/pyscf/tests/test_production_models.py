@@ -17,7 +17,7 @@ def test_production_model_initializes_pyscf(name):
 
     assert calc._numint.mlxc.nfeat == calc._numint.settings.nfeat
     assert calc._cider_vdw_contract_enabled
-    if name == "CIDER_D4_mol":
+    if name == "CIDER26XCCHEMD4":
         assert calc._cider_vdw_fit_term == "d4"
         assert calc._cider_vdw_fit_info["kind"] == "d4"
     else:
@@ -64,7 +64,7 @@ def test_production_model_scf_high_cost(name):
     assert calc._numint.nldfgen.plan._raise_large_expnt_error is False
     assert calc._cider_vdw_applied
     assert energy == pytest.approx(calc.e_tot_base + calc.e_vdw_delta)
-    if name == "CIDER_D4_mol":
+    if name == "CIDER26XCCHEMD4":
         assert calc.e_vdw_expected < 0
     else:
         assert calc.e_vdw_expected == 0

@@ -18,6 +18,10 @@ The main module CiderPress users need to be familiar with is
 turn a standard Kohn-Sham DFT calculation into one that uses
 a CIDER functional. See the module documentation for details.
 
+For production model selection, complete examples, and restart guidance, see
+:doc:`../../usage/production_models`, :doc:`../../usage/pyscf`, and
+:doc:`../../usage/convergence`.
+
 For those interested in the experimental periodic boundary
 condition feature for SDMX functionals, please see the
 :py:mod:`ciderpress.pyscf.pbc.dft` module documentation.
@@ -29,4 +33,3 @@ condition feature for SDMX functionals, please see the
    pbc/dft
    analyzers
    descriptors
-

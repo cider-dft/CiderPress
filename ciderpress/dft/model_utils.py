@@ -28,9 +28,9 @@ from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
 
 BUILTIN_MODELS = (
-    "CIDER_mol",
-    "CIDER_D4_mol",
-    "CIDER_comb",
+    "CIDER26XCCHEM",
+    "CIDER26XCCHEMD4",
+    "CIDER26XCSURFSCI",
 )
 
 

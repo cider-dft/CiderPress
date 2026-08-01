@@ -15,15 +15,45 @@ Please see the [CiderPress website](https://mir-group.github.io/CiderPress/) for
 CiderPress 0.5.0 packages three production mapped models. They can be passed
 directly anywhere an `mlfunc` file path is accepted:
 
-- `CIDER_mol`: molecular model without a dispersion correction.
-- `CIDER_D4_mol`: molecular model with a post-density D4 correction.
-- `CIDER_comb`: model trained for molecular and solid-state applications.
+- `CIDER26XCCHEM`: molecular model without a dispersion correction.
+- `CIDER26XCCHEMD4`: molecular model with a post-density D4 correction.
+- `CIDER26XCSURFSCI`: model for molecular, solid-state, and surface-science
+  applications.
 
 The optional D4 dependency is installed with
 `pip install 'ciderpress[d4]'`. D4 post-density evaluation is supported by
-the PySCF backend; GPAW rejects `CIDER_D4_mol` rather than silently evaluating
+the PySCF backend; GPAW rejects `CIDER26XCCHEMD4` rather than silently evaluating
 the model without its fitted correction. Existing YAML/joblib paths remain
 supported, and the packaged aliases may optionally include the `.yaml` suffix.
+
+For a molecular calculation:
+
+```python
+from pyscf import dft
+from ciderpress.pyscf.dft import make_cider_calc
+
+mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
+energy = mf.kernel()
+```
+
+For a classic GPAW calculation, load the production model as a full XC
+functional:
+
+```python
+from ciderpress.gpaw.calculator import get_cider_functional
+
+xc = get_cider_functional(
+    "CIDER26XCSURFSCI",
+    xmix=1.0,
+    xkernel=None,
+    ckernel=None,
+    pasdw_store_funcs=False,
+)
+```
+
+The documentation contains complete [PySCF](https://mir-group.github.io/CiderPress/usage/pyscf.html)
+and [GPAW](https://mir-group.github.io/CiderPress/usage/gpaw.html) examples and
+recommended SCF fallback settings by calculation class.
 
 ## Questions and Comments
 

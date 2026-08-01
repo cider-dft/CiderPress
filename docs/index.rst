@@ -6,11 +6,9 @@
 CiderPress: Machine Learning Exchange-Correlation Functionals
 =============================================================
 
-Welcome to the CiderPress documentation! CiderPress is a Python package built
-for running machine-learned exchange-correlation functionals within the CIDER
-framework. This documentation is currently under construction. In the meantime,
-please feel free to post a Github issue or reach out the developers at
-kylebystrom@gmail.com.
+Welcome to the CiderPress documentation. CiderPress is a Python package for
+running machine-learned exchange-correlation functionals in the CIDER
+framework through PySCF and GPAW.
 
 
 .. toctree::
@@ -18,6 +16,10 @@ kylebystrom@gmail.com.
    :caption: Contents:
 
    installation/installation
+   usage/production_models
+   usage/pyscf
+   usage/gpaw
+   usage/convergence
    theory/theory
    features/features
    ciderpress/dft/dft
@@ -25,4 +27,3 @@ kylebystrom@gmail.com.
    ciderpress/pyscf/pyscf
    ciderpress/gpaw/gpaw
    c_extensions/c_extensions
-
