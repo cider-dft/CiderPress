@@ -10,6 +10,21 @@ CiderPress provides tools for training and evaluating CIDER functionals for use 
 
 Please see the [CiderPress website](https://mir-group.github.io/CiderPress/) for installation instructions and documentation.
 
+## Production Models
+
+CiderPress 0.5.0 packages three production mapped models. They can be passed
+directly anywhere an `mlfunc` file path is accepted:
+
+- `CIDER_mol`: molecular model without a dispersion correction.
+- `CIDER_D4_mol`: molecular model with a post-density D4 correction.
+- `CIDER_comb`: model trained for molecular and solid-state applications.
+
+The optional D4 dependency is installed with
+`pip install 'ciderpress[d4]'`. D4 post-density evaluation is supported by
+the PySCF backend; GPAW rejects `CIDER_D4_mol` rather than silently evaluating
+the model without its fitted correction. Existing YAML/joblib paths remain
+supported, and the packaged aliases may optionally include the `.yaml` suffix.
+
 ## Questions and Comments
 
 Find a bug? Areas of code unclearly documented? Other questions? Feel free to contact

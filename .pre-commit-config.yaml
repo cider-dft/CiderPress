@@ -12,6 +12,7 @@ repos:
     rev: v4.0.1
     hooks:
       - id: check-yaml
+        exclude: ^ciderpress/data/functionals/
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: mixed-line-ending

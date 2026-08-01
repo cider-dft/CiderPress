@@ -24,7 +24,13 @@ from pyscf.dft.gen_grid import Grids
 from ciderpress.dft.model_utils import get_slxc_settings, load_cider_model
 from ciderpress.pyscf.gen_cider_grid import CiderGrids
 from ciderpress.pyscf.nldf_convolutions import PySCFNLDFInitializer
-from ciderpress.pyscf.numint import CiderNumInt, NLDFNLOFNumInt, NLDFNumInt, NLOFNumInt, HybridNLDFNumInt
+from ciderpress.pyscf.numint import (
+    CiderNumInt,
+    HybridNLDFNumInt,
+    NLDFNLOFNumInt,
+    NLDFNumInt,
+    NLOFNumInt,
+)
 from ciderpress.pyscf.sdmx import PySCFSDMXInitializer
 
 
@@ -39,7 +45,10 @@ def _sanitize_vdw_value(v):
     if isinstance(v, bytes):
         return v.decode("utf-8", errors="replace")
     if isinstance(v, dict):
-        return {str(_sanitize_vdw_value(k)): _sanitize_vdw_value(val) for k, val in v.items()}
+        return {
+            str(_sanitize_vdw_value(k)): _sanitize_vdw_value(val)
+            for k, val in v.items()
+        }
     if isinstance(v, (list, tuple)):
         return type(v)(_sanitize_vdw_value(x) for x in v)
     return v
@@ -98,7 +107,8 @@ def _compute_expected_vdw_energy_ha(mf, vdw_fit_info, vdw_eval_mode):
             from pyscf.dispersion import dftd4
         except Exception as e:
             raise RuntimeError(
-                "vdW term kind='d4' requested but pyscf-dispersion is unavailable."
+                "D4 evaluation requires the optional dftd4 dependency. Install it "
+                "with `pip install 'ciderpress[d4]'`."
             ) from e
         xc = params.get("xc")
         disp = dftd4.DFTD4Dispersion(mol, xc=xc)
@@ -147,7 +157,11 @@ def _apply_post_density_vdw_energy(mf):
     vdw_eval_mode = getattr(mf, "_cider_vdw_eval_mode", None)
 
     present = _get_present_dispersion_energy_ha(mf)
-    expected = 0.0 if vdw_term is None else _compute_expected_vdw_energy_ha(mf, vdw_info, vdw_eval_mode)
+    expected = (
+        0.0
+        if vdw_term is None
+        else _compute_expected_vdw_energy_ha(mf, vdw_info, vdw_eval_mode)
+    )
 
     mf.e_tot_base = float(mf.e_tot)
     mf.e_vdw_present = float(present)
@@ -367,7 +381,7 @@ class _CiderKS:
         has_nldf = not settings.nldf_settings.is_empty
         has_nlof = not settings.nlof_settings.is_empty
         has_hyb = settings.has_hyb
-        
+
         # Choose appropriate NumInt class based on features
         if has_hyb and has_nldf:
             cls = HybridNLDFNumInt

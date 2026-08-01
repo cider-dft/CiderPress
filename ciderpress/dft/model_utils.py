@@ -18,15 +18,44 @@
 # Author: Kyle Bystrom <kylebystrom@gmail.com>
 #
 
+import os
+from importlib.resources import files
+
 import joblib
 import yaml
 
 from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
 
+BUILTIN_MODELS = (
+    "CIDER_mol",
+    "CIDER_D4_mol",
+    "CIDER_comb",
+)
 
-def load_cider_model(mlfunc, mlfunc_format):
+
+def _get_builtin_model_name(value):
+    if value in BUILTIN_MODELS:
+        return value
+    if value.endswith(".yaml") and value[:-5] in BUILTIN_MODELS:
+        return value[:-5]
+    return None
+
+
+def load_cider_model(mlfunc, mlfunc_format=None):
+    if isinstance(mlfunc, os.PathLike):
+        mlfunc = os.fspath(mlfunc)
     if isinstance(mlfunc, str):
+        resource = None
+        if not os.path.exists(mlfunc):
+            builtin_name = _get_builtin_model_name(mlfunc)
+            if builtin_name is not None:
+                resource = files("ciderpress.data.functionals").joinpath(
+                    builtin_name + ".yaml"
+                )
+                if mlfunc_format not in (None, "yaml"):
+                    raise ValueError("Built-in CIDER models use YAML format")
+                mlfunc_format = "yaml"
         if mlfunc_format is None:
             if mlfunc.endswith(".yaml"):
                 mlfunc_format = "yaml"
@@ -35,14 +64,15 @@ def load_cider_model(mlfunc, mlfunc_format):
             else:
                 raise ValueError("Unsupported file format")
         if mlfunc_format == "yaml":
-            with open(mlfunc, "r") as f:
+            context = resource.open("r") if resource is not None else open(mlfunc, "r")
+            with context as f:
                 mlfunc = yaml.load(f, Loader=yaml.CLoader)
         elif mlfunc_format == "joblib":
             mlfunc = joblib.load(mlfunc)
         else:
             raise ValueError("Unsupported file format")
     if not isinstance(mlfunc, (MappedXC, MappedXC2)):
-        raise ValueError("mlfunc must be MappedXC")
+        raise ValueError("mlfunc must be MappedXC or MappedXC2")
     return mlfunc
 
 

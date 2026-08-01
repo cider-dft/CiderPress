@@ -9,6 +9,8 @@ docs/_build
 docs/_static
 docs/xml
 functionals/
+!ciderpress/data/functionals/
+!ciderpress/data/functionals/**
 ***pycache***
 *.egg-info*
 *.out
