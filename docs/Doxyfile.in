@@ -865,7 +865,6 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = "../ciderpress/lib/mod_cider"
-INPUT                 += "../ciderpress/lib/fft_wrapper"
 INPUT                 += "../ciderpress/lib/numint_cider"
 INPUT                 += "../ciderpress/lib/pwutil"
 INPUT                 += "../ciderpress/lib/sbt"

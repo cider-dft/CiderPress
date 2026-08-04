@@ -12,5 +12,9 @@ array contiguity are part of that boundary.  When modifying the implementation,
 compare the forward and adjoint operations and run the GPAW energy,
 finite-difference force, and stress tests.
 
+.. c:type:: fft_plan_t
+
+   Opaque serial FFT-plan handle owned by the internal FFT wrapper.
+
 .. doxygenfile:: nldf_fft_core.h
    :project: CiderPress
