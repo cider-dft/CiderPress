@@ -1,5 +1,6 @@
 import os
 import sys
+from glob import glob
 
 from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py
@@ -31,6 +32,36 @@ def get_platform():
 
 
 class CMakeBuildPy(build_py):
+    def _copy_built_libraries(self, src_dir):
+        """Copy CMake outputs into the wheel's package tree.
+
+        Shared libraries are intentionally excluded from the source
+        distribution so a local build cannot contaminate a release archive.
+        CMake writes the libraries into the extracted source tree, so they must
+        be copied explicitly after the normal Python package files.
+        """
+        destinations = (
+            (src_dir, os.path.join("ciderpress", "lib")),
+            (
+                os.path.join(src_dir, "deps", "lib"),
+                os.path.join("ciderpress", "lib", "deps", "lib"),
+            ),
+            (
+                os.path.join(src_dir, "deps", "lib64"),
+                os.path.join("ciderpress", "lib", "deps", "lib64"),
+            ),
+        )
+        for source_dir, relative_destination in destinations:
+            libraries = set(glob(os.path.join(source_dir, "*.so*")))
+            libraries.update(glob(os.path.join(source_dir, "*.dylib*")))
+            if not libraries:
+                continue
+            destination = os.path.join(self.build_lib, relative_destination)
+            self.mkpath(destination)
+            for library in sorted(libraries):
+                if os.path.isfile(library):
+                    self.copy_file(library, destination)
+
     def run(self):
         self.plat_name = get_platform()
         self.build_base = "build"
@@ -62,6 +93,7 @@ class CMakeBuildPy(build_py):
             self.spawn(cmd)
         self.editable_mode = False
         super().run()
+        self._copy_built_libraries(src_dir)
 
 
 # NOTE note trying to support wheal yet, but including

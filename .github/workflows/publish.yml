@@ -13,11 +13,12 @@ jobs:
       name: pypi
       url: https://pypi.org/p/ciderpress
     permissions:
+      contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: 3.12
       - name: Build sdist
@@ -27,5 +28,56 @@ jobs:
       - name: List available sdist
         run: |
           ls ${{ github.workspace }}/dist
+      - name: Validate clean source distribution
+        run: |
+          python - <<'PY'
+          import pathlib
+          import tarfile
+
+          archive = next(pathlib.Path("dist").glob("*.tar.gz"))
+          with tarfile.open(archive) as tf:
+              names = tf.getnames()
+          binaries = [
+              n
+              for n in names
+              if n.endswith((".so", ".dylib"))
+              or ".so." in n
+              or ".dylib." in n
+          ]
+          if binaries:
+              raise SystemExit(f"Compiled libraries found in source distribution: {binaries}")
+          vendored_deps = [n for n in names if "/ciderpress/lib/deps/" in n]
+          if vendored_deps:
+              raise SystemExit(
+                  "Locally generated dependency files found in source distribution: "
+                  f"{vendored_deps}"
+              )
+          for model in ("CIDER26XCCHEM", "CIDER26XCCHEMD4", "CIDER26XCSURFSCI"):
+              suffix = f"ciderpress/data/functionals/{model}.yaml"
+              if not any(name.endswith(suffix) for name in names):
+                  raise SystemExit(f"Missing packaged model: {model}")
+          PY
+      - name: Install and smoke-test source distribution
+        run: |
+          sdist=$(find "$GITHUB_WORKSPACE/dist" -maxdepth 1 -name '*.tar.gz' -print -quit)
+          pip install "${sdist}[d4]"
+          pip check
+          cd "$RUNNER_TEMP"
+          python - <<'PY'
+          import hashlib
+          from importlib.resources import files
+
+          from ciderpress.dft.model_utils import load_cider_model
+
+          expected = {
+              "CIDER26XCCHEM": "fd2e0b5cd7408cd4b0ff09495bb026b109b5066bc2f1267c011ce5f0408bdf1d",
+              "CIDER26XCCHEMD4": "ee6824e258625246180efb75fdec7c1e23310a6fe2fcdf2ab836ec90d29bb00c",
+              "CIDER26XCSURFSCI": "e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e",
+          }
+          for name, digest in expected.items():
+              path = files("ciderpress.data.functionals").joinpath(name + ".yaml")
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
+              load_cider_model(name)
+          PY
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
