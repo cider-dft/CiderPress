@@ -8,7 +8,10 @@ to train Cider models. The general idea is to take the density :math:`n(\mathbf{
 multiply it by a kernel function :math:`k(\mathbf{r}-\mathbf{r}')`, and integrate
 over real space to obtain features :math:`G(\mathbf{r})` that are nonlocal in the density:
 
-.. math:: G[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} k(\mathbf{r}-\mathbf{r}') n(\mathbf{r}')
+.. math::
+
+   G[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+   k(\mathbf{r}-\mathbf{r}') n(\mathbf{r}')
 
 This is a fairly simple convolution-based descriptor, but it has a significant shortcoming.
 In order to guarantee a reasonable and finite value for :math:`G(\mathbf{r})`,
@@ -26,9 +29,12 @@ then
 These features can then be regularized to be scale invariant and used in
 exchange-functional models.
 
-Three NLDF versions are implemented in CiderPress: ``i``, ``j``, and ``k``.
-It turns out that version ``i`` and ``j`` features can be efficiently computed together, so
-they can be combined into one feature version ``ij``.
+Three NLDF versions are implemented in the molecular feature framework:
+``i``, ``j``, and ``k``. Version ``i`` and ``j`` features can be evaluated
+together through the combined ``ij`` setting. The packaged CIDER23X and
+CIDER26XC models use version ``j``. In release 0.5.0, GPAW supports version
+``j`` only; the other versions and the alternative kernel specifications are
+developmental interfaces rather than production recommendations.
 
 
 Version J
@@ -62,6 +68,14 @@ In CiderPress, there is also an **experimental** feature to multiply the density
 function :math:`b(\mathbf{r}')` before integrating over the kernel function. In this case,
 :math:`G_i[n](\mathbf{r})` has the same uniform scaling behavior as :math:`b(\mathbf{r}')`.
 
+The production models use the squared-exponential specification ``se``.
+The settings layer also defines ``se_ar2``, ``se_a2r4``, and
+``se_erf_rinv`` variants. Rational-kernel variants require the explicit
+experimental ``vdw_param`` setting. These strings, their ordered parameters,
+and their normalization are part of the serialized model and must not be
+changed at inference time; see
+:class:`~ciderpress.dft.settings.NLDFSettingsVJ`.
+
 Version I
 ---------
 
@@ -71,27 +85,51 @@ are introduced for the integration kernel, resulting in a general form
 
 .. math:: G_*[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' k_*(a_0[n](\mathbf{r}'), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')
 
-The :math:`*` symbol is a stand-in for the form of integration kernel used. The options are listed below:
+The :math:`*` symbol stands for the kernel specification. With
+:math:`R=|\mathbf r-\mathbf r'|`, the scalar kernels implemented by
+:class:`~ciderpress.dft.settings.NLDFSettingsVI` are:
 
-* ``se``: :math:`k_\text{se}(a, r) = \text{e}^{-ar^2}`
-* ``se_r2``: :math:`k_\text{se_r2}(a,r) = r^2 \text{e}^{-ar^2}`
-* ``se_apr2`` :math:`k_\text{se_apr2}(a, r) = a r^2 \text{e}^{-ar^2}`
-* ``se_ap``: :math:`k_\text{se_ap}(a, r) = a \text{e}^{-ar^2}`
-* ``se_ap2r2``: :math:`k_\text{se_ap2r2}(a, r) = a^2 r^2 \text{e}^{-ar^2}`
-* ``se_lapl``: :math:`k_\text{se_lapl}(a, r) = 4 k_\text{se_ap2r2}(a, r) - 2 k_\text{se_ap}(a, r)`
+.. list-table:: Version-I scalar kernels
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Setting
+     - :math:`k_*(a,R)`
+   * - ``se``
+     - :math:`\exp(-aR^2)`
+   * - ``se_r2``
+     - :math:`R^2\exp(-aR^2)`
+   * - ``se_apr2``
+     - :math:`aR^2\exp(-aR^2)`
+   * - ``se_ap``
+     - :math:`a\exp(-aR^2)`
+   * - ``se_ap2r2``
+     - :math:`a^2R^2\exp(-aR^2)`
+   * - ``se_lapl``
+     - :math:`(4a^2R^2-2a)\exp(-aR^2)`
+
+``se_lapl`` is the historical setting name. The expression shown is the
+implemented kernel; it is not the ordinary full three-dimensional Laplacian
+of :math:`\exp(-aR^2)`.
 
 There are also two options for vector features of the form
 
-.. math:: \mathbf{g}_*[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} \,(\mathbf{r}'-\mathbf{r})\,k_*(a_0[n](\mathbf{r}), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')
+.. math::
+
+   \mathbf{g}_*[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+   (\mathbf{r}'-\mathbf{r})
+   k_*(a_0[n](\mathbf{r}'), |\mathbf{r}-\mathbf{r}'|)
+   n(\mathbf{r}')
 
 There are two options for :math:`k` in the above formula:
 
-* ``se_grad``: :math:`k_\text{se_grad}(a, r) = k_\text{se_ap}(a, r)`
-* ``se_rvec``: :math:`k_\text{se_grad}(a, r) = k_\text{se}(a, r)`
+* ``se_grad`` uses :math:`k_*(a,R)=a\exp(-aR^2)`.
+* ``se_rvec`` uses :math:`k_*(a,R)=\exp(-aR^2)`.
 
 To construct rotationally invariant descriptors, the vector integrals :math:`\mathbf{g}_*[n](\mathbf{r})`
-must be dotted with the density gradient or with another vector integral. For example,
-one could have :math:`G=\mathbf{g}_\text{se_grad} \cdot \mathbf{g}_\text{se_grad}`
+must be dotted with the density gradient or with another vector integral. For
+example, the ``se_grad`` vector can be dotted with itself to form the scalar
+:math:`G=\mathbf{g}_*\cdot\mathbf{g}_*`.
 
 As with Version J, there is experimental support for multiplying :math:`n(\mathbf{r}')` by another
 function :math:`b(\mathbf{r}')` before integrating.
@@ -109,9 +147,14 @@ Version K is a modification of Version J meant to remove the need for the square
 to depend on the density at :math:`\mathbf{r}'`. However, without the dependence on :math:`a_0[n](\mathbf{r}')`,
 the NLDFs can have large contributions from the core electrons in the valence region, which 
 is physically unrealistic. To fix this, we multiply the density by a function that
-decays when :math:`a_i(\mathbf{r})<<a_0(\mathbf{r}')`:
+decays when :math:`a_i(\mathbf{r})\ll a_0(\mathbf{r}')`:
 
-.. math:: G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-a_i[n](\mathbf{r})|\mathbf{r}-\mathbf{r}'|^2) \exp(-3a_0[n](\mathbf{r}')/2a_i[n](\mathbf{r})) n(\mathbf{r}')
+.. math::
+
+   G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+   \exp\!\left(-a_i[n](\mathbf{r})|\mathbf{r}-\mathbf{r}'|^2\right)
+   \exp\!\left(-\frac{3a_0[n](\mathbf{r}')}{2a_i[n](\mathbf{r})}\right)
+   n(\mathbf{r}')
 
 We have alternative options for the damping function, but the above exponential is the only supported
 one currently.

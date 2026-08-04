@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="GPAW Calculator Interface" href="calculator.html" />
-    <link rel="prev" title="PySCF Numerical Data Flow" href="../pyscf/numerical.html" /> 
+    <link rel="prev" title="PySCF Numerical and Derivative Implementation" href="../pyscf/numerical.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -73,7 +73,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">GPAW Interface and PAW Implementation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="calculator.html">GPAW Calculator Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="numerical.html">FFT, PAW, and Radial Interpolation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">GPAW Descriptor Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html">GPAW FFT, PAW, and Radial Implementation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
@@ -118,14 +119,14 @@ see the <a class="reference external" href="https://gpaw.readthedocs.io/">GPAW w
 <ul class="simple">
 <li><p><a class="reference internal" href="calculator.html#module-ciderpress.gpaw.calculator" title="ciderpress.gpaw.calculator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.calculator</span></code></a> constructs a CIDER XC object and provides
 the checkpoint-aware <code class="docutils literal notranslate"><span class="pre">CiderGPAW</span></code> calculator.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code> and
-<code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw.nldf_interface</span></code> evaluate the smooth-grid NLDF forward
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.gpaw.cider_fft" title="ciderpress.gpaw.cider_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code></a> and
+<a class="reference internal" href="numerical.html#module-ciderpress.gpaw.nldf_interface" title="ciderpress.gpaw.nldf_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.nldf_interface</span></code></a> evaluate the smooth-grid NLDF forward
 and adjoint paths.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_paw</span></code> and <code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw.atom_utils</span></code>
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.gpaw.cider_paw" title="ciderpress.gpaw.cider_paw"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_paw</span></code></a> and <a class="reference internal" href="numerical.html#module-ciderpress.gpaw.atom_utils" title="ciderpress.gpaw.atom_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.atom_utils</span></code></a>
 assemble atom-centered PAW/PASDW corrections and their derivatives.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw.interp_paw</span></code> reconstructs differentiable all-electron
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.gpaw.interp_paw" title="ciderpress.gpaw.interp_paw"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.interp_paw</span></code></a> reconstructs differentiable all-electron
 and pseudo partial-wave XC quantities on radial grids.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw.descriptors</span></code> exposes descriptor evaluation from a
+<li><p><a class="reference internal" href="descriptors.html#module-ciderpress.gpaw.descriptors" title="ciderpress.gpaw.descriptors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.descriptors</span></code></a> exposes descriptor evaluation from a
 live GPAW calculation.</p></li>
 </ul>
 <p>For production model selection, complete examples, and suggested fallback
@@ -138,7 +139,8 @@ required by the documented NLDF path.  CiderPress does not support
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="calculator.html">GPAW Calculator Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="numerical.html">FFT, PAW, and Radial Interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="descriptors.html">GPAW Descriptor Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical.html">GPAW FFT, PAW, and Radial Implementation</a></li>
 </ul>
 </div>
 </section>
@@ -147,7 +149,7 @@ required by the documented NLDF path.  CiderPress does not support
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../pyscf/numerical.html" class="btn btn-neutral float-left" title="PySCF Numerical Data Flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../pyscf/numerical.html" class="btn btn-neutral float-left" title="PySCF Numerical and Derivative Implementation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="calculator.html" class="btn btn-neutral float-right" title="GPAW Calculator Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

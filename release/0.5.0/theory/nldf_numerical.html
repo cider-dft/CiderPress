@@ -120,7 +120,9 @@ of convolutions. The expansion is slightly different for each
 feature version.</p>
 <p>For version j, the general form of the feature is</p>
 <div class="math notranslate nohighlight">
-\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')\]</div>
+\[G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)
+n(\mathbf{r}')\]</div>
 <p>In the context of implementing a nonlocal van der Waals density functional, Román-Pérez and Soler<a class="footnote-reference brackets" href="#footcite-roman-perez2009" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
 found that the kernel <span class="math notranslate nohighlight">\(k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)\)</span>
 can be approximated as</p>
@@ -144,8 +146,20 @@ modified approach is implemented by the <a class="reference internal" href="../c
 is dependent on the periodicity, type of grid, and type of basis set used in a DFT
 calculation. For details on the implementation of this approach for isolated Gaussian-type
 orbital calculations and periodic plane-wave DFT calculations, see Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
-<p>The other features versions (i and k) require slightly modified version of this approach,
+<p>The other feature versions (i and k) require slightly modified versions of this approach,
 but the basic idea is the same and the implementation quite similar.</p>
+<div class="docutils container" id="id3">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-roman-perez2009" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Guillermo Román-Pérez and José M Soler. Efficient Implementation of a van der Waals Density Functional: Application to Double-Wall Carbon Nanotubes. <em>Phys. Rev. Lett.</em>, 103(9):096102, August 2009. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.103.096102">doi:10.1103/PhysRevLett.103.096102</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
+</aside>
+</aside>
+</div>
 </section>
 
 

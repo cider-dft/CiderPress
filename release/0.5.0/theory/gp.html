@@ -165,13 +165,13 @@ this quantity will be the exchange, correlation, or exchange-correlation energy.
 We can fit <span class="math notranslate nohighlight">\(F\)</span> by learning a function that gets integrated over
 real-space to yield <span class="math notranslate nohighlight">\(F\)</span> for a given system:</p>
 <div class="math notranslate nohighlight">
-\[F = \int \text{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right) \label{eq:F_int}\]</div>
+\[F = \int \mathrm{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right)\]</div>
 <p>In the above equation, <span class="math notranslate nohighlight">\(f\left(\mathbf{x}(\mathbf{r})\right)\)</span> is the predictive
 function for the energy density to be learned by the Gaussian process.
 In practice, the integral must be performed numerically. For a given chemical system
 indexed by <span class="math notranslate nohighlight">\(m\)</span>, we write</p>
 <div class="math notranslate nohighlight">
-\[F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right) \label{eq:extensive_functional}\]</div>
+\[F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right)\]</div>
 <p>where <span class="math notranslate nohighlight">\(g\)</span> indexes quadrature points and <span class="math notranslate nohighlight">\(w_g^m\)</span> are the respective quadrature weights.
 The covariances between the numerical integrals <span class="math notranslate nohighlight">\(F^m\)</span> and <span class="math notranslate nohighlight">\(F^n\)</span>
 can be written as</p>
@@ -183,48 +183,71 @@ would be expensive. To overcome this issue, we define a small set of “control 
 <span class="math notranslate nohighlight">\(\tilde{\mathbf{x}}_a\)</span> and approximate <span class="math notranslate nohighlight">\(\text{Cov}(F^m, F^n)\)</span>
 using a resolution-of-the-identity approximation:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\text{Cov}(F^m, F^n) = K_{mn} &amp;\approx \tilde{\mathbf{k}}_m \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \label{eq:roi_cov} \\
-\left(\tilde{\mathbf{K}}\right)_{ab} &amp;= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b) \\
-\left(\tilde{\mathbf{k}}_m\right)_a &amp;= \sum_{g\in m} w_g^m k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)\end{split}\]</div>
+\[\begin{split}\operatorname{Cov}(F^m, F^n) = K_{mn}
+&amp;\approx \tilde{\mathbf{k}}_m^{\mathsf T}
+\tilde{\mathbf{K}}^{-1}\tilde{\mathbf{k}}_n, \\
+\left(\tilde{\mathbf{K}}\right)_{ab}
+&amp;= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b), \\
+\left(\tilde{\mathbf{k}}_m\right)_a
+&amp;= \sum_{g\in m} w_g^m
+k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a).\end{split}\]</div>
 <p>Using this definition of the covariance kernel, the predictive function can be expressed as</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}f(\mathbf{x}_*) &amp;= \sum_a k(\mathbf{x}_*, \mathbf{\tilde{x}}_a) \alpha_a \label{eq:gp_sum_formula} \\
-\boldsymbol{\alpha} &amp;= \sum_m \mathbf{\tilde{k}}_m \left\{\left[\mathbf{K} + \boldsymbol{\Sigma}_\text{noise}\right]^{-1} \mathbf{y}\right\}_m \label{eq:gp_predictive_cider3}\end{split}\]</div>
+\[\begin{split}f(\mathbf{x}_*)
+&amp;= \sum_a k(\mathbf{x}_*, \tilde{\mathbf{x}}_a)\alpha_a, \\
+\boldsymbol{\beta}
+&amp;= \left(\mathbf{K}+\boldsymbol{\Sigma}_\mathrm{noise}\right)^{-1}
+\mathbf{y}, \\
+\tilde{\boldsymbol{\alpha}}
+&amp;= \sum_m \tilde{\mathbf{k}}_m\,\beta_m, \\
+\boldsymbol{\alpha}
+&amp;= \tilde{\mathbf{K}}^{-1}\tilde{\boldsymbol{\alpha}}.\end{split}\]</div>
 <p>with <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> being the vector of training labels <span class="math notranslate nohighlight">\(F^m\)</span>.</p>
+<p>The final multiplication by <span class="math notranslate nohighlight">\(\tilde{\mathbf{K}}^{-1}\)</span> is required by
+the resolution-of-the-identity construction. It was inadvertently omitted
+from Eq. 43 of the CIDER23X paper and Eq. 29 of the CIDER24X paper; the
+expressions above give the corrected predictive mean.</p>
 </section>
 <section id="fitting-eigenvalues">
 <h2>Fitting Eigenvalues<a class="headerlink" href="#fitting-eigenvalues" title="Link to this heading"></a></h2>
-<p>The Gaussian process scheme discussed above can be extended to fit the eigenvalues
-of the Kohn-Sham Hamiltonian. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>
-The <span class="math notranslate nohighlight">\(i\)</span>-th eigenvalue <span class="math notranslate nohighlight">\(\epsilon_i^m\)</span> of chemical system <span class="math notranslate nohighlight">\(m\)</span> is
-the partial derivative of the total energy with respect to the occupation
-number <span class="math notranslate nohighlight">\(f_i^m\)</span> of the orbital: <a class="footnote-reference brackets" href="#footcite-janak1978" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
+<p>The Gaussian process scheme discussed above can be extended to fit
+orbital-occupation derivatives. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> At a stationary
+generalized Kohn–Sham solution, the derivative of the total energy with
+respect to the occupation <span class="math notranslate nohighlight">\(f_i^m\)</span> gives the corresponding eigenvalue
+<span class="math notranslate nohighlight">\(\epsilon_i^m\)</span>: <a class="footnote-reference brackets" href="#footcite-janak1978" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
 <div class="math notranslate nohighlight">
 \[\epsilon_i^m = \frac{\partial E}{\partial f_i^m}\]</div>
-<p>Most of the Kohn-Sham eigenvalues <span class="math notranslate nohighlight">\(\epsilon_i^m\)</span> are fictional and lack
-explicit physical meaning, but the LUMO and HOMO eigenvalues of the exact
-functional correspond to the electron affinity and negative of the ionization
-potential, respectively. Therefore, we are interested in explicitly
-fitting the derivative of our target quantity <span class="math notranslate nohighlight">\(\frac{\partial F}{\partial f_i^m}\)</span>.
-In the case of fitting exact exchange <span class="math notranslate nohighlight">\(E_\text{x}^\text{exact}\)</span>, one can
-explicitly compute <span class="math notranslate nohighlight">\(\frac{\partial E_\text{x}^\text{exact}}{\partial f_i^m}\)</span>
-for a given set of orbitals. For the full exchange-correlation energy, no
-explicit formula exists, but <span class="math notranslate nohighlight">\(\frac{\partial E_\text{xc}^\text{exact}}{\partial f_i^m}\)</span>
-can be extracted from an experimental/quantum chemistry measurement
-of the electron affinity (EA) or ionization potential (IP). The total energy
-in DFT is</p>
+<p>Most individual eigenvalues do not have a direct quasiparticle
+interpretation. The rigorous statements concern derivatives with respect to
+particle number: at an integer electron number <span class="math notranslate nohighlight">\(N\)</span>, the derivative from
+below is <span class="math notranslate nohighlight">\(-I\)</span> and the derivative from above is <span class="math notranslate nohighlight">\(-A\)</span>, where
+<span class="math notranslate nohighlight">\(I\)</span> and <span class="math notranslate nohighlight">\(A\)</span> are the ionization potential and electron affinity.
+The discontinuity between these derivatives is important; in ordinary
+Kohn–Sham DFT it must not be replaced by a blanket identification of the
+neutral-system LUMO with <span class="math notranslate nohighlight">\(-A\)</span>. Occupation-derivative data nevertheless
+provide a useful way to train valence- and conduction-edge information. We
+therefore fit derivatives of the target energy contribution,
+<span class="math notranslate nohighlight">\(\partial F/\partial f_i^m\)</span>.</p>
+<p>For exact exchange <span class="math notranslate nohighlight">\(E_\mathrm{x}^\mathrm{exact}\)</span>, the occupation
+derivative can be evaluated explicitly for a given set of orbitals. For a
+full exchange-correlation target, a reference derivative can instead be
+constructed from a consistent ionization-potential, electron-affinity, or
+band-edge target. The total energy in generalized Kohn–Sham DFT is a
+functional of the one-particle density matrix <span class="math notranslate nohighlight">\(n_1\)</span> (and therefore of
+its orbitals and occupations):</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}E[n] &amp;= T[n] + V[n] + U[n] + E_\text{xc}[n] \\
-E[n] &amp;= E_0[n] + E_\text{xc}[n]\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(E_0[n]\)</span> is the sum of the kinetic (<span class="math notranslate nohighlight">\(T\)</span>), external (<span class="math notranslate nohighlight">\(V\)</span>),
+\[\begin{split}E[n_1] &amp;= T[n_1] + V[n] + U[n] + E_\mathrm{xc}[n_1] \\
+&amp;= E_0[n_1] + E_\mathrm{xc}[n_1].\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(E_0[n_1]\)</span> is the sum of the kinetic (<span class="math notranslate nohighlight">\(T\)</span>), external (<span class="math notranslate nohighlight">\(V\)</span>),
 and Hartree (<span class="math notranslate nohighlight">\(U\)</span>) energies, all of which can be written explicitly in terms
-of the Kohn-Sham orbitals. Therefore, if we know an eigenvalue <span class="math notranslate nohighlight">\(\epsilon_i^m\)</span>
-from experimental/quantum chemistry measurements of the IP or EA, we can
-write</p>
+of the generalized Kohn–Sham orbitals. Given a reference total occupation
+derivative, the XC part follows by subtracting the explicit non-XC derivative:</p>
 <div class="math notranslate nohighlight">
-\[\frac{\partial E_\text{xc}[n]}{\partial f_i^m} = \epsilon_i^m - \frac{\partial E_0[n]}{\partial f_i^m}\]</div>
-<p>This gives us an explicit expression for <span class="math notranslate nohighlight">\(\frac{\partial E_\text{xc}[n]}{\partial f_i^m}\)</span> that
-can be used as training data for the XC functional.</p>
+\[\frac{\partial E_\mathrm{xc}[n_1]}{\partial f_i^m}
+= \epsilon_i^m - \frac{\partial E_0[n_1]}{\partial f_i^m}.\]</div>
+<p>The density matrix, orbitals, reference derivative, and side of the integer
+particle number must all be defined consistently when constructing such a
+training label.</p>
 <p>Given such training data, we can relate the occupation derivative of <span class="math notranslate nohighlight">\(F\)</span> to our model energy
 density <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> as</p>
 <div class="math notranslate nohighlight">
@@ -233,8 +256,8 @@ density <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> as</
 <span class="math notranslate nohighlight">\(\frac{\partial F^m}{\partial f_i^m}\)</span> and <span class="math notranslate nohighlight">\(\frac{\partial F^n}{\partial f_j^n}\)</span>
 or <span class="math notranslate nohighlight">\(F^n\)</span>. This relationship is given by</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\text{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &amp;= \tilde{\mathbf{d}}_{mi} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
-\text{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &amp;= \tilde{\mathbf{d}}_{mi} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
+\[\begin{split}\operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &amp;= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
+\operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &amp;= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
 \left(\tilde{\mathbf{d}}_{mi}\right)_a &amp;= \sum_{g\in m} w_g^m \frac{\partial \mathbf{x}_g^m}{\partial f_i^m} \cdot \frac{\partial}{\partial \mathbf{x}_g^m} k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)\end{split}\]</div>
 <p>which allows occupation derivative training data to be included in the Gaussian process.
 For further details, see Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>

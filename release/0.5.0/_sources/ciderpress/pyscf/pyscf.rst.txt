@@ -15,14 +15,14 @@ The molecular implementation is divided by responsibility:
 
 * :mod:`ciderpress.pyscf.dft` constructs the decorated SCF object and defines
   total-energy, dispersion, checkpoint, and gradient behavior.
-* ``ciderpress.pyscf.numint`` connects semilocal and NLDF feature
+* :mod:`ciderpress.pyscf.numint` connects semilocal and NLDF feature
   evaluation to PySCF's blockwise atom-centered quadrature.
-* ``ciderpress.pyscf.gen_cider_grid`` and
-  ``ciderpress.pyscf.nldf_convolutions`` build and evaluate the auxiliary
+* :mod:`ciderpress.pyscf.gen_cider_grid` and
+  :mod:`ciderpress.pyscf.nldf_convolutions` build and evaluate the auxiliary
   nonlocal-density representation.
-* ``ciderpress.pyscf.sdmx`` evaluates the density-matrix descriptors used
+* :mod:`ciderpress.pyscf.sdmx` evaluates the density-matrix descriptors used
   by CIDER24X.
-* ``ciderpress.pyscf.rks_grad`` and ``ciderpress.pyscf.uks_grad``
+* :mod:`ciderpress.pyscf.rks_grad` and :mod:`ciderpress.pyscf.uks_grad`
   propagate feature and grid response into nuclear gradients.
 * :mod:`ciderpress.pyscf.analyzers` and
   :mod:`ciderpress.pyscf.descriptors` expose fixed-density ingredients for

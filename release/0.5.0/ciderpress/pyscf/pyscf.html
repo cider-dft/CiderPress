@@ -75,7 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">pbc.dft</a></li>
 <li class="toctree-l2"><a class="reference internal" href="analyzers.html">analyzers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html">descriptors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="numerical.html">PySCF Numerical Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html">PySCF Numerical and Derivative Implementation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
@@ -122,14 +122,14 @@ website.</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="dft.html#module-ciderpress.pyscf.dft" title="ciderpress.pyscf.dft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.dft</span></code></a> constructs the decorated SCF object and defines
 total-energy, dispersion, checkpoint, and gradient behavior.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf.numint</span></code> connects semilocal and NLDF feature
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.numint" title="ciderpress.pyscf.numint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.numint</span></code></a> connects semilocal and NLDF feature
 evaluation to PySCF’s blockwise atom-centered quadrature.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf.gen_cider_grid</span></code> and
-<code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf.nldf_convolutions</span></code> build and evaluate the auxiliary
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.gen_cider_grid" title="ciderpress.pyscf.gen_cider_grid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.gen_cider_grid</span></code></a> and
+<a class="reference internal" href="numerical.html#module-ciderpress.pyscf.nldf_convolutions" title="ciderpress.pyscf.nldf_convolutions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.nldf_convolutions</span></code></a> build and evaluate the auxiliary
 nonlocal-density representation.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx</span></code> evaluates the density-matrix descriptors used
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.sdmx" title="ciderpress.pyscf.sdmx"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx</span></code></a> evaluates the density-matrix descriptors used
 by CIDER24X.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf.rks_grad</span></code> and <code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf.uks_grad</span></code>
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.rks_grad" title="ciderpress.pyscf.rks_grad"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.rks_grad</span></code></a> and <a class="reference internal" href="numerical.html#module-ciderpress.pyscf.uks_grad" title="ciderpress.pyscf.uks_grad"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.uks_grad</span></code></a>
 propagate feature and grid response into nuclear gradients.</p></li>
 <li><p><a class="reference internal" href="analyzers.html#module-ciderpress.pyscf.analyzers" title="ciderpress.pyscf.analyzers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.analyzers</span></code></a> and
 <a class="reference internal" href="descriptors.html#module-ciderpress.pyscf.descriptors" title="ciderpress.pyscf.descriptors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.descriptors</span></code></a> expose fixed-density ingredients for
@@ -163,10 +163,12 @@ is the documented periodic route for NLDF production models.</p>
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html#ciderpress.pyscf.descriptors.get_descriptors"><code class="docutils literal notranslate"><span class="pre">get_descriptors()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="numerical.html">PySCF Numerical Data Flow</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="numerical.html#nldf-evaluation">NLDF evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="numerical.html#sdmx-evaluation">SDMX evaluation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="numerical.html#derivatives">Derivatives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical.html">PySCF Numerical and Derivative Implementation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.numint">Blockwise XC integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.gen_cider_grid">NLDF grid and convolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.sdmx">SDMX feature evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.rks_grad">Nuclear-gradient response</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html#consistency-requirements">Consistency requirements</a></li>
 </ul>
 </li>
 </ul>
