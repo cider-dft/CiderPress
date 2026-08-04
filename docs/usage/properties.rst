@@ -50,8 +50,8 @@ basis, quadrature grid, and density-fitting treatment before interpreting a
 gradient.
 
 ``CIDER26XCCHEMD4`` adds D4 only to the final energy.  Its D4 derivative is not
-included in ``nuc_grad_method()``; do not use that object for a geometry
-optimization that requires the derivative of the composite CIDER+D4 energy.
+included in ``nuc_grad_method()``.  A geometry optimization of the composite
+CIDER+D4 energy therefore requires a separate implementation of the D4 force.
 
 Periodic forces and stress
 --------------------------
@@ -75,7 +75,8 @@ Energy differences
 Every member of an energy difference must use the same model composition and
 compatible numerical settings.  In particular:
 
-* Do not mix full-XC and surrogate-hybrid initialization conventions.
+* Use the same full-XC or surrogate-hybrid initialization convention for every
+  member.
 * Apply D4 exactly once to every applicable structure.
 * Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
   smearing conventions.

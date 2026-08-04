@@ -87,7 +87,7 @@ scaling of exchange to be built into the energy form.  Correlation has a
 different scaling structure and may retain explicit density dependence.
 Rotational invariance is obtained through scalar contractions of vector or
 angular components, while spin channels are combined according to the model's
-exchange or correlation contract.
+exchange or correlation energy form.
 
 At very low density, near nuclei, and near interpolation boundaries, feature
 regularization is inseparable from numerical stability.  A change that makes

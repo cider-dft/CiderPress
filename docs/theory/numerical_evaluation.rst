@@ -3,7 +3,8 @@ Numerical Evaluation in PySCF and GPAW
 
 The mapped functional is backend independent, but its input features are not
 obtained in the same way in a Gaussian basis and on a periodic plane-wave
-grid.  This page describes the common contract and the two numerical paths.
+grid.  This page describes their shared mathematical structure and the two
+numerical paths.
 
 Common forward and adjoint calculation
 --------------------------------------
@@ -81,4 +82,4 @@ interpolation grid so that a resumed calculation evaluates the same numerical
 functional.
 
 See :doc:`../usage/gpaw` for executable settings and
-:doc:`../workflows/extending` for the implementation contract.
+:doc:`../workflows/extending` for implementation guidance.

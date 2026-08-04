@@ -54,8 +54,8 @@ Mapping plans choose an evaluator representation appropriate to the kernel;
 the resulting object can be serialized and evaluated without the training
 database.
 
-``MOLGP`` and ``MappedXC`` represent the original single-output evaluation
-contract.  ``MOLGP2`` and ``MappedXC2`` support separate exchange and
+``MOLGP`` and ``MappedXC`` provide the original single-output evaluation
+interface.  ``MOLGP2`` and ``MappedXC2`` support separate exchange and
 correlation components and the additional density inputs required by the
 full-XC form.  CIDER26XC uses the latter representation.
 
@@ -65,7 +65,7 @@ Model files
 Joblib files normally store a trainable Python object, including training and
 mapping state.  Mapped YAML stores an inference object and is the preferred
 artifact for calculations and release packaging.  Model-specific metadata,
-including the D4 fit/evaluation contract, must survive the joblib-to-YAML
+including the D4 fit/evaluation behavior, must survive the joblib-to-YAML
 mapping step.
 
 Both formats reconstruct Python objects and are unsafe when obtained from an

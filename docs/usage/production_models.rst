@@ -159,26 +159,33 @@ defaults add PBE exchange and correlation.  Override them for CIDER26XC:
 
 ``CIDER26XCCHEM`` can be evaluated in an isolated GPAW PAW box, but PySCF is
 the intended molecular representation.  ``CIDER26XCCHEMD4`` is rejected by
-GPAW because its post-density D4 contract is implemented only in PySCF.
+GPAW because the model's D4 energy correction is implemented only in PySCF.
 
 D4 energy accounting
 --------------------
 
-D4 is evaluated after the density SCF and does not change the CIDER potential
-or density.  CiderPress reconciles a pre-existing supported dispersion wrapper
-and applies the model's expected correction exactly once:
+D4 is evaluated after the density SCF and therefore does not change the CIDER
+potential or density.  After ``kernel()`` the following attributes describe
+the energy assembly:
 
-.. code-block:: python
+``mf.e_tot_base``
+   Energy returned by the underlying SCF object before CiderPress makes the
+   model-specific dispersion adjustment.
 
-   total = mf.e_tot
-   base = mf.e_tot_base
-   present = mf.e_vdw_present
-   expected = mf.e_vdw_expected
-   adjustment = mf.e_vdw_delta
-   assert abs(total - (base + adjustment)) < 1e-10
+``mf.e_vdw_present``
+   Dispersion contribution already contained in that underlying energy, if a
+   supported dispersion wrapper was present.
 
-Do not add a second D4 wrapper to the reported total.  The D4 contribution is
-not included in the PySCF CIDER nuclear gradient.
+``mf.e_vdw_expected``
+   D4 contribution specified by the selected CIDER model.
+
+``mf.e_vdw_delta``
+   Adjustment ``e_vdw_expected - e_vdw_present`` added to ``e_tot_base``.
+
+The returned ``mf.e_tot`` is ``mf.e_tot_base + mf.e_vdw_delta`` and already
+contains the expected D4 contribution exactly once.  No additional D4 wrapper
+is needed.  The D4 contribution is not included in the current PySCF CIDER
+nuclear gradient.
 
 Loading rules and model trust
 -----------------------------
@@ -188,9 +195,9 @@ other YAML or joblib models remain supported, and a real file at the supplied
 path takes precedence over a packaged name.
 
 Mapped CIDER YAML and joblib files reconstruct Python model objects.  Load
-only models obtained from a trusted source.  The packaged resources are
-release assets whose hashes are tested; arbitrary model files should be
-treated like executable Python input.
+only models obtained from a trusted source.  Packaged models have the fixed
+checksums listed below; treat an external model file like executable Python
+input and record its checksum with the calculation.
 
 Checksums
 ---------

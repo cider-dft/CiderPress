@@ -136,10 +136,10 @@ target machine.  CiderPress and GPAW must resolve compatible versions of:
 * the OpenMP runtime; and
 * BLAS/LAPACK.
 
-A successful import does not prove that an MPI/FFT combination is safe.
-Before a large job, run a small CIDER plane-wave calculation with the same MPI
-launcher and rank layout intended for production.  A serial CiderPress build
-cannot be used inside an MPI GPAW calculation.
+Before a large parallel job, run a small CIDER plane-wave calculation with the
+same MPI launcher and rank layout.  This verifies that the MPI, FFT, BLAS, and
+OpenMP libraries work together in the intended execution environment.  A
+serial CiderPress build cannot be used inside an MPI GPAW calculation.
 
 The repository's GPAW site-configuration template illustrates an MKL/MPI
 build, but cluster compiler and launcher settings must match the local
@@ -148,12 +148,3 @@ environment.  CiderPress 0.5.0 supports the classic GPAW calculator, not
 
 Continue with :doc:`../usage/gpaw`.  The central limitations are collected in
 :doc:`../reference/limitations`.
-
-Documentation build
--------------------
-
-From the ``docs`` directory, build the same strict HTML target used by CI:
-
-.. code-block:: bash
-
-   sphinx-build -n -W --keep-going -b html . _build/html

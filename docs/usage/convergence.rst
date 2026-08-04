@@ -92,15 +92,15 @@ from a fresh atomic guess; a baseline density can occasionally select the
 wrong electronic basin.
 
 Small finite-temperature smearing, approximately ``0.01--0.05 Ha``, can help
-when frontier orbitals are genuinely near degenerate.  Use it only after
-diagnosing occupation switching, and document whether the reported energy is
-the finite-temperature or zero-temperature quantity.  Inspect occupations,
-spin, orbital character, and SCF stability after convergence.
+when frontier orbitals are genuinely near degenerate.  First check whether
+occupation switching is causing the difficulty.  If smearing is retained in
+the final calculation, distinguish the finite-temperature free energy from an
+extrapolated zero-temperature energy.  Inspect occupations, spin, orbital
+character, and SCF stability after convergence.
 
-Newton/SOSCF is not supported for the production CIDER26XC numerical
-integration paths.  Disabling PySCF's convergence checks or pinning a
-non-Aufbau state can hide an occupation change and is not a general fallback
-recommendation.
+Newton/SOSCF is not available for the CIDER26XC numerical integration paths.
+If a non-Aufbau occupation is intentionally constrained, verify that it
+represents the electronic state of interest and record how it was selected.
 
 Insulating and semiconducting GPAW calculations
 -----------------------------------------------
@@ -200,13 +200,13 @@ For the PBE preconditioning stage, a density criterion around ``1e-2`` is
 often sufficient, but tighten it if the CIDER restart begins far from a stable
 density.  ``5e-4`` eV/electron for energy, ``1e-4`` for density, and ``5e-3``
 eV :sup:`2`/electron for eigenstates are reasonable general CIDER starting
-criteria.  Tighten and independently converge them as required for the
-reported property.
+criteria.  Tighten and independently converge them for the property being
+calculated.
 
 Then try ``rmm-diis`` or the bounded-step ``RMMDIIS`` above.  Direct
-minimization with ``FDPWETDM`` is an expert, GPAW-version-sensitive fallback;
-it must use the no-mixing backend and fixed occupations.  Do not combine a
-direct-minimization eigensolver with an ordinary density mixer.
+minimization with ``FDPWETDM`` is a GPAW-version-sensitive alternative that
+uses fixed occupations and the no-mixing backend.  An ordinary density mixer
+is not used in this mode.
 
 Diagnosing the failure mode
 ---------------------------

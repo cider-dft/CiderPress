@@ -21,9 +21,10 @@ Run it from the repository root with:
 
    python examples/pyscf/production_calc.py --model CIDER26XCCHEM
 
-The calculation must report ``mf.converged`` before its energy is used.  For
+Check ``mf.converged`` before interpreting the energy.  For open-shell or
+difficult systems, also verify the occupations and electronic state.  With
 ``CIDER26XCCHEMD4``, the printed base, expected dispersion, and adjustment
-terms explain how the final total was assembled.
+terms show how the final total was assembled.
 
 Exchange-only model with PySCF
 ------------------------------

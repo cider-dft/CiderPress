@@ -99,9 +99,7 @@ The core modules mirror the scientific decomposition:
 * ``ciderpress.pyscf`` and ``ciderpress.gpaw`` provide densities and
   propagate model derivatives into their host codes.
 
-This separation is also the extension contract: a new feature needs a setting,
-a numerical plan, backend evaluation and adjoint paths, and tests of energy
-and derivatives.  :doc:`../workflows/extending` describes that path in more
-detail.
+The steps required to connect a new feature to these layers are described in
+:doc:`../workflows/extending`.
 
 .. footbibliography::

@@ -156,4 +156,4 @@ forward/adjoint path.
 
 See :doc:`../../theory/nldf_numerical` for the molecular NLDF algorithm,
 :doc:`../../theory/numerical_evaluation` for the backend comparison, and
-:doc:`../../workflows/extending` for the extension contract.
+:doc:`../../workflows/extending` for guidance on extending the implementation.

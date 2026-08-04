@@ -34,8 +34,8 @@ composition:
        ckernel="GGA_C_PBE",
    )
 
-CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is rejected because
-its D4 contract is PySCF-only.
+CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is available only
+through PySCF because GPAW does not apply the model's D4 energy correction.
 
 PBE-seeded periodic workflow
 ----------------------------
@@ -50,7 +50,7 @@ bands, symmetry, charge, spin, and occupations.  Write wavefunctions with
 
 Use :class:`~ciderpress.gpaw.calculator.CiderGPAW` for a calculation that will
 be saved or restarted.  A normal ``GPAW`` calculator can evaluate an in-memory
-CIDER object but does not provide the complete CIDER checkpoint contract.
+CIDER object, but it does not save all CIDER-specific restart information.
 
 Surfaces and adsorption systems
 -------------------------------
@@ -129,8 +129,8 @@ Parallel execution and memory
 
 Use ``parallel={"augment_grids": True}`` to distribute XC grid work.  The
 nonlocal FFT buffers and PAW data add memory beyond a comparable PBE
-calculation.  On large systems, run fallback rungs in separate processes so
-calculator graphs and per-rank buffers are released between attempts.
+calculation.  For memory-heavy systems, run each restart attempt as a separate
+job so memory from the previous calculator is released.
 
 The CiderPress extension and GPAW must use compatible MPI, FFT, BLAS, and
 OpenMP runtimes.  Validate the exact launcher and rank layout on a small job
@@ -146,4 +146,4 @@ often need smaller density and magnetization mixing, occupation smearing, and
 explicit monitoring of local moments.
 
 Use :doc:`convergence` for calculation-class ladders and
-:doc:`reproducibility` for the final validation record.
+:doc:`reproducibility` for the settings and checks to retain with a calculation.

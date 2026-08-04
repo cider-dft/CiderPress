@@ -72,11 +72,11 @@ Optional long-range correction
 ------------------------------
 
 ``CIDER26XCCHEMD4`` was trained with a D4 term removed from each target and
-therefore carries an evaluation contract that adds the same term back once.
-D4 is evaluated from nuclear geometry after the density SCF.  It does not
-alter the CIDER potential or density.  The PySCF interface records the base
-energy, expected D4 energy, any correction already present on the incoming
-object, and the final adjustment so double counting can be detected.
+therefore adds the same term back when the model is evaluated.  D4 is evaluated
+from nuclear geometry after the density SCF.  It does not alter the CIDER
+potential or density.  The PySCF interface records the base energy, expected D4
+energy, any correction already present on the incoming object, and the final
+adjustment so that the correction is included exactly once.
 
 This construction restores an explicit long-range asymptote; it should not be
 interpreted as evidence that every noncovalent application requires D4.  The

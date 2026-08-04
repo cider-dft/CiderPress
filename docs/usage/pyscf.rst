@@ -4,7 +4,7 @@ Molecular Calculations with PySCF
 The PySCF interface decorates an existing restricted or unrestricted
 Kohn--Sham object.  Molecular geometry, charge, spin, basis, grids, density
 fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
-replaces the numerical XC evaluation and adds any model-level energy contract.
+replaces the numerical XC evaluation and adds any model-specific energy terms.
 
 Choose the functional composition first
 ---------------------------------------
@@ -41,8 +41,8 @@ The complete first calculation is:
    :linenos:
 
 The example uses a moderate basis and grid so it can be run directly.  For a
-reported result, converge the basis, integration grid, SCF thresholds, and
-density-fitting approximation for the requested energy difference or
+quantitative calculation, converge the basis, integration grid, SCF thresholds,
+and density-fitting approximation for the requested energy difference or
 derivative.
 
 Density fitting
@@ -57,9 +57,8 @@ basis and keep it consistent across an energy difference:
    mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
    mf = mf.density_fit(auxbasis="def2-universal-jfit")
 
-The CIDER decorator preserves its model and D4 metadata across this PySCF
-wrapper.  Density fitting is a numerical approximation, not a change to the
-CIDER functional form.
+Density fitting leaves the selected CIDER model and its D4 behavior unchanged.
+It is a numerical approximation, not a change to the CIDER functional form.
 
 Open-shell systems
 ------------------
@@ -98,9 +97,10 @@ density after interruption:
    dm0 = mf.make_rdm1(mo, occ)
    energy = mf.kernel(dm0=dm0)
 
-Reconstruct the calculator and model explicitly rather than assuming the
-checkpoint serializes the CiderPress decorator.  Confirm that the checkpoint
-molecule, basis, charge, spin, and orbital dimensions match the new object.
+Recreate the CIDER calculation before loading the checkpoint orbitals; a PySCF
+checkpoint does not recreate the selected CIDER model automatically.  Confirm
+that its molecule, basis, charge, spin, and orbital dimensions match the new
+calculation.
 
 D4-corrected energy
 -------------------
@@ -130,10 +130,9 @@ the molecular NLDF path, including density-fitted calculations.  Use
 ``mf.nuc_grad_method()`` as shown in :doc:`properties`.
 
 Hessians, NMR, polarizability, coupled-cluster, multireference, and similar
-methods are not implemented on the decorated CIDER object.  SDMX and
-nonlocal-orbital molecular gradients are also unavailable.  Unsupported paths
-raise ``NotImplementedError`` instead of silently falling back to a different
-functional.
+methods are not available from a CIDER mean-field object.  SDMX and
+nonlocal-orbital molecular gradients are also unavailable.  The complete list
+of currently supported properties is given in :doc:`properties`.
 
 SCF practice
 ------------
@@ -144,7 +143,8 @@ SCF practice
   near-degenerate systems.
 * Preserve a fresh-atomic-guess route; a baseline density can select the wrong
   basin.
-* Do not disable convergence validation merely to obtain a ``converged`` flag.
+* Confirm that a converged solution has the intended occupations, spin state,
+  and orbital character.
 * Diagnose occupation switching before applying finite-temperature smearing.
 
 The complete symptom-based ladder is in :doc:`convergence`, and the record to
