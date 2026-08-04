@@ -1,0 +1,251 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From Exchange Models to Full XC &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Machine Learning Framework for CIDER Functionals" href="gp.html" />
+    <link rel="prev" title="Uniform Scaling" href="uniform_scaling.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theory and Functional Design</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="framework.html">The CIDER Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uniform_scaling.html">Uniform Scaling</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">From Exchange Models to Full XC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#exchange-only-cider">Exchange-only CIDER</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cider26xc-functional-form">CIDER26XC functional form</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#self-consistent-training">Self-consistent training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-long-range-correction">Optional long-range correction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gp.html">Machine Learning Framework for CIDER Functionals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nldf_numerical.html">Numerical Evaluation of NLDF Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_evaluation.html">Numerical Evaluation in PySCF and GPAW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="theory.html">Theory and Functional Design</a></li>
+      <li class="breadcrumb-item active">From Exchange Models to Full XC</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/theory/full_xc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="from-exchange-models-to-full-xc">
+<h1>From Exchange Models to Full XC<a class="headerlink" href="#from-exchange-models-to-full-xc" title="Link to this heading"></a></h1>
+<section id="exchange-only-cider">
+<h2>Exchange-only CIDER<a class="headerlink" href="#exchange-only-cider" title="Link to this heading"></a></h2>
+<p>The CIDER23X and CIDER24X files represent an exchange functional.  A common
+use is a surrogate-hybrid construction</p>
+<div class="math notranslate nohighlight">
+\[E_{\mathrm{xc}} = a E_{\mathrm{x}}^{\mathrm{CIDER}}
++ (1-a)E_{\mathrm{x}}^{\mathrm{PBE}}
++ E_{\mathrm{c}}^{\mathrm{PBE}},\]</div>
+<p>with <span class="math notranslate nohighlight">\(a=0.25\)</span> for the PBE0-surrogate form used in the corresponding
+work.  The mixing fraction and external semilocal terms are part of the
+functional definition.  They must be supplied explicitly when an
+exchange-only model is initialized. Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+</section>
+<section id="cider26xc-functional-form">
+<h2>CIDER26XC functional form<a class="headerlink" href="#cider26xc-functional-form" title="Link to this heading"></a></h2>
+<p>The CIDER26XC models instead return the full exchange-correlation energy.  In
+the notation of the CIDER26XC work, the energy density contains an additive
+PBE baseline and learned exchange and correlation corrections,</p>
+<div class="math notranslate nohighlight">
+\[e_{\mathrm{xc}}^{\mathrm{CIDER}} =
+\sum_\sigma e_{\mathrm{x}}^{\mathrm{PBE}}[n_\sigma]
++ e_{\mathrm{c}}^{\mathrm{PBE}}[n_\uparrow,n_\downarrow]
++ \sum_\sigma e_{\mathrm{x}}^{\mathrm{LDA}}[n_\sigma]
+  f_{\mathrm{x}}(\mathbf{X}^{\mathrm{x}}_\sigma)
++ e_{\mathrm{c}}^{\mathrm{PBE}}
+  f_{\mathrm{c}}\!\left(\tfrac{1}{2}\sum_\sigma
+  \mathbf{X}^{\mathrm{c}}_\sigma\right).\]</div>
+<p>Exchange is evaluated separately for the two spin channels.  Correlation uses
+a spin-coupled PBE multiplier and the spin-averaged CIDER feature vector.  The
+exchange descriptors are scale invariant; correlation additionally receives
+density information because correlation does not obey the same homogeneous
+scaling rule.</p>
+<p>Because the YAML model already contains its additive PBE contributions, no
+external exchange or correlation kernel may be added during evaluation.  This
+is why the GPAW initializer requires <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code> for CIDER26XC.</p>
+</section>
+<section id="self-consistent-training">
+<h2>Self-consistent training<a class="headerlink" href="#self-consistent-training" title="Link to this heading"></a></h2>
+<p>For an exchange-only target, exact exchange can be evaluated on a chosen
+density matrix.  For a reaction-energy-trained full-XC functional, the density
+is part of the prediction: once the model is placed in an SCF loop, orbital
+relaxation changes both the features and the remaining Kohn–Sham energy
+contributions.</p>
+<p>CIDER26XC addresses this distribution shift by iterating the training density.
+At iteration <span class="math notranslate nohighlight">\(k\)</span>, descriptors and residual labels are constructed from
+the current densities, the model is refit, and self-consistent calculations
+with that model generate the next densities.  The process is converged when
+fixed-density and self-consistent errors agree at the required resolution.
+Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+<p>CiderPress provides the descriptor, model, kernel, and mapping primitives used
+by this process.  Dataset construction and orchestration of a complete
+self-consistent training campaign are not part of the installed package; see
+<a class="reference internal" href="../workflows/training.html"><span class="doc">Training and Mapping Boundary</span></a> for the supported boundary.</p>
+</section>
+<section id="optional-long-range-correction">
+<h2>Optional long-range correction<a class="headerlink" href="#optional-long-range-correction" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> was trained with a D4 term removed from each target and
+therefore carries an evaluation contract that adds the same term back once.
+D4 is evaluated from nuclear geometry after the density SCF.  It does not
+alter the CIDER potential or density.  The PySCF interface records the base
+energy, expected D4 energy, any correction already present on the incoming
+object, and the final adjustment so double counting can be detected.</p>
+<p>This construction restores an explicit long-range asymptote; it should not be
+interpreted as evidence that every noncovalent application requires D4.  The
+dispersion-free model can learn nonlocal interaction physics within the range
+represented by its electronic descriptors.</p>
+<div class="docutils container" id="id4">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/acs.jctc.4c00999">arXiv:https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
+</aside>
+</aside>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="uniform_scaling.html" class="btn btn-neutral float-left" title="Uniform Scaling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gp.html" class="btn btn-neutral float-right" title="Machine Learning Framework for CIDER Functionals" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

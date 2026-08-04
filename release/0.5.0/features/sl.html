@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semilocal Features (SL) &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Nonlocal Density Features (NLDF)" href="nldf.html" />
+    <link rel="prev" title="Electronic Features in CiderPress" href="features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="features.html">Electronic Features in CiderPress</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="features.html#feature-families">Feature families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html#from-raw-quantities-to-model-inputs">From raw quantities to model inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html#family-lineage">Family lineage</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="features.html#numerical-and-physical-constraints">Numerical and physical constraints</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Semilocal Features (SL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="features.html">Electronic Features in CiderPress</a></li>
+      <li class="breadcrumb-item active">Semilocal Features (SL)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/features/sl.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="semilocal-features-sl">
+<span id="sl-feat"></span><h1>Semilocal Features (SL)<a class="headerlink" href="#semilocal-features-sl" title="Link to this heading"></a></h1>
+<p>Semilocal features are the ingredients commonly used in semilocal DFT.
+The most basic ingredient is the electron density <span class="math notranslate nohighlight">\(n(\mathbf{r})\)</span>,
+which is defined as</p>
+<div class="math notranslate nohighlight">
+\[n(\mathbf{r}) = \sum_i f_i |\phi_i(\mathbf{r})|^2\]</div>
+<p>with <span class="math notranslate nohighlight">\(\phi_i(\mathbf{r})\)</span> being the Kohn-Sham orbitals. A functional
+constructed from <span class="math notranslate nohighlight">\(n(\mathbf{r})\)</span> only is called a local density
+approximation (LDA). The gradient of the density <span class="math notranslate nohighlight">\(\nabla n(\mathbf{r})\)</span>
+is also commonly used and results in a generalized-gradient approximation (GGA).
+Lastly, the kinetic energy density</p>
+<div class="math notranslate nohighlight">
+\[\tau(\mathbf{r}) = \frac{1}{2} \sum_i f_i |\nabla\phi_i(\mathbf{r})|^2\]</div>
+<p>can be used, resulting in a meta-generalized gradient approximation (meta-GGA or MGGA).
+To help enforce physical constraints such as uniform scaling, regularized
+features are often introduced, including the reduced gradient<a class="footnote-reference brackets" href="#footcite-perdew1996" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<div class="math notranslate nohighlight">
+\[p = s^2 = \frac{|\nabla n|^2}{4(3\pi^2)^{2/3}n^{8/3}}\]</div>
+<p>and the iso-orbital indicator<a class="footnote-reference brackets" href="#footcite-sun2013" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<div class="math notranslate nohighlight">
+\[\alpha = \frac{\tau - \tau_W}{\tau_0}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau_W=|\nabla n|^2/8n\)</span> is the single-electron kinetic energy,
+and <span class="math notranslate nohighlight">\(\tau_0=\frac{3}{10}(3\pi^2)^{2/3}n^{5/3}\)</span> is the kinetic energy
+density of the uniform electron gas.</p>
+<p>For simplicity, these definitions use the non-spin-polarized convention, in
+which orbital occupations satisfy <span class="math notranslate nohighlight">\(f_i\in [0,2]\)</span>.</p>
+<p>In CiderPress, <a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings" title="ciderpress.dft.settings.SemilocalSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SemilocalSettings</span></code></a> specifies
+the semilocal block.  Its <code class="docutils literal notranslate"><span class="pre">mode</span></code> selects one of four raw feature layouts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ns</span></code>: <span class="math notranslate nohighlight">\(\mathbf{x}_\text{sl} = [n, |\nabla n|^2]\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">np</span></code>: <span class="math notranslate nohighlight">\(\mathbf{x}_\text{sl} = [n, p]\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nst</span></code>: <span class="math notranslate nohighlight">\(\mathbf{x}_\text{sl} = [n, |\nabla n|^2, \tau]\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">npa</span></code>: <span class="math notranslate nohighlight">\(\mathbf{x}_\text{sl} = [n, p, \alpha]\)</span></p></li>
+</ul>
+<p>For <code class="docutils literal notranslate"><span class="pre">ns</span></code> and <code class="docutils literal notranslate"><span class="pre">np</span></code>, the kinetic-energy density <span class="math notranslate nohighlight">\(\tau\)</span> is not
+computed.  An associated <a class="reference internal" href="nldf.html#nldf-feat"><span class="std std-ref">NLDF</span></a> block must therefore use
+<code class="docutils literal notranslate"><span class="pre">sl_level=&quot;GGA&quot;</span></code>.  Orbital-dependent features such as <a class="reference internal" href="sdmx.html#sdmx-feat"><span class="std std-ref">SDMX</span></a> may still be present.  Modes <code class="docutils literal notranslate"><span class="pre">nst</span></code> and <code class="docutils literal notranslate"><span class="pre">npa</span></code> require
+<span class="math notranslate nohighlight">\(\tau\)</span> and are meta-GGA level.</p>
+<p>The regularized features <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\alpha\)</span> are
+scale-invariant, meaning that
+an exchange functional trained with these features and
+a proper exchange functional baseline will obey the
+uniform scaling rule (see <a class="reference internal" href="../theory/uniform_scaling.html#unif-scaling"><span class="std std-ref">Uniform Scaling Constraints</span></a>).
+The raw features <span class="math notranslate nohighlight">\(n\)</span>, <span class="math notranslate nohighlight">\(|\nabla n|^2\)</span>, and <span class="math notranslate nohighlight">\(\tau\)</span> are not
+scale-invariant, and CiderPress does not automatically regularize these features
+as it does with nonlocal features. Therefore, these features must be regularized in
+the <a class="reference internal" href="../ciderpress/dft/transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a> module to enforce the uniform scaling
+constraint in a trained model.</p>
+<p>See <a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings" title="ciderpress.dft.settings.SemilocalSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SemilocalSettings</span></code></a> in the
+<a class="reference internal" href="../ciderpress/dft/settings.html#settings-module"><span class="std std-ref">Feature Settings</span></a>
+documentation for more details on the API for setting up these features.</p>
+<div class="docutils container" id="id3">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-perdew1996" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Jp Perdew, K Burke, and M Ernzerhof. Generalized Gradient Approximation Made Simple. <em>Phys. Rev. Lett.</em>, 77(18):3865–3868, 1996. URL: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/10062328">http://www.ncbi.nlm.nih.gov/pubmed/10062328</a>, <a class="reference external" href="https://arxiv.org/abs/0927-0256(96)00008">arXiv:0927-0256(96)00008</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.77.3865">doi:10.1103/PhysRevLett.77.3865</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-sun2013" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Jianwei Sun, Bing Xiao, Yuan Fang, Robin Haunschild, Pan Hao, Adrienn Ruzsinszky, Gábor I. Csonka, Gustavo E. Scuseria, and John P. Perdew. Density functionals that recognize covalent, metallic, and weak bonds. <em>Phys. Rev. Lett.</em>, 111(10):1–5, 2013. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.111.106401">doi:10.1103/PhysRevLett.111.106401</a>.</p>
+</aside>
+</aside>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="features.html" class="btn btn-neutral float-left" title="Electronic Features in CiderPress" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nldf.html" class="btn btn-neutral float-right" title="Nonlocal Density Features (NLDF)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

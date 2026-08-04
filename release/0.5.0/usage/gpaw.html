@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Periodic and Isolated Calculations with GPAW &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Energies and Derivative Properties" href="properties.html" />
+    <link rel="prev" title="Molecular Calculations with PySCF" href="pyscf.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Periodic and Isolated Calculations with GPAW</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#functional-construction">Functional construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pbe-seeded-periodic-workflow">PBE-seeded periodic workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#surfaces-and-adsorption-systems">Surfaces and adsorption systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#isolated-systems-in-periodic-boxes">Isolated systems in periodic boxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#restarting-a-cider-checkpoint">Restarting a CIDER checkpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#forces-and-stress">Forces and stress</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pasdw-and-interpolation-controls">PASDW and interpolation controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallel-execution-and-memory">Parallel execution and memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scf-strategy">SCF strategy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Periodic and Isolated Calculations with GPAW</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/gpaw.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="periodic-and-isolated-calculations-with-gpaw">
+<h1>Periodic and Isolated Calculations with GPAW<a class="headerlink" href="#periodic-and-isolated-calculations-with-gpaw" title="Link to this heading"></a></h1>
+<p>CiderPress integrates with the classic GPAW calculator in plane-wave mode.
+The production route uses PAW setups so the nonlocal descriptors include the
+all-electron core-region information described in
+<a class="reference internal" href="../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a>.</p>
+<section id="functional-construction">
+<h2>Functional construction<a class="headerlink" href="#functional-construction" title="Link to this heading"></a></h2>
+<p>CIDER26XC is a full-XC model.  Disable the initializer’s historical
+exchange-only baselines explicitly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+    <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+    <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For an exchange-only CIDER23X model, retain an explicit PBE0/CIDER
+composition:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+    <span class="s2">&quot;CIDER23X_NL_MGGA_DTR&quot;</span><span class="p">,</span>
+    <span class="n">xmix</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">xkernel</span><span class="o">=</span><span class="s2">&quot;GGA_X_PBE&quot;</span><span class="p">,</span>
+    <span class="n">ckernel</span><span class="o">=</span><span class="s2">&quot;GGA_C_PBE&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is rejected because
+its D4 contract is PySCF-only.</p>
+</section>
+<section id="pbe-seeded-periodic-workflow">
+<h2>PBE-seeded periodic workflow<a class="headerlink" href="#pbe-seeded-periodic-workflow" title="Link to this heading"></a></h2>
+<p>Converge a PBE calculation using the final cell, PAW setups, cutoff, k-points,
+bands, symmetry, charge, spin, and occupations.  Write wavefunctions with
+<code class="docutils literal notranslate"><span class="pre">mode=&quot;all&quot;</span></code> and restart with a newly constructed CIDER functional:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;PBE-seeded periodic CIDER26XCSURFSCI calculation in classic GPAW.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">bulk</span>
+<span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">Mixer</span><span class="p">,</span> <span class="n">PW</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">12</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
+<span class="linenos">13</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">GPAW</span><span class="p">(</span>
+<span class="linenos">14</span>        <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;PBE&quot;</span><span class="p">,</span>
+<span class="linenos">15</span>        <span class="n">mode</span><span class="o">=</span><span class="n">PW</span><span class="p">(</span><span class="mi">400</span><span class="p">),</span>
+<span class="linenos">16</span>        <span class="n">kpts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+<span class="linenos">17</span>        <span class="n">occupations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+<span class="linenos">18</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+<span class="linenos">19</span>        <span class="n">convergence</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+<span class="linenos">20</span>                     <span class="s2">&quot;eigenstates&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;bands&quot;</span><span class="p">:</span> <span class="s2">&quot;occupied&quot;</span><span class="p">},</span>
+<span class="linenos">21</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">22</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_pbe.txt&quot;</span><span class="p">,</span>
+<span class="linenos">23</span>    <span class="p">)</span>
+<span class="linenos">24</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">25</span>    <span class="c1"># The production models are meta-GGAs and need the wavefunctions to</span>
+<span class="linenos">26</span>    <span class="c1"># reconstruct the kinetic-energy density after restart.</span>
+<span class="linenos">27</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_pbe.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">30</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">31</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="linenos">32</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">33</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">34</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">35</span>    <span class="p">)</span>
+<span class="linenos">36</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">37</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;si_pbe.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">38</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">39</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+<span class="linenos">40</span>        <span class="n">occupations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+<span class="linenos">41</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">42</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">43</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider.txt&quot;</span><span class="p">,</span>
+<span class="linenos">44</span>    <span class="p">)</span>
+<span class="linenos">45</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<span class="linenos">46</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+<span class="linenos">47</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">48</span>    <span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_cider.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">49</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CIDER26XCSURFSCI energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+<span class="linenos">50</span>
+<span class="linenos">51</span>
+<span class="linenos">52</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">53</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Use <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a> for a calculation that will
+be saved or restarted.  A normal <code class="docutils literal notranslate"><span class="pre">GPAW</span></code> calculator can evaluate an in-memory
+CIDER object but does not provide the complete CIDER checkpoint contract.</p>
+</section>
+<section id="surfaces-and-adsorption-systems">
+<h2>Surfaces and adsorption systems<a class="headerlink" href="#surfaces-and-adsorption-systems" title="Link to this heading"></a></h2>
+<p>A surface calculation adds convergence dimensions beyond a bulk calculation:
+slab thickness, vacuum, lateral cell, k-point sampling, dipole treatment,
+adsorbate coverage, and magnetic state.  The workflow template preserves
+separate PBE and CIDER checkpoints:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;PBE-seeded CIDER26XCSURFSCI template for a CO/Pt(111) slab.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_adsorbate</span><span class="p">,</span> <span class="n">fcc111</span><span class="p">,</span> <span class="n">molecule</span>
+<span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">Mixer</span><span class="p">,</span> <span class="n">PW</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">12</span>    <span class="n">slab</span> <span class="o">=</span> <span class="n">fcc111</span><span class="p">(</span><span class="s2">&quot;Pt&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">vacuum</span><span class="o">=</span><span class="mf">8.0</span><span class="p">)</span>
+<span class="linenos">13</span>    <span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab</span><span class="p">,</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;CO&quot;</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.85</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;ontop&quot;</span><span class="p">)</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span>    <span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="linenos">16</span>    <span class="n">occupations</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
+<span class="linenos">17</span>    <span class="n">convergence</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">18</span>        <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+<span class="linenos">19</span>        <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+<span class="linenos">20</span>        <span class="s2">&quot;eigenstates&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+<span class="linenos">21</span>        <span class="s2">&quot;bands&quot;</span><span class="p">:</span> <span class="s2">&quot;occupied&quot;</span><span class="p">,</span>
+<span class="linenos">22</span>    <span class="p">}</span>
+<span class="linenos">23</span>    <span class="n">slab</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">GPAW</span><span class="p">(</span>
+<span class="linenos">24</span>        <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;PBE&quot;</span><span class="p">,</span>
+<span class="linenos">25</span>        <span class="n">mode</span><span class="o">=</span><span class="n">PW</span><span class="p">(</span><span class="mi">450</span><span class="p">),</span>
+<span class="linenos">26</span>        <span class="n">kpts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">27</span>        <span class="n">occupations</span><span class="o">=</span><span class="n">occupations</span><span class="p">,</span>
+<span class="linenos">28</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">mixer</span><span class="p">,</span>
+<span class="linenos">29</span>        <span class="n">convergence</span><span class="o">=</span><span class="n">convergence</span><span class="p">,</span>
+<span class="linenos">30</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">31</span>        <span class="n">poissonsolver</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dipolelayer&quot;</span><span class="p">:</span> <span class="s2">&quot;xy&quot;</span><span class="p">},</span>
+<span class="linenos">32</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">33</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;co_pt_pbe.txt&quot;</span><span class="p">,</span>
+<span class="linenos">34</span>    <span class="p">)</span>
+<span class="linenos">35</span>    <span class="n">slab</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">36</span>    <span class="n">slab</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;co_pt_pbe.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">39</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">40</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="linenos">41</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">42</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">43</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">44</span>    <span class="p">)</span>
+<span class="linenos">45</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">46</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;co_pt_pbe.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">47</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">48</span>        <span class="n">occupations</span><span class="o">=</span><span class="n">occupations</span><span class="p">,</span>
+<span class="linenos">49</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+<span class="linenos">50</span>        <span class="n">convergence</span><span class="o">=</span><span class="n">convergence</span><span class="p">,</span>
+<span class="linenos">51</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">52</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">53</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;co_pt_cider.txt&quot;</span><span class="p">,</span>
+<span class="linenos">54</span>    <span class="p">)</span>
+<span class="linenos">55</span>    <span class="n">slab</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<span class="linenos">56</span>    <span class="n">slab</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+<span class="linenos">57</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">slab</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">58</span>    <span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;co_pt_cider.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">59</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CIDER26XCSURFSCI energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+<span class="linenos">60</span>
+<span class="linenos">61</span>
+<span class="linenos">62</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">63</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Evaluate the slab, isolated adsorbate/reference, and combined system with a
+consistent functional composition.  Their numerical representations need not
+be identical when physically inappropriate—for example, a molecule may use an
+isolated box—but each representation must be independently converged so that
+the energy difference is meaningful.</p>
+</section>
+<section id="isolated-systems-in-periodic-boxes">
+<h2>Isolated systems in periodic boxes<a class="headerlink" href="#isolated-systems-in-periodic-boxes" title="Link to this heading"></a></h2>
+<p>Use Gamma-point sampling, an explicit cell, the correct charge and spin, and
+enough vacuum for the property of interest:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Isolated molecule in a periodic box with classic GPAW and CIDER.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atoms</span>
+<span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">Mixer</span><span class="p">,</span> <span class="n">PW</span>
+<span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw.eigensolvers.davidson</span><span class="w"> </span><span class="kn">import</span> <span class="n">Davidson</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">13</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span><span class="s2">&quot;He&quot;</span><span class="p">)</span>
+<span class="linenos">14</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">((</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">))</span>
+<span class="linenos">15</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+<span class="linenos">16</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">pbc</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>    <span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">19</span>    <span class="n">occupations</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}</span>
+<span class="linenos">20</span>    <span class="n">convergence</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">21</span>        <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="mf">5e-4</span><span class="p">,</span>
+<span class="linenos">22</span>        <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
+<span class="linenos">23</span>        <span class="s2">&quot;eigenstates&quot;</span><span class="p">:</span> <span class="mf">5e-3</span><span class="p">,</span>
+<span class="linenos">24</span>        <span class="s2">&quot;bands&quot;</span><span class="p">:</span> <span class="s2">&quot;occupied&quot;</span><span class="p">,</span>
+<span class="linenos">25</span>    <span class="p">}</span>
+<span class="linenos">26</span>    <span class="c1"># The baseline is a density preconditioner, so a looser density target is</span>
+<span class="linenos">27</span>    <span class="c1"># sufficient here; the CIDER stage below applies the final target.</span>
+<span class="linenos">28</span>    <span class="n">pbe_convergence</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">convergence</span><span class="p">)</span>
+<span class="linenos">29</span>    <span class="n">pbe_convergence</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-2</span>
+<span class="linenos">30</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">GPAW</span><span class="p">(</span>
+<span class="linenos">31</span>        <span class="n">xc</span><span class="o">=</span><span class="s2">&quot;PBE&quot;</span><span class="p">,</span>
+<span class="linenos">32</span>        <span class="n">mode</span><span class="o">=</span><span class="n">PW</span><span class="p">(</span><span class="mi">400</span><span class="p">),</span>
+<span class="linenos">33</span>        <span class="n">kpts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">34</span>        <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;off&quot;</span><span class="p">,</span>
+<span class="linenos">35</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">mixer</span><span class="p">,</span>
+<span class="linenos">36</span>        <span class="n">eigensolver</span><span class="o">=</span><span class="n">Davidson</span><span class="p">(</span><span class="n">niter</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+<span class="linenos">37</span>        <span class="n">occupations</span><span class="o">=</span><span class="n">occupations</span><span class="p">,</span>
+<span class="linenos">38</span>        <span class="n">convergence</span><span class="o">=</span><span class="n">pbe_convergence</span><span class="p">,</span>
+<span class="linenos">39</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">40</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">41</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;he_pbe.txt&quot;</span><span class="p">,</span>
+<span class="linenos">42</span>    <span class="p">)</span>
+<span class="linenos">43</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">44</span>    <span class="c1"># Preserve wavefunctions for the meta-GGA kinetic-energy density.</span>
+<span class="linenos">45</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;he_pbe.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">46</span>
+<span class="linenos">47</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">48</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">49</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="linenos">50</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">51</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">52</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">53</span>    <span class="p">)</span>
+<span class="linenos">54</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">55</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;he_pbe.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">56</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">57</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+<span class="linenos">58</span>        <span class="n">eigensolver</span><span class="o">=</span><span class="n">Davidson</span><span class="p">(</span><span class="n">niter</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+<span class="linenos">59</span>        <span class="n">occupations</span><span class="o">=</span><span class="n">occupations</span><span class="p">,</span>
+<span class="linenos">60</span>        <span class="n">convergence</span><span class="o">=</span><span class="n">convergence</span><span class="p">,</span>
+<span class="linenos">61</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">62</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">63</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;he_cider.txt&quot;</span><span class="p">,</span>
+<span class="linenos">64</span>    <span class="p">)</span>
+<span class="linenos">65</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<span class="linenos">66</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+<span class="linenos">67</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">68</span>    <span class="c1"># Keep wavefunctions so a later meta-GGA restart can reconstruct the</span>
+<span class="linenos">69</span>    <span class="c1"># kinetic-energy density.</span>
+<span class="linenos">70</span>    <span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;he_cider.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">71</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CIDER26XCSURFSCI energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+<span class="linenos">72</span>
+<span class="linenos">73</span>
+<span class="linenos">74</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">75</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A cubic box of approximately 12–15 Angstrom is a useful initial choice for a
+small neutral compact system, not a convergence guarantee.  Charged, diffuse,
+polar, or response-property calculations may require a larger cell and
+finite-size electrostatic treatment.  Preserve intended magnetic moments
+through both PBE and CIDER stages.</p>
+</section>
+<section id="restarting-a-cider-checkpoint">
+<h2>Restarting a CIDER checkpoint<a class="headerlink" href="#restarting-a-cider-checkpoint" title="Link to this heading"></a></h2>
+<p>Write both baseline and CIDER meta-GGA calculations with <code class="docutils literal notranslate"><span class="pre">mode=&quot;all&quot;</span></code>.  To
+continue a CIDER checkpoint, construct a fresh functional and pass it when the
+calculator is recreated:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Continue the CIDER checkpoint produced by production_calc.py.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
+<span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mixer</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">11</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">12</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">13</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="linenos">14</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">15</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">16</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">17</span>    <span class="p">)</span>
+<span class="linenos">18</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">19</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;si_cider.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">20</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">21</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+<span class="linenos">22</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">23</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">24</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider_restart.txt&quot;</span><span class="p">,</span>
+<span class="linenos">25</span>    <span class="p">)</span>
+<span class="linenos">26</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<span class="linenos">27</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+<span class="linenos">28</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">29</span>    <span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_cider_restarted.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">30</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;restarted CIDER26XCSURFSCI energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">34</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The checkpoint stores the mapped model text and nonlocal interpolation
+parameters, including <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code>, <code class="docutils literal notranslate"><span class="pre">qmax</span></code>, and <code class="docutils literal notranslate"><span class="pre">lambd</span></code>.  Still verify the
+model name/composition and requested numerical controls in the resumed output.</p>
+</section>
+<section id="forces-and-stress">
+<h2>Forces and stress<a class="headerlink" href="#forces-and-stress" title="Link to this heading"></a></h2>
+<p>ASE’s normal <code class="docutils literal notranslate"><span class="pre">get_forces()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_stress()</span></code> calls include the CIDER FFT
+and PAW derivative contributions for the supported PAW path.  See
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> and the complete force/stress template.  Meta-GGA
+force/stress calculations with norm-conserving pseudopotentials are not
+supported.</p>
+</section>
+<section id="pasdw-and-interpolation-controls">
+<h2>PASDW and interpolation controls<a class="headerlink" href="#pasdw-and-interpolation-controls" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs=False</span></code> is the memory-saving default.  Setting it to
+<code class="docutils literal notranslate"><span class="pre">True</span></code> caches atomic projector functions and can reduce repeated cost at
+substantial memory expense.  <code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit=True</span></code> improves projection
+consistency and should remain fixed in sensitive comparisons.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qmax</span></code> and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> control the expansion of the nonlocal kernel.  Defaults
+are intended as general settings; smaller <code class="docutils literal notranslate"><span class="pre">lambd</span></code> gives denser interpolation
+and higher cost.  Treat a change to these values as a numerical convergence
+choice and keep it consistent across an energy difference.  <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> is
+normally determined automatically.</p>
+</section>
+<section id="parallel-execution-and-memory">
+<h2>Parallel execution and memory<a class="headerlink" href="#parallel-execution-and-memory" title="Link to this heading"></a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">parallel={&quot;augment_grids&quot;:</span> <span class="pre">True}</span></code> to distribute XC grid work.  The
+nonlocal FFT buffers and PAW data add memory beyond a comparable PBE
+calculation.  On large systems, run fallback rungs in separate processes so
+calculator graphs and per-rank buffers are released between attempts.</p>
+<p>The CiderPress extension and GPAW must use compatible MPI, FFT, BLAS, and
+OpenMP runtimes.  Validate the exact launcher and rank layout on a small job
+before scaling to multiple nodes.</p>
+</section>
+<section id="scf-strategy">
+<h2>SCF strategy<a class="headerlink" href="#scf-strategy" title="Link to this heading"></a></h2>
+<p>Start from a converged PBE checkpoint.  If the direct CIDER restart fails,
+preconverge PBE with the mixer intended for the next CIDER attempt rather than
+changing several controls only on the CIDER side.  Metals and magnetic systems
+often need smaller density and magnetization mixing, occupation smearing, and
+explicit monitoring of local moments.</p>
+<p>Use <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a> for calculation-class ladders and
+<a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a> for the final validation record.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyscf.html" class="btn btn-neutral float-left" title="Molecular Calculations with PySCF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="properties.html" class="btn btn-neutral float-right" title="Energies and Derivative Properties" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

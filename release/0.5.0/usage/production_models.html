@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choosing a CIDER Functional &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="First Calculations" href="quickstart.html" />
+    <link rel="prev" title="Installation" href="../installation/installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Choosing a CIDER Functional</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#family-selection">Family selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cider23x-exchange-models">CIDER23X exchange models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cider24x-sdmx-exchange-models">CIDER24X SDMX exchange models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cider26xc-full-xc-models">CIDER26XC full-XC models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d4-energy-accounting">D4 energy accounting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loading-rules-and-model-trust">Loading rules and model trust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checksums">Checksums</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Choosing a CIDER Functional</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/production_models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="choosing-a-cider-functional">
+<h1>Choosing a CIDER Functional<a class="headerlink" href="#choosing-a-cider-functional" title="Link to this heading"></a></h1>
+<p>CiderPress 0.5.0 packages the published CIDER23X, CIDER24X, and CIDER26XC
+model files.  A packaged model is selected by short name; no download path is
+needed.  The families learn different parts of the functional, so model
+selection and functional initialization must be considered together.</p>
+<section id="family-selection">
+<h2>Family selection<a class="headerlink" href="#family-selection" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Published functional families</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 23.0%" />
+<col style="width: 20.0%" />
+<col style="width: 22.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Family</p></th>
+<th class="head"><p>Learned quantity</p></th>
+<th class="head"><p>Electronic features</p></th>
+<th class="head"><p>Main use</p></th>
+<th class="head"><p>Backend</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CIDER23X</p></td>
+<td><p>Exchange</p></td>
+<td><p>Semilocal or NLDF</p></td>
+<td><p>Surrogate-hybrid molecular and solid calculations</p></td>
+<td><p>PySCF and classic GPAW</p></td>
+</tr>
+<tr class="row-odd"><td><p>CIDER24X</p></td>
+<td><p>Exchange</p></td>
+<td><p>Semilocal and SDMX</p></td>
+<td><p>Molecular energetics and orbital-energy-sensitive applications</p></td>
+<td><p>PySCF; PyTorch required</p></td>
+</tr>
+<tr class="row-even"><td><p>CIDER26XC</p></td>
+<td><p>Full exchange-correlation</p></td>
+<td><p>Semilocal and NLDF</p></td>
+<td><p>Molecular chemistry, solids, surfaces, and adsorption</p></td>
+<td><p>PySCF and classic GPAW, subject to the model-specific restrictions below</p></td>
+</tr>
+</tbody>
+</table>
+<p>The CIDER22X work introduced the original CIDER representation, but version
+0.5.0 does not ship a CIDER22X inference model.  It remains an important part
+of the theoretical lineage described in <a class="reference internal" href="../theory/framework.html"><span class="doc">The CIDER Framework</span></a>.</p>
+</section>
+<section id="cider23x-exchange-models">
+<h2>CIDER23X exchange models<a class="headerlink" href="#cider23x-exchange-models" title="Link to this heading"></a></h2>
+<p>All CIDER23X files learn exchange and are normally evaluated in the
+PBE0/CIDER surrogate-hybrid form.  The semilocal models are useful references
+for separating the value of nonlocality from the regression method; the
+nonlocal meta-GGA variants are the main application models from that work.</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">CIDER23X model files</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 22.0%" />
+<col style="width: 48.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Feature level</p></th>
+<th class="head"><p>Distinguishing role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_SL_GGA</span></code></p></td>
+<td><p>Semilocal GGA</p></td>
+<td><p>Learned semilocal exchange reference using the reduced gradient</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_SL_MGGA</span></code></p></td>
+<td><p>Semilocal meta-GGA</p></td>
+<td><p>Adds kinetic-energy-density information</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_GGA</span></code></p></td>
+<td><p>Nonlocal GGA</p></td>
+<td><p>Adds three version-j NLDF descriptors</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA</span></code></p></td>
+<td><p>Nonlocal meta-GGA</p></td>
+<td><p>Combines meta-GGA and version-j NLDF descriptors</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA_PBE</span></code></p></td>
+<td><p>Nonlocal meta-GGA</p></td>
+<td><p>Uses a PBE exchange baseline in the learned exchange model</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA_DTR</span></code></p></td>
+<td><p>Nonlocal meta-GGA</p></td>
+<td><p>Diverse-training retraining of the PBE-baseline model for improved numerical robustness</p></td>
+</tr>
+</tbody>
+</table>
+<p>Initialize one of these models with the exchange fraction and external
+semilocal terms stated explicitly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span>
+    <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span>
+    <span class="s2">&quot;CIDER23X_NL_MGGA_DTR&quot;</span><span class="p">,</span>
+    <span class="n">xmix</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">xkernel</span><span class="o">=</span><span class="s2">&quot;GGA_X_PBE&quot;</span><span class="p">,</span>
+    <span class="n">ckernel</span><span class="o">=</span><span class="s2">&quot;GGA_C_PBE&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The corresponding GPAW construction uses the same three composition
+arguments.  Changing <code class="docutils literal notranslate"><span class="pre">xmix</span></code> defines a different surrogate-hybrid
+composition and should be reported as such.</p>
+</section>
+<section id="cider24x-sdmx-exchange-models">
+<h2>CIDER24X SDMX exchange models<a class="headerlink" href="#cider24x-sdmx-exchange-models" title="Link to this heading"></a></h2>
+<p>The CIDER24X models use smoothed density-matrix exchange descriptors and a
+mapped neural evaluator.  Install their optional runtime before loading them:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;ciderpress[cider24]&#39;</span>
+</pre></div>
+</div>
+<p>For systems requiring a platform-specific CPU or CUDA build, install PyTorch
+using its platform instructions before installing CiderPress.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">CIDER24Xne</span></code></dt><dd><p>Trained without eigenvalue labels.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code></dt><dd><p>Includes orbital-energy training information and was designed for improved
+eigenvalue differences in addition to energetics.</p>
+</dd>
+</dl>
+<p>Both are exchange models.  Use the explicit PBE0/CIDER composition shown for
+CIDER23X.  They are supported through the molecular PySCF interface.  The
+periodic PySCF SDMX implementation is retained for reproducing the published
+work but is not the production periodic route.</p>
+</section>
+<section id="cider26xc-full-xc-models">
+<h2>CIDER26XC full-XC models<a class="headerlink" href="#cider26xc-full-xc-models" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">CIDER26XC model files</span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 30.0%" />
+<col style="width: 22.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Intended domain</p></th>
+<th class="head"><p>Dispersion</p></th>
+<th class="head"><p>Recommended backend</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code></p></td>
+<td><p>Molecular chemistry</p></td>
+<td><p>No explicit correction</p></td>
+<td><p>PySCF</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code></p></td>
+<td><p>Molecular chemistry where an explicit D4 asymptote is desired</p></td>
+<td><p>Post-density D4</p></td>
+<td><p>PySCF only</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code></p></td>
+<td><p>Molecules, solids, surfaces, and adsorption</p></td>
+<td><p>No separate D4 term</p></td>
+<td><p>PySCF and classic GPAW</p></td>
+</tr>
+</tbody>
+</table>
+<p>These files already contain the full XC energy form described in
+<a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.  PySCF’s defaults are correct:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>GPAW’s initializer also supports exchange-only models, so its historical
+defaults add PBE exchange and correlation.  Override them for CIDER26XC:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+    <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+    <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> can be evaluated in an isolated GPAW PAW box, but PySCF is
+the intended molecular representation.  <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> is rejected by
+GPAW because its post-density D4 contract is implemented only in PySCF.</p>
+</section>
+<section id="d4-energy-accounting">
+<h2>D4 energy accounting<a class="headerlink" href="#d4-energy-accounting" title="Link to this heading"></a></h2>
+<p>D4 is evaluated after the density SCF and does not change the CIDER potential
+or density.  CiderPress reconciles a pre-existing supported dispersion wrapper
+and applies the model’s expected correction exactly once:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">total</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_tot</span>
+<span class="n">base</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_tot_base</span>
+<span class="n">present</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_present</span>
+<span class="n">expected</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_expected</span>
+<span class="n">adjustment</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_delta</span>
+<span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">total</span> <span class="o">-</span> <span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">adjustment</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">1e-10</span>
+</pre></div>
+</div>
+<p>Do not add a second D4 wrapper to the reported total.  The D4 contribution is
+not included in the PySCF CIDER nuclear gradient.</p>
+</section>
+<section id="loading-rules-and-model-trust">
+<h2>Loading rules and model trust<a class="headerlink" href="#loading-rules-and-model-trust" title="Link to this heading"></a></h2>
+<p>All packaged names accept an optional <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> suffix.  Explicit paths to
+other YAML or joblib models remain supported, and a real file at the supplied
+path takes precedence over a packaged name.</p>
+<p>Mapped CIDER YAML and joblib files reconstruct Python model objects.  Load
+only models obtained from a trusted source.  The packaged resources are
+release assets whose hashes are tested; arbitrary model files should be
+treated like executable Python input.</p>
+</section>
+<section id="checksums">
+<h2>Checksums<a class="headerlink" href="#checksums" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">SHA-256 of packaged models</span><a class="headerlink" href="#id4" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 34.0%" />
+<col style="width: 66.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>SHA-256</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_SL_GGA</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2e518727b836cd806c4f27c5566e9401b8c15db77182e34380728efdea24f0ce</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_SL_MGGA</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fdd60d58ae0f981dcdf64ec24437454bdc334e65b162e379e3630bb99dc82bba</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_GGA</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">b4e29d9530eaa7c94a3c61cc5e942a0cf7cfd0dd3c4a265dc35395123ae26c86</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f49060978575ffeb8b18c64df8b9eb917fddf2e0cb8b4cc120e4a11f8a01a537</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA_PBE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">9ce3303986f80aee859c00f8973c7947f02bf3837dfc356c57d7d82fa36660f4</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA_DTR</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">93312ddde97a8b8e88a9f875df221a44f65a1a1b7c955a55d9214bd449e363ea</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER24Xne</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ab76620ad504ae2934f2f1d599c9c5457c3b882315cbbca710358d641b3e505a</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">f2650a9416ca13e0967d932e3b8d43e232fe87bd7bd2b27eb46fe6c82fd3aae1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fd2e0b5cd7408cd4b0ff09495bb026b109b5066bc2f1267c011ce5f0408bdf1d</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ee6824e258625246180efb75fdec7c1e23310a6fe2fcdf2ab836ec90d29bb00c</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a> for what to report with a result and
+<a class="reference internal" href="../reference/citing.html"><span class="doc">Citing CIDER and CiderPress</span></a> for family-specific citations.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../installation/installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="First Calculations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

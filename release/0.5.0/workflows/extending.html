@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extending CiderPress &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Core DFT Representation" href="../ciderpress/dft/dft.html" />
+    <link rel="prev" title="Training and Mapping Boundary" href="training.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="workflows.html">Model and Descriptor Workflows</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models.html">Model Objects and Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">Inspecting Densities and Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="training.html">Training and Mapping Boundary</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Extending CiderPress</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-or-modifying-a-feature">Adding or modifying a feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend-data-flow">Backend data flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#paw-and-interpolation-invariants">PAW and interpolation invariants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-and-checkpoint-compatibility">Model and checkpoint compatibility</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="workflows.html">Model and Descriptor Workflows</a></li>
+      <li class="breadcrumb-item active">Extending CiderPress</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/workflows/extending.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="extending-ciderpress">
+<h1>Extending CiderPress<a class="headerlink" href="#extending-ciderpress" title="Link to this heading"></a></h1>
+<p>New functionality should preserve the forward/derivative contract across the
+model and every supported backend.  Adding a Python class that computes an
+array is only one part of a usable density-functional feature.</p>
+<section id="adding-or-modifying-a-feature">
+<h2>Adding or modifying a feature<a class="headerlink" href="#adding-or-modifying-a-feature" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Define the feature and its parameters in the settings layer, including its
+feature count, spin behavior, uniform-scaling behavior, and uniform-electron
+gas limit where applicable.</p></li>
+<li><p>Implement a numerical plan that evaluates the raw feature and its adjoint
+derivative with respect to its electronic inputs.</p></li>
+<li><p>Define normalization and bounded transforms without changing feature order
+between training and evaluation.</p></li>
+<li><p>Connect the plan to each intended backend and fail explicitly in unsupported
+backends.</p></li>
+<li><p>Test feature values, finite differences, spin exchange symmetry, low-density
+behavior, and serialization before fitting a model with it.</p></li>
+</ol>
+</section>
+<section id="backend-data-flow">
+<h2>Backend data flow<a class="headerlink" href="#backend-data-flow" title="Link to this heading"></a></h2>
+<p>PySCF selects its numerical integrator from the feature settings stored in the
+model.  A new molecular feature must work for restricted and unrestricted
+density layouts and, if gradients are claimed, through the grid and orbital
+response path.</p>
+<p>GPAW separates smooth-grid evaluation from atom-centered PAW corrections.  A
+new nonlocal PAW feature requires matching all-electron and pseudo forward
+terms, PASDW transfer, potential back-propagation, and any claimed force or
+stress derivative.  Tests should separate pseudopotential/smooth-grid behavior
+from PAW behavior so a disagreement can be localized.</p>
+</section>
+<section id="paw-and-interpolation-invariants">
+<h2>PAW and interpolation invariants<a class="headerlink" href="#paw-and-interpolation-invariants" title="Link to this heading"></a></h2>
+<p>Changes to partial-wave interpolation or full-potential/core handling can
+alter energies and descriptors across many elements.  Preserve these
+invariants:</p>
+<ul class="simple">
+<li><p>Values at radial-grid endpoints are accepted within floating-point
+tolerance, while genuine extrapolation is rejected.</p></li>
+<li><p>Reconstructed all-electron and pseudo quantities use the same partial-wave
+convention as their derivatives.</p></li>
+<li><p>Kinetic-energy-density terms remain finite at the origin and obey their
+physical core lower bound.</p></li>
+<li><p>Energy, potential, force, and stress paths use the same discretized feature.</p></li>
+<li><p>Reference values are updated only after comparison to finite differences and
+independent numerical settings.</p></li>
+</ul>
+</section>
+<section id="model-and-checkpoint-compatibility">
+<h2>Model and checkpoint compatibility<a class="headerlink" href="#model-and-checkpoint-compatibility" title="Link to this heading"></a></h2>
+<p>Settings, mapped evaluators, and checkpoint dictionaries are persistent
+interfaces.  When adding a field, provide a safe default for older objects and
+include it in round-trip tests.  Never infer a scientifically different
+functional composition from a missing field.</p>
+<p>Before release, exercise serial and MPI layouts, restricted and unrestricted
+molecular cases, PAW elements spanning light and transition-metal regimes,
+and a full checkpoint restart.  See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a> before
+advertising a new feature/property combination.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="training.html" class="btn btn-neutral float-left" title="Training and Mapping Boundary" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../ciderpress/dft/dft.html" class="btn btn-neutral float-right" title="Core DFT Representation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

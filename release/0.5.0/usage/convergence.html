@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCF Convergence Recommendations &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reproducibility and Result Validation" href="reproducibility.html" />
+    <link rel="prev" title="Energies and Derivative Properties" href="properties.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SCF Convergence Recommendations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#molecular-calculations-in-pyscf">Molecular calculations in PySCF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#insulating-and-semiconducting-gpaw-calculations">Insulating and semiconducting GPAW calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metallic-and-magnetic-gpaw-calculations">Metallic and magnetic GPAW calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#isolated-atoms-and-molecules-in-gpaw">Isolated atoms and molecules in GPAW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#diagnosing-the-failure-mode">Diagnosing the failure mode</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SCF Convergence Recommendations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/convergence.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="scf-convergence-recommendations">
+<h1>SCF Convergence Recommendations<a class="headerlink" href="#scf-convergence-recommendations" title="Link to this heading"></a></h1>
+<p>There is no single optimal SCF configuration for every system.  The settings
+below are conservative starting points and fallback sequences.  Change one
+class of setting at a time, save checkpoints for each rung, and verify that a
+converged calculation represents the intended charge, spin, occupations, and
+electronic basin.</p>
+<p>Choose the next control from the observed failure rather than applying every
+fallback at once:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Failure pattern and first response</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 35.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Observed pattern</p></th>
+<th class="head"><p>First control to change</p></th>
+<th class="head"><p>State to verify</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Density residual decays, then stalls</p></td>
+<td><p>Reduce mixing or enlarge DIIS/Pulay history</p></td>
+<td><p>Same occupations and spin</p></td>
+</tr>
+<tr class="row-odd"><td><p>Energy and occupations alternate</p></td>
+<td><p>Add controlled smearing or change eigensolver</p></td>
+<td><p>Frontier occupations</p></td>
+</tr>
+<tr class="row-even"><td><p>Magnetic moment drifts or flips</p></td>
+<td><p>Mix charge and magnetization separately</p></td>
+<td><p>Local and total moments</p></td>
+</tr>
+<tr class="row-odd"><td><p>Restart immediately moves far from its checkpoint</p></td>
+<td><p>Rebuild the baseline with matching numerical settings</p></td>
+<td><p>Cell, basis/setup, bands, spin, and charge</p></td>
+</tr>
+<tr class="row-even"><td><p>A loose rung converges but the tight rung does not</p></td>
+<td><p>Use the loose density only as a new initial condition</p></td>
+<td><p>Final result satisfies the requested criteria</p></td>
+</tr>
+</tbody>
+</table>
+<section id="molecular-calculations-in-pyscf">
+<h2>Molecular calculations in PySCF<a class="headerlink" href="#molecular-calculations-in-pyscf" title="Link to this heading"></a></h2>
+<p>For a routine closed-shell molecule, begin with CDIIS, a DIIS space of 8, and
+the accuracy required by the final energy difference.  If the calculation is
+difficult, first create a baseline density with PBE or PBE0 using identical
+numerical settings.</p>
+<p>The following ladder is suggested for open-shell, stretched-bond,
+transition-metal, or near-degenerate molecular calculations:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Suggested PySCF fallback ladder</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 22.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rung</p></th>
+<th class="head"><p>DIIS method</p></th>
+<th class="head"><p>Space</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">conv_tol</span></code></p></th>
+<th class="head"><p>Level shift</p></th>
+<th class="head"><p>Damping</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Tight default</p></td>
+<td><p>CDIIS</p></td>
+<td><p>8</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-9</span></code></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Larger subspace</p></td>
+<td><p>CDIIS</p></td>
+<td><p>12</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-8</span></code></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>Energy-based mixing</p></td>
+<td><p>ADIIS, then EDIIS</p></td>
+<td><p>12</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-7</span></code></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Shifted orbitals</p></td>
+<td><p>CDIIS</p></td>
+<td><p>8</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-7</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.2</span> <span class="pre">Ha</span></code></p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>Conservative shifted</p></td>
+<td><p>CDIIS</p></td>
+<td><p>8</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-6</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">Ha</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.3</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Treat relaxed tolerances as a way to obtain a stable density.  Restart that
+density with the desired final tolerance and, where possible, reduce or remove
+the level shift and damping.  If all warm-start rungs fail, repeat the ladder
+from a fresh atomic guess; a baseline density can occasionally select the
+wrong electronic basin.</p>
+<p>Small finite-temperature smearing, approximately <code class="docutils literal notranslate"><span class="pre">0.01--0.05</span> <span class="pre">Ha</span></code>, can help
+when frontier orbitals are genuinely near degenerate.  Use it only after
+diagnosing occupation switching, and document whether the reported energy is
+the finite-temperature or zero-temperature quantity.  Inspect occupations,
+spin, orbital character, and SCF stability after convergence.</p>
+<p>Newton/SOSCF is not supported for the production CIDER26XC numerical
+integration paths.  Disabling PySCF’s convergence checks or pinning a
+non-Aufbau state can hide an occupation change and is not a general fallback
+recommendation.</p>
+</section>
+<section id="insulating-and-semiconducting-gpaw-calculations">
+<h2>Insulating and semiconducting GPAW calculations<a class="headerlink" href="#insulating-and-semiconducting-gpaw-calculations" title="Link to this heading"></a></h2>
+<p>Start from a converged PBE checkpoint with the intended PAW setups, cutoff,
+k-points, bands, symmetry, and spin.  A short attempt using inherited settings
+is reasonable.  If it fails, preconverge PBE with each new mixer before
+starting the corresponding CIDER rung.</p>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Suggested GPAW periodic fallback ladder</span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 35.0%" />
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Rung</p></th>
+<th class="head"><p>Mixer</p></th>
+<th class="head"><p>Fermi width</p></th>
+<th class="head"><p>Eigensolver</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Moderate Pulay</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
+<td><p>Inherited/default</p></td>
+</tr>
+<tr class="row-odd"><td><p>Conservative Pulay</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">2,</span> <span class="pre">100)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
+<td><p>Inherited/default</p></td>
+</tr>
+<tr class="row-even"><td><p>Near-linear</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
+<td><p>Inherited/default</p></td>
+</tr>
+<tr class="row-odd"><td><p>RMM fallback</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rmm-diis</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>For persistent orbital-step oscillation, a bounded-step solver is a further
+fallback:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw.eigensolvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMMDIIS</span>
+
+<span class="n">eigensolver</span> <span class="o">=</span> <span class="n">RMMDIIS</span><span class="p">(</span>
+    <span class="n">niter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">limit_lambda</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;absolute&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+    <span class="n">trial_step</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Pair it with <code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code> and consider a tighter density criterion
+such as <code class="docutils literal notranslate"><span class="pre">1e-6</span></code>.  If no rung is stable, rebuild the starting point from a
+fresh PBE calculation rather than repeatedly recycling a poor CIDER density.</p>
+</section>
+<section id="metallic-and-magnetic-gpaw-calculations">
+<h2>Metallic and magnetic GPAW calculations<a class="headerlink" href="#metallic-and-magnetic-gpaw-calculations" title="Link to this heading"></a></h2>
+<p>Metallic systems often need occupation smearing and smaller mixing steps.
+Magnetic systems can additionally benefit from mixing the total and spin
+densities separately:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">MixerDif</span>
+
+<span class="n">mixer</span> <span class="o">=</span> <span class="n">MixerDif</span><span class="p">(</span>
+    <span class="mf">0.005</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">beta_m</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">nmaxold_m</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">weight_m</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Use this as a conservative option when the total density and magnetization
+converge on different scales.  Monitor total and local magnetic moments.  If
+RMM-DIIS produces large orbital steps or occupation reordering, Davidson with
+a small number of inner iterations is a reasonable alternative.</p>
+<p>For occupation-driven limit cycles, anneal the Fermi width through a sequence
+such as <code class="docutils literal notranslate"><span class="pre">0.10</span> <span class="pre">-&gt;</span> <span class="pre">0.05</span> <span class="pre">-&gt;</span> <span class="pre">0.02</span> <span class="pre">eV</span></code>, writing a checkpoint at every stage.  A
+wider value such as <code class="docutils literal notranslate"><span class="pre">0.2</span> <span class="pre">eV</span></code> is a last-resort diagnostic, not automatically
+an appropriate final electronic temperature.</p>
+</section>
+<section id="isolated-atoms-and-molecules-in-gpaw">
+<h2>Isolated atoms and molecules in GPAW<a class="headerlink" href="#isolated-atoms-and-molecules-in-gpaw" title="Link to this heading"></a></h2>
+<p>Use Gamma-point sampling, explicit spin polarization and magnetic moments,
+and a box large enough for the property of interest.  For a gapped closed-shell
+atom or molecule, the moderate <code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code> used in the isolated
+example is a reasonable starting point.  Davidson with a small number of inner
+iterations is often robust in finite boxes.</p>
+<p>For difficult open-shell references, first reduce the mixer to
+<code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">2,</span> <span class="pre">100)</span></code>.  If Pulay-history oscillations persist, use the
+near-linear fallback:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">occupations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="s2">&quot;fixmagmom&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For the PBE preconditioning stage, a density criterion around <code class="docutils literal notranslate"><span class="pre">1e-2</span></code> is
+often sufficient, but tighten it if the CIDER restart begins far from a stable
+density.  <code class="docutils literal notranslate"><span class="pre">5e-4</span></code> eV/electron for energy, <code class="docutils literal notranslate"><span class="pre">1e-4</span></code> for density, and <code class="docutils literal notranslate"><span class="pre">5e-3</span></code>
+eV <sup>2</sup>/electron for eigenstates are reasonable general CIDER starting
+criteria.  Tighten and independently converge them as required for the
+reported property.</p>
+<p>Then try <code class="docutils literal notranslate"><span class="pre">rmm-diis</span></code> or the bounded-step <code class="docutils literal notranslate"><span class="pre">RMMDIIS</span></code> above.  Direct
+minimization with <code class="docutils literal notranslate"><span class="pre">FDPWETDM</span></code> is an expert, GPAW-version-sensitive fallback;
+it must use the no-mixing backend and fixed occupations.  Do not combine a
+direct-minimization eigensolver with an ordinary density mixer.</p>
+</section>
+<section id="diagnosing-the-failure-mode">
+<h2>Diagnosing the failure mode<a class="headerlink" href="#diagnosing-the-failure-mode" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A smoothly decaying density residual that stalls suggests smaller mixing or
+a larger history.</p></li>
+<li><p>Alternating energies and occupations suggest smearing or an eigensolver
+change rather than still smaller density mixing.</p></li>
+<li><p>Drifting or flipping magnetic moments suggest separate spin mixing, fixed
+total moment during preconvergence, or a different initial magnetic state.</p></li>
+<li><p>A stable energy with an oscillating orbital gradient requires inspection of
+occupations and stability before any gradient tolerance is relaxed.</p></li>
+<li><p>Large changes after a restart can indicate inconsistent numerical settings
+or convergence into a different electronic basin.</p></li>
+</ul>
+<p>For every final result, confirm the requested energy and density criteria,
+physical state, numerical convergence, and consistency of all members of an
+energy difference.  A copied earlier checkpoint is a restart candidate, not a
+newly converged result.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="properties.html" class="btn btn-neutral float-left" title="Energies and Derivative Properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reproducibility.html" class="btn btn-neutral float-right" title="Reproducibility and Result Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

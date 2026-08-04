@@ -1,0 +1,236 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inspecting Densities and Descriptors &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Training and Mapping Boundary" href="training.html" />
+    <link rel="prev" title="Model Objects and Mapping" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="workflows.html">Model and Descriptor Workflows</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models.html">Model Objects and Mapping</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Inspecting Densities and Descriptors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#analyzer-objects">Analyzer objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#descriptor-arrays">Descriptor arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-density-versus-self-consistent-use">Fixed-density versus self-consistent use</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="training.html">Training and Mapping Boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extending.html">Extending CiderPress</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="workflows.html">Model and Descriptor Workflows</a></li>
+      <li class="breadcrumb-item active">Inspecting Densities and Descriptors</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/workflows/descriptors.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="inspecting-densities-and-descriptors">
+<h1>Inspecting Densities and Descriptors<a class="headerlink" href="#inspecting-densities-and-descriptors" title="Link to this heading"></a></h1>
+<p>The PySCF analyzer and descriptor modules expose the same electronic
+ingredients used to construct training data and diagnose a mapped model.
+These tools operate on a fixed density; they do not run an SCF calculation by
+themselves.</p>
+<section id="analyzer-objects">
+<h2>Analyzer objects<a class="headerlink" href="#analyzer-objects" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer" title="ciderpress.pyscf.analyzers.RHFAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">RHFAnalyzer</span></code></a> and
+<a class="reference internal" href="../ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.UHFAnalyzer" title="ciderpress.pyscf.analyzers.UHFAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">UHFAnalyzer</span></code></a> bind a molecule, density
+matrix, molecular orbitals, and atom-centered grid.  They can evaluate and
+cache densities, kinetic-energy densities, exchange energy densities, and
+related quantities.  Their HDF5 representation is useful for separating an
+electronic-structure calculation from later descriptor generation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Evaluate the descriptor blocks expected by a packaged CIDER model.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.dft.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_cider_model</span>
+<span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.analyzers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RHFAnalyzer</span>
+<span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_descriptors</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">12</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="s2">&quot;H 0 0 0; H 0 0 0.74&quot;</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">)</span>
+<span class="linenos">13</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">14</span>    <span class="n">mf</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="s2">&quot;PBE&quot;</span>
+<span class="linenos">15</span>    <span class="n">mf</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">16</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-10</span>
+<span class="linenos">17</span>    <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+<span class="linenos">18</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">19</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;PBE SCF did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">load_cider_model</span><span class="p">(</span><span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="linenos">22</span>    <span class="n">analyzer</span> <span class="o">=</span> <span class="n">RHFAnalyzer</span><span class="o">.</span><span class="n">from_calc</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">grids_level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span>    <span class="n">semilocal</span> <span class="o">=</span> <span class="n">get_descriptors</span><span class="p">(</span><span class="n">analyzer</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">sl_settings</span><span class="p">)</span>
+<span class="linenos">25</span>    <span class="n">nonlocal_density</span> <span class="o">=</span> <span class="n">get_descriptors</span><span class="p">(</span><span class="n">analyzer</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">nldf_settings</span><span class="p">)</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;grid points = </span><span class="si">{</span><span class="n">analyzer</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">28</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;semilocal descriptor shape = </span><span class="si">{</span><span class="n">semilocal</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">29</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NLDF descriptor shape = </span><span class="si">{</span><span class="n">nonlocal_density</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">33</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="descriptor-arrays">
+<h2>Descriptor arrays<a class="headerlink" href="#descriptor-arrays" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../ciderpress/pyscf/descriptors.html#ciderpress.pyscf.descriptors.get_descriptors" title="ciderpress.pyscf.descriptors.get_descriptors"><code class="xref py py-func docutils literal notranslate"><span class="pre">ciderpress.pyscf.descriptors.get_descriptors()</span></code></a> evaluates one settings
+component at a time.  The descriptor array has shape
+<code class="docutils literal notranslate"><span class="pre">(nspin,</span> <span class="pre">nfeature,</span> <span class="pre">ngrid)</span></code>.  When orbital selectors are supplied, the
+routine also returns feature derivatives with respect to selected occupation
+numbers and their corresponding orbital energies.</p>
+<p>Use the settings stored in the model being analyzed.  Constructing a new
+<code class="docutils literal notranslate"><span class="pre">NLDFSettings</span></code> object with similar-looking parameters does not guarantee the
+same descriptors because normalizers, exponent parameters, and feature order
+are part of the model definition.</p>
+</section>
+<section id="fixed-density-versus-self-consistent-use">
+<h2>Fixed-density versus self-consistent use<a class="headerlink" href="#fixed-density-versus-self-consistent-use" title="Link to this heading"></a></h2>
+<p>Descriptor extraction evaluates the chosen density.  It is appropriate for
+model analysis, training-data construction, and comparing feature
+representations.  It is not equivalent to evaluating a total energy with the
+model self-consistently.  When reporting a fixed-density result, identify the
+functional and numerical settings that generated the density.</p>
+<p>The GPAW descriptor module provides analogous access to plane-wave and PAW
+quantities, but its interfaces are more closely coupled to a live GPAW
+calculator.  For backend implementation work, begin with
+<a class="reference internal" href="../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> and the module source rather than
+assuming the PySCF array layout is portable.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="Model Objects and Mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="training.html" class="btn btn-neutral float-right" title="Training and Mapping Boundary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

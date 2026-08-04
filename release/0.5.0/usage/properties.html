@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Energies and Derivative Properties &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SCF Convergence Recommendations" href="convergence.html" />
+    <link rel="prev" title="Periodic and Isolated Calculations with GPAW" href="gpaw.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Energies and Derivative Properties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#molecular-gradients">Molecular gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#periodic-forces-and-stress">Periodic forces and stress</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#energy-differences">Energy differences</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Energies and Derivative Properties</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/properties.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="energies-and-derivative-properties">
+<h1>Energies and Derivative Properties<a class="headerlink" href="#energies-and-derivative-properties" title="Link to this heading"></a></h1>
+<p>CIDER models participate in a self-consistent calculation through their
+energy density and functional derivatives.  Property support nevertheless
+depends on the feature family, backend, and any additive correction.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Property support in the documented production paths</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 24.0%" />
+<col style="width: 24.0%" />
+<col style="width: 24.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Molecular PySCF NLDF</p></th>
+<th class="head"><p>Molecular PySCF SDMX</p></th>
+<th class="head"><p>GPAW NLDF with PAW</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Total energy</p></td>
+<td><p>Supported</p></td>
+<td><p>Supported</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Self-consistent potential</p></td>
+<td><p>Supported</p></td>
+<td><p>Supported</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p>Nuclear forces/gradients</p></td>
+<td><p>Supported, subject to the restrictions below</p></td>
+<td><p>Not supported</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cell stress</p></td>
+<td><p>Not applicable</p></td>
+<td><p>Not applicable</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p>Hessians and response properties</p></td>
+<td><p>Not implemented by the CIDER decorator</p></td>
+<td><p>Not implemented</p></td>
+<td><p>Not documented as a production interface</p></td>
+</tr>
+</tbody>
+</table>
+<section id="molecular-gradients">
+<h2>Molecular gradients<a class="headerlink" href="#molecular-gradients" title="Link to this heading"></a></h2>
+<p>For an NLDF CIDER calculation, obtain a PySCF gradient object from the
+converged mean-field object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Evaluate a molecular CIDER26XC energy and analytical gradient.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_cider_calc</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">10</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span>
+<span class="linenos">11</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">12</span><span class="s2">        O  0.000000  0.000000  0.117790</span>
+<span class="linenos">13</span><span class="s2">        H  0.000000  0.755453 -0.471161</span>
+<span class="linenos">14</span><span class="s2">        H  0.000000 -0.755453 -0.471161</span>
+<span class="linenos">15</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">16</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">,</span>
+<span class="linenos">17</span>        <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">18</span>        <span class="n">spin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">19</span>    <span class="p">)</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>    <span class="n">base</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">22</span>    <span class="n">base</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">23</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="linenos">24</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
+<span class="linenos">25</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-10</span>
+<span class="linenos">26</span>    <span class="n">mf</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="linenos">27</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+<span class="linenos">28</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">29</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CIDER SCF did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>    <span class="n">gradient</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">nuc_grad_method</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">grid_response</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+<span class="linenos">32</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">33</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;gradient (Ha/Bohr):&quot;</span><span class="p">)</span>
+<span class="linenos">34</span>    <span class="nb">print</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
+<span class="linenos">35</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">38</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">grid_response=True</span></code> when the desired derivative must include the
+response of the atom-centered integration grid.  Converge the electronic SCF,
+basis, quadrature grid, and density-fitting treatment before interpreting a
+gradient.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 only to the final energy.  Its D4 derivative is not
+included in <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code>; do not use that object for a geometry
+optimization that requires the derivative of the composite CIDER+D4 energy.</p>
+</section>
+<section id="periodic-forces-and-stress">
+<h2>Periodic forces and stress<a class="headerlink" href="#periodic-forces-and-stress" title="Link to this heading"></a></h2>
+<p>With classic GPAW and PAW setups, use the standard ASE calls after the CIDER
+SCF has converged:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Evaluate forces and stress from a converged CIDER GPAW checkpoint.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">10</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">11</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">12</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="linenos">13</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">14</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">15</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">16</span>    <span class="p">)</span>
+<span class="linenos">17</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">18</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;si_cider.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">19</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">20</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">21</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider_properties.txt&quot;</span><span class="p">,</span>
+<span class="linenos">22</span>    <span class="p">)</span>
+<span class="linenos">23</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<span class="linenos">24</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span>    <span class="n">forces</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_forces</span><span class="p">()</span>
+<span class="linenos">27</span>    <span class="n">stress</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_stress</span><span class="p">(</span><span class="n">voigt</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">28</span>    <span class="n">parprint</span><span class="p">(</span><span class="s2">&quot;forces (eV/Angstrom):&quot;</span><span class="p">)</span>
+<span class="linenos">29</span>    <span class="n">parprint</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
+<span class="linenos">30</span>    <span class="n">parprint</span><span class="p">(</span><span class="s2">&quot;stress (eV/Angstrom^3):&quot;</span><span class="p">)</span>
+<span class="linenos">31</span>    <span class="n">parprint</span><span class="p">(</span><span class="n">stress</span><span class="p">)</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span>
+<span class="linenos">34</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">35</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The analytical contribution includes the FFT feature response and PAW/PASDW
+terms.  Production meta-GGA forces and stress are unavailable with
+norm-conserving pseudopotentials.  Converge the plane-wave cutoff, k-point
+mesh, cell, PAW setups, and electronic criteria for the derivative—not only
+for the total energy.</p>
+</section>
+<section id="energy-differences">
+<h2>Energy differences<a class="headerlink" href="#energy-differences" title="Link to this heading"></a></h2>
+<p>Every member of an energy difference must use the same model composition and
+compatible numerical settings.  In particular:</p>
+<ul class="simple">
+<li><p>Do not mix full-XC and surrogate-hybrid initialization conventions.</p></li>
+<li><p>Apply D4 exactly once to every applicable structure.</p></li>
+<li><p>Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
+smearing conventions.</p></li>
+<li><p>Converge isolated references in their own representation instead of
+assuming error cancellation with a periodic system.</p></li>
+</ul>
+<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a> for the associated reporting checklist.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gpaw.html" class="btn btn-neutral float-left" title="Periodic and Isolated Calculations with GPAW" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="convergence.html" class="btn btn-neutral float-right" title="SCF Convergence Recommendations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>
