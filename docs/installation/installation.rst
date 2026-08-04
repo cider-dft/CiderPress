@@ -9,13 +9,14 @@ parallel plane-wave calculations.
 Requirements
 ------------
 
-* Python (tested with 3.9--3.12)
+* Python 3.12
 * A C and C++ compiler with OpenMP support
 * BLAS and LAPACK
 * CMake
-* FFTW or Intel MKL for FFT operations (by default the build downloads and
-  compiles FFTW and libxc itself, which requires network access; a system
-  FFTW is used only with ``BUILD_FFTW=OFF``)
+* FFTW or Intel MKL for FFT operations. By default the non-MKL build downloads
+  and compiles FFTW and libxc, which requires network access. Set
+  ``BUILD_FFTW=OFF`` and ``BUILD_LIBXC=OFF`` to use discoverable installations
+  supplied by the environment instead.
 * MPI and ``mpicc`` for parallel GPAW calculations
 
 Install the core package
@@ -149,8 +150,8 @@ serial CiderPress build cannot be used inside an MPI GPAW calculation.
 
 The repository's GPAW site-configuration template
 (``.github/workflows/gpaw_siteconfig.py``) illustrates an MKL/MPI build, but
-cluster compiler and launcher settings must match the local environment.  CiderPress 0.5.0 supports the classic GPAW calculator, not
-``gpaw.new``.
+cluster compiler and launcher settings must match the local environment.
+CiderPress 0.5.0 supports the classic GPAW calculator, not ``gpaw.new``.
 
 Continue with :doc:`../usage/gpaw`.  The central limitations are collected in
 :doc:`../reference/limitations`.

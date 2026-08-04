@@ -159,12 +159,9 @@ kernel is still added in full.  Override the defaults for CIDER26XC:
        ckernel=None,
    )
 
-.. warning::
-
-   ``get_cider_functional`` does not validate these arguments.  If a
-   CIDER26XC model is loaded with the defaults, PBE correlation is
-   double-counted and no error is raised.  Always pass the three composition
-   arguments explicitly for full-XC models.
+``get_cider_functional`` validates this composition and raises ``ValueError``
+instead of constructing a full-XC model with an additional semilocal term.
+Pass the three composition arguments explicitly for GPAW full-XC models.
 
 ``CIDER26XCCHEM`` can be evaluated in an isolated GPAW PAW box, but PySCF is
 the intended molecular representation.  ``CIDER26XCCHEMD4`` is rejected by
@@ -196,11 +193,13 @@ contains the expected D4 contribution exactly once.  No additional D4 wrapper
 is needed.  The D4 contribution is not included in the current PySCF CIDER
 nuclear gradient.
 
-The same accounting applies to all CIDER26XC models: a supported D3/D4
-wrapper attached to the incoming SCF object is removed, and the model's own
-expected dispersion term is enforced.  For ``CIDER26XCCHEM`` and
-``CIDER26XCSURFSCI`` that expected term is zero, so an externally added D4
-wrapper does not contribute to the returned energy.
+The same accounting contract applies to all CIDER26XC models.  For
+``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, a supported D3/D4 wrapper attached
+to the incoming SCF object is disabled because the expected dispersion term is
+zero.  For ``CIDER26XCCHEMD4``, an attached wrapper is retained long enough to
+measure its contribution; CiderPress then adds only the difference between
+that contribution and the model's expected D4 term.  Thus the final energy
+contains the expected term exactly once in either case.
 
 Loading rules and model trust
 -----------------------------

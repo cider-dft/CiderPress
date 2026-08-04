@@ -234,11 +234,11 @@ class DiffRBF(DiffKernelMixin, RBF):
 
 
 class DiffAntisymRBF(DiffRBF):
-    """
-    This is like a regular RBF kernel, except it obeys a sort
-    of "antisymmetry" property where
-    k(x0, x1, x2, ....; x0', x1', x2' ....) = 0
-    if x0 == x1 or x0' == x1'.
+    r"""
+    This is like a regular RBF kernel, except it obeys an antisymmetry-like
+    constraint:
+    :math:`k(x_0,x_1,x_2,\ldots;x'_0,x'_1,x'_2,\ldots)=0` if
+    :math:`x_0=x_1` or :math:`x'_0=x'_1`.
     This property applies only to the first two features. It could
     be useful for enforcing exact constraints.
     """

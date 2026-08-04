@@ -702,7 +702,7 @@ class SADMPlan:
             settings (SADMSettings): Settings for the descriptor.
             nspin (int): Number of spins, 2 for spin-polarized and 1 for
                 non-spin-polarized
-            alpha0 (float): Minimum exponent. sqrt(1/alpha0) should be at least
+            alpha0 (float): Minimum exponent. :math:`1/\\sqrt{\\alpha_0}` should be at least
                 the width of the system, or altneratively the maximum distance
                 at which the exchange hole is expected to have significant density.
             lambd (float): ETB lambda parameter
@@ -914,7 +914,7 @@ class SDMXPlan(SDMXBasePlan):
             settings (SDMXSettings): Settings for the descriptor.
             nspin (int): Number of spins, 2 for spin-polarized and 1 for
                 non-spin-polarized
-            alpha0 (float): Minimum exponent. sqrt(1/alpha0) should be at least
+            alpha0 (float): Minimum exponent. :math:`1/\\sqrt{\\alpha_0}` should be at least
                 the width of the system, or altneratively the maximum distance
                 at which the exchange hole is expected to have significant density.
             lambd (float): ETB lambda parameter
@@ -1572,8 +1572,9 @@ class NLDFAuxiliaryPlan(ABC):
             coef_order (str): Whether interpolation/expansion coefficients
                 have grid as the slow (first) index ('gq') or exponent ('qg')
             alpha_formula (str): How to generate the interpolating exponents.
-                Must be 'etb' (alphas[j] = alpha0 * lambd**j))
-                or 'zexp' (alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1))
+                Must be ``"etb"`` (``alphas[j] = alpha0 * lambd**j``) or
+                ``"zexp"``
+                (``alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1)``).
             proc_inds (list or np.ndarray): If parallelized, which
                 alpha indexes does this process cover. List or array
                 of integers.
@@ -1586,9 +1587,9 @@ class NLDFAuxiliaryPlan(ABC):
                 to going outside the interpolation range.
             use_smooth_expnt_cutoff (bool, False): If True, use a damping function
                 for large exponent to smoothly ensure that as the exponent goes
-                to infinity, the damped exponent goes to alpha_max. The
-                smoothing function is design to contribute insignificantly
-                except for near and beyond alpha_max.
+                to infinity, the damped exponent approaches ``alpha_max``.
+                The smoothing function is designed to contribute
+                insignificantly except near and beyond ``alpha_max``.
         """
         if not isinstance(nldf_settings, NLDFSettings):
             raise ValueError("Require NLDFSettings object")

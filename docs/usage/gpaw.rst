@@ -99,11 +99,11 @@ calculator is recreated:
 
 The checkpoint stores the mapped model text and nonlocal interpolation
 parameters, including ``Nalpha``, ``lambd``, and the plane-wave cutoff
-``encut`` derived from the ``qmax`` argument.  This stored record serves as
-provenance; it is not reloaded automatically, and the functional passed as
-``xc=`` on restart always takes effect.  Verify that the model
-name/composition and requested numerical controls in the resumed output match
-the checkpointed calculation.
+``encut`` derived from the ``qmax`` argument.  When a checkpoint is opened
+without an explicit ``xc=`` override, :class:`~ciderpress.gpaw.calculator.CiderGPAW`
+reconstructs the saved CIDER functional automatically.  Passing ``xc=``
+explicitly requests an override instead.  In either case, verify the model
+name, composition, and requested numerical controls in the resumed output.
 
 Forces and stress
 -----------------

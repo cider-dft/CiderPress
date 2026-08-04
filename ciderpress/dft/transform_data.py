@@ -747,9 +747,10 @@ class SLNMap(FeatureNormalizer):
 
 
 class SLXMap(FeatureNormalizer):
-    """
-    gamma * s^2 / (1 + gamma * s^2), where s^2 is the squared reduced gradient
-    s^2 = sigma / C n^8/3
+    r"""Map the squared reduced gradient to a bounded feature.
+
+    The map is :math:`\gamma s^2/(1+\gamma s^2)`, where
+    :math:`s^2=\sigma/(C n^{8/3})` is the squared reduced gradient.
     """
 
     code = "SLX"
@@ -916,9 +917,7 @@ class SLR3Map(FeatureNormalizer):
 
 
 class SLBMap(FeatureNormalizer):
-    """
-    beta = (tau - tauw) / (tau + tau0)
-    """
+    r"""Map :math:`\beta=(\tau-\tau_{\mathrm W})/(\tau+\tau_0)`."""
 
     code = "SLB"
 
@@ -968,9 +967,7 @@ class SLBMap(FeatureNormalizer):
 
 
 class SLTMap(FeatureNormalizer):
-    """
-    beta = (tau - tau0) / (tau + tau0)
-    """
+    r"""Map :math:`\beta=(\tau-\tau_0)/(\tau+\tau_0)`."""
 
     code = "SLT"
 
@@ -1013,9 +1010,7 @@ class SLTMap(FeatureNormalizer):
 
 
 class SLTWMap(FeatureNormalizer):
-    """
-    beta = (tauw - tau0) / (tauw + tau0)
-    """
+    r"""Map :math:`\beta=(\tau_{\mathrm W}-\tau_0)/(\tau_{\mathrm W}+\tau_0)`."""
 
     code = "SLTW"
 

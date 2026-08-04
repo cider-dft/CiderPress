@@ -12,10 +12,10 @@ the exchange hole :math:`|n_1(\mathbf{r},\mathbf{r}')|^2`, which can be used for
 both the exchange and correlation energies. The formulas and details for the different
 SDMX versions are described below. These features take significant inspiration from the
 "Rung 3.5" functionals developed by Janesko *et al.*.\ :footcite:p:`Janesko2010,Janesko2013,Janesko2014,Janesko2018`
-We also plan to implement Rung 3.5 functionals and add them as an alternative
-to SDMX features, but this development has not been done yet. The key difference between
-SDMX and the original Rung 3.5 approach is that SDMX features are strictly quadratic
-functionals of the density matrix, while Rung 3.5 functionals are not.
+The key distinction is that SDMX features are strictly quadratic functionals
+of the density matrix, whereas the original Rung 3.5 constructions are not.
+The packaged CIDER24X models use SDMX to learn exchange; no packaged
+release-0.5.0 model uses SDMX for correlation.
 
 One key consideration in the design of the SDMX features is their behavior under
 :ref:`uniform scaling <unif_scaling>` of the density.
@@ -54,12 +54,12 @@ The complexity of the SDMX features can be increased by also calculating expecta
 values of the gradients of the smoothed density matrix with respect to the length-scale
 :math:`R`, as follows:
 
-.. math:: H_j^{0\text{d}}(\mathbf{r}) = 4\pi \int \text{d} R\, R^{4-j} \left|\frac{\partial}{\partial R} \rho^0(R; \mathbf{r})\right|^2
+.. math:: H_j^{0\mathrm d}(\mathbf{r}) = 4\pi \int \text{d} R\, R^{4-j} \left|\frac{\partial}{\partial R} \rho^0(R; \mathbf{r})\right|^2
 
 In practice, these features can be obtained at almost no computational overhead compared
 to the original :math:`H_j^0` features because the bottleneck computational operations
 are the same as those needed to compute :math:`H_j^0`.
-The uniform scaling behavior of :math:`H_j^{0\text{d}}` is also :math:`\lambda^{3+j}`.
+The uniform scaling behavior of :math:`H_j^{0\mathrm d}` is also :math:`\lambda^{3+j}`.
 
 The angular complexity of the SDMX features can be increased by computing
 (in addition to :math:`\rho^0`) the following higher-order quantity
@@ -69,19 +69,19 @@ The angular complexity of the SDMX features can be increased by computing
 which involves the gradient of :math:`h(|\mathbf{r}'-\mathbf{r}|; R)` with
 respect to :math:`\mathbf{r}`. Then, one can compute new features
 
-.. math:: H_j^\text{1}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{4-j} \left|\boldsymbol{\rho}^1(R; \mathbf{r})\right|^2
+.. math:: H_j^1(\mathbf{r}) = 4\pi \int \text{d}R\, R^{4-j} \left|\boldsymbol{\rho}^1(R; \mathbf{r})\right|^2
 
-These are more costly to compute than :math:`H_j^0` or :math:`H_j^\text{0d}`,
+These are more costly to compute than :math:`H_j^0` or :math:`H_j^{0\mathrm d}`,
 but they provide significantly more information to the model because they
 contain :math:`\ell=1` angular information. The uniform scaling behavior of
 :math:`H_j^1` is also :math:`\lambda^{3+j}`.
 
 Finally, one can combine the radial and Cartesian derivatives to construct one more type of feature
 
-.. math:: H_j^\text{1d}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{6-j} \left|\frac{\partial}{\partial R} \boldsymbol{\rho}^1(R; \mathbf{r})\right|^2
+.. math:: H_j^{1\mathrm d}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{6-j} \left|\frac{\partial}{\partial R} \boldsymbol{\rho}^1(R; \mathbf{r})\right|^2
 
 which also scales as :math:`\lambda^{3+j}` under uniform scaling and comes at very little
 additional computational cost if :math:`\boldsymbol{\rho}^1(R; \mathbf{r})`
-was already computed to evaluate :math:`H_j^\text{1}(\mathbf{r})`.
+was already computed to evaluate :math:`H_j^1(\mathbf{r})`.
 
 .. footbibliography::

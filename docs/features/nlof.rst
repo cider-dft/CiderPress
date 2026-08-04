@@ -3,8 +3,8 @@
 Nonlocal Orbital Features (NLOF)
 ================================
 
-**The nonlocal orbital features are still highly experimental. We note here
-that they are implemented in the code so that their presence does not cause
-confusion, but their use is not encouraged, and they might be removed at a
-later date.**
-
+Nonlocal orbital features are an experimental interface for fractional-
+Laplacian orbital descriptors.  No packaged production model uses them in
+release 0.5.0, and their settings and numerical interfaces are not guaranteed
+to remain compatible across releases.  They are documented here so that
+serialized research models containing an NLOF block can be identified.

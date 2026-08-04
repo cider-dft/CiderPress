@@ -157,7 +157,6 @@ The above article introduces the CIDER23X functionals and much of the algorithms
   year = {2024},
   doi = {10.1021/acs.jctc.4c00999},
   note ={PMID: 39178337},
-  URL = {https://doi.org/10.1021/acs.jctc.4c00999},
-  eprint = {https://doi.org/10.1021/acs.jctc.4c00999}
+  URL = {https://doi.org/10.1021/acs.jctc.4c00999}
 }
 ```

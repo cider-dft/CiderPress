@@ -113,14 +113,14 @@ and evaluates D4 from the geometry afterward.  Inspect
 when combining wrappers or restarting an existing object.  The returned
 ``kernel()`` value and ``e_tot`` include the final adjustment exactly once.
 
-This dispersion accounting is active for every CIDER26XC model, not only
-``CIDER26XCCHEMD4``.  If a supported ``with_dftd3``/``with_dftd4`` wrapper is
-attached to the incoming object, CiderPress removes it and restores the
-dispersion behavior the model was trained with: the D4 term for
-``CIDER26XCCHEMD4``, and no dispersion term for ``CIDER26XCCHEM`` and
-``CIDER26XCSURFSCI`` (their ``e_vdw_expected`` is zero).  An external D4
-wrapper added on top of these models therefore does not contribute to the
-returned energy.
+This dispersion accounting is active for every CIDER26XC model.  CiderPress
+disables a supported ``with_dftd3``/``with_dftd4`` wrapper for
+``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, whose expected dispersion term is
+zero.  For ``CIDER26XCCHEMD4``, it measures any attached wrapper contribution
+and reconciles it with the model's expected D4 value.  The reported
+``e_tot_base`` is the total before this final reconciliation; inspect
+``e_vdw_present``, ``e_vdw_expected``, and ``e_vdw_delta`` to see the complete
+accounting.
 
 D4 does not contribute to the current molecular gradient implementation.  See
 :doc:`properties` before using derivative-based workflows.

@@ -4,7 +4,7 @@ Nonlocal Density Features (NLDF)
 ================================
 
 Nonlocal density features, or NLDFs, are the original type of nonlocal feature used
-to train Cider models. The general idea is to take the density :math:`n(\mathbf{r})`,
+to train CIDER models. The general idea is to take the density :math:`n(\mathbf{r})`,
 multiply it by a kernel function :math:`k(\mathbf{r}-\mathbf{r}')`, and integrate
 over real space to obtain features :math:`G(\mathbf{r})` that are nonlocal in the density:
 
@@ -47,9 +47,10 @@ computed by the settings layer, it reads
 
 Note that Eq. 18 of :footcite:t:`CIDER23X` includes an additional
 exponent-dependent normalization prefactor.  In CiderPress that normalization
-is not part of the raw feature above; it is applied by the feature normalizer
-stored with the serialized model, which fixes the feature's uniform-electron-gas
-value.
+is not part of the raw convolution above; packaged CIDER23X and CIDER26XC
+models apply their serialized feature normalizers afterward.  A custom model
+may serialize a different normalizer, so its uniform-electron-gas value is a
+property of the complete model rather than of ``NLDFSettingsVJ`` alone.
 
 For a functional with GGA semilocal features, :math:`a_i[n](\mathbf{r})` (and :math:`a_0[n](\mathbf{r})`) take the form
 
@@ -62,12 +63,11 @@ For a functional with meta-GGA semilocal features, :math:`a_i[n](\mathbf{r})` ta
 Here :math:`\tau` is the kinetic-energy density and :math:`\tau_0` its
 uniform-electron-gas value, both defined in :doc:`sl`.
 :math:`A_i,B_i,C_i` are tunable parameters. Conventionally :math:`B_i=0` is used for the meta-GGA case (with :math:`C_i` finite),
-but one can choose nonzero values in the CiderPress code. (A note on
-notation: this :math:`A_i,B_i,C_i` naming follows the CiderPress code, where
-:math:`A_i` is the constant term. Eqs. 16--23 of :footcite:t:`CIDER23X`
-instead call the constant term :math:`B_i` and the gradient or
-kinetic-energy modulation :math:`C_i`, and use only one modulation at a
-time.) Using different :math:`A_i,B_i,C_i` for different :math:`i`
+but one can choose nonzero values in CiderPress.  In the serialized settings,
+the corresponding parameter array is named ``[a0, grad_mul, tau_mul]``;
+``tau_mul`` is omitted or ignored for a GGA exponent.  The paper's symbols and
+the serialized field names should therefore not be interchanged.  Using
+different :math:`A_i,B_i,C_i` for different :math:`i`
 allows one to compute multiple features simultaneously (at roughly the same cost as one feature using the
 fast NLDF evaluation algorithm). However, :math:`A_0,B_0,C_0` must be the same for all features. Both the GGA and meta-GGA
 constructions of :math:`a_i[n](\mathbf{r})` obey
@@ -148,18 +148,19 @@ example, the ``se_grad`` vector can be dotted with itself to form the scalar
 As with Version J, there is experimental support for multiplying :math:`n(\mathbf{r}')` by another
 function :math:`b(\mathbf{r}')` before integrating.
 
-Unfortunately, while all the above Version I variants are supported in the code (in any combination),
-most of them either have numerical precision issues (i.e. they are difficult to compute with high
-precision using the fast NLDF algorithms) or are physically unrealistic (being too large in the core
-region or similar issues). The two most physically and numerically sensible seem to be ``se_ap``
-and ``se_grad`` dotted with itself.
+The Version-I variants are exploratory interfaces rather than packaged-model
+recommendations.  Several become poorly conditioned in the fast NLDF
+evaluation or grow excessively in core regions.  Among the implemented
+alternatives, ``se_ap`` and the self-contracted ``se_grad`` vector have the
+best numerical and core-region behavior.  A custom combination requires
+independent forward/adjoint and low-density validation.
 
 Version K
 ---------
 
 Version K is a modification of Version J meant to remove the need for the squared-exponential kernel
 to depend on the density at :math:`\mathbf{r}'`. However, without the dependence on :math:`a_0[n](\mathbf{r}')`,
-the NLDFs can have large contributions from the core electrons in the valence region, which 
+the NLDFs can have large contributions from the core electrons in the valence region, which
 is physically unrealistic. To fix this, we multiply the density by a function that
 decays when :math:`a_i(\mathbf{r})\ll a_0(\mathbf{r}')`:
 
@@ -170,7 +171,6 @@ decays when :math:`a_i(\mathbf{r})\ll a_0(\mathbf{r}')`:
    \exp\!\left(-\frac{3a_0[n](\mathbf{r}')}{2a_i[n](\mathbf{r})}\right)
    n(\mathbf{r}')
 
-We have alternative options for the damping function, but the above exponential is the only supported
-one currently.
+The exponential above is the only supported Version-K damping form.
 
 .. footbibliography::

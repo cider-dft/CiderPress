@@ -2,13 +2,12 @@ dft
 ===
 
 The :py:mod:`ciderpress.pyscf.dft` module provides the
-function :py:func:`make_cider_calc`, which takes
-a Pyscf :py:class:`KohnShamDFT` object and a CIDER
+function :py:func:`~ciderpress.pyscf.dft.make_cider_calc`, which takes
+a PySCF Kohn--Sham DFT object and a CIDER
 functional object (:py:class:`~ciderpress.dft.xc_evaluator.MappedXC` or
 :py:class:`~ciderpress.dft.xc_evaluator2.MappedXC2`)
-and returns an instance of a :py:class:`KohnShamDFT`
-subclass that uses the CIDER functional. The function
-is similar to native PySCF routines like :py:func:`density_fit`,
+and returns a decorated subclass that uses the CIDER functional. The function
+is similar to native PySCF routines such as ``density_fit``,
 in which the input SCF object is "decorated" with the
 necessary routines to evaluate the CIDER functional.
 

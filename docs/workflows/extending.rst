@@ -83,6 +83,6 @@ generated internal links and mathematics with:
 
 .. code-block:: bash
 
-   sphinx-build -n -W --keep-going -b html . _build/html
+   sphinx-build -E -n -W --keep-going -b html . _build/html
    python tools/check_html_links.py _build/html
    python tools/check_mathjax.py _build/html

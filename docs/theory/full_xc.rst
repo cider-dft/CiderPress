@@ -45,9 +45,8 @@ scaling rule.
 Because the YAML model already contains its additive PBE contributions, no
 external exchange or correlation kernel may be added during evaluation.  This
 is why the GPAW initializer must be called with ``xmix=1.0``,
-``xkernel=None``, and ``ckernel=None`` for CIDER26XC.  The initializer does
-not check these arguments itself; with its historical defaults a second PBE
-correlation contribution is silently added.  See
+``xkernel=None``, and ``ckernel=None`` for CIDER26XC.  CiderPress validates
+these arguments and rejects an additional semilocal contribution.  See
 :doc:`../usage/production_models` for the required call.
 
 CIDER26XC feature vectors
