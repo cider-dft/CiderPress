@@ -54,14 +54,18 @@ this quantity will be the exchange, correlation, or exchange-correlation energy.
 We can fit :math:`F` by learning a function that gets integrated over
 real-space to yield :math:`F` for a given system:
 
-.. math:: F = \int \text{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right) \label{eq:F_int}
+.. math::
+
+   F = \int \mathrm{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right)
 
 In the above equation, :math:`f\left(\mathbf{x}(\mathbf{r})\right)` is the predictive
 function for the energy density to be learned by the Gaussian process.
 In practice, the integral must be performed numerically. For a given chemical system
 indexed by :math:`m`, we write
     
-.. math:: F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right) \label{eq:extensive_functional}
+.. math::
+
+   F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right)
 
 where :math:`g` indexes quadrature points and :math:`w_g^m` are the respective quadrature weights.
 The covariances between the numerical integrals :math:`F^m` and :math:`F^n`
@@ -76,56 +80,85 @@ would be expensive. To overcome this issue, we define a small set of "control po
 using a resolution-of-the-identity approximation:
 
 .. math::
-    \text{Cov}(F^m, F^n) = K_{mn} &\approx \tilde{\mathbf{k}}_m \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \label{eq:roi_cov} \\
-    \left(\tilde{\mathbf{K}}\right)_{ab} &= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b) \\
-    \left(\tilde{\mathbf{k}}_m\right)_a &= \sum_{g\in m} w_g^m k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)
+
+   \operatorname{Cov}(F^m, F^n) = K_{mn}
+   &\approx \tilde{\mathbf{k}}_m^{\mathsf T}
+   \tilde{\mathbf{K}}^{-1}\tilde{\mathbf{k}}_n, \\
+   \left(\tilde{\mathbf{K}}\right)_{ab}
+   &= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b), \\
+   \left(\tilde{\mathbf{k}}_m\right)_a
+   &= \sum_{g\in m} w_g^m
+   k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a).
 
 Using this definition of the covariance kernel, the predictive function can be expressed as
 
 .. math::
-    f(\mathbf{x}_*) &= \sum_a k(\mathbf{x}_*, \mathbf{\tilde{x}}_a) \alpha_a \label{eq:gp_sum_formula} \\
-    \boldsymbol{\alpha} &= \sum_m \mathbf{\tilde{k}}_m \left\{\left[\mathbf{K} + \boldsymbol{\Sigma}_\text{noise}\right]^{-1} \mathbf{y}\right\}_m \label{eq:gp_predictive_cider3}
+
+   f(\mathbf{x}_*)
+   &= \sum_a k(\mathbf{x}_*, \tilde{\mathbf{x}}_a)\alpha_a, \\
+   \boldsymbol{\beta}
+   &= \left(\mathbf{K}+\boldsymbol{\Sigma}_\mathrm{noise}\right)^{-1}
+   \mathbf{y}, \\
+   \tilde{\boldsymbol{\alpha}}
+   &= \sum_m \tilde{\mathbf{k}}_m\,\beta_m, \\
+   \boldsymbol{\alpha}
+   &= \tilde{\mathbf{K}}^{-1}\tilde{\boldsymbol{\alpha}}.
 
 with :math:`\mathbf{y}` being the vector of training labels :math:`F^m`.
+
+The final multiplication by :math:`\tilde{\mathbf{K}}^{-1}` is required by
+the resolution-of-the-identity construction. It was inadvertently omitted
+from Eq. 43 of the CIDER23X paper and Eq. 29 of the CIDER24X paper; the
+expressions above give the corrected predictive mean.
 
 Fitting Eigenvalues
 -------------------
 
-The Gaussian process scheme discussed above can be extended to fit the eigenvalues
-of the Kohn-Sham Hamiltonian. :footcite:p:`CIDER24X`
-The :math:`i`-th eigenvalue :math:`\epsilon_i^m` of chemical system :math:`m` is
-the partial derivative of the total energy with respect to the occupation
-number :math:`f_i^m` of the orbital: :footcite:p:`Janak1978`
+The Gaussian process scheme discussed above can be extended to fit
+orbital-occupation derivatives. :footcite:p:`CIDER24X` At a stationary
+generalized Kohn--Sham solution, the derivative of the total energy with
+respect to the occupation :math:`f_i^m` gives the corresponding eigenvalue
+:math:`\epsilon_i^m`: :footcite:p:`Janak1978`
 
 .. math:: \epsilon_i^m = \frac{\partial E}{\partial f_i^m}
 
-Most of the Kohn-Sham eigenvalues :math:`\epsilon_i^m` are fictional and lack
-explicit physical meaning, but the LUMO and HOMO eigenvalues of the exact
-functional correspond to the electron affinity and negative of the ionization
-potential, respectively. Therefore, we are interested in explicitly
-fitting the derivative of our target quantity :math:`\frac{\partial F}{\partial f_i^m}`.
-In the case of fitting exact exchange :math:`E_\text{x}^\text{exact}`, one can
-explicitly compute :math:`\frac{\partial E_\text{x}^\text{exact}}{\partial f_i^m}`
-for a given set of orbitals. For the full exchange-correlation energy, no
-explicit formula exists, but :math:`\frac{\partial E_\text{xc}^\text{exact}}{\partial f_i^m}`
-can be extracted from an experimental/quantum chemistry measurement
-of the electron affinity (EA) or ionization potential (IP). The total energy
-in DFT is
+Most individual eigenvalues do not have a direct quasiparticle
+interpretation. The rigorous statements concern derivatives with respect to
+particle number: at an integer electron number :math:`N`, the derivative from
+below is :math:`-I` and the derivative from above is :math:`-A`, where
+:math:`I` and :math:`A` are the ionization potential and electron affinity.
+The discontinuity between these derivatives is important; in ordinary
+Kohn--Sham DFT it must not be replaced by a blanket identification of the
+neutral-system LUMO with :math:`-A`. Occupation-derivative data nevertheless
+provide a useful way to train valence- and conduction-edge information. We
+therefore fit derivatives of the target energy contribution,
+:math:`\partial F/\partial f_i^m`.
+
+For exact exchange :math:`E_\mathrm{x}^\mathrm{exact}`, the occupation
+derivative can be evaluated explicitly for a given set of orbitals. For a
+full exchange-correlation target, a reference derivative can instead be
+constructed from a consistent ionization-potential, electron-affinity, or
+band-edge target. The total energy in generalized Kohn--Sham DFT is a
+functional of the one-particle density matrix :math:`n_1` (and therefore of
+its orbitals and occupations):
 
 .. math::
-   E[n] &= T[n] + V[n] + U[n] + E_\text{xc}[n] \\
-   E[n] &= E_0[n] + E_\text{xc}[n]
+   E[n_1] &= T[n_1] + V[n] + U[n] + E_\mathrm{xc}[n_1] \\
+   &= E_0[n_1] + E_\mathrm{xc}[n_1].
 
-where :math:`E_0[n]` is the sum of the kinetic (:math:`T`), external (:math:`V`),
+where :math:`E_0[n_1]` is the sum of the kinetic (:math:`T`), external (:math:`V`),
 and Hartree (:math:`U`) energies, all of which can be written explicitly in terms
-of the Kohn-Sham orbitals. Therefore, if we know an eigenvalue :math:`\epsilon_i^m`
-from experimental/quantum chemistry measurements of the IP or EA, we can
-write
+of the generalized Kohn--Sham orbitals. Given a reference total occupation
+derivative, the XC part follows by subtracting the explicit non-XC derivative:
 
-.. math:: \frac{\partial E_\text{xc}[n]}{\partial f_i^m} = \epsilon_i^m - \frac{\partial E_0[n]}{\partial f_i^m}
+.. math::
 
-This gives us an explicit expression for :math:`\frac{\partial E_\text{xc}[n]}{\partial f_i^m}` that
-can be used as training data for the XC functional.
+   \frac{\partial E_\mathrm{xc}[n_1]}{\partial f_i^m}
+   = \epsilon_i^m - \frac{\partial E_0[n_1]}{\partial f_i^m}.
+
+The density matrix, orbitals, reference derivative, and side of the integer
+particle number must all be defined consistently when constructing such a
+training label.
 
 Given such training data, we can relate the occupation derivative of :math:`F` to our model energy
 density :math:`f(\mathbf{x})` as
@@ -137,8 +170,8 @@ To fit our model to the above equation, we only need to know the covariance betw
 or :math:`F^n`. This relationship is given by
 
 .. math::
-   \text{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &= \tilde{\mathbf{d}}_{mi} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
-   \text{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &= \tilde{\mathbf{d}}_{mi} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
+   \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
+   \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
    \left(\tilde{\mathbf{d}}_{mi}\right)_a &= \sum_{g\in m} w_g^m \frac{\partial \mathbf{x}_g^m}{\partial f_i^m} \cdot \frac{\partial}{\partial \mathbf{x}_g^m} k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)
 
 which allows occupation derivative training data to be included in the Gaussian process.

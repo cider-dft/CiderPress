@@ -70,9 +70,8 @@ def get_descriptors(
     **kwargs,
 ):
     """
-    Compute grid weights, feature vectors, and (optionally)
-    feature vector derivatives with respect to orbital
-    occupation.
+    Compute feature vectors, grid weights, and optionally feature-vector
+    derivatives with respect to orbital occupation.
 
     Args:
         calc: a converged GPAW calculation
@@ -89,10 +88,10 @@ def get_descriptors(
             to compute the functional.
 
     Returns:
-        if p_i is None:
-            weights, features
-        else:
-            weights, features, [list of feature derivatives]
+        If ``p_i`` is ``None``, return ``(features, weights)``. Otherwise,
+        return ``(features, feature_derivatives, weights)``. Feature arrays
+        have shape ``(nspin, nfeature, npoint)``; derivative arrays have shape
+        ``(norbital, nfeature, npoint)``.
     """
     if (
         hasattr(calc.hamiltonian.xc, "setups")

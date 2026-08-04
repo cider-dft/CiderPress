@@ -5,6 +5,17 @@ New functionality should preserve the forward/derivative contract across the
 model and every supported backend.  Adding a Python class that computes an
 array is only one part of a usable density-functional feature.
 
+.. important::
+
+   We strongly recommend opening a
+   `CiderPress GitHub issue <https://github.com/mir-group/CiderPress/issues/new>`_
+   and collaborating with the MIR developers before implementing or changing
+   a feature family, numerical backend, PAW/PASDW route, mapped-model format,
+   or checkpoint schema. Substantial feature work should receive joint design
+   and code review: settings, feature order, forward and adjoint evaluation,
+   analytical derivatives, serialization, and regression tests must evolve
+   together for a functional to remain scientifically well defined.
+
 Adding or modifying a feature
 -----------------------------
 

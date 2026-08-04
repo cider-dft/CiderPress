@@ -43,8 +43,8 @@ representations.  It is not equivalent to evaluating a total energy with the
 model self-consistently.  When reporting a fixed-density result, identify the
 functional and numerical settings that generated the density.
 
-The GPAW descriptor module provides analogous access to plane-wave and PAW
-quantities, but its interfaces are more closely coupled to a live GPAW
-calculator.  For backend implementation work, begin with
-:doc:`../theory/numerical_evaluation` and the module source rather than
-assuming the PySCF array layout is portable.
+The GPAW descriptor interface provides analogous access to plane-wave and PAW
+quantities, but it is coupled to a live, completed GPAW calculator. See
+:doc:`../ciderpress/gpaw/descriptors` for its supported settings, array
+shapes, PAW behavior, and occupation selectors. Do not assume the PySCF point
+layout or orbital-index convention is portable between backends.

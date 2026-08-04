@@ -13,7 +13,9 @@ For version j, the general form of the feature is
 
 .. math::
 
-   G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')
+   G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+   k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)
+   n(\mathbf{r}')
 
 In the context of implementing a nonlocal van der Waals density functional, :footcite:t:`Roman-Perez2009`
 found that the kernel :math:`k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)`
@@ -46,6 +48,7 @@ is dependent on the periodicity, type of grid, and type of basis set used in a D
 calculation. For details on the implementation of this approach for isolated Gaussian-type
 orbital calculations and periodic plane-wave DFT calculations, see :footcite:t:`CIDER23X`.
 
-The other features versions (i and k) require slightly modified version of this approach,
+The other feature versions (i and k) require slightly modified versions of this approach,
 but the basic idea is the same and the implementation quite similar.
 
+.. footbibliography::

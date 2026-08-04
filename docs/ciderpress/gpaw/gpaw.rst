@@ -14,14 +14,14 @@ The modules separate the host-code interface from the numerical layers:
 
 * :mod:`ciderpress.gpaw.calculator` constructs a CIDER XC object and provides
   the checkpoint-aware ``CiderGPAW`` calculator.
-* ``ciderpress.gpaw.cider_fft`` and
-  ``ciderpress.gpaw.nldf_interface`` evaluate the smooth-grid NLDF forward
+* :mod:`ciderpress.gpaw.cider_fft` and
+  :mod:`ciderpress.gpaw.nldf_interface` evaluate the smooth-grid NLDF forward
   and adjoint paths.
-* ``ciderpress.gpaw.cider_paw`` and ``ciderpress.gpaw.atom_utils``
+* :mod:`ciderpress.gpaw.cider_paw` and :mod:`ciderpress.gpaw.atom_utils`
   assemble atom-centered PAW/PASDW corrections and their derivatives.
-* ``ciderpress.gpaw.interp_paw`` reconstructs differentiable all-electron
+* :mod:`ciderpress.gpaw.interp_paw` reconstructs differentiable all-electron
   and pseudo partial-wave XC quantities on radial grids.
-* ``ciderpress.gpaw.descriptors`` exposes descriptor evaluation from a
+* :mod:`ciderpress.gpaw.descriptors` exposes descriptor evaluation from a
   live GPAW calculation.
 
 For production model selection, complete examples, and suggested fallback
@@ -37,4 +37,5 @@ required by the documented NLDF path.  CiderPress does not support
    :caption: Contents:
 
    calculator
+   descriptors
    numerical
