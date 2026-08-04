@@ -138,15 +138,17 @@ CIDER26XC full-XC models
      - No separate D4 term
      - PySCF and classic GPAW
 
-These files already contain the full XC energy form described in
-:doc:`../theory/full_xc`.  PySCF's defaults are correct:
+These files already contain the full XC energy form and feature vectors
+described in :doc:`../theory/full_xc`.  PySCF's defaults are correct:
 
 .. code-block:: python
 
    mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
 
 GPAW's initializer also supports exchange-only models, so its historical
-defaults add PBE exchange and correlation.  Override them for CIDER26XC:
+defaults specify PBE composition kernels.  At the default ``xmix=1.0`` the
+external exchange kernel is scaled to zero, but the default PBE correlation
+kernel is still added in full.  Override the defaults for CIDER26XC:
 
 .. code-block:: python
 
@@ -156,6 +158,13 @@ defaults add PBE exchange and correlation.  Override them for CIDER26XC:
        xkernel=None,
        ckernel=None,
    )
+
+.. warning::
+
+   ``get_cider_functional`` does not validate these arguments.  If a
+   CIDER26XC model is loaded with the defaults, PBE correlation is
+   double-counted and no error is raised.  Always pass the three composition
+   arguments explicitly for full-XC models.
 
 ``CIDER26XCCHEM`` can be evaluated in an isolated GPAW PAW box, but PySCF is
 the intended molecular representation.  ``CIDER26XCCHEMD4`` is rejected by
@@ -186,6 +195,12 @@ The returned ``mf.e_tot`` is ``mf.e_tot_base + mf.e_vdw_delta`` and already
 contains the expected D4 contribution exactly once.  No additional D4 wrapper
 is needed.  The D4 contribution is not included in the current PySCF CIDER
 nuclear gradient.
+
+The same accounting applies to all CIDER26XC models: a supported D3/D4
+wrapper attached to the incoming SCF object is removed, and the model's own
+expected dispersion term is enforced.  For ``CIDER26XCCHEM`` and
+``CIDER26XCSURFSCI`` that expected term is zero, so an externally added D4
+wrapper does not contribute to the returned energy.
 
 Loading rules and model trust
 -----------------------------
@@ -233,5 +248,3 @@ Checksums
 
 See :doc:`reproducibility` for what to report with a result and
 :doc:`../reference/citing` for family-specific citations.
-
-.. footbibliography::

@@ -55,9 +55,12 @@ for the ML model is *scale-invariant*, i.e. if
 
 then an exchange functional of the form
 
-.. math:: E_\text{x}[n] = \int \text{d}^3\mathbf{r} e_\text{x}^\text{ML}(\mathbf{x}(\mathbf{r})
+.. math:: E_\text{x}[n] = \int \text{d}^3\mathbf{r}\, e_\text{x}^\text{LDA}(n(\mathbf{r}))\, F_\text{x}^\text{ML}(\mathbf{x}(\mathbf{r}))
 
 obeys the uniform scaling rule for exchange (:math:`E_\text{x}[n_\lambda] = \lambda E_\text{x}[n]`).
+The LDA exchange energy density :math:`e_\text{x}^\text{LDA}\propto n^{4/3}`
+supplies the required :math:`\lambda` scaling, while the learned enhancement
+factor :math:`F_\text{x}^\text{ML}` is scale-invariant because its inputs are.
 Similar, scale-invariant features can also be useful for correlation functionals because
 their behavior under uniform scaling will be the same as the behavior of the multiplicative
 baseline functional used for training. If the baseline model has reasonable behavior under

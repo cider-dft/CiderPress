@@ -107,8 +107,8 @@ def _compute_expected_vdw_energy_ha(mf, vdw_fit_info, vdw_eval_mode):
             from pyscf.dispersion import dftd4
         except Exception as e:
             raise RuntimeError(
-                "D4 evaluation requires the optional dftd4 dependency. Install it "
-                "with `pip install 'ciderpress[d4]'`."
+                "D4 evaluation requires the optional pyscf-dispersion dependency. "
+                "Install it with `pip install 'ciderpress[d4]'`."
             ) from e
         xc = params.get("xc")
         disp = dftd4.DFTD4Dispersion(mol, xc=xc)

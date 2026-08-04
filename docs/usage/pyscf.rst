@@ -43,7 +43,9 @@ The complete first calculation is:
 The example uses a moderate basis and grid so it can be run directly.  For a
 quantitative calculation, converge the basis, integration grid, SCF thresholds,
 and density-fitting approximation for the requested energy difference or
-derivative.
+derivative.  For a small end-to-end energetics workflow,
+:source:`examples/pyscf/compute_ae.py` computes a molecular atomization energy
+with a chosen libxc or packaged CIDER functional.
 
 Density fitting
 ---------------
@@ -111,6 +113,15 @@ and evaluates D4 from the geometry afterward.  Inspect
 when combining wrappers or restarting an existing object.  The returned
 ``kernel()`` value and ``e_tot`` include the final adjustment exactly once.
 
+This dispersion accounting is active for every CIDER26XC model, not only
+``CIDER26XCCHEMD4``.  If a supported ``with_dftd3``/``with_dftd4`` wrapper is
+attached to the incoming object, CiderPress removes it and restores the
+dispersion behavior the model was trained with: the D4 term for
+``CIDER26XCCHEMD4``, and no dispersion term for ``CIDER26XCCHEM`` and
+``CIDER26XCSURFSCI`` (their ``e_vdw_expected`` is zero).  An external D4
+wrapper added on top of these models therefore does not contribute to the
+returned energy.
+
 D4 does not contribute to the current molecular gradient implementation.  See
 :doc:`properties` before using derivative-based workflows.
 
@@ -120,7 +131,8 @@ CIDER24X
 Install ``ciderpress[cider24]`` and use the same exchange-only composition as
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
-mixing CUDA and CPU PyTorch installations within one environment.
+mixing CUDA and CPU PyTorch installations within one environment.  A minimal
+SDMX calculation is shown in :source:`examples/pyscf/simple_sdmx.py`.
 
 Gradients and other methods
 ---------------------------

@@ -22,9 +22,11 @@ Run it from the repository root with:
    python examples/pyscf/production_calc.py --model CIDER26XCCHEM
 
 Check ``mf.converged`` before interpreting the energy.  For open-shell or
-difficult systems, also verify the occupations and electronic state.  With
-``CIDER26XCCHEMD4``, the printed base, expected dispersion, and adjustment
-terms show how the final total was assembled.
+difficult systems, also verify the occupations and electronic state.  The
+example prints the base, expected dispersion, and adjustment terms for every
+CIDER26XC model; with ``CIDER26XCCHEMD4`` they show how the final total was
+assembled, while for the models without an explicit D4 term the dispersion
+entries are zero.
 
 Exchange-only model with PySCF
 ------------------------------

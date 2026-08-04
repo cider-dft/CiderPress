@@ -626,6 +626,16 @@ class ModelWithNormalizer:
 
 
 class MappedXC:
+    """Inference-time evaluator for a mapped CIDER functional.
+
+    A ``MappedXC`` bundles one or more mapped DFT kernels with the
+    :class:`~ciderpress.dft.settings.FeatureSettings` that define their
+    inputs. It is the object reconstructed from a serialized CIDER model
+    file (for example the packaged CIDER23X exchange models) and evaluates
+    the XC energy contribution and its functional derivatives from
+    normalized features.
+    """
+
     def __init__(self, mapped_kernels, settings, libxc_baseline=None):
         """
 

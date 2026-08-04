@@ -9,11 +9,13 @@ parallel plane-wave calculations.
 Requirements
 ------------
 
-* Python 3.9--3.12
+* Python (tested with 3.9--3.12)
 * A C and C++ compiler with OpenMP support
 * BLAS and LAPACK
 * CMake
-* FFTW or Intel MKL for FFT operations
+* FFTW or Intel MKL for FFT operations (by default the build downloads and
+  compiles FFTW and libxc itself, which requires network access; a system
+  FFTW is used only with ``BUILD_FFTW=OFF``)
 * MPI and ``mpicc`` for parallel GPAW calculations
 
 Install the core package
@@ -37,6 +39,10 @@ Install the D4 runtime for ``CIDER26XCCHEMD4`` with:
 .. code-block:: bash
 
    pip install 'ciderpress[d4]'
+
+This installs ``pyscf-dispersion``, which evaluates the model's D4 term, and
+the ``dftd4`` Python package, which provides interoperability with externally
+attached dispersion wrappers.
 
 Install PyTorch support for CIDER24X with:
 
@@ -141,9 +147,9 @@ same MPI launcher and rank layout.  This verifies that the MPI, FFT, BLAS, and
 OpenMP libraries work together in the intended execution environment.  A
 serial CiderPress build cannot be used inside an MPI GPAW calculation.
 
-The repository's GPAW site-configuration template illustrates an MKL/MPI
-build, but cluster compiler and launcher settings must match the local
-environment.  CiderPress 0.5.0 supports the classic GPAW calculator, not
+The repository's GPAW site-configuration template
+(``.github/workflows/gpaw_siteconfig.py``) illustrates an MKL/MPI build, but
+cluster compiler and launcher settings must match the local environment.  CiderPress 0.5.0 supports the classic GPAW calculator, not
 ``gpaw.new``.
 
 Continue with :doc:`../usage/gpaw`.  The central limitations are collected in

@@ -1,12 +1,12 @@
 .. _sdmx_feat:
 
-Smooth Density Matrix Exchange (SDMX)
-=====================================
+Smoothed Density Matrix Exchange (SDMX)
+=======================================
 
 SDMX features\ :footcite:p:`CIDER24X` are nonlocal featurizations of the density matrix.
 The basic idea of SDMX is to "smooth" out the density matrix around a reference point
 :math:`\mathbf{r}` and also project it onto low-order spherical harmonics
-(i.e. principle quantum numbers of :math:`\ell=0` and :math:`\ell=1`).
+(i.e. angular-momentum quantum numbers :math:`\ell=0` and :math:`\ell=1`).
 As a result, one can obtain very simple (but nonlocal) proxies for the shape of
 the exchange hole :math:`|n_1(\mathbf{r},\mathbf{r}')|^2`, which can be used for fitting
 both the exchange and correlation energies. The formulas and details for the different

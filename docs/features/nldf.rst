@@ -40,9 +40,16 @@ developmental interfaces rather than production recommendations.
 Version J
 ---------
 
-Version J is the NLDF implemented in :footcite:t:`CIDER23X`. It takes the form
+Version J is the NLDF implemented in :footcite:t:`CIDER23X`. In the raw form
+computed by the settings layer, it reads
 
 .. math:: G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_i[n](\mathbf{r})+a_0[n](\mathbf{r}'))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')
+
+Note that Eq. 18 of :footcite:t:`CIDER23X` includes an additional
+exponent-dependent normalization prefactor.  In CiderPress that normalization
+is not part of the raw feature above; it is applied by the feature normalizer
+stored with the serialized model, which fixes the feature's uniform-electron-gas
+value.
 
 For a functional with GGA semilocal features, :math:`a_i[n](\mathbf{r})` (and :math:`a_0[n](\mathbf{r})`) take the form
 
@@ -52,8 +59,15 @@ For a functional with meta-GGA semilocal features, :math:`a_i[n](\mathbf{r})` ta
 
 .. math:: a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]
 
+Here :math:`\tau` is the kinetic-energy density and :math:`\tau_0` its
+uniform-electron-gas value, both defined in :doc:`sl`.
 :math:`A_i,B_i,C_i` are tunable parameters. Conventionally :math:`B_i=0` is used for the meta-GGA case (with :math:`C_i` finite),
-but one can choose nonzero values in the CiderPress code. Using different :math:`A_i,B_i,C_i` for different :math:`i`
+but one can choose nonzero values in the CiderPress code. (A note on
+notation: this :math:`A_i,B_i,C_i` naming follows the CiderPress code, where
+:math:`A_i` is the constant term. Eqs. 16--23 of :footcite:t:`CIDER23X`
+instead call the constant term :math:`B_i` and the gradient or
+kinetic-energy modulation :math:`C_i`, and use only one modulation at a
+time.) Using different :math:`A_i,B_i,C_i` for different :math:`i`
 allows one to compute multiple features simultaneously (at roughly the same cost as one feature using the
 fast NLDF evaluation algorithm). However, :math:`A_0,B_0,C_0` must be the same for all features. Both the GGA and meta-GGA
 constructions of :math:`a_i[n](\mathbf{r})` obey

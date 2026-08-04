@@ -69,5 +69,10 @@ CIDER26XC.
    ciderpress/pyscf/pyscf
    ciderpress/gpaw/gpaw
    c_extensions/c_extensions
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
    reference/limitations
    reference/citing

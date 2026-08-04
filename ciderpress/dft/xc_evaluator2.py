@@ -268,6 +268,15 @@ class MappedDFTKernel2(KernelEvalBase2, XCEvalSerializable):
 
 
 class MappedXC2:
+    """Inference-time evaluator for a mapped full-XC CIDER functional.
+
+    ``MappedXC2`` extends the mapped-model concept of
+    :class:`~ciderpress.dft.xc_evaluator.MappedXC` to kernels that take
+    density arguments in addition to normalized features, as required by
+    the CIDER26XC full exchange-correlation models. It is the object
+    reconstructed from the packaged CIDER26XC model files.
+    """
+
     def __init__(self, mapped_kernels, settings, libxc_baseline=None):
         """
 

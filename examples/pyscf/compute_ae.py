@@ -19,9 +19,9 @@ from ciderpress.pyscf.dft import make_cider_calc
 This script demonstrates running a CIDER calculation with accelerated
 nonlocal feature evaluation. Example commands:
 
-    python examples/pyscf/fast_cider.py <molecule_formula> <charge> <spin> <functional>
-    python examples/pyscf/fast_cider.py H2 0 0 PBE
-    python examples/pyscf/fast_cider.py O2 0 2 CIDER_NL_MGGA
+    python examples/pyscf/compute_ae.py <molecule_formula> <charge> <spin> <functional>
+    python examples/pyscf/compute_ae.py H2 0 0 PBE
+    python examples/pyscf/compute_ae.py O2 0 2 CIDER23X_NL_MGGA
 
 <molecule_formula> is a chemical formula string like CH4, H2, etc. It must be included
 in the list of molecules supported by ase.build.molecule()

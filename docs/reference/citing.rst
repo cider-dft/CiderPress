@@ -29,6 +29,14 @@ The CIDER26XC production models are described in :footcite:t:`CIDER26XC`.
 The citation currently records the forthcoming manuscript and will be updated
 when its public identifier is available.
 
+Citing the software
+-------------------
+
+Cite the CiderPress software itself by its repository,
+`github.com/mir-group/CiderPress <https://github.com/mir-group/CiderPress>`__,
+and the version used (for example, CiderPress 0.5.0).  An archived software
+record will be referenced here when one is published.
+
 Also cite the host electronic-structure code and any separately evaluated
 method such as D4.  A reproducible methods section should state the exact
 model name and checksum in addition to its family citation.

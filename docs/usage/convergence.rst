@@ -136,7 +136,9 @@ starting the corresponding CIDER rung.
      - ``rmm-diis``
 
 For persistent orbital-step oscillation, a bounded-step solver is a further
-fallback::
+fallback:
+
+.. code-block:: python
 
    from gpaw.eigensolvers import RMMDIIS
 
@@ -155,7 +157,9 @@ Metallic and magnetic GPAW calculations
 
 Metallic systems often need occupation smearing and smaller mixing steps.
 Magnetic systems can additionally benefit from mixing the total and spin
-densities separately::
+densities separately:
+
+.. code-block:: python
 
    from gpaw import MixerDif
 
@@ -187,7 +191,9 @@ iterations is often robust in finite boxes.
 
 For difficult open-shell references, first reduce the mixer to
 ``Mixer(0.02, 2, 100)``.  If Pulay-history oscillations persist, use the
-near-linear fallback::
+near-linear fallback:
+
+.. code-block:: python
 
    mixer = Mixer(0.02, 1, 50)
    occupations = {

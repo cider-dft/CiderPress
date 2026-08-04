@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-d4 = ["dftd4>=3.7"]
+d4 = ["pyscf-dispersion>=1.3", "dftd4>=3.7"]
 cider24 = ["torch"]
 
 [project.urls]

@@ -36,7 +36,7 @@ Optional model runtimes are installed only when needed:
 
 ```bash
 pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
-pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy
+pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy (pyscf-dispersion + dftd4)
 ```
 
 See the rendered [installation guide](https://mir-group.github.io/CiderPress/release/0.5.0/installation/installation.html)

@@ -66,7 +66,7 @@ different information and learn different quantities:
    models and nonlocal models are packaged. :footcite:t:`CIDER23X`
 
 ``CIDER24X``
-   Introduced smooth density-matrix exchange (SDMX) descriptors and extended
+   Introduced smoothed density-matrix exchange (SDMX) descriptors and extended
    Gaussian-process training to orbital-energy labels.  ``CIDER24Xe`` includes
    eigenvalue information; ``CIDER24Xne`` does not.  These models require
    PyTorch and are evaluated through PySCF. :footcite:t:`CIDER24X`

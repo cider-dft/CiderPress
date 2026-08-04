@@ -88,7 +88,7 @@ def get_cider_functional(
         mlfunc (MappedXC, MappedXC2, str): An ML functional object or a str
             corresponding to the file name of a yaml or joblib file
             containing it.
-        xmix (float, 1.00): Mixing parameter for CIDER exchnange.
+        xmix (float, 1.00): Mixing parameter for CIDER exchange.
         xkernel (str, GGA_X_PBE): libxc code str for semi-local X functional
         ckernel (str, GGA_C_PBE): libxc code str for semi-local C functional
         mlfunc_format (str, None): 'joblib' or 'yaml', specifies the format
@@ -195,7 +195,7 @@ def get_cider_functional(
 class CiderGPAW(GPAW):
     """
     This class is equivalent to the GPAW calculator object
-    provded in the gpaw package, except that it is able to load
+    provided in the gpaw package, except that it is able to load
     and save CIDER calculations. The GPAW object can run CIDER but
     not save/load CIDER calculations.
 

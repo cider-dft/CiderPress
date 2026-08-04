@@ -81,8 +81,6 @@ nitpick_ignore = [
     ("py:class", "vxc"),
     ("py:class", "nspin x nao x nao"),
     ("py:class", "KohnShamDFT"),
-    ("py:class", "MappedXC"),
-    ("py:class", "MappedXC2"),
     ("py:class", "SemilocalSettings"),
     ("py:func", "get_descriptors"),
     ("py:func", "make_cider_calc"),

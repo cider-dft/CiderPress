@@ -44,8 +44,38 @@ scaling rule.
 
 Because the YAML model already contains its additive PBE contributions, no
 external exchange or correlation kernel may be added during evaluation.  This
-is why the GPAW initializer requires ``xmix=1.0``, ``xkernel=None``, and
-``ckernel=None`` for CIDER26XC.
+is why the GPAW initializer must be called with ``xmix=1.0``,
+``xkernel=None``, and ``ckernel=None`` for CIDER26XC.  The initializer does
+not check these arguments itself; with its historical defaults a second PBE
+correlation contribution is silently added.  See
+:doc:`../usage/production_models` for the required call.
+
+CIDER26XC feature vectors
+-------------------------
+
+The exchange feature vector :math:`\mathbf{X}^{\mathrm{x}}_\sigma` contains
+the scale-invariant semilocal descriptors and the three version-j nonlocal
+density features used by the CIDER23X nonlocal meta-GGA models
+(:doc:`../features/sl` and :doc:`../features/nldf`), with one substitution:
+the SCAN-style iso-orbital indicator :math:`\alpha` is replaced by the
+bounded indicator
+
+.. math:: t = \frac{\tau-\tau_0}{\tau+\tau_0},
+
+where :math:`\tau` is the kinetic-energy density and :math:`\tau_0` its
+uniform-electron-gas value as defined in :doc:`../features/sl`.  Like
+:math:`\alpha`, :math:`t` is scale invariant and, in combination with the
+reduced-gradient descriptor, carries the same iso-orbital information, but it
+is bounded and numerically better behaved in the trained models.
+
+The correlation feature vector :math:`\mathbf{X}^{\mathrm{c}}_\sigma` appends
+one additional descriptor, the density itself, :math:`X_6 = n`.  The other
+features are scale invariant, which enforces the exchange scaling constraint
+but is too restrictive for correlation, so the correlation model receives the
+density explicitly.  Before entering the Gaussian-process kernel, every
+feature is mapped onto a finite interval by the bounded transforms stored in
+the serialized model (implemented in :mod:`ciderpress.dft.transform_data`;
+the :math:`t` indicator is handled by the ``SLTMap`` transform).
 
 Self-consistent training
 ------------------------
