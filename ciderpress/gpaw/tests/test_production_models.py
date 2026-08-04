@@ -20,6 +20,11 @@ def test_production_model_initializes_gpaw(name):
     )
 
 
+def test_full_xc_model_rejects_historical_gpaw_defaults():
+    with pytest.raises(ValueError, match="complete XC baseline"):
+        get_cider_functional("CIDER26XCCHEM", use_paw=False)
+
+
 @pytest.mark.parametrize("name", CIDER23X_MODELS)
 def test_exchange_model_initializes_gpaw(name):
     assert (
@@ -42,7 +47,13 @@ def test_sdmx_model_is_rejected_by_gpaw(name):
 
 def test_d4_production_model_is_rejected_by_gpaw():
     with pytest.raises(NotImplementedError, match="PySCF backend only"):
-        get_cider_functional("CIDER26XCCHEMD4", use_paw=False)
+        get_cider_functional(
+            "CIDER26XCCHEMD4",
+            xmix=1.0,
+            xkernel=None,
+            ckernel=None,
+            use_paw=False,
+        )
 
 
 def test_production_model_dictionary_round_trip_preserves_spline_grid():
@@ -59,6 +70,7 @@ def test_production_model_dictionary_round_trip_preserves_spline_grid():
     data["mlfunc"] = xc.get_mlfunc_data()
     restored = cider_functional_from_dict(data)
 
+    assert "_cider_type" in data
     assert restored.Nalpha == xc.Nalpha
     assert restored.lambd == xc.lambd
     assert restored.encut == xc.encut

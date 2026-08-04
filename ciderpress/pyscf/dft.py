@@ -21,7 +21,11 @@
 from pyscf import lib
 from pyscf.dft.gen_grid import Grids
 
-from ciderpress.dft.model_utils import get_slxc_settings, load_cider_model
+from ciderpress.dft.model_utils import (
+    get_slxc_settings,
+    load_cider_model,
+    validate_cider_composition,
+)
 from ciderpress.pyscf.gen_cider_grid import CiderGrids
 from ciderpress.pyscf.nldf_convolutions import PySCFNLDFInitializer
 from ciderpress.pyscf.numint import (
@@ -56,8 +60,12 @@ def _sanitize_vdw_value(v):
 
 def _get_present_dispersion_energy_ha(mf):
     """
-    Attempt to detect and compute an already-enabled dispersion correction on a PySCF
-    mean-field object (e.g. via dftd4.pyscf.energy wrapper). Returns 0.0 if none found.
+    Detect and compute an already-enabled dispersion correction on a PySCF
+    mean-field object (for example, a ``dftd4.pyscf.energy`` wrapper).
+
+    Returns zero if no wrapper is present and raises if a detected wrapper
+    cannot be evaluated; silently treating that case as zero would double-count
+    or omit a dispersion contribution during reconciliation.
     """
     if getattr(mf, "_cider_vdw_applied", False) and hasattr(mf, "e_vdw_expected"):
         return float(getattr(mf, "e_vdw_expected"))
@@ -65,14 +73,20 @@ def _get_present_dispersion_energy_ha(mf):
     if wd4 is not None:
         try:
             return float(wd4.kernel()[0])
-        except Exception:
-            pass
+        except Exception as exc:
+            raise RuntimeError(
+                "An attached D4 wrapper was detected, but its dispersion "
+                "energy could not be evaluated."
+            ) from exc
     wd3 = getattr(mf, "with_dftd3", None)
     if wd3 is not None:
         try:
             return float(wd3.kernel()[0])
-        except Exception:
-            pass
+        except Exception as exc:
+            raise RuntimeError(
+                "An attached D3 wrapper was detected, but its dispersion "
+                "energy could not be evaluated."
+            ) from exc
     return 0.0
 
 
@@ -205,20 +219,20 @@ def _strip_present_dispersion_wrappers(mf):
     had = False
     if getattr(mf, "with_dftd4", None) is not None:
         had = True
-        try:
-            mf.with_dftd4 = None
-        except Exception:
-            pass
+        mf.with_dftd4 = None
     if getattr(mf, "with_dftd3", None) is not None:
         had = True
-        try:
-            mf.with_dftd3 = None
-        except Exception:
-            pass
+        mf.with_dftd3 = None
     if had:
         # Restore base behaviors that wrappers commonly override.
+        _rebind("energy_nuc")
         _rebind("energy_elec")
         _rebind("dump_flags")
+        if (
+            getattr(mf, "with_dftd4", None) is not None
+            or getattr(mf, "with_dftd3", None) is not None
+        ):
+            raise RuntimeError("Failed to disable an attached dispersion wrapper.")
 
 
 def make_cider_calc(
@@ -242,10 +256,9 @@ def make_cider_calc(
 
         E_xc = xmix * E_x^CIDER + (1-xmix) * xkernel + ckernel + xc
 
-    Note the above formula applies even if ``E_x^CIDER`` is a
-    full XC functional. If ``E_x^CIDER`` is a full XC functional that
-    does not need a baseline, the user should pass ``xmix=1.0``, ``xc=None``,
-    ``xkernel=None``, ``ckernel=None`` (the defaults).
+    Mapped full-XC models already contain their complete baseline and require
+    ``xmix=1.0``, ``xc=None``, ``xkernel=None``, and ``ckernel=None`` (the
+    defaults). Other compositions are rejected to prevent double counting.
 
     NOTE: Only GGA-level XC functionals can be used with GGA-level
     (orbital-independent) CIDER functionals currently.
@@ -272,6 +285,14 @@ def make_cider_calc(
         A decorated Kohn-Sham object for performing a CIDER calculation.
     """
     mlfunc = load_cider_model(mlfunc, mlfunc_format)
+    validate_cider_composition(
+        mlfunc,
+        xmix=xmix,
+        xkernel=xkernel,
+        ckernel=ckernel,
+        xc=xc,
+        backend="PySCF",
+    )
     ks._xc = get_slxc_settings(xc, xkernel, ckernel, xmix)
     # Assign the PySCF-facing functional to be a simple SL
     # functional to avoid hybrid DFT being called.

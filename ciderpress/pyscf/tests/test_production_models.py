@@ -56,6 +56,47 @@ def test_post_density_vdw_is_applied_exactly_once(monkeypatch):
     assert cider_dft._apply_post_density_vdw_energy(calc) == pytest.approx(-10.07)
 
 
+def test_full_xc_model_rejects_additional_semilocal_terms():
+    mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g", verbose=0)
+    with pytest.raises(ValueError, match="complete XC baseline"):
+        cider_dft.make_cider_calc(
+            dft.RKS(mol),
+            "CIDER26XCCHEM",
+            xmix=1.0,
+            xkernel="GGA_X_PBE",
+            ckernel="GGA_C_PBE",
+        )
+
+
+@pytest.mark.parametrize("name", CIDER26XC_MODELS)
+def test_external_d4_wrapper_is_reconciled_high_cost(name):
+    dftd4_pyscf = pytest.importorskip("dftd4.pyscf")
+    mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g", verbose=0)
+
+    energies = []
+    calculations = []
+    for wrapped in (False, True):
+        base = dft.RKS(mol)
+        base.xc = "PBE"
+        if wrapped:
+            base = dftd4_pyscf.energy(base)
+        calc = cider_dft.make_cider_calc(base, name)
+        calc.grids.level = 0
+        calc.max_cycle = 1
+        energies.append(calc.kernel())
+        calculations.append(calc)
+
+    assert energies[1] == pytest.approx(energies[0], abs=1e-12)
+    if name == "CIDER26XCCHEMD4":
+        assert calculations[1].with_dftd4 is not None
+        assert calculations[1].e_vdw_present < 0
+        assert calculations[1].e_vdw_expected < 0
+    else:
+        assert calculations[1].with_dftd4 is None
+        assert calculations[1].e_vdw_present == 0
+        assert calculations[1].e_vdw_expected == 0
+
+
 @pytest.mark.parametrize("name", CIDER26XC_MODELS)
 def test_production_model_scf_high_cost(name):
     """One-cycle end-to-end smoke test; selected explicitly for releases."""
@@ -75,9 +116,7 @@ def test_production_model_scf_high_cost(name):
         assert calc.e_vdw_expected == 0
 
 
-@pytest.mark.parametrize(
-    "name", (CIDER23X_MODELS[-1], CIDER24X_MODELS[-1])
-)
+@pytest.mark.parametrize("name", (CIDER23X_MODELS[-1], CIDER24X_MODELS[-1]))
 def test_exchange_only_family_initializes_with_explicit_surrogate_mix(name):
     mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g", verbose=0)
     calc = cider_dft.make_cider_calc(

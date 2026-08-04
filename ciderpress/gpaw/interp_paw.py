@@ -30,6 +30,17 @@ from scipy.interpolate import interp1d
 from ciderpress.gpaw.gpaw_grids import GCRadialGridDescriptor
 
 
+def _enforce_fhc_core_tau(tau_g, n_g, dndr_g):
+    """Enforce the von Weizsaecker bound for a frozen spherical core.
+
+    GPAW stores the core kinetic-energy density as its spherical-harmonic
+    coefficient, which accounts for the ``sqrt(4*pi)`` factor below.  The
+    returned array is a copy; the PAW setup data are not mutated.
+    """
+    tauw_g = np.sqrt(4 * np.pi) * dndr_g**2 / (8 * n_g + 1e-10)
+    return np.maximum(tau_g, tauw_g)
+
+
 def _get_interpolation_coordinates(rgd, r_g, size):
     """Map radii to a tabulated grid, tolerating endpoint roundoff only."""
     g_g = np.asarray(rgd.r2g(r_g), dtype=float)
@@ -46,7 +57,7 @@ def _get_interpolation_coordinates(rgd, r_g, size):
     return np.clip(g_g, 0.0, gmax)
 
 
-def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new, n_qg, d_qg):
+def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
     nj = len(phi_jg)
     dphidr_jg = np.zeros(np.shape(phi_jg))
     for j in range(nj):
@@ -55,14 +66,6 @@ def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new, n_qg, d_
 
     phi_jg = _interpc(phi_jg)
     dphidr_jg = _interpc(dphidr_jg)
-
-    q = 0  # q: common index for j1, j2
-    for j1 in range(nj):
-        for j2 in range(j1, nj):
-            n_qg[q] = phi_jg[j1] * phi_jg[j2]
-            d_qg[q] = phi_jg[j1] * dphidr_jg[j2]
-            d_qg[q] += dphidr_jg[j1] * phi_jg[j2]
-            q += 1
 
     # second term
     for y in range(ny):
@@ -139,15 +142,8 @@ class DiffPAWXCCorrection:
         self.Lmax = Lmax
         self.tau_npg = tau_npg
         self.taut_npg = taut_npg
-        # remove FHC violation from core kinetic energy density
-        self.tauc_g = np.maximum(
-            tauc_g,
-            np.sqrt(4 * np.pi) * self.dc_g**2 / (8 * self.nc_g + 1e-10),
-        )
-        self.tauct_g = np.maximum(
-            tauct_g,
-            np.sqrt(4 * np.pi) * self.dct_g**2 / (8 * self.nct_g + 1e-10),
-        )
+        self.tauc_g = _enforce_fhc_core_tau(tauc_g, self.nc_g, self.dc_g)
+        self.tauct_g = _enforce_fhc_core_tau(tauct_g, self.nct_g, self.dct_g)
         self.Y_nL = Y_nL
         if self.tau_npg is not None:
             NP = self.tau_npg.shape[1]
@@ -209,8 +205,10 @@ class DiffPAWXCCorrection:
             core_dens[name] = n_g
             core_dens["d" + name] = xcc.rgd.derivative(n_g)
 
-        d_qg = [xcc.rgd.derivative(n_g) for n_g in xcc.n_qg]
-        dt_qg = [xcc.rgd.derivative(n_g) for n_g in xcc.nt_qg]
+        n_qg = np.array([_interpc(n_g) for n_g in xcc.n_qg])
+        nt_qg = np.array([_interpc(n_g) for n_g in xcc.nt_qg])
+        d_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
+        dt_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
 
         if build_kinetic:
             nii = xcc.nii
@@ -218,22 +216,9 @@ class DiffPAWXCCorrection:
             ng = rgd.r_g.shape[0]
             tau_npg = np.zeros((nn, nii, ng))
             taut_npg = np.zeros((nn, nii, ng))
-            nq = len(xcc.n_qg)
-            n_qg = np.empty((nq, ng))
-            nt_qg = np.empty((nq, ng))
-            d_qg = np.empty((nq, ng))
-            dt_qg = np.empty((nq, ng))
-            create_kinetic_diffpaw(
-                xcc, nn, xcc.phi_jg, tau_npg, _interpc, rgd.r_g, n_qg, d_qg
-            )
-            create_kinetic_diffpaw(
-                xcc, nn, xcc.phit_jg, taut_npg, _interpc, rgd.r_g, nt_qg, dt_qg
-            )
+            create_kinetic_diffpaw(xcc, nn, xcc.phi_jg, tau_npg, _interpc, rgd.r_g)
+            create_kinetic_diffpaw(xcc, nn, xcc.phit_jg, taut_npg, _interpc, rgd.r_g)
         else:
-            n_qg = np.array([_interpc(n_g) for n_g in xcc.n_qg])
-            nt_qg = np.array([_interpc(n_g) for n_g in xcc.nt_qg])
-            d_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
-            dt_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
             tau_npg = None
             taut_npg = None
 

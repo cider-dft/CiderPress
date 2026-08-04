@@ -6,6 +6,7 @@ from gpaw.setup import create_setup
 
 from ciderpress.gpaw.interp_paw import (
     DiffPAWXCCorrection,
+    _enforce_fhc_core_tau,
     _get_interpolation_coordinates,
 )
 
@@ -28,6 +29,18 @@ def test_interpolation_coordinates_accept_endpoint_roundoff():
 def test_interpolation_coordinates_reject_extrapolation(mapped):
     with pytest.raises(ValueError, match="extends beyond"):
         _get_interpolation_coordinates(_MappedGrid(mapped), mapped, 546)
+
+
+def test_fhc_core_tau_floor_changes_only_violations():
+    n_g = np.ones(2)
+    dndr_g = np.array([2.0, 1.0])
+    tauw_g = np.sqrt(4 * np.pi) * dndr_g**2 / (8 * n_g + 1e-10)
+    tau_g = np.array([0.5 * tauw_g[0], 2.0 * tauw_g[1]])
+
+    result = _enforce_fhc_core_tau(tau_g, n_g, dndr_g)
+
+    np.testing.assert_allclose(result, [tauw_g[0], tau_g[1]])
+    np.testing.assert_allclose(tau_g, [0.5 * tauw_g[0], 2.0 * tauw_g[1]])
 
 
 @pytest.mark.parametrize("symbol", ["H", "Co"])

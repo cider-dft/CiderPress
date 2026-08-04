@@ -116,8 +116,8 @@ def get_agpr_kernel(
         scale (list or None): Initial covariance prefactors, one per additive
             order (default all 1).
         order (int): Maximum interaction order of the additive kernel.
-        nsingle (int): Number of features in the single RBF factor; 0 omits
-            the factor.
+        nsingle (int): Enable the multiplicative RBF factor when nonzero;
+            0 omits the factor. The selected features are given by ``sinds``.
         opt_hparams (bool): If True, leave length scales and prefactors open
             for hyperparameter optimization; otherwise fix them.
         min_lscale (float or None): Lower length-scale optimization bound
@@ -127,7 +127,6 @@ def get_agpr_kernel(
         A ``SubsetARBF`` kernel, or ``SubsetRBF * SubsetARBF`` when a single
         factor is requested.
     """
-    print(sinds, ainds, length_scale[sinds], length_scale[ainds])
     if min_lscale is None:
         min_lscale = 0.01
     length_scale_bounds = (min_lscale, 10) if opt_hparams else "fixed"

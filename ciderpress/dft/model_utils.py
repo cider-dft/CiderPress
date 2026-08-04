@@ -20,6 +20,7 @@
 
 import os
 from importlib.resources import files
+from math import isclose
 
 import joblib
 import yaml
@@ -112,3 +113,28 @@ def get_slxc_settings(xc, xkernel, ckernel, xmix):
     if xc.endswith(" + "):
         xc = xc[:-3]
     return xc
+
+
+def validate_cider_composition(
+    mlfunc, *, xmix, xkernel, ckernel, xc=None, backend="CiderPress"
+):
+    """Reject additive semilocal terms for mapped full-XC models.
+
+    ``MappedXC2`` objects already contain their complete exchange-correlation
+    baseline.  Mixing them with an external exchange or correlation kernel
+    changes the functional and, in GPAW's historical default configuration,
+    silently double-counts PBE correlation.
+    """
+    if not isinstance(mlfunc, MappedXC2):
+        return
+    try:
+        mix_is_one = isclose(float(xmix), 1.0, rel_tol=0.0, abs_tol=1e-15)
+    except (TypeError, ValueError):
+        mix_is_one = False
+    safe = mix_is_one and xkernel is None and ckernel is None and xc is None
+    if not safe:
+        raise ValueError(
+            f"{backend} full-XC CIDER models require xmix=1.0, "
+            "xkernel=None, ckernel=None, and no additional xc term; the "
+            "serialized model already contains the complete XC baseline."
+        )

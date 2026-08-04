@@ -10,6 +10,7 @@ from ciderpress.dft.model_utils import (
     BUILTIN_MODELS,
     CIDER24X_MODELS,
     load_cider_model,
+    validate_cider_composition,
 )
 from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
@@ -73,12 +74,8 @@ def test_builtin_model_hash_and_aliases(name):
         assert loaded.libxc_baseline == plain.libxc_baseline
         assert len(loaded.kernels) == len(plain.kernels)
         assert loaded.settings.sl_settings.level == plain.settings.sl_settings.level
-        assert type(loaded.settings.nldf_settings) is type(
-            plain.settings.nldf_settings
-        )
-        assert type(loaded.settings.sdmx_settings) is type(
-            plain.settings.sdmx_settings
-        )
+        assert type(loaded.settings.nldf_settings) is type(plain.settings.nldf_settings)
+        assert type(loaded.settings.sdmx_settings) is type(plain.settings.sdmx_settings)
 
 
 def test_builtin_model_vdw_contracts_and_portability():
@@ -127,3 +124,27 @@ def test_unreleased_old_model_names_are_not_aliases(name):
 def test_unknown_model_name_is_not_treated_as_builtin():
     with pytest.raises(ValueError, match="Unsupported file format"):
         load_cider_model("not_a_cider_model")
+
+
+def test_full_xc_composition_is_validated():
+    full_xc = load_cider_model("CIDER26XCCHEM")
+    validate_cider_composition(
+        full_xc, xmix=1.0, xkernel=None, ckernel=None, backend="test"
+    )
+    with pytest.raises(ValueError, match="complete XC baseline"):
+        validate_cider_composition(
+            full_xc,
+            xmix=1.0,
+            xkernel="GGA_X_PBE",
+            ckernel="GGA_C_PBE",
+            backend="test",
+        )
+
+    exchange = load_cider_model("CIDER23X_NL_MGGA")
+    validate_cider_composition(
+        exchange,
+        xmix=0.25,
+        xkernel="GGA_X_PBE",
+        ckernel="GGA_C_PBE",
+        backend="test",
+    )

@@ -353,22 +353,6 @@ class _CiderBase:
         feat_sig, dfeat_sjg, arg_sg, darg_sg, fun_sg, dfun_sg, p_gq, dp_gq = res
         # TODO version i features
         feat_sig[:] *= plan.nspin
-
-        # Print descriptor statistics
-        # print("\n=== Descriptor Statistics (after call_fwd) ===")
-        # print(f"feat_sig shape: {feat_sig.shape}")
-        # for s in range(feat_sig.shape[0]):  # Loop over spins
-        #     for i in range(feat_sig.shape[1]):  # Loop over features
-        #         feat = feat_sig[s, i]
-        #         neg_count = np.sum(feat < 0)
-        #         total_count = feat.size
-        #         feature_names = ["SE", "RINV2", "RINV4"] if feat_sig.shape[1] == 3 else [f"Feature_{i}"]
-        #         feat_name = feature_names[i] if i < len(feature_names) else f"Feature_{i}"
-        #         print(f"Spin {s}, {feat_name}:")
-        #         print(f"  Min: {np.min(feat):.6e}, Max: {np.max(feat):.6e}, Mean: {np.mean(feat):.6e}")
-        #         print(f"  Negative values: {neg_count}/{total_count} ({100*neg_count/total_count:.2f}%)")
-        # print("=" * 50)
-
         self.timer.start("eval xc")
         if e_g.size > 0:
             if tau_sg is None:  # GGA

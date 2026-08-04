@@ -58,6 +58,11 @@ def run_load_write(xc, use_pp=False, is_cider=False, is_nl=False):
 
     calc.write("_tmp.gpw")
     si1, calc1 = restart("_tmp.gpw", Class=CiderGPAW, parallel=mypar)
+    if is_cider:
+        override = CiderGPAW("_tmp.gpw", xc="PBE", parallel=mypar, txt=None)
+        override.get_potential_energy()
+        assert override.hamiltonian.xc.name == "PBE"
+        del override
     if is_cider and is_nl:
         xc0 = calc.hamiltonian.xc
         xc1 = calc1.hamiltonian.xc
