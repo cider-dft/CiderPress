@@ -1,5 +1,5 @@
-Reproducibility and Result Validation
-=====================================
+Recording and Checking a Calculation
+====================================
 
 A converged SCF flag is necessary but does not by itself identify the
 functional, numerical representation, or electronic state.  Preserve enough
@@ -27,8 +27,8 @@ moments, occupations and smearing, convergence criteria, mixer, eigensolver,
 parallel layout, and CIDER interpolation/PASDW settings.  State whether the
 calculation began from PBE or a CIDER checkpoint.
 
-Validation before reporting
----------------------------
+Recommended checks for a final calculation
+------------------------------------------
 
 * Confirm energy, density, and orbital/eigenstate criteria rather than relying
   on the final energy alone.

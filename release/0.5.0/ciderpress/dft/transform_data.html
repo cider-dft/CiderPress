@@ -16,6 +16,7 @@
       <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -55,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -109,6 +110,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -163,7 +167,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.transform_data.SLBMap">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">SLBMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.SLBMap" title="Link to this definition"></a></dt>
-<dd><p>beta = (tau - tauw) / (tau + tau0)</p>
+<dd><p>Map <span class="math notranslate nohighlight">\(\beta=(\tau-\tau_{\mathrm W})/(\tau+\tau_0)\)</span>.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -194,20 +198,21 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.transform_data.SLTMap">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">SLTMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.SLTMap" title="Link to this definition"></a></dt>
-<dd><p>beta = (tau - tau0) / (tau + tau0)</p>
+<dd><p>Map <span class="math notranslate nohighlight">\(\beta=(\tau-\tau_0)/(\tau+\tau_0)\)</span>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.transform_data.SLTWMap">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">SLTWMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.SLTWMap" title="Link to this definition"></a></dt>
-<dd><p>beta = (tauw - tau0) / (tauw + tau0)</p>
+<dd><p>Map <span class="math notranslate nohighlight">\(\beta=(\tau_{\mathrm W}-\tau_0)/(\tau_{\mathrm W}+\tau_0)\)</span>.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.transform_data.SLXMap">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">SLXMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.SLXMap" title="Link to this definition"></a></dt>
-<dd><p>gamma * s^2 / (1 + gamma * s^2), where s^2 is the squared reduced gradient
-s^2 = sigma / C n^8/3</p>
+<dd><p>Map the squared reduced gradient to a bounded feature.</p>
+<p>The map is <span class="math notranslate nohighlight">\(\gamma s^2/(1+\gamma s^2)\)</span>, where
+<span class="math notranslate nohighlight">\(s^2=\sigma/(C n^{8/3})\)</span> is the squared reduced gradient.</p>
 </dd></dl>
 
 <dl class="py class">

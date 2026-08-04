@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Reproducibility and Result Validation" href="reproducibility.html" />
+    <link rel="next" title="Recording and Checking a Calculation" href="reproducibility.html" />
     <link rel="prev" title="Energies and Derivative Properties" href="properties.html" /> 
 </head>
 
@@ -62,7 +62,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#diagnosing-the-failure-mode">Diagnosing the failure mode</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -80,6 +80,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -224,14 +227,14 @@ the level shift and damping.  If all warm-start rungs fail, repeat the ladder
 from a fresh atomic guess; a baseline density can occasionally select the
 wrong electronic basin.</p>
 <p>Small finite-temperature smearing, approximately <code class="docutils literal notranslate"><span class="pre">0.01--0.05</span> <span class="pre">Ha</span></code>, can help
-when frontier orbitals are genuinely near degenerate.  Use it only after
-diagnosing occupation switching, and document whether the reported energy is
-the finite-temperature or zero-temperature quantity.  Inspect occupations,
-spin, orbital character, and SCF stability after convergence.</p>
-<p>Newton/SOSCF is not supported for the production CIDER26XC numerical
-integration paths.  Disabling PySCF’s convergence checks or pinning a
-non-Aufbau state can hide an occupation change and is not a general fallback
-recommendation.</p>
+when frontier orbitals are genuinely near degenerate.  First check whether
+occupation switching is causing the difficulty.  If smearing is retained in
+the final calculation, distinguish the finite-temperature free energy from an
+extrapolated zero-temperature energy.  Inspect occupations, spin, orbital
+character, and SCF stability after convergence.</p>
+<p>Newton/SOSCF is not available for the CIDER26XC numerical integration paths.
+If a non-Aufbau occupation is intentionally constrained, verify that it
+represents the electronic state of interest and record how it was selected.</p>
 </section>
 <section id="insulating-and-semiconducting-gpaw-calculations">
 <h2>Insulating and semiconducting GPAW calculations<a class="headerlink" href="#insulating-and-semiconducting-gpaw-calculations" title="Link to this heading"></a></h2>
@@ -279,7 +282,7 @@ starting the corresponding CIDER rung.</p>
 </table>
 <p>For persistent orbital-step oscillation, a bounded-step solver is a further
 fallback:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw.eigensolvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMMDIIS</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw.eigensolvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMMDIIS</span>
 
 <span class="n">eigensolver</span> <span class="o">=</span> <span class="n">RMMDIIS</span><span class="p">(</span>
     <span class="n">niter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
@@ -297,7 +300,7 @@ fresh PBE calculation rather than repeatedly recycling a poor CIDER density.</p>
 <p>Metallic systems often need occupation smearing and smaller mixing steps.
 Magnetic systems can additionally benefit from mixing the total and spin
 densities separately:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">MixerDif</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">MixerDif</span>
 
 <span class="n">mixer</span> <span class="o">=</span> <span class="n">MixerDif</span><span class="p">(</span>
     <span class="mf">0.005</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span>
@@ -326,7 +329,7 @@ iterations is often robust in finite boxes.</p>
 <p>For difficult open-shell references, first reduce the mixer to
 <code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">2,</span> <span class="pre">100)</span></code>.  If Pulay-history oscillations persist, use the
 near-linear fallback:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="n">occupations</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span>
     <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
@@ -338,12 +341,12 @@ near-linear fallback:</p>
 often sufficient, but tighten it if the CIDER restart begins far from a stable
 density.  <code class="docutils literal notranslate"><span class="pre">5e-4</span></code> eV/electron for energy, <code class="docutils literal notranslate"><span class="pre">1e-4</span></code> for density, and <code class="docutils literal notranslate"><span class="pre">5e-3</span></code>
 eV <sup>2</sup>/electron for eigenstates are reasonable general CIDER starting
-criteria.  Tighten and independently converge them as required for the
-reported property.</p>
+criteria.  Tighten and independently converge them for the property being
+calculated.</p>
 <p>Then try <code class="docutils literal notranslate"><span class="pre">rmm-diis</span></code> or the bounded-step <code class="docutils literal notranslate"><span class="pre">RMMDIIS</span></code> above.  Direct
-minimization with <code class="docutils literal notranslate"><span class="pre">FDPWETDM</span></code> is an expert, GPAW-version-sensitive fallback;
-it must use the no-mixing backend and fixed occupations.  Do not combine a
-direct-minimization eigensolver with an ordinary density mixer.</p>
+minimization with <code class="docutils literal notranslate"><span class="pre">FDPWETDM</span></code> is a GPAW-version-sensitive alternative that
+uses fixed occupations and the no-mixing backend.  An ordinary density mixer
+is not used in this mode.</p>
 </section>
 <section id="diagnosing-the-failure-mode">
 <h2>Diagnosing the failure mode<a class="headerlink" href="#diagnosing-the-failure-mode" title="Link to this heading"></a></h2>
@@ -371,7 +374,7 @@ newly converged result.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="properties.html" class="btn btn-neutral float-left" title="Energies and Derivative Properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="reproducibility.html" class="btn btn-neutral float-right" title="Reproducibility and Result Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="reproducibility.html" class="btn btn-neutral float-right" title="Recording and Checking a Calculation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

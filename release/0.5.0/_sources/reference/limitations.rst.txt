@@ -20,8 +20,8 @@ miss across backend and feature documentation.
   integration path.
 * Nonlocal features add memory and communication overhead.  GPAW jobs should
   use augmented-grid parallelization and a consistent MPI/FFT/OpenMP stack.
-* Mapped YAML and joblib files must be trusted because loading reconstructs
-  Python objects.
+* Load mapped YAML and joblib files only from trusted sources because loading
+  them reconstructs Python objects.
 
 Numerical robustness is system dependent.  Difficult open-shell,
 near-degenerate, metallic, or magnetic systems may require the controlled

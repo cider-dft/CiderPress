@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -87,6 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -120,7 +123,8 @@
 <h1>Numerical Evaluation in PySCF and GPAW<a class="headerlink" href="#numerical-evaluation-in-pyscf-and-gpaw" title="Link to this heading"></a></h1>
 <p>The mapped functional is backend independent, but its input features are not
 obtained in the same way in a Gaussian basis and on a periodic plane-wave
-grid.  This page describes the common contract and the two numerical paths.</p>
+grid.  This page describes their shared mathematical structure and the two
+numerical paths.</p>
 <section id="common-forward-and-adjoint-calculation">
 <h2>Common forward and adjoint calculation<a class="headerlink" href="#common-forward-and-adjoint-calculation" title="Link to this heading"></a></h2>
 <p>The forward calculation evaluates raw features and the mapped energy density.
@@ -186,7 +190,7 @@ with <code class="docutils literal notranslate"><span class="pre">mode=&quot;all
 interpolation grid so that a resumed calculation evaluates the same numerical
 functional.</p>
 <p>See <a class="reference internal" href="../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a> for executable settings and
-<a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for the implementation contract.</p>
+<a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for implementation guidance.</p>
 </section>
 </section>
 

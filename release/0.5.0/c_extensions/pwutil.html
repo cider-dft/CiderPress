@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -74,6 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="c_extensions.html">C Extension Libraries</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Plane-wave Utilities (pwutil)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#c.fft_plan_t"><code class="docutils literal notranslate"><span class="pre">fft_plan_t</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#c.CIDERPW_PI"><code class="docutils literal notranslate"><span class="pre">CIDERPW_PI</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#c.CIDERPW_R2C"><code class="docutils literal notranslate"><span class="pre">CIDERPW_R2C</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#c.CIDERPW_C2C"><code class="docutils literal notranslate"><span class="pre">CIDERPW_C2C</span></code></a></li>
@@ -140,7 +141,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.icell"><code class="docutils literal notranslate"><span class="pre">icell</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.kernel"><code class="docutils literal notranslate"><span class="pre">kernel</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.fft_type"><code class="docutils literal notranslate"><span class="pre">fft_type</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.mpi_comm"><code class="docutils literal notranslate"><span class="pre">mpi_comm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.mpi_rank"><code class="docutils literal notranslate"><span class="pre">mpi_rank</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.mpi_size"><code class="docutils literal notranslate"><span class="pre">mpi_size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.Ng"><code class="docutils literal notranslate"><span class="pre">Ng</span></code></a></li>
@@ -148,7 +148,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.kLDA"><code class="docutils literal notranslate"><span class="pre">kLDA</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.gLDA"><code class="docutils literal notranslate"><span class="pre">gLDA</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.work_ska"><code class="docutils literal notranslate"><span class="pre">work_ska</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.plan"><code class="docutils literal notranslate"><span class="pre">plan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.plan_g2k"><code class="docutils literal notranslate"><span class="pre">plan_g2k</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.plan_k2g"><code class="docutils literal notranslate"><span class="pre">plan_k2g</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.nk"><code class="docutils literal notranslate"><span class="pre">nk</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.k2_G"><code class="docutils literal notranslate"><span class="pre">k2_G</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.kx_G"><code class="docutils literal notranslate"><span class="pre">kx_G</span></code></a></li>
@@ -163,6 +164,9 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -203,6 +207,12 @@ is intended for maintaining the Python/C boundary.</p>
 array contiguity are part of that boundary.  When modifying the implementation,
 compare the forward and adjoint operations and run the GPAW energy,
 finite-difference force, and stress tests.</p>
+<dl class="c type">
+<dt class="sig sig-object c" id="c.fft_plan_t">
+<span class="k"><span class="pre">type</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fft_plan_t</span></span></span><a class="headerlink" href="#c.fft_plan_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Opaque serial FFT-plan handle owned by the internal FFT wrapper.</p>
+</dd></dl>
+
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
 <dl class="c macro">
@@ -529,11 +539,6 @@ finite-difference force, and stress tests.</p>
 <dd></dd></dl>
 
 <dl class="c var">
-<dt class="sig sig-object c" id="c.ciderpw_data_obj.mpi_comm">
-<span class="target" id="structciderpw__data__obj_1afdf289eb06ba543f2d62e4879ec2f167"></span><span class="n"><span class="pre">MPI_Comm</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mpi_comm</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.mpi_comm" title="Link to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="c var">
 <dt class="sig sig-object c" id="c.ciderpw_data_obj.mpi_rank">
 <span class="target" id="structciderpw__data__obj_1a28b82e729598c86f9488053815635c7b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mpi_rank</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.mpi_rank" title="Link to this definition"></a><br /></dt>
 <dd></dd></dl>
@@ -569,8 +574,13 @@ finite-difference force, and stress tests.</p>
 <dd></dd></dl>
 
 <dl class="c var">
-<dt class="sig sig-object c" id="c.ciderpw_data_obj.plan">
-<span class="target" id="structciderpw__data__obj_1aa7b9e89fdf113c5de34dbc3bc0ad6517"></span><span class="n"><span class="pre">mpi_fft3d_plan_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plan</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.plan" title="Link to this definition"></a><br /></dt>
+<dt class="sig sig-object c" id="c.ciderpw_data_obj.plan_g2k">
+<span class="target" id="structciderpw__data__obj_1a448d62636897b6946c445bb15838cb3d"></span><a class="reference internal" href="#c.fft_plan_t" title="fft_plan_t"><span class="n"><span class="pre">fft_plan_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plan_g2k</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.plan_g2k" title="Link to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c var">
+<dt class="sig sig-object c" id="c.ciderpw_data_obj.plan_k2g">
+<span class="target" id="structciderpw__data__obj_1a1c87bf9c6e0d620597d14d53c4aa78ae"></span><a class="reference internal" href="#c.fft_plan_t" title="fft_plan_t"><span class="n"><span class="pre">fft_plan_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plan_k2g</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.plan_k2g" title="Link to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="c var">

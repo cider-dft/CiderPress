@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -77,6 +77,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Model Loading</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.model_utils.get_slxc_settings"><code class="docutils literal notranslate"><span class="pre">get_slxc_settings()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.model_utils.load_cider_model"><code class="docutils literal notranslate"><span class="pre">load_cider_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.model_utils.validate_cider_composition"><code class="docutils literal notranslate"><span class="pre">validate_cider_composition()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -85,6 +86,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -132,6 +136,16 @@ artifact identity matters.</p>
 <dt class="sig sig-object py" id="ciderpress.dft.model_utils.load_cider_model">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">load_cider_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlfunc_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.load_cider_model" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.dft.model_utils.validate_cider_composition">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">validate_cider_composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlfunc</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xkernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ckernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CiderPress'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.validate_cider_composition" title="Link to this definition"></a></dt>
+<dd><p>Reject additive semilocal terms for mapped full-XC models.</p>
+<p><code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> objects already contain their complete exchange-correlation
+baseline.  Mixing them with an external exchange or correlation kernel
+changes the functional and, in GPAW’s historical default configuration,
+silently double-counts PBE correlation.</p>
+</dd></dl>
 
 </section>
 

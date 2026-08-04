@@ -138,15 +138,17 @@ CIDER26XC full-XC models
      - No separate D4 term
      - PySCF and classic GPAW
 
-These files already contain the full XC energy form described in
-:doc:`../theory/full_xc`.  PySCF's defaults are correct:
+These files already contain the full XC energy form and feature vectors
+described in :doc:`../theory/full_xc`.  PySCF's defaults are correct:
 
 .. code-block:: python
 
    mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
 
 GPAW's initializer also supports exchange-only models, so its historical
-defaults add PBE exchange and correlation.  Override them for CIDER26XC:
+defaults specify PBE composition kernels.  At the default ``xmix=1.0`` the
+external exchange kernel is scaled to zero, but the default PBE correlation
+kernel is still added in full.  Override the defaults for CIDER26XC:
 
 .. code-block:: python
 
@@ -157,28 +159,47 @@ defaults add PBE exchange and correlation.  Override them for CIDER26XC:
        ckernel=None,
    )
 
+``get_cider_functional`` validates this composition and raises ``ValueError``
+instead of constructing a full-XC model with an additional semilocal term.
+Pass the three composition arguments explicitly for GPAW full-XC models.
+
 ``CIDER26XCCHEM`` can be evaluated in an isolated GPAW PAW box, but PySCF is
 the intended molecular representation.  ``CIDER26XCCHEMD4`` is rejected by
-GPAW because its post-density D4 contract is implemented only in PySCF.
+GPAW because the model's D4 energy correction is implemented only in PySCF.
 
 D4 energy accounting
 --------------------
 
-D4 is evaluated after the density SCF and does not change the CIDER potential
-or density.  CiderPress reconciles a pre-existing supported dispersion wrapper
-and applies the model's expected correction exactly once:
+D4 is evaluated after the density SCF and therefore does not change the CIDER
+potential or density.  After ``kernel()`` the following attributes describe
+the energy assembly:
 
-.. code-block:: python
+``mf.e_tot_base``
+   Energy returned by the underlying SCF object before CiderPress makes the
+   model-specific dispersion adjustment.
 
-   total = mf.e_tot
-   base = mf.e_tot_base
-   present = mf.e_vdw_present
-   expected = mf.e_vdw_expected
-   adjustment = mf.e_vdw_delta
-   assert abs(total - (base + adjustment)) < 1e-10
+``mf.e_vdw_present``
+   Dispersion contribution already contained in that underlying energy, if a
+   supported dispersion wrapper was present.
 
-Do not add a second D4 wrapper to the reported total.  The D4 contribution is
-not included in the PySCF CIDER nuclear gradient.
+``mf.e_vdw_expected``
+   D4 contribution specified by the selected CIDER model.
+
+``mf.e_vdw_delta``
+   Adjustment ``e_vdw_expected - e_vdw_present`` added to ``e_tot_base``.
+
+The returned ``mf.e_tot`` is ``mf.e_tot_base + mf.e_vdw_delta`` and already
+contains the expected D4 contribution exactly once.  No additional D4 wrapper
+is needed.  The D4 contribution is not included in the current PySCF CIDER
+nuclear gradient.
+
+The same accounting contract applies to all CIDER26XC models.  For
+``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, a supported D3/D4 wrapper attached
+to the incoming SCF object is disabled because the expected dispersion term is
+zero.  For ``CIDER26XCCHEMD4``, an attached wrapper is retained long enough to
+measure its contribution; CiderPress then adds only the difference between
+that contribution and the model's expected D4 term.  Thus the final energy
+contains the expected term exactly once in either case.
 
 Loading rules and model trust
 -----------------------------
@@ -188,9 +209,9 @@ other YAML or joblib models remain supported, and a real file at the supplied
 path takes precedence over a packaged name.
 
 Mapped CIDER YAML and joblib files reconstruct Python model objects.  Load
-only models obtained from a trusted source.  The packaged resources are
-release assets whose hashes are tested; arbitrary model files should be
-treated like executable Python input.
+only models obtained from a trusted source.  Packaged models have the fixed
+checksums listed below; treat an external model file like executable Python
+input and record its checksum with the calculation.
 
 Checksums
 ---------
@@ -226,5 +247,3 @@ Checksums
 
 See :doc:`reproducibility` for what to report with a result and
 :doc:`../reference/citing` for family-specific citations.
-
-.. footbibliography::

@@ -66,7 +66,7 @@ different information and learn different quantities:
    models and nonlocal models are packaged. :footcite:t:`CIDER23X`
 
 ``CIDER24X``
-   Introduced smooth density-matrix exchange (SDMX) descriptors and extended
+   Introduced smoothed density-matrix exchange (SDMX) descriptors and extended
    Gaussian-process training to orbital-energy labels.  ``CIDER24Xe`` includes
    eigenvalue information; ``CIDER24Xne`` does not.  These models require
    PyTorch and are evaluated through PySCF. :footcite:t:`CIDER24X`
@@ -99,9 +99,7 @@ The core modules mirror the scientific decomposition:
 * ``ciderpress.pyscf`` and ``ciderpress.gpaw`` provide densities and
   propagate model derivatives into their host codes.
 
-This separation is also the extension contract: a new feature needs a setting,
-a numerical plan, backend evaluation and adjoint paths, and tests of energy
-and derivatives.  :doc:`../workflows/extending` describes that path in more
-detail.
+The steps required to connect a new feature to these layers are described in
+:doc:`../workflows/extending`.
 
 .. footbibliography::

@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -87,6 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -173,7 +176,7 @@ plane-wave evaluation, trained exchange from total-energy data, and added
 analytical molecular and periodic derivatives.  Both semilocal reference
 models and nonlocal models are packaged. Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">CIDER24X</span></code></dt><dd><p>Introduced smooth density-matrix exchange (SDMX) descriptors and extended
+<dt><code class="docutils literal notranslate"><span class="pre">CIDER24X</span></code></dt><dd><p>Introduced smoothed density-matrix exchange (SDMX) descriptors and extended
 Gaussian-process training to orbital-energy labels.  <code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code> includes
 eigenvalue information; <code class="docutils literal notranslate"><span class="pre">CIDER24Xne</span></code> does not.  These models require
 PyTorch and are evaluated through PySCF. Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
@@ -205,10 +208,8 @@ efficient evaluators.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf</span></code> and <code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw</span></code> provide densities and
 propagate model derivatives into their host codes.</p></li>
 </ul>
-<p>This separation is also the extension contract: a new feature needs a setting,
-a numerical plan, backend evaluation and adjoint paths, and tests of energy
-and derivatives.  <a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> describes that path in more
-detail.</p>
+<p>The steps required to connect a new feature to these layers are described in
+<a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a>.</p>
 <div class="docutils container" id="id5">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider22x" role="doc-footnote">
@@ -221,7 +222,7 @@ detail.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
-<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/acs.jctc.4c00999">arXiv:https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>

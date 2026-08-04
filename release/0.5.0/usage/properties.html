@@ -60,7 +60,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -78,6 +78,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -203,8 +206,8 @@ response of the atom-centered integration grid.  Converge the electronic SCF,
 basis, quadrature grid, and density-fitting treatment before interpreting a
 gradient.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 only to the final energy.  Its D4 derivative is not
-included in <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code>; do not use that object for a geometry
-optimization that requires the derivative of the composite CIDER+D4 energy.</p>
+included in <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code>.  A geometry optimization of the composite
+CIDER+D4 energy therefore requires a separate implementation of the D4 force.</p>
 </section>
 <section id="periodic-forces-and-stress">
 <h2>Periodic forces and stress<a class="headerlink" href="#periodic-forces-and-stress" title="Link to this heading"></a></h2>
@@ -258,14 +261,15 @@ for the total energy.</p>
 <p>Every member of an energy difference must use the same model composition and
 compatible numerical settings.  In particular:</p>
 <ul class="simple">
-<li><p>Do not mix full-XC and surrogate-hybrid initialization conventions.</p></li>
+<li><p>Use the same full-XC or surrogate-hybrid initialization convention for every
+member.</p></li>
 <li><p>Apply D4 exactly once to every applicable structure.</p></li>
 <li><p>Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
 smearing conventions.</p></li>
 <li><p>Converge isolated references in their own representation instead of
 assuming error cancellation with a periodic system.</p></li>
 </ul>
-<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a> for the associated reporting checklist.</p>
+<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for the associated reporting checklist.</p>
 </section>
 </section>
 

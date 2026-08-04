@@ -46,5 +46,6 @@ functional and numerical settings that generated the density.
 The GPAW descriptor interface provides analogous access to plane-wave and PAW
 quantities, but it is coupled to a live, completed GPAW calculator. See
 :doc:`../ciderpress/gpaw/descriptors` for its supported settings, array
-shapes, PAW behavior, and occupation selectors. Do not assume the PySCF point
-layout or orbital-index convention is portable between backends.
+shapes, PAW behavior, and occupation selectors. Use the point layout and
+orbital-index convention documented for each backend; they are not generally
+interchangeable.

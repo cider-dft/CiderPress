@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -79,6 +79,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -114,9 +117,11 @@ functionals and maps them to compact inference evaluators.  The training
 objects operate on integrated system and reaction observations rather than
 ordinary pointwise scalar targets.</p>
 <p><a class="reference internal" href="train.html#module-ciderpress.models.train" title="ciderpress.models.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.train</span></code></a> provides <code class="docutils literal notranslate"><span class="pre">MOLGP</span></code> and <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code> containers.
-The original representation maps to <code class="docutils literal notranslate"><span class="pre">MappedXC</span></code>; the multi-component
-representation maps to <code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> and supports the separate exchange and
-correlation kernels used by full-XC models.  Covariance kernels build on
+The original representation maps to
+<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a>; the multi-component
+representation maps to <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a> and
+supports the separate exchange and correlation kernels used by full-XC
+models.  Covariance kernels build on
 scikit-learn primitives, while DFT kernels combine them with feature
 transforms, energy-density baselines, and sparse control points.</p>
 <p>Mapping plans under <code class="docutils literal notranslate"><span class="pre">ciderpress.models.kernel_plans</span></code> select an efficient

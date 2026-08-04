@@ -56,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -66,6 +66,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">From Exchange Models to Full XC</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#exchange-only-cider">Exchange-only CIDER</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cider26xc-functional-form">CIDER26XC functional form</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cider26xc-feature-vectors">CIDER26XC feature vectors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#self-consistent-training">Self-consistent training</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#optional-long-range-correction">Optional long-range correction</a></li>
 </ul>
@@ -88,6 +89,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -153,8 +157,34 @@ density information because correlation does not obey the same homogeneous
 scaling rule.</p>
 <p>Because the YAML model already contains its additive PBE contributions, no
 external exchange or correlation kernel may be added during evaluation.  This
-is why the GPAW initializer requires <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code> for CIDER26XC.</p>
+is why the GPAW initializer must be called with <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>,
+<code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code> for CIDER26XC.  CiderPress validates
+these arguments and rejects an additional semilocal contribution.  See
+<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> for the required call.</p>
+</section>
+<section id="cider26xc-feature-vectors">
+<h2>CIDER26XC feature vectors<a class="headerlink" href="#cider26xc-feature-vectors" title="Link to this heading"></a></h2>
+<p>The exchange feature vector <span class="math notranslate nohighlight">\(\mathbf{X}^{\mathrm{x}}_\sigma\)</span> contains
+the scale-invariant semilocal descriptors and the three version-j nonlocal
+density features used by the CIDER23X nonlocal meta-GGA models
+(<a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a> and <a class="reference internal" href="../features/nldf.html"><span class="doc">Nonlocal Density Features (NLDF)</span></a>), with one substitution:
+the SCAN-style iso-orbital indicator <span class="math notranslate nohighlight">\(\alpha\)</span> is replaced by the
+bounded indicator</p>
+<div class="math notranslate nohighlight">
+\[t = \frac{\tau-\tau_0}{\tau+\tau_0},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the kinetic-energy density and <span class="math notranslate nohighlight">\(\tau_0\)</span> its
+uniform-electron-gas value as defined in <a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a>.  Like
+<span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(t\)</span> is scale invariant and, in combination with the
+reduced-gradient descriptor, carries the same iso-orbital information, but it
+is bounded and numerically better behaved in the trained models.</p>
+<p>The correlation feature vector <span class="math notranslate nohighlight">\(\mathbf{X}^{\mathrm{c}}_\sigma\)</span> appends
+one additional descriptor, the density itself, <span class="math notranslate nohighlight">\(X_6 = n\)</span>.  The other
+features are scale invariant, which enforces the exchange scaling constraint
+but is too restrictive for correlation, so the correlation model receives the
+density explicitly.  Before entering the Gaussian-process kernel, every
+feature is mapped onto a finite interval by the bounded transforms stored in
+the serialized model (implemented in <a class="reference internal" href="../ciderpress/dft/transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a>;
+the <span class="math notranslate nohighlight">\(t\)</span> indicator is handled by the <code class="docutils literal notranslate"><span class="pre">SLTMap</span></code> transform).</p>
 </section>
 <section id="self-consistent-training">
 <h2>Self-consistent training<a class="headerlink" href="#self-consistent-training" title="Link to this heading"></a></h2>
@@ -177,11 +207,11 @@ self-consistent training campaign are not part of the installed package; see
 <section id="optional-long-range-correction">
 <h2>Optional long-range correction<a class="headerlink" href="#optional-long-range-correction" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> was trained with a D4 term removed from each target and
-therefore carries an evaluation contract that adds the same term back once.
-D4 is evaluated from nuclear geometry after the density SCF.  It does not
-alter the CIDER potential or density.  The PySCF interface records the base
-energy, expected D4 energy, any correction already present on the incoming
-object, and the final adjustment so double counting can be detected.</p>
+therefore adds the same term back when the model is evaluated.  D4 is evaluated
+from nuclear geometry after the density SCF.  It does not alter the CIDER
+potential or density.  The PySCF interface records the base energy, expected D4
+energy, any correction already present on the incoming object, and the final
+adjustment so that the correction is included exactly once.</p>
 <p>This construction restores an explicit long-range asymptote; it should not be
 interpreted as evidence that every noncovalent application requires D4.  The
 dispersion-free model can learn nonlocal interaction physics within the range
@@ -194,7 +224,7 @@ represented by its electronic descriptors.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
-<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/acs.jctc.4c00999">arXiv:https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>

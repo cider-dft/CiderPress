@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -84,6 +84,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -185,8 +188,9 @@ functional and numerical settings that generated the density.</p>
 <p>The GPAW descriptor interface provides analogous access to plane-wave and PAW
 quantities, but it is coupled to a live, completed GPAW calculator. See
 <a class="reference internal" href="../ciderpress/gpaw/descriptors.html"><span class="doc">GPAW Descriptor Interface</span></a> for its supported settings, array
-shapes, PAW behavior, and occupation selectors. Do not assume the PySCF point
-layout or orbital-index convention is portable between backends.</p>
+shapes, PAW behavior, and occupation selectors. Use the point layout and
+orbital-index convention documented for each backend; they are not generally
+interchangeable.</p>
 </section>
 </section>
 

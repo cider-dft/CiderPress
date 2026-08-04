@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Model and Descriptor Workflows" href="../workflows/workflows.html" />
-    <link rel="prev" title="Smooth Density Matrix Exchange (SDMX)" href="sdmx.html" /> 
+    <link rel="prev" title="Smoothed Density Matrix Exchange (SDMX)" href="sdmx.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -67,7 +67,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="features.html#numerical-and-physical-constraints">Numerical and physical constraints</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Nonlocal Orbital Features (NLOF)</a></li>
 </ul>
 </li>
@@ -85,6 +85,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -116,17 +119,18 @@
              
   <section id="nonlocal-orbital-features-nlof">
 <span id="nlof-feat"></span><h1>Nonlocal Orbital Features (NLOF)<a class="headerlink" href="#nonlocal-orbital-features-nlof" title="Link to this heading"></a></h1>
-<p><strong>The nonlocal orbital features are still highly experimental. We note here
-that they are implemented in the code so that their presence does not cause
-confusion, but their use is not encouraged, and they might be removed at a
-later date.</strong></p>
+<p>Nonlocal orbital features are an experimental interface for fractional-
+Laplacian orbital descriptors.  No packaged production model uses them in
+release 0.5.0, and their settings and numerical interfaces are not guaranteed
+to remain compatible across releases.  They are documented here so that
+serialized research models containing an NLOF block can be identified.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="sdmx.html" class="btn btn-neutral float-left" title="Smooth Density Matrix Exchange (SDMX)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sdmx.html" class="btn btn-neutral float-left" title="Smoothed Density Matrix Exchange (SDMX)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../workflows/workflows.html" class="btn btn-neutral float-right" title="Model and Descriptor Workflows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

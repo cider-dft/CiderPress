@@ -9,9 +9,11 @@ objects operate on integrated system and reaction observations rather than
 ordinary pointwise scalar targets.
 
 :mod:`ciderpress.models.train` provides ``MOLGP`` and ``MOLGP2`` containers.
-The original representation maps to ``MappedXC``; the multi-component
-representation maps to ``MappedXC2`` and supports the separate exchange and
-correlation kernels used by full-XC models.  Covariance kernels build on
+The original representation maps to
+:class:`~ciderpress.dft.xc_evaluator.MappedXC`; the multi-component
+representation maps to :class:`~ciderpress.dft.xc_evaluator2.MappedXC2` and
+supports the separate exchange and correlation kernels used by full-XC
+models.  Covariance kernels build on
 scikit-learn primitives, while DFT kernels combine them with feature
 transforms, energy-density baselines, and sparse control points.
 

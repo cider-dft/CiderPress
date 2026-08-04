@@ -60,7 +60,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -78,6 +78,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -171,9 +174,12 @@ objects:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>examples/pyscf/production_calc.py<span class="w"> </span>--model<span class="w"> </span>CIDER26XCCHEM
 </pre></div>
 </div>
-<p>The calculation must report <code class="docutils literal notranslate"><span class="pre">mf.converged</span></code> before its energy is used.  For
-<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, the printed base, expected dispersion, and adjustment
-terms explain how the final total was assembled.</p>
+<p>Check <code class="docutils literal notranslate"><span class="pre">mf.converged</span></code> before interpreting the energy.  For open-shell or
+difficult systems, also verify the occupations and electronic state.  The
+example prints the base, expected dispersion, and adjustment terms for every
+CIDER26XC model; with <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> they show how the final total was
+assembled, while for the models without an explicit D4 term the dispersion
+entries are zero.</p>
 </section>
 <section id="exchange-only-model-with-pyscf">
 <h2>Exchange-only model with PySCF<a class="headerlink" href="#exchange-only-model-with-pyscf" title="Link to this heading"></a></h2>

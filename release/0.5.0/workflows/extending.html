@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -73,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#backend-data-flow">Backend data flow</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#paw-and-interpolation-invariants">PAW and interpolation invariants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#model-and-checkpoint-compatibility">Model and checkpoint compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-documentation">Building the documentation</a></li>
 </ul>
 </li>
 </ul>
@@ -85,6 +86,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -185,6 +189,16 @@ functional composition from a missing field.</p>
 molecular cases, PAW elements spanning light and transition-metal regimes,
 and a full checkpoint restart.  See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a> before
 advertising a new feature/property combination.</p>
+</section>
+<section id="building-the-documentation">
+<h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h2>
+<p>From the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory, build the strict HTML target and check the
+generated internal links and mathematics with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>-E<span class="w"> </span>-n<span class="w"> </span>-W<span class="w"> </span>--keep-going<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>.<span class="w"> </span>_build/html
+python<span class="w"> </span>tools/check_html_links.py<span class="w"> </span>_build/html
+python<span class="w"> </span>tools/check_mathjax.py<span class="w"> </span>_build/html
+</pre></div>
+</div>
 </section>
 </section>
 

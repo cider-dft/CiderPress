@@ -56,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -68,7 +68,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#numerical-and-physical-constraints">Numerical and physical constraints</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
 </ul>
 </li>
@@ -86,6 +86,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -181,7 +184,7 @@ to regression.  CiderPress applies three layers:</p>
 <li><p>A settings object declares the raw quantities and their parameters.</p></li>
 <li><p>Physical normalizers combine quantities into dimensionless or
 controlled-scaling descriptors.</p></li>
-<li><p>bounded transforms place the descriptors in coordinates suitable for the
+<li><p>Bounded transforms place the descriptors in coordinates suitable for the
 mapped Gaussian-process evaluator.</p></li>
 </ol>
 <p>The complete ordered settings, normalizers, and transforms are serialized in
@@ -196,9 +199,9 @@ and transforms all match.</p>
 descriptors.  CIDER24X replaces the density-only nonlocal block with SDMX and
 can train on orbital-occupation derivatives.  CIDER26XC uses version-j NLDF
 again, but supplies separate transformed inputs to learned exchange and
-correlation components.  The learned energy forms are explained in
-<a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>; model/backend compatibility is listed in
-<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
+correlation components.  The learned energy forms and the CIDER26XC feature
+vectors are explained in <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>; model/backend
+compatibility is listed in <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
 </section>
 <section id="numerical-and-physical-constraints">
 <h2>Numerical and physical constraints<a class="headerlink" href="#numerical-and-physical-constraints" title="Link to this heading"></a></h2>
@@ -207,7 +210,7 @@ scaling of exchange to be built into the energy form.  Correlation has a
 different scaling structure and may retain explicit density dependence.
 Rotational invariance is obtained through scalar contractions of vector or
 angular components, while spin channels are combined according to the model’s
-exchange or correlation contract.</p>
+exchange or correlation energy form.</p>
 <p>At very low density, near nuclei, and near interpolation boundaries, feature
 regularization is inseparable from numerical stability.  A change that makes
 forward features finite must also preserve their adjoint derivatives.  See
@@ -219,7 +222,7 @@ forward features finite must also preserve their adjoint derivatives.  See
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
 </ul>
 </div>

@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -83,6 +83,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -115,24 +118,27 @@
   <section id="dft">
 <h1>dft<a class="headerlink" href="#dft" title="Link to this heading"></a></h1>
 <p>The <a class="reference internal" href="#module-ciderpress.pyscf.dft" title="ciderpress.pyscf.dft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.dft</span></code></a> module provides the
-function <code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code>, which takes
-a Pyscf <code class="xref py py-class docutils literal notranslate"><span class="pre">KohnShamDFT</span></code> object and a CIDER
-functional object (<code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code>)
-and returns an instance of a <code class="xref py py-class docutils literal notranslate"><span class="pre">KohnShamDFT</span></code>
-subclass that uses the CIDER functional. The function
-is similar to native PySCF routines like <code class="xref py py-func docutils literal notranslate"><span class="pre">density_fit()</span></code>,
+function <a class="reference internal" href="#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a>, which takes
+a PySCF Kohn–Sham DFT object and a CIDER
+functional object (<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
+<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>)
+and returns a decorated subclass that uses the CIDER functional. The function
+is similar to native PySCF routines such as <code class="docutils literal notranslate"><span class="pre">density_fit</span></code>,
 in which the input SCF object is “decorated” with the
 necessary routines to evaluate the CIDER functional.</p>
 <p>The basic full-XC use case is:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">RKS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">gto</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">gto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">RKS</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_cider_calc</span>
+
 <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">ks</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="n">ks</span> <span class="o">=</span> <span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="n">ks</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
 <span class="n">etot</span> <span class="o">=</span> <span class="n">ks</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For a complete example, please see <a class="reference external" href="https://github.com/mir-group/CiderPress/tree/main/examples/pyscf/simple_calc.py">examples/pyscf/simple_calc.py</a>
+<p>For a complete example, please see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3417e6a3c8b6ad4d4377e213c7d7a65ffdf82b67/examples/pyscf/production_calc.py">examples/pyscf/production_calc.py</a>
 and <a class="reference internal" href="../../usage/pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a>.</p>
 <dl class="py function" id="module-ciderpress.pyscf.dft">
 <dt class="sig sig-object py" id="ciderpress.pyscf.dft.make_cider_calc">
@@ -144,10 +150,9 @@ The XC energy is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">E_xc</span> <span class="o">=</span> <span class="n">xmix</span> <span class="o">*</span> <span class="n">E_x</span><span class="o">^</span><span class="n">CIDER</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">xmix</span><span class="p">)</span> <span class="o">*</span> <span class="n">xkernel</span> <span class="o">+</span> <span class="n">ckernel</span> <span class="o">+</span> <span class="n">xc</span>
 </pre></div>
 </div>
-<p>Note the above formula applies even if <code class="docutils literal notranslate"><span class="pre">E_x^CIDER</span></code> is a
-full XC functional. If <code class="docutils literal notranslate"><span class="pre">E_x^CIDER</span></code> is a full XC functional that
-does not need a baseline, the user should pass <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">xc=None</span></code>,
-<code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, <code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code> (the defaults).</p>
+<p>Mapped full-XC models already contain their complete baseline and require
+<code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">xc=None</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code> (the
+defaults). Other compositions are rejected to prevent double counting.</p>
 <p>NOTE: Only GGA-level XC functionals can be used with GGA-level
 (orbital-independent) CIDER functionals currently.</p>
 <dl class="field-list simple">

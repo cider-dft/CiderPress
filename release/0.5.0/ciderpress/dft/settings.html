@@ -56,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -225,6 +225,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -259,43 +262,45 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_I_SPECS_L0">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_I_SPECS_L0</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se',</span> <span class="pre">'se_r2',</span> <span class="pre">'se_apr2',</span> <span class="pre">'se_ap',</span> <span class="pre">'se_ap2r2',</span> <span class="pre">'se_lapl']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_I_SPECS_L0" title="Link to this definition"></a></dt>
-<dd><p>Allowed spec strings for version i l=0 features.</p>
-<p>se: squared-exponential</p>
-<p>se_r2: squared-exponential times r^2</p>
-<p>se_apr2: squared-exponential times the exponent of the
-r’ coordinate times r^2</p>
-<p>se_ap: squared-exponential times the exponent of the
-r’ coordinate.</p>
-<p>se_ap2r2: squared-exponential times exponent^2 times r^2</p>
-<p>se_lapl: laplacian of squared-exponential</p>
+<dd><p>Allowed spec strings for version-I <span class="math notranslate nohighlight">\(\ell=0\)</span> features.</p>
+<p><code class="docutils literal notranslate"><span class="pre">se</span></code>: squared exponential, <span class="math notranslate nohighlight">\(\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_r2</span></code>: <span class="math notranslate nohighlight">\(R^2\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_apr2</span></code>: <span class="math notranslate nohighlight">\(aR^2\exp(-aR^2)\)</span>, where <span class="math notranslate nohighlight">\(a\)</span> is the exponent
+at the integrated coordinate <span class="math notranslate nohighlight">\(\mathbf r'\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_ap</span></code>: <span class="math notranslate nohighlight">\(a\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_ap2r2</span></code>: <span class="math notranslate nohighlight">\(a^2R^2\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_lapl</span></code>: <span class="math notranslate nohighlight">\((4a^2R^2-2a)\exp(-aR^2)\)</span> (the historical
+one-dimensional second-derivative form used by the implementation)</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_I_SPECS_L1">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_I_SPECS_L1</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se_grad',</span> <span class="pre">'se_rvec']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_I_SPECS_L1" title="Link to this definition"></a></dt>
-<dd><p>Allowed spec strings for version i l=1 features</p>
-<p>se_grad: gradient of squared-exponential</p>
-<p>se_rvec: squared-exponential times vector (r’-r)</p>
+<dd><p>Allowed spec strings for version-I <span class="math notranslate nohighlight">\(\ell=1\)</span> features.</p>
+<p><code class="docutils literal notranslate"><span class="pre">se_grad</span></code>: <span class="math notranslate nohighlight">\(a(\mathbf r'-\mathbf r)\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_rvec</span></code>: <span class="math notranslate nohighlight">\((\mathbf r'-\mathbf r)\exp(-aR^2)\)</span></p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_J_SPECS">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_J_SPECS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se',</span> <span class="pre">'se_ar2',</span> <span class="pre">'se_a2r4',</span> <span class="pre">'se_erf_rinv',</span> <span class="pre">'se_rinv4',</span> <span class="pre">'rinv2_rinv4',</span> <span class="pre">'rinv4_rinv2',</span> <span class="pre">'se_rinv2']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_J_SPECS" title="Link to this definition"></a></dt>
-<dd><p>Allowed spec strings for version j features.
-Version k features have the same allowed spec strings</p>
-<p>se: squared-exponential</p>
-<p>se_ar2: squared-exponential * a * r^2</p>
-<p>se_a2r4: squared-exponential * a^2 * r^4</p>
-<p>se_erf_rinv: squared-exponential * 1/r with short-range
-erf damping</p>
+<dd><p>Allowed spec strings for version-J features.
+Version-K features have the same allowed spec strings.</p>
+<p><code class="docutils literal notranslate"><span class="pre">se</span></code>: squared exponential, <span class="math notranslate nohighlight">\(\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_ar2</span></code>: <span class="math notranslate nohighlight">\(aR^2\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_a2r4</span></code>: <span class="math notranslate nohighlight">\(a^2R^4\exp(-aR^2)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">se_erf_rinv</span></code>: squared exponential times <span class="math notranslate nohighlight">\(1/R\)</span>, with short-range
+error-function damping</p>
 <p>The rational-kernel specs below are experimental and require
 <code class="docutils literal notranslate"><span class="pre">vdw_param=True</span></code> when constructing <code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code>.</p>
-<p>se_rinv4: squared-exponential * (1 / (a r^2 + 1))^2</p>
-<p>rinv2_rinv4: (1 / (a r^2 + 1)) * (1 / (a r^2 + 1))^2 for H_i feature</p>
-<p>rinv2: (1 / (a r^2 + 1))</p>
-<p>rinv4: (1 / (a r^2 + 1))^2</p>
-<p>rinv4_rinv2: (1 / (a r^2 + 1))^2 * (1 / (a r^2 + 1))</p>
-<p>se_rinv2: squared-exponential * (1 / (a r^2 + 1))</p>
+<p><code class="docutils literal notranslate"><span class="pre">se_rinv4</span></code>: <span class="math notranslate nohighlight">\(\exp(-aR^2)/(aR^2+1)^2\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">rinv2_rinv4</span></code>: <span class="math notranslate nohighlight">\(1/(aR^2+1)\)</span> at one coordinate and
+<span class="math notranslate nohighlight">\(1/(aR^2+1)^2\)</span> at the other</p>
+<p><code class="docutils literal notranslate"><span class="pre">rinv2</span></code> component: <span class="math notranslate nohighlight">\(1/(aR^2+1)\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">rinv4</span></code> component: <span class="math notranslate nohighlight">\(1/(aR^2+1)^2\)</span></p>
+<p><code class="docutils literal notranslate"><span class="pre">rinv4_rinv2</span></code>: <span class="math notranslate nohighlight">\(1/(aR^2+1)^2\)</span> at one coordinate and
+<span class="math notranslate nohighlight">\(1/(aR^2+1)\)</span> at the other</p>
+<p><code class="docutils literal notranslate"><span class="pre">se_rinv2</span></code>: <span class="math notranslate nohighlight">\(\exp(-aR^2)/(aR^2+1)\)</span></p>
 </dd></dl>
 
 <dl class="py data">
@@ -309,10 +314,10 @@ erf damping</p>
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_RHO_DAMPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['exponential']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_RHO_DAMPS" title="Link to this definition"></a></dt>
 <dd><p>These strings specify the allowed options for how to “damp”
 the density for the version k features. Currently the only allowed
-option is “exponential”, which results in the integral
-<span class="math notranslate nohighlight">\(\int g[n](|r-r'|) n(r') exp(-3 a_0[n](r') / 2 a_i[n](r))\)</span>,
+option is <code class="docutils literal notranslate"><span class="pre">exponential</span></code>, which results in the integral
+<span class="math notranslate nohighlight">\(\int g[n](|r-r'|) n(r') \exp[-3 a_0[n](r')/(2 a_i[n](r))]\)</span>,
 where <span class="math notranslate nohighlight">\(a_0\)</span> is the exponent given by <code class="docutils literal notranslate"><span class="pre">theta_params</span></code>
-and <span class="math notranslate nohighlight">\(a_i\)</span> is an exponet given by <code class="docutils literal notranslate"><span class="pre">feat_params</span></code>.</p>
+and <span class="math notranslate nohighlight">\(a_i\)</span> is an exponent given by <code class="docutils literal notranslate"><span class="pre">feat_params</span></code>.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -321,9 +326,9 @@ and <span class="math notranslate nohighlight">\(a_i\)</span> is an exponet give
 <dd><p>These strings specify the allowed options for what value
 to multiply the density by before integrating it to construct
 NLDF features. The options are:</p>
-<p>one: Identity, i.e. multiply density by 1</p>
-<p>expnt: Multiply the density by the NLDF exponent specified
-by the theta_params. (NOTE: Experimental, not thoroughly tested.)</p>
+<p><code class="docutils literal notranslate"><span class="pre">one</span></code>: Identity, i.e. multiply the density by 1.</p>
+<p><code class="docutils literal notranslate"><span class="pre">expnt</span></code>: Multiply the density by the NLDF exponent specified by
+<code class="docutils literal notranslate"><span class="pre">theta_params</span></code>. This option is experimental and not thoroughly tested.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -520,9 +525,10 @@ as a function of the density rho</p>
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">FracLaplSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nk0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nk1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_dots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nd1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld_dots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FracLaplSettings" title="Link to this definition"></a></dt>
 <dd><p>Settings for Fractional Laplacian feature set.</p>
 <p>Initialize FracLaplSettings object. Note, in the documentation below
-on the indexing of the features, fl_rho is the part of the density
+on the indexing of the features, <code class="docutils literal notranslate"><span class="pre">fl_rho</span></code> is the part of the density
 ingredient vector AFTER the semilocal part.</p>
-<p>Note on the l=1 feature indexing. If l1_dots[i] = (j, k), then:</p>
+<p>Note on the <span class="math notranslate nohighlight">\(\ell=1\)</span> feature indexing. If
+<code class="docutils literal notranslate"><span class="pre">l1_dots[i]</span> <span class="pre">=</span> <span class="pre">(j,</span> <span class="pre">k)</span></code>, then:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fl_feat</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">nk0</span><span class="p">]</span> <span class="o">=</span> <span class="n">einsum</span><span class="p">(</span>
     <span class="s1">&#39;xg,xg-&gt;g&#39;</span><span class="p">,</span>
     <span class="n">fl_rho</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="n">nk0</span> <span class="p">:</span> <span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="o">+</span><span class="n">nk0</span><span class="p">],</span>
@@ -530,7 +536,7 @@ ingredient vector AFTER the semilocal part.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>If ld_dots[i] = (j, k), then:</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">ld_dots[i]</span> <span class="pre">=</span> <span class="pre">(j,</span> <span class="pre">k)</span></code>, then:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nstart</span> <span class="o">=</span> <span class="n">nk0</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nk1</span>
 <span class="n">fl_feat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">nk0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">l1_dots</span><span class="p">)]</span> <span class="o">=</span> <span class="n">einsum</span><span class="p">(</span>
     <span class="s1">&#39;xg,xg-&gt;g&#39;</span><span class="p">,</span>
@@ -547,24 +553,29 @@ ingredient vector AFTER the semilocal part.</p>
 <li><p><strong>slist</strong> (<em>list of float</em>) – s parameters for the fractional
 Laplacian. For each s, <span class="math notranslate nohighlight">\((-\Delta)^s \phi_i\)</span> is computed
 for each single-particle orbital.</p></li>
-<li><p><strong>nk0</strong> (<em>int</em>) – Number of scalar (l=0) features. Must be &lt;= len(slist).
-fl_feat[i] = fl_rho[i] = <span class="math notranslate nohighlight">\((-\Delta')^s \rho(r, r') |_{r'=r}\)</span>,
-with s=slist[i].</p></li>
-<li><p><strong>nk1</strong> (<em>int</em>) – Number of vector (l=1) features F_s^1. Must be &lt;= len(slist).
-fl_rho[3*i+nk0 : 3*i+3+nk0] =
-<span class="math notranslate nohighlight">\(\nabla'' (-\Delta')^s \rho(r'', r') |_{r'=r,r''=r}\)</span>,
-with s=slist[i].</p></li>
+<li><p><strong>nk0</strong> (<em>int</em>) – Number of scalar (<span class="math notranslate nohighlight">\(\ell=0\)</span>) features. Must be
+<code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>. For <code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">slist[i]</span></code>, <code class="docutils literal notranslate"><span class="pre">fl_feat[i]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">fl_rho[i]</span></code> contain
+<span class="math notranslate nohighlight">\((-\Delta')^s \rho(r,r')|_{r'=r}\)</span>.</p></li>
+<li><p><strong>nk1</strong> (<em>int</em>) – Number of vector (<span class="math notranslate nohighlight">\(\ell=1\)</span>) features
+<span class="math notranslate nohighlight">\(F_s^1\)</span>. Must be <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>. For
+<code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">slist[i]</span></code>, the corresponding three entries in
+<code class="docutils literal notranslate"><span class="pre">fl_rho</span></code> contain
+<span class="math notranslate nohighlight">\(\nabla''(-\Delta')^s\rho(r'',r')|_{r'=r,r''=r}\)</span>.</p></li>
 <li><p><strong>l1_dots</strong> (<em>list of (int, int)</em>) – List of index tuples for contracting
-the l=1 F_s^1 features. -1 indicates to use the semilocal
-density gradient.</p></li>
-<li><p><strong>nd1</strong> (<em>int</em>) – Number of vector features F_s^d. Must be <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>
+the <span class="math notranslate nohighlight">\(\ell=1\)</span> features <span class="math notranslate nohighlight">\(F_s^1\)</span>. <code class="docutils literal notranslate"><span class="pre">-1</span></code> indicates
+the semilocal density gradient.</p></li>
+<li><p><strong>nd1</strong> (<em>int</em>) – Number of vector features <span class="math notranslate nohighlight">\(F_s^d\)</span>. Must be
+<code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>.
 With <code class="docutils literal notranslate"><span class="pre">nstart</span> <span class="pre">=</span> <span class="pre">nk0</span> <span class="pre">+</span> <span class="pre">3</span> <span class="pre">*</span> <span class="pre">nk1</span></code>,
 <code class="docutils literal notranslate"><span class="pre">fl_rho[i</span> <span class="pre">*</span> <span class="pre">3</span> <span class="pre">+</span> <span class="pre">nstart</span> <span class="pre">:</span> <span class="pre">(i+1)</span> <span class="pre">*</span> <span class="pre">3</span> <span class="pre">+</span> <span class="pre">nstart]</span> <span class="pre">=</span></code>
 <span class="math notranslate nohighlight">\(\nabla' (-\Delta')^s \rho(r, r') |_{r'=r}\)</span>,
-with s=slist[i].</p></li>
-<li><p><strong>ld_dots</strong> (<em>list of (int, int)</em>) – Same as l1_dots but for the F_s^d
-features. -1 indicates to use the semilocal density gradient.</p></li>
-<li><p><strong>ndd</strong> (<em>int</em>) – Numer of dot product features <span class="math notranslate nohighlight">\(F_s^{dd}\)</span>. Must be &lt;= nd1</p></li>
+with <code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">slist[i]</span></code>.</p></li>
+<li><p><strong>ld_dots</strong> (<em>list of (int, int)</em>) – Same as <code class="docutils literal notranslate"><span class="pre">l1_dots</span></code> but for the
+<span class="math notranslate nohighlight">\(F_s^d\)</span> features. <code class="docutils literal notranslate"><span class="pre">-1</span></code> indicates the semilocal density
+gradient.</p></li>
+<li><p><strong>ndd</strong> (<em>int</em>) – Number of dot-product features <span class="math notranslate nohighlight">\(F_s^{dd}\)</span>. Must
+be <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">nd1</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1205,8 +1216,9 @@ as a function of the density rho</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pows</strong> (<em>list of int</em>) – list of 0, 1, 2, see SDMXSettings docstring.</p></li>
-<li><p><strong>n1</strong> (<em>int</em>) – Number of gradient features H_n^1. Will compute features
-for the first n1 values of n in pows.</p></li>
+<li><p><strong>n1</strong> (<em>int</em>) – Number of gradient features <span class="math notranslate nohighlight">\(H_n^1\)</span>. Computes
+features for the first <code class="docutils literal notranslate"><span class="pre">n1</span></code> values of <span class="math notranslate nohighlight">\(n\)</span> in
+<code class="docutils literal notranslate"><span class="pre">pows</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1335,10 +1347,12 @@ as a function of the density rho</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pows</strong> (<em>list of int</em>) – list of 0, 1, 2, see SDMXSettings docstring.</p></li>
-<li><p><strong>nd</strong> (<em>int</em>) – Number of gradient features H_n^d. Will compute features
-for the first nd values of n in pows.</p></li>
-<li><p><strong>n1</strong> (<em>int</em>) – Number of gradient features H_n^1. Will compute features
-for the first n1 values of n in pows.</p></li>
+<li><p><strong>nd</strong> (<em>int</em>) – Number of gradient features <span class="math notranslate nohighlight">\(H_n^d\)</span>. Computes
+features for the first <code class="docutils literal notranslate"><span class="pre">nd</span></code> values of <span class="math notranslate nohighlight">\(n\)</span> in
+<code class="docutils literal notranslate"><span class="pre">pows</span></code>.</p></li>
+<li><p><strong>n1</strong> (<em>int</em>) – Number of gradient features <span class="math notranslate nohighlight">\(H_n^1\)</span>. Computes
+features for the first <code class="docutils literal notranslate"><span class="pre">n1</span></code> values of <span class="math notranslate nohighlight">\(n\)</span> in
+<code class="docutils literal notranslate"><span class="pre">pows</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1400,8 +1414,9 @@ as a function of the density rho</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pows</strong> (<em>list of int</em>) – list of 0, 1, 2, see SDMXSettings docstring.</p></li>
-<li><p><strong>ndt</strong> (<em>int</em>) – Number of gradient features H_n^d. Will compute features
-for the first ndt values of n in pows.</p></li>
+<li><p><strong>ndt</strong> (<em>int</em>) – Number of gradient features <span class="math notranslate nohighlight">\(H_n^d\)</span>. Computes
+features for the first <code class="docutils literal notranslate"><span class="pre">ndt</span></code> values of <span class="math notranslate nohighlight">\(n\)</span> in
+<code class="docutils literal notranslate"><span class="pre">pows</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1461,9 +1476,10 @@ as a function of the density rho</p>
 <dd><p>Initialize SDMX settings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pows</strong> (<em>list of int</em>) – for each number n in pows,
-int dR R^{2-n} rho_smooth(R) is computed. Technically,
-n can be any float, but it should be 0, 1, or 2 for
+<dd class="field-odd"><p><strong>pows</strong> (<em>list of int</em>) – For each <span class="math notranslate nohighlight">\(n\)</span> in <code class="docutils literal notranslate"><span class="pre">pows</span></code>,
+<span class="math notranslate nohighlight">\(\int \mathrm{d}R\,R^{2-n}\rho_{\mathrm{smooth}}(R)\)</span>
+is computed. Technically, <span class="math notranslate nohighlight">\(n\)</span> can be any float, but it
+should be 0, 1, or 2 for
 normalizability and ability to compute UEG values.
 If not 0, 1, or 2, UEG limit cannot be computed,
 and features might be poorly defined/numerically inaccurate.</p>
@@ -1522,10 +1538,10 @@ as a function of the density rho</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.SPEC_USPS">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SPEC_USPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'grad_rho':</span> <span class="pre">4,</span> <span class="pre">'rinv2_rinv4':</span> <span class="pre">0,</span> <span class="pre">'rinv4_rinv2':</span> <span class="pre">0,</span> <span class="pre">'se':</span> <span class="pre">0,</span> <span class="pre">'se_a2r4':</span> <span class="pre">0,</span> <span class="pre">'se_ap':</span> <span class="pre">2,</span> <span class="pre">'se_ap2r2':</span> <span class="pre">2,</span> <span class="pre">'se_apr2':</span> <span class="pre">0,</span> <span class="pre">'se_ar2':</span> <span class="pre">0,</span> <span class="pre">'se_erf_rinv':</span> <span class="pre">0,</span> <span class="pre">'se_grad':</span> <span class="pre">1,</span> <span class="pre">'se_lapl':</span> <span class="pre">2,</span> <span class="pre">'se_r2':</span> <span class="pre">-2,</span> <span class="pre">'se_rinv2':</span> <span class="pre">0,</span> <span class="pre">'se_rinv4':</span> <span class="pre">0,</span> <span class="pre">'se_rvec':</span> <span class="pre">-1}</span></span><a class="headerlink" href="#ciderpress.dft.settings.SPEC_USPS" title="Link to this definition"></a></dt>
-<dd><p>Uniform-scaling powers (USPs) descibe how features scale as the
-density is scaled by n_lambda(r) = lambda^3 n(lambda r). If the
-USP of a functional F is u, then
-F[n_lambda](r) = lambda^u F[n](lambda r)</p>
+<dd><p>Uniform-scaling powers (USPs) describe how features scale under
+<span class="math notranslate nohighlight">\(n_\lambda(\mathbf r)=\lambda^3n(\lambda\mathbf r)\)</span>. If the USP of a
+functional <span class="math notranslate nohighlight">\(F\)</span> is <span class="math notranslate nohighlight">\(u\)</span>, then
+<span class="math notranslate nohighlight">\(F[n_\lambda](\mathbf r)=\lambda^uF[n](\lambda\mathbf r)\)</span>.</p>
 </dd></dl>
 
 <dl class="py class">

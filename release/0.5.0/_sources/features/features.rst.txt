@@ -59,7 +59,7 @@ to regression.  CiderPress applies three layers:
 1. A settings object declares the raw quantities and their parameters.
 2. Physical normalizers combine quantities into dimensionless or
    controlled-scaling descriptors.
-3. bounded transforms place the descriptors in coordinates suitable for the
+3. Bounded transforms place the descriptors in coordinates suitable for the
    mapped Gaussian-process evaluator.
 
 The complete ordered settings, normalizers, and transforms are serialized in
@@ -75,9 +75,9 @@ CIDER23X combines semilocal ingredients with efficient version-j NLDF
 descriptors.  CIDER24X replaces the density-only nonlocal block with SDMX and
 can train on orbital-occupation derivatives.  CIDER26XC uses version-j NLDF
 again, but supplies separate transformed inputs to learned exchange and
-correlation components.  The learned energy forms are explained in
-:doc:`../theory/full_xc`; model/backend compatibility is listed in
-:doc:`../usage/production_models`.
+correlation components.  The learned energy forms and the CIDER26XC feature
+vectors are explained in :doc:`../theory/full_xc`; model/backend
+compatibility is listed in :doc:`../usage/production_models`.
 
 Numerical and physical constraints
 ----------------------------------
@@ -87,7 +87,7 @@ scaling of exchange to be built into the energy form.  Correlation has a
 different scaling structure and may retain explicit density dependence.
 Rotational invariance is obtained through scalar contractions of vector or
 angular components, while spin channels are combined according to the model's
-exchange or correlation contract.
+exchange or correlation energy form.
 
 At very low density, near nuclei, and near interpolation boundaries, feature
 regularization is inseparable from numerical stability.  A change that makes

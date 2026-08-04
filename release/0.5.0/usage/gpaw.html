@@ -66,7 +66,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -84,6 +84,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -141,8 +144,8 @@ composition:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is rejected because
-its D4 contract is PySCF-only.</p>
+<p>CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is available only
+through PySCF because GPAW does not apply the model’s D4 energy correction.</p>
 </section>
 <section id="pbe-seeded-periodic-workflow">
 <h2>PBE-seeded periodic workflow<a class="headerlink" href="#pbe-seeded-periodic-workflow" title="Link to this heading"></a></h2>
@@ -206,7 +209,7 @@ bands, symmetry, charge, spin, and occupations.  Write wavefunctions with
 </div>
 <p>Use <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a> for a calculation that will
 be saved or restarted.  A normal <code class="docutils literal notranslate"><span class="pre">GPAW</span></code> calculator can evaluate an in-memory
-CIDER object but does not provide the complete CIDER checkpoint contract.</p>
+CIDER object, but it does not save all CIDER-specific restart information.</p>
 </section>
 <section id="surfaces-and-adsorption-systems">
 <h2>Surfaces and adsorption systems<a class="headerlink" href="#surfaces-and-adsorption-systems" title="Link to this heading"></a></h2>
@@ -414,8 +417,12 @@ calculator is recreated:</p>
 </pre></div>
 </div>
 <p>The checkpoint stores the mapped model text and nonlocal interpolation
-parameters, including <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code>, <code class="docutils literal notranslate"><span class="pre">qmax</span></code>, and <code class="docutils literal notranslate"><span class="pre">lambd</span></code>.  Still verify the
-model name/composition and requested numerical controls in the resumed output.</p>
+parameters, including <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code>, <code class="docutils literal notranslate"><span class="pre">lambd</span></code>, and the plane-wave cutoff
+<code class="docutils literal notranslate"><span class="pre">encut</span></code> derived from the <code class="docutils literal notranslate"><span class="pre">qmax</span></code> argument.  When a checkpoint is opened
+without an explicit <code class="docutils literal notranslate"><span class="pre">xc=</span></code> override, <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a>
+reconstructs the saved CIDER functional automatically.  Passing <code class="docutils literal notranslate"><span class="pre">xc=</span></code>
+explicitly requests an override instead.  In either case, verify the model
+name, composition, and requested numerical controls in the resumed output.</p>
 </section>
 <section id="forces-and-stress">
 <h2>Forces and stress<a class="headerlink" href="#forces-and-stress" title="Link to this heading"></a></h2>
@@ -441,8 +448,8 @@ normally determined automatically.</p>
 <h2>Parallel execution and memory<a class="headerlink" href="#parallel-execution-and-memory" title="Link to this heading"></a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">parallel={&quot;augment_grids&quot;:</span> <span class="pre">True}</span></code> to distribute XC grid work.  The
 nonlocal FFT buffers and PAW data add memory beyond a comparable PBE
-calculation.  On large systems, run fallback rungs in separate processes so
-calculator graphs and per-rank buffers are released between attempts.</p>
+calculation.  For memory-heavy systems, run each restart attempt as a separate
+job so memory from the previous calculator is released.</p>
 <p>The CiderPress extension and GPAW must use compatible MPI, FFT, BLAS, and
 OpenMP runtimes.  Validate the exact launcher and rank layout on a small job
 before scaling to multiple nodes.</p>
@@ -455,7 +462,7 @@ changing several controls only on the CIDER side.  Metals and magnetic systems
 often need smaller density and magnetization mixing, occupation smearing, and
 explicit monitoring of local moments.</p>
 <p>Use <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a> for calculation-class ladders and
-<a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a> for the final validation record.</p>
+<a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for the settings and checks to retain with a calculation.</p>
 </section>
 </section>
 

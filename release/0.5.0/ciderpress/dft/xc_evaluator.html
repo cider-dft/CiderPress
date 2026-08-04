@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -75,8 +75,10 @@
 <li class="toctree-l2"><a class="reference internal" href="transform_data.html">The Transform Data Module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">The XC Evaluator Modules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.xc_evaluator.MappedDFTKernel"><code class="docutils literal notranslate"><span class="pre">MappedDFTKernel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.xc_evaluator.MappedXC"><code class="docutils literal notranslate"><span class="pre">MappedXC</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.xc_evaluator.get_vec_eval"><code class="docutils literal notranslate"><span class="pre">get_vec_eval()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.xc_evaluator2.MappedDFTKernel2"><code class="docutils literal notranslate"><span class="pre">MappedDFTKernel2</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.xc_evaluator2.MappedXC2"><code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
@@ -86,6 +88,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -124,6 +129,27 @@
 object, using one or a list of FuncEvaluator objects.</p>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.xc_evaluator.MappedXC">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.xc_evaluator.</span></span><span class="sig-name descname"><span class="pre">MappedXC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapped_kernels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libxc_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.xc_evaluator.MappedXC" title="Link to this definition"></a></dt>
+<dd><p>Inference-time evaluator for a mapped CIDER functional.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">MappedXC</span></code> bundles one or more mapped DFT kernels with the
+<a class="reference internal" href="settings.html#ciderpress.dft.settings.FeatureSettings" title="ciderpress.dft.settings.FeatureSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSettings</span></code></a> that define their
+inputs. It is the object reconstructed from a serialized CIDER model
+file (for example the packaged CIDER23X exchange models) and evaluates
+the XC energy contribution and its functional derivatives from
+normalized features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mapped_kernels</strong> (<em>list of DFTKernel</em>)</p></li>
+<li><p><strong>settings</strong> (<em>FeatureSettings</em>)</p></li>
+<li><p><strong>libxc_baseline</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="ciderpress.dft.xc_evaluator.get_vec_eval">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.xc_evaluator.</span></span><span class="sig-name descname"><span class="pre">get_vec_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeffs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.xc_evaluator.get_vec_eval" title="Link to this definition"></a></dt>
@@ -147,6 +173,26 @@ interpolation package. Also returns derivatives</p>
 <dd><p>This class evaluates the XC term arising from a single DFTKernel
 object, using one or a list of FuncEvaluator objects.</p>
 <p>fevals: FuncEvaluator</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.xc_evaluator2.MappedXC2">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.xc_evaluator2.</span></span><span class="sig-name descname"><span class="pre">MappedXC2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapped_kernels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libxc_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.xc_evaluator2.MappedXC2" title="Link to this definition"></a></dt>
+<dd><p>Inference-time evaluator for a mapped full-XC CIDER functional.</p>
+<p><code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> extends the mapped-model concept of
+<a class="reference internal" href="#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> to kernels that take
+density arguments in addition to normalized features, as required by
+the CIDER26XC full exchange-correlation models. It is the object
+reconstructed from the packaged CIDER26XC model files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mapped_kernels</strong> (<em>list of MappedDFTKernel2</em>)</p></li>
+<li><p><strong>settings</strong> (<em>FeatureSettings</em>)</p></li>
+<li><p><strong>libxc_baseline</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

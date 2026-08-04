@@ -9,7 +9,7 @@ practical calculations, the feature integrals are expanded as a sum
 of convolutions. The expansion is slightly different for each
 feature version.
 
-For version j, the general form of the feature is
+For Version J, the general form of the feature is
 
 .. math::
 
@@ -35,7 +35,7 @@ converts the feature integral into a sum over convolutions.
 The :py:class:`ciderpress.dft.plans.NLDFSplinePlan` class implements this interpolation
 approach.
 
-The version j integration kernel :math:`k(a, b, r)` is separable in :math:`a` and :math:`b`:
+The Version-J integration kernel :math:`k(a, b, r)` is separable in :math:`a` and :math:`b`:
 
 .. math:: k(a, b, r) = \exp(-(a+b)r^2) = \exp(-a r^2) \exp(-b r^2)
 

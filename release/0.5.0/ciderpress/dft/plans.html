@@ -16,6 +16,7 @@
       <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -55,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -102,6 +103,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -171,8 +175,9 @@ Must be &gt; 1. 1=infinitesimal spacing of Gaussian exponents</p></li>
 <li><p><strong>coef_order</strong> (<em>str</em>) – Whether interpolation/expansion coefficients
 have grid as the slow (first) index (‘gq’) or exponent (‘qg’)</p></li>
 <li><p><strong>alpha_formula</strong> (<em>str</em>) – How to generate the interpolating exponents.
-Must be ‘etb’ (alphas[j] = alpha0 * lambd**j))
-or ‘zexp’ (alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1))</p></li>
+Must be <code class="docutils literal notranslate"><span class="pre">&quot;etb&quot;</span></code> (<code class="docutils literal notranslate"><span class="pre">alphas[j]</span> <span class="pre">=</span> <span class="pre">alpha0</span> <span class="pre">*</span> <span class="pre">lambd**j</span></code>) or
+<code class="docutils literal notranslate"><span class="pre">&quot;zexp&quot;</span></code>
+(<code class="docutils literal notranslate"><span class="pre">alphas[j]</span> <span class="pre">=</span> <span class="pre">alpha0</span> <span class="pre">*</span> <span class="pre">(lambd**j</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">(lambd</span> <span class="pre">-</span> <span class="pre">1)</span></code>).</p></li>
 <li><p><strong>proc_inds</strong> (<em>list or np.ndarray</em>) – If parallelized, which
 alpha indexes does this process cover. List or array
 of integers.</p></li>
@@ -185,9 +190,9 @@ sure a calculation doesn’t accidentally lose significant precision
 to going outside the interpolation range.</p></li>
 <li><p><strong>use_smooth_expnt_cutoff</strong> (<em>bool, False</em>) – If True, use a damping function
 for large exponent to smoothly ensure that as the exponent goes
-to infinity, the damped exponent goes to alpha_max. The
-smoothing function is design to contribute insignificantly
-except for near and beyond alpha_max.</p></li>
+to infinity, the damped exponent approaches <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>.
+The smoothing function is designed to contribute
+insignificantly except near and beyond <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -342,8 +347,9 @@ Must be &gt; 1. 1=infinitesimal spacing of Gaussian exponents</p></li>
 <li><p><strong>coef_order</strong> (<em>str</em>) – Whether interpolation/expansion coefficients
 have grid as the slow (first) index (‘gq’) or exponent (‘qg’)</p></li>
 <li><p><strong>alpha_formula</strong> (<em>str</em>) – How to generate the interpolating exponents.
-Must be ‘etb’ (alphas[j] = alpha0 * lambd**j))
-or ‘zexp’ (alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1))</p></li>
+Must be <code class="docutils literal notranslate"><span class="pre">&quot;etb&quot;</span></code> (<code class="docutils literal notranslate"><span class="pre">alphas[j]</span> <span class="pre">=</span> <span class="pre">alpha0</span> <span class="pre">*</span> <span class="pre">lambd**j</span></code>) or
+<code class="docutils literal notranslate"><span class="pre">&quot;zexp&quot;</span></code>
+(<code class="docutils literal notranslate"><span class="pre">alphas[j]</span> <span class="pre">=</span> <span class="pre">alpha0</span> <span class="pre">*</span> <span class="pre">(lambd**j</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">(lambd</span> <span class="pre">-</span> <span class="pre">1)</span></code>).</p></li>
 <li><p><strong>proc_inds</strong> (<em>list or np.ndarray</em>) – If parallelized, which
 alpha indexes does this process cover. List or array
 of integers.</p></li>
@@ -356,9 +362,9 @@ sure a calculation doesn’t accidentally lose significant precision
 to going outside the interpolation range.</p></li>
 <li><p><strong>use_smooth_expnt_cutoff</strong> (<em>bool, False</em>) – If True, use a damping function
 for large exponent to smoothly ensure that as the exponent goes
-to infinity, the damped exponent goes to alpha_max. The
-smoothing function is design to contribute insignificantly
-except for near and beyond alpha_max.</p></li>
+to infinity, the damped exponent approaches <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>.
+The smoothing function is designed to contribute
+insignificantly except near and beyond <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -381,8 +387,9 @@ Must be &gt; 1. 1=infinitesimal spacing of Gaussian exponents</p></li>
 <li><p><strong>coef_order</strong> (<em>str</em>) – Whether interpolation/expansion coefficients
 have grid as the slow (first) index (‘gq’) or exponent (‘qg’)</p></li>
 <li><p><strong>alpha_formula</strong> (<em>str</em>) – How to generate the interpolating exponents.
-Must be ‘etb’ (alphas[j] = alpha0 * lambd**j))
-or ‘zexp’ (alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1))</p></li>
+Must be <code class="docutils literal notranslate"><span class="pre">&quot;etb&quot;</span></code> (<code class="docutils literal notranslate"><span class="pre">alphas[j]</span> <span class="pre">=</span> <span class="pre">alpha0</span> <span class="pre">*</span> <span class="pre">lambd**j</span></code>) or
+<code class="docutils literal notranslate"><span class="pre">&quot;zexp&quot;</span></code>
+(<code class="docutils literal notranslate"><span class="pre">alphas[j]</span> <span class="pre">=</span> <span class="pre">alpha0</span> <span class="pre">*</span> <span class="pre">(lambd**j</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">(lambd</span> <span class="pre">-</span> <span class="pre">1)</span></code>).</p></li>
 <li><p><strong>proc_inds</strong> (<em>list or np.ndarray</em>) – If parallelized, which
 alpha indexes does this process cover. List or array
 of integers.</p></li>
@@ -395,9 +402,9 @@ sure a calculation doesn’t accidentally lose significant precision
 to going outside the interpolation range.</p></li>
 <li><p><strong>use_smooth_expnt_cutoff</strong> (<em>bool, False</em>) – If True, use a damping function
 for large exponent to smoothly ensure that as the exponent goes
-to infinity, the damped exponent goes to alpha_max. The
-smoothing function is design to contribute insignificantly
-except for near and beyond alpha_max.</p></li>
+to infinity, the damped exponent approaches <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>.
+The smoothing function is designed to contribute
+insignificantly except near and beyond <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -426,7 +433,7 @@ evaluation of the integrals must be implemented in each DFT code separately.</p>
 <li><p><strong>settings</strong> (<em>SADMSettings</em>) – Settings for the descriptor.</p></li>
 <li><p><strong>nspin</strong> (<em>int</em>) – Number of spins, 2 for spin-polarized and 1 for
 non-spin-polarized</p></li>
-<li><p><strong>alpha0</strong> (<em>float</em>) – Minimum exponent. sqrt(1/alpha0) should be at least
+<li><p><strong>alpha0</strong> (<em>float</em>) – Minimum exponent. <span class="math notranslate nohighlight">\(1/\sqrt{\alpha_0}\)</span> should be at least
 the width of the system, or altneratively the maximum distance
 at which the exchange hole is expected to have significant density.</p></li>
 <li><p><strong>lambd</strong> (<em>float</em>) – ETB lambda parameter</p></li>

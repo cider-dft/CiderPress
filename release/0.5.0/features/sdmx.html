@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smooth Density Matrix Exchange (SDMX) &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Smoothed Density Matrix Exchange (SDMX) &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -56,7 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -68,7 +68,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="features.html#numerical-and-physical-constraints">Numerical and physical constraints</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Smoothed Density Matrix Exchange (SDMX)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
 </ul>
 </li>
@@ -86,6 +86,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -105,7 +108,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="features.html">Electronic Features in CiderPress</a></li>
-      <li class="breadcrumb-item active">Smooth Density Matrix Exchange (SDMX)</li>
+      <li class="breadcrumb-item active">Smoothed Density Matrix Exchange (SDMX)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/features/sdmx.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -115,21 +118,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="smooth-density-matrix-exchange-sdmx">
-<span id="sdmx-feat"></span><h1>Smooth Density Matrix Exchange (SDMX)<a class="headerlink" href="#smooth-density-matrix-exchange-sdmx" title="Link to this heading"></a></h1>
+  <section id="smoothed-density-matrix-exchange-sdmx">
+<span id="sdmx-feat"></span><h1>Smoothed Density Matrix Exchange (SDMX)<a class="headerlink" href="#smoothed-density-matrix-exchange-sdmx" title="Link to this heading"></a></h1>
 <p>SDMX features<a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> are nonlocal featurizations of the density matrix.
 The basic idea of SDMX is to “smooth” out the density matrix around a reference point
 <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> and also project it onto low-order spherical harmonics
-(i.e. principle quantum numbers of <span class="math notranslate nohighlight">\(\ell=0\)</span> and <span class="math notranslate nohighlight">\(\ell=1\)</span>).
+(i.e. angular-momentum quantum numbers <span class="math notranslate nohighlight">\(\ell=0\)</span> and <span class="math notranslate nohighlight">\(\ell=1\)</span>).
 As a result, one can obtain very simple (but nonlocal) proxies for the shape of
 the exchange hole <span class="math notranslate nohighlight">\(|n_1(\mathbf{r},\mathbf{r}')|^2\)</span>, which can be used for fitting
 both the exchange and correlation energies. The formulas and details for the different
 SDMX versions are described below. These features take significant inspiration from the
 “Rung 3.5” functionals developed by Janesko <em>et al.</em>.<a class="footnote-reference brackets" href="#footcite-janesko2010" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-janesko2013" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-janesko2014" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-janesko2018" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>
-We also plan to implement Rung 3.5 functionals and add them as an alternative
-to SDMX features, but this development has not been done yet. The key difference between
-SDMX and the original Rung 3.5 approach is that SDMX features are strictly quadratic
-functionals of the density matrix, while Rung 3.5 functionals are not.</p>
+The key distinction is that SDMX features are strictly quadratic functionals
+of the density matrix, whereas the original Rung 3.5 constructions are not.
+The packaged CIDER24X models use SDMX to learn exchange; no packaged
+release-0.5.0 model uses SDMX for correlation.</p>
 <p>One key consideration in the design of the SDMX features is their behavior under
 <a class="reference internal" href="../theory/uniform_scaling.html#unif-scaling"><span class="std std-ref">uniform scaling</span></a> of the density.
 In keeping with the design objective of enabling the incorporation of exact constraints
@@ -162,11 +165,11 @@ of distances <span class="math notranslate nohighlight">\(R_i\)</span> and then 
 values of the gradients of the smoothed density matrix with respect to the length-scale
 <span class="math notranslate nohighlight">\(R\)</span>, as follows:</p>
 <div class="math notranslate nohighlight">
-\[H_j^{0\text{d}}(\mathbf{r}) = 4\pi \int \text{d} R\, R^{4-j} \left|\frac{\partial}{\partial R} \rho^0(R; \mathbf{r})\right|^2\]</div>
+\[H_j^{0\mathrm d}(\mathbf{r}) = 4\pi \int \text{d} R\, R^{4-j} \left|\frac{\partial}{\partial R} \rho^0(R; \mathbf{r})\right|^2\]</div>
 <p>In practice, these features can be obtained at almost no computational overhead compared
 to the original <span class="math notranslate nohighlight">\(H_j^0\)</span> features because the bottleneck computational operations
 are the same as those needed to compute <span class="math notranslate nohighlight">\(H_j^0\)</span>.
-The uniform scaling behavior of <span class="math notranslate nohighlight">\(H_j^{0\text{d}}\)</span> is also <span class="math notranslate nohighlight">\(\lambda^{3+j}\)</span>.</p>
+The uniform scaling behavior of <span class="math notranslate nohighlight">\(H_j^{0\mathrm d}\)</span> is also <span class="math notranslate nohighlight">\(\lambda^{3+j}\)</span>.</p>
 <p>The angular complexity of the SDMX features can be increased by computing
 (in addition to <span class="math notranslate nohighlight">\(\rho^0\)</span>) the following higher-order quantity</p>
 <div class="math notranslate nohighlight">
@@ -174,22 +177,22 @@ The uniform scaling behavior of <span class="math notranslate nohighlight">\(H_j
 <p>which involves the gradient of <span class="math notranslate nohighlight">\(h(|\mathbf{r}'-\mathbf{r}|; R)\)</span> with
 respect to <span class="math notranslate nohighlight">\(\mathbf{r}\)</span>. Then, one can compute new features</p>
 <div class="math notranslate nohighlight">
-\[H_j^\text{1}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{4-j} \left|\boldsymbol{\rho}^1(R; \mathbf{r})\right|^2\]</div>
-<p>These are more costly to compute than <span class="math notranslate nohighlight">\(H_j^0\)</span> or <span class="math notranslate nohighlight">\(H_j^\text{0d}\)</span>,
+\[H_j^1(\mathbf{r}) = 4\pi \int \text{d}R\, R^{4-j} \left|\boldsymbol{\rho}^1(R; \mathbf{r})\right|^2\]</div>
+<p>These are more costly to compute than <span class="math notranslate nohighlight">\(H_j^0\)</span> or <span class="math notranslate nohighlight">\(H_j^{0\mathrm d}\)</span>,
 but they provide significantly more information to the model because they
 contain <span class="math notranslate nohighlight">\(\ell=1\)</span> angular information. The uniform scaling behavior of
 <span class="math notranslate nohighlight">\(H_j^1\)</span> is also <span class="math notranslate nohighlight">\(\lambda^{3+j}\)</span>.</p>
 <p>Finally, one can combine the radial and Cartesian derivatives to construct one more type of feature</p>
 <div class="math notranslate nohighlight">
-\[H_j^\text{1d}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{6-j} \left|\frac{\partial}{\partial R} \boldsymbol{\rho}^1(R; \mathbf{r})\right|^2\]</div>
+\[H_j^{1\mathrm d}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{6-j} \left|\frac{\partial}{\partial R} \boldsymbol{\rho}^1(R; \mathbf{r})\right|^2\]</div>
 <p>which also scales as <span class="math notranslate nohighlight">\(\lambda^{3+j}\)</span> under uniform scaling and comes at very little
 additional computational cost if <span class="math notranslate nohighlight">\(\boldsymbol{\rho}^1(R; \mathbf{r})\)</span>
-was already computed to evaluate <span class="math notranslate nohighlight">\(H_j^\text{1}(\mathbf{r})\)</span>.</p>
+was already computed to evaluate <span class="math notranslate nohighlight">\(H_j^1(\mathbf{r})\)</span>.</p>
 <div class="docutils container" id="id6">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://arxiv.org/abs/https://doi.org/10.1021/acs.jctc.4c00999">arXiv:https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-janesko2010" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
@@ -197,15 +200,15 @@ was already computed to evaluate <span class="math notranslate nohighlight">\(H_
 </aside>
 <aside class="footnote brackets" id="footcite-janesko2013" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
-<p>Benjamin G. Janesko. Rung 3.5 density functionals: Another step on Jacob’s ladder. <em>Int. J. Quantum Chem.</em>, 113(2):83–88, 2013. <a class="reference external" href="https://arxiv.org/abs/https://onlinelibrary.wiley.com/doi/pdf/10.1002/qua.24256">arXiv:https://onlinelibrary.wiley.com/doi/pdf/10.1002/qua.24256</a>, <a class="reference external" href="https://doi.org/10.1002/qua.24256">doi:10.1002/qua.24256</a>.</p>
+<p>Benjamin G. Janesko. Rung 3.5 density functionals: Another step on Jacob’s ladder. <em>Int. J. Quantum Chem.</em>, 113(2):83–88, 2013. <a class="reference external" href="https://doi.org/10.1002/qua.24256">doi:10.1002/qua.24256</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-janesko2014" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
-<p>Benjamin G. Janesko, Giovanni Scalmani, and Michael J. Frisch. Practical auxiliary basis implementation of Rung 3.5 functionals. <em>J. Chem. Phys.</em>, 141(3):034103, 07 2014. URL: <a class="reference external" href="https://doi.org/10.1063/1.4887085">https://doi.org/10.1063/1.4887085</a>, <a class="reference external" href="https://arxiv.org/abs/https://pubs.aip.org/aip/jcp/article-pdf/doi/10.1063/1.4887085/15479930/034103\_1\_online.pdf">arXiv:https://pubs.aip.org/aip/jcp/article-pdf/doi/10.1063/1.4887085/15479930/034103\_1\_online.pdf</a>, <a class="reference external" href="https://doi.org/10.1063/1.4887085">doi:10.1063/1.4887085</a>.</p>
+<p>Benjamin G. Janesko, Giovanni Scalmani, and Michael J. Frisch. Practical auxiliary basis implementation of Rung 3.5 functionals. <em>J. Chem. Phys.</em>, 141(3):034103, 07 2014. URL: <a class="reference external" href="https://doi.org/10.1063/1.4887085">https://doi.org/10.1063/1.4887085</a>, <a class="reference external" href="https://doi.org/10.1063/1.4887085">doi:10.1063/1.4887085</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-janesko2018" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
-<p>Benjamin G. Janesko, Emil Proynov, Giovanni Scalmani, and Michael J. Frisch. Long-range-corrected Rung 3.5 density functional approximations. <em>J. Chem. Phys.</em>, 148(10):104112, 03 2018. URL: <a class="reference external" href="https://doi.org/10.1063/1.5017981">https://doi.org/10.1063/1.5017981</a>, <a class="reference external" href="https://arxiv.org/abs/https://pubs.aip.org/aip/jcp/article-pdf/doi/10.1063/1.5017981/15543588/104112\_1\_online.pdf">arXiv:https://pubs.aip.org/aip/jcp/article-pdf/doi/10.1063/1.5017981/15543588/104112\_1\_online.pdf</a>, <a class="reference external" href="https://doi.org/10.1063/1.5017981">doi:10.1063/1.5017981</a>.</p>
+<p>Benjamin G. Janesko, Emil Proynov, Giovanni Scalmani, and Michael J. Frisch. Long-range-corrected Rung 3.5 density functional approximations. <em>J. Chem. Phys.</em>, 148(10):104112, 03 2018. URL: <a class="reference external" href="https://doi.org/10.1063/1.5017981">https://doi.org/10.1063/1.5017981</a>, <a class="reference external" href="https://doi.org/10.1063/1.5017981">doi:10.1063/1.5017981</a>.</p>
 </aside>
 </aside>
 </div>

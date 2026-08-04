@@ -67,7 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -85,6 +85,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -118,7 +121,7 @@
 <p>The PySCF interface decorates an existing restricted or unrestricted
 Kohn–Sham object.  Molecular geometry, charge, spin, basis, grids, density
 fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
-replaces the numerical XC evaluation and adds any model-level energy contract.</p>
+replaces the numerical XC evaluation and adds any model-specific energy terms.</p>
 <section id="choose-the-functional-composition-first">
 <h2>Choose the functional composition first<a class="headerlink" href="#choose-the-functional-composition-first" title="Link to this heading"></a></h2>
 <p>CIDER26XC models contain full exchange and correlation.  Their PySCF
@@ -195,9 +198,11 @@ composition explicitly:</p>
 </pre></div>
 </div>
 <p>The example uses a moderate basis and grid so it can be run directly.  For a
-reported result, converge the basis, integration grid, SCF thresholds, and
-density-fitting approximation for the requested energy difference or
-derivative.</p>
+quantitative calculation, converge the basis, integration grid, SCF thresholds,
+and density-fitting approximation for the requested energy difference or
+derivative.  For a small end-to-end energetics workflow,
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3417e6a3c8b6ad4d4377e213c7d7a65ffdf82b67/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+with a chosen libxc or packaged CIDER functional.</p>
 </section>
 <section id="density-fitting">
 <h2>Density fitting<a class="headerlink" href="#density-fitting" title="Link to this heading"></a></h2>
@@ -208,9 +213,8 @@ basis and keep it consistent across an energy difference:</p>
 <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The CIDER decorator preserves its model and D4 metadata across this PySCF
-wrapper.  Density fitting is a numerical approximation, not a change to the
-CIDER functional form.</p>
+<p>Density fitting leaves the selected CIDER model and its D4 behavior unchanged.
+It is a numerical approximation, not a change to the CIDER functional form.</p>
 </section>
 <section id="open-shell-systems">
 <h2>Open-shell systems<a class="headerlink" href="#open-shell-systems" title="Link to this heading"></a></h2>
@@ -332,9 +336,10 @@ density after interruption:</p>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">dm0</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Reconstruct the calculator and model explicitly rather than assuming the
-checkpoint serializes the CiderPress decorator.  Confirm that the checkpoint
-molecule, basis, charge, spin, and orbital dimensions match the new object.</p>
+<p>Recreate the CIDER calculation before loading the checkpoint orbitals; a PySCF
+checkpoint does not recreate the selected CIDER model automatically.  Confirm
+that its molecule, basis, charge, spin, and orbital dimensions match the new
+calculation.</p>
 </section>
 <section id="d4-corrected-energy">
 <h2>D4-corrected energy<a class="headerlink" href="#d4-corrected-energy" title="Link to this heading"></a></h2>
@@ -343,6 +348,14 @@ and evaluates D4 from the geometry afterward.  Inspect
 <code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code>
 when combining wrappers or restarting an existing object.  The returned
 <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> value and <code class="docutils literal notranslate"><span class="pre">e_tot</span></code> include the final adjustment exactly once.</p>
+<p>This dispersion accounting is active for every CIDER26XC model.  CiderPress
+disables a supported <code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper for
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, whose expected dispersion term is
+zero.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, it measures any attached wrapper contribution
+and reconciles it with the model’s expected D4 value.  The reported
+<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code> is the total before this final reconciliation; inspect
+<code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code> to see the complete
+accounting.</p>
 <p>D4 does not contribute to the current molecular gradient implementation.  See
 <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> before using derivative-based workflows.</p>
 </section>
@@ -351,7 +364,8 @@ when combining wrappers or restarting an existing object.  The returned
 <p>Install <code class="docutils literal notranslate"><span class="pre">ciderpress[cider24]</span></code> and use the same exchange-only composition as
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
-mixing CUDA and CPU PyTorch installations within one environment.</p>
+mixing CUDA and CPU PyTorch installations within one environment.  A minimal
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3417e6a3c8b6ad4d4377e213c7d7a65ffdf82b67/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
 </section>
 <section id="gradients-and-other-methods">
 <h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>
@@ -359,10 +373,9 @@ mixing CUDA and CPU PyTorch installations within one environment.</p>
 the molecular NLDF path, including density-fitted calculations.  Use
 <code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> as shown in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
 <p>Hessians, NMR, polarizability, coupled-cluster, multireference, and similar
-methods are not implemented on the decorated CIDER object.  SDMX and
-nonlocal-orbital molecular gradients are also unavailable.  Unsupported paths
-raise <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> instead of silently falling back to a different
-functional.</p>
+methods are not available from a CIDER mean-field object.  SDMX and
+nonlocal-orbital molecular gradients are also unavailable.  The complete list
+of currently supported properties is given in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
 </section>
 <section id="scf-practice">
 <h2>SCF practice<a class="headerlink" href="#scf-practice" title="Link to this heading"></a></h2>
@@ -373,11 +386,12 @@ required by the final energy difference.</p></li>
 near-degenerate systems.</p></li>
 <li><p>Preserve a fresh-atomic-guess route; a baseline density can select the wrong
 basin.</p></li>
-<li><p>Do not disable convergence validation merely to obtain a <code class="docutils literal notranslate"><span class="pre">converged</span></code> flag.</p></li>
+<li><p>Confirm that a converged solution has the intended occupations, spin state,
+and orbital character.</p></li>
 <li><p>Diagnose occupation switching before applying finite-temperature smearing.</p></li>
 </ul>
 <p>The complete symptom-based ladder is in <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a>, and the record to
-retain with a result is in <a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a>.</p>
+retain with a result is in <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a>.</p>
 </section>
 </section>
 

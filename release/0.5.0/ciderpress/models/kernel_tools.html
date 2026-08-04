@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -73,12 +73,20 @@
 <li class="toctree-l2"><a class="reference internal" href="train.html">ciderpress.models.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dft_kernel.html">ciderpress.models.dft_kernel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernels.html">ciderpress.models.kernels</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Kernel Tools</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Kernel Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernel_plans.kernel_tools.get_agpr_kernel"><code class="docutils literal notranslate"><span class="pre">get_agpr_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernel_plans.kernel_tools.get_antisym_rbf_kernel"><code class="docutils literal notranslate"><span class="pre">get_antisym_rbf_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernel_plans.kernel_tools.get_rbf_kernel"><code class="docutils literal notranslate"><span class="pre">get_rbf_kernel()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -110,6 +118,87 @@
              
   <section id="module-ciderpress.models.kernel_plans.kernel_tools">
 <span id="kernel-tools"></span><h1>Kernel Tools<a class="headerlink" href="#module-ciderpress.models.kernel_plans.kernel_tools" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.models.kernel_plans.kernel_tools.get_agpr_kernel">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernel_plans.kernel_tools.</span></span><span class="sig-name descname"><span class="pre">get_agpr_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sinds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ainds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsingle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_hparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernel_plans.kernel_tools.get_agpr_kernel" title="Link to this definition"></a></dt>
+<dd><p>Construct an additive-RBF (ARBF) covariance kernel.</p>
+<p>The additive Gaussian process kernel expands the covariance in terms of
+feature subsets up to <code class="docutils literal notranslate"><span class="pre">order</span></code>, optionally multiplied by a plain RBF
+factor over the <code class="docutils literal notranslate"><span class="pre">sinds</span></code> features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sinds</strong> (<em>array-like</em>) – Feature indexes for the single (multiplicative)
+RBF factor; ignored if <code class="docutils literal notranslate"><span class="pre">nsingle</span></code> is 0.</p></li>
+<li><p><strong>ainds</strong> (<em>array-like</em>) – Feature indexes entering the additive kernel.</p></li>
+<li><p><strong>length_scale</strong> (<em>np.ndarray</em>) – Per-feature RBF length scales.</p></li>
+<li><p><strong>scale</strong> (<em>list or None</em>) – Initial covariance prefactors, one per additive
+order (default all 1).</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – Maximum interaction order of the additive kernel.</p></li>
+<li><p><strong>nsingle</strong> (<em>int</em>) – Enable the multiplicative RBF factor when nonzero;
+0 omits the factor. The selected features are given by <code class="docutils literal notranslate"><span class="pre">sinds</span></code>.</p></li>
+<li><p><strong>opt_hparams</strong> (<em>bool</em>) – If True, leave length scales and prefactors open
+for hyperparameter optimization; otherwise fix them.</p></li>
+<li><p><strong>min_lscale</strong> (<em>float or None</em>) – Lower length-scale optimization bound
+(default 0.01).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">SubsetARBF</span></code> kernel, or <code class="docutils literal notranslate"><span class="pre">SubsetRBF</span> <span class="pre">*</span> <span class="pre">SubsetARBF</span></code> when a single
+factor is requested.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.models.kernel_plans.kernel_tools.get_antisym_rbf_kernel">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernel_plans.kernel_tools.</span></span><span class="sig-name descname"><span class="pre">get_antisym_rbf_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_hparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernel_plans.kernel_tools.get_antisym_rbf_kernel" title="Link to this definition"></a></dt>
+<dd><p>Construct a constant-scaled, spin-antisymmetrized RBF covariance kernel.</p>
+<p>The first two entries of <code class="docutils literal notranslate"><span class="pre">length_scale</span></code> correspond to the paired spin
+features and are averaged into a single shared length scale so that the
+kernel is symmetric under exchange of the spin channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>length_scale</strong> (<em>np.ndarray</em>) – Per-feature RBF length scales.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Initial constant covariance prefactor.</p></li>
+<li><p><strong>opt_hparams</strong> (<em>bool</em>) – If True, leave the length scales and prefactor
+open for hyperparameter optimization; otherwise fix them.</p></li>
+<li><p><strong>min_lscale</strong> (<em>float or None</em>) – Lower length-scale optimization bound
+(default 0.01).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A product kernel <code class="docutils literal notranslate"><span class="pre">DiffConstantKernel</span> <span class="pre">*</span> <span class="pre">DiffAntisymRBF</span></code> for Gaussian
+process training.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.models.kernel_plans.kernel_tools.get_rbf_kernel">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernel_plans.kernel_tools.</span></span><span class="sig-name descname"><span class="pre">get_rbf_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_hparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernel_plans.kernel_tools.get_rbf_kernel" title="Link to this definition"></a></dt>
+<dd><p>Construct a constant-scaled RBF covariance kernel over a feature subset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indexes</strong> (<em>array-like</em>) – Indexes of the features the kernel acts on.</p></li>
+<li><p><strong>length_scale</strong> (<em>np.ndarray</em>) – Per-feature RBF length scales; the entries
+selected by <code class="docutils literal notranslate"><span class="pre">indexes</span></code> are used.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Initial constant covariance prefactor.</p></li>
+<li><p><strong>opt_hparams</strong> (<em>bool</em>) – If True, leave the length scales and prefactor
+open for hyperparameter optimization; otherwise fix them.</p></li>
+<li><p><strong>min_lscale</strong> (<em>float or None</em>) – Lower length-scale optimization bound
+(default 0.01).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A product kernel <code class="docutils literal notranslate"><span class="pre">DiffConstantKernel</span> <span class="pre">*</span> <span class="pre">SubsetRBF</span></code> for Gaussian
+process training.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

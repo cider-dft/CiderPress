@@ -31,7 +31,7 @@ scientific data flow and use the pages below for individual objects.
   regression.
 * The :mod:`ciderpress.dft.xc_evaluator` and
   :mod:`ciderpress.dft.xc_evaluator2`
-  modules, which provide tools to efficiently evaluate trained CIDER models.
+  modules provide tools to efficiently evaluate trained CIDER models.
 * The :mod:`ciderpress.dft.model_utils` module resolves packaged model names
   and trusted YAML/joblib paths.
 

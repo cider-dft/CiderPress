@@ -53,7 +53,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#install-from-a-source-checkout">Install from a source checkout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pyscf-environment">PySCF environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gpaw-environment">GPAW environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#documentation-build">Documentation build</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
@@ -65,7 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -83,6 +82,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -120,11 +122,14 @@ parallel plane-wave calculations.</p>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Python 3.9–3.12</p></li>
+<li><p>Python 3.12</p></li>
 <li><p>A C and C++ compiler with OpenMP support</p></li>
 <li><p>BLAS and LAPACK</p></li>
 <li><p>CMake</p></li>
-<li><p>FFTW or Intel MKL for FFT operations</p></li>
+<li><p>FFTW or Intel MKL for FFT operations. By default the non-MKL build downloads
+and compiles FFTW and libxc, which requires network access. Set
+<code class="docutils literal notranslate"><span class="pre">BUILD_FFTW=OFF</span></code> and <code class="docutils literal notranslate"><span class="pre">BUILD_LIBXC=OFF</span></code> to use discoverable installations
+supplied by the environment instead.</p></li>
 <li><p>MPI and <code class="docutils literal notranslate"><span class="pre">mpicc</span></code> for parallel GPAW calculations</p></li>
 </ul>
 </section>
@@ -144,6 +149,9 @@ CIDER23X do not.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;ciderpress[d4]&#39;</span>
 </pre></div>
 </div>
+<p>This installs <code class="docutils literal notranslate"><span class="pre">pyscf-dispersion</span></code>, which evaluates the model’s D4 term, and
+the <code class="docutils literal notranslate"><span class="pre">dftd4</span></code> Python package, which provides interoperability with externally
+attached dispersion wrappers.</p>
 <p>Install PyTorch support for CIDER24X with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;ciderpress[cider24]&#39;</span>
 </pre></div>
@@ -239,23 +247,16 @@ target machine.  CiderPress and GPAW must resolve compatible versions of:</p>
 <li><p>the OpenMP runtime; and</p></li>
 <li><p>BLAS/LAPACK.</p></li>
 </ul>
-<p>A successful import does not prove that an MPI/FFT combination is safe.
-Before a large job, run a small CIDER plane-wave calculation with the same MPI
-launcher and rank layout intended for production.  A serial CiderPress build
-cannot be used inside an MPI GPAW calculation.</p>
-<p>The repository’s GPAW site-configuration template illustrates an MKL/MPI
-build, but cluster compiler and launcher settings must match the local
-environment.  CiderPress 0.5.0 supports the classic GPAW calculator, not
-<code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code>.</p>
+<p>Before a large parallel job, run a small CIDER plane-wave calculation with the
+same MPI launcher and rank layout.  This verifies that the MPI, FFT, BLAS, and
+OpenMP libraries work together in the intended execution environment.  A
+serial CiderPress build cannot be used inside an MPI GPAW calculation.</p>
+<p>The repository’s GPAW site-configuration template
+(<code class="docutils literal notranslate"><span class="pre">.github/workflows/gpaw_siteconfig.py</span></code>) illustrates an MKL/MPI build, but
+cluster compiler and launcher settings must match the local environment.
+CiderPress 0.5.0 supports the classic GPAW calculator, not <code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code>.</p>
 <p>Continue with <a class="reference internal" href="../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.  The central limitations are collected in
 <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a>.</p>
-</section>
-<section id="documentation-build">
-<h2>Documentation build<a class="headerlink" href="#documentation-build" title="Link to this heading"></a></h2>
-<p>From the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory, build the same strict HTML target used by CI:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>-n<span class="w"> </span>-W<span class="w"> </span>--keep-going<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>.<span class="w"> </span>_build/html
-</pre></div>
-</div>
 </section>
 </section>
 

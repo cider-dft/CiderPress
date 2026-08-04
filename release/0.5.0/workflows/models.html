@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -85,6 +85,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -161,9 +164,10 @@ integrated electronic systems and the model’s control points.  After fitting,
 Mapping plans choose an evaluator representation appropriate to the kernel;
 the resulting object can be serialized and evaluated without the training
 database.</p>
-<p><code class="docutils literal notranslate"><span class="pre">MOLGP</span></code> and <code class="docutils literal notranslate"><span class="pre">MappedXC</span></code> represent the original single-output evaluation
-contract.  <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code> and <code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> support separate exchange and
-correlation components and the additional density inputs required by the
+<p><code class="docutils literal notranslate"><span class="pre">MOLGP</span></code> and <a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> provide the
+original single-output evaluation interface.  <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code> and
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a> support separate exchange
+and correlation components and the additional density inputs required by the
 full-XC form.  CIDER26XC uses the latter representation.</p>
 </section>
 <section id="model-files">
@@ -171,7 +175,7 @@ full-XC form.  CIDER26XC uses the latter representation.</p>
 <p>Joblib files normally store a trainable Python object, including training and
 mapping state.  Mapped YAML stores an inference object and is the preferred
 artifact for calculations and release packaging.  Model-specific metadata,
-including the D4 fit/evaluation contract, must survive the joblib-to-YAML
+including the D4 fit/evaluation behavior, must survive the joblib-to-YAML
 mapping step.</p>
 <p>Both formats reconstruct Python objects and are unsafe when obtained from an
 untrusted source.  A release artifact should have a stable filename and

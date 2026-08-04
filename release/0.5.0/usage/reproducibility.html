@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reproducibility and Result Validation &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Recording and Checking a Calculation &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -55,10 +55,10 @@
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Reproducibility and Result Validation</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Recording and Checking a Calculation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#functional-identity">Functional identity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#electronic-and-numerical-state">Electronic and numerical state</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#validation-before-reporting">Validation before reporting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-checks-for-a-final-calculation">Recommended checks for a final calculation</a></li>
 </ul>
 </li>
 </ul>
@@ -78,6 +78,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -96,7 +99,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Reproducibility and Result Validation</li>
+      <li class="breadcrumb-item active">Recording and Checking a Calculation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/usage/reproducibility.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -106,8 +109,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="reproducibility-and-result-validation">
-<h1>Reproducibility and Result Validation<a class="headerlink" href="#reproducibility-and-result-validation" title="Link to this heading"></a></h1>
+  <section id="recording-and-checking-a-calculation">
+<h1>Recording and Checking a Calculation<a class="headerlink" href="#recording-and-checking-a-calculation" title="Link to this heading"></a></h1>
 <p>A converged SCF flag is necessary but does not by itself identify the
 functional, numerical representation, or electronic state.  Preserve enough
 information to reconstruct all three.</p>
@@ -130,8 +133,8 @@ moments, occupations and smearing, convergence criteria, mixer, eigensolver,
 parallel layout, and CIDER interpolation/PASDW settings.  State whether the
 calculation began from PBE or a CIDER checkpoint.</p>
 </section>
-<section id="validation-before-reporting">
-<h2>Validation before reporting<a class="headerlink" href="#validation-before-reporting" title="Link to this heading"></a></h2>
+<section id="recommended-checks-for-a-final-calculation">
+<h2>Recommended checks for a final calculation<a class="headerlink" href="#recommended-checks-for-a-final-calculation" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Confirm energy, density, and orbital/eigenstate criteria rather than relying
 on the final energy alone.</p></li>

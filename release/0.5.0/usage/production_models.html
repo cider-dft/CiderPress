@@ -64,7 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Reproducibility and Result Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -82,6 +82,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
@@ -277,13 +280,15 @@ work but is not the production periodic route.</p>
 </tr>
 </tbody>
 </table>
-<p>These files already contain the full XC energy form described in
-<a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.  PySCF’s defaults are correct:</p>
+<p>These files already contain the full XC energy form and feature vectors
+described in <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.  PySCF’s defaults are correct:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>GPAW’s initializer also supports exchange-only models, so its historical
-defaults add PBE exchange and correlation.  Override them for CIDER26XC:</p>
+defaults specify PBE composition kernels.  At the default <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code> the
+external exchange kernel is scaled to zero, but the default PBE correlation
+kernel is still added in full.  Override the defaults for CIDER26XC:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
     <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
     <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -292,25 +297,41 @@ defaults add PBE exchange and correlation.  Override them for CIDER26XC:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">get_cider_functional</span></code> validates this composition and raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
+instead of constructing a full-XC model with an additional semilocal term.
+Pass the three composition arguments explicitly for GPAW full-XC models.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> can be evaluated in an isolated GPAW PAW box, but PySCF is
 the intended molecular representation.  <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> is rejected by
-GPAW because its post-density D4 contract is implemented only in PySCF.</p>
+GPAW because the model’s D4 energy correction is implemented only in PySCF.</p>
 </section>
 <section id="d4-energy-accounting">
 <h2>D4 energy accounting<a class="headerlink" href="#d4-energy-accounting" title="Link to this heading"></a></h2>
-<p>D4 is evaluated after the density SCF and does not change the CIDER potential
-or density.  CiderPress reconciles a pre-existing supported dispersion wrapper
-and applies the model’s expected correction exactly once:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">total</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_tot</span>
-<span class="n">base</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_tot_base</span>
-<span class="n">present</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_present</span>
-<span class="n">expected</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_expected</span>
-<span class="n">adjustment</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_delta</span>
-<span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">total</span> <span class="o">-</span> <span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">adjustment</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">1e-10</span>
-</pre></div>
-</div>
-<p>Do not add a second D4 wrapper to the reported total.  The D4 contribution is
-not included in the PySCF CIDER nuclear gradient.</p>
+<p>D4 is evaluated after the density SCF and therefore does not change the CIDER
+potential or density.  After <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> the following attributes describe
+the energy assembly:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span></code></dt><dd><p>Energy returned by the underlying SCF object before CiderPress makes the
+model-specific dispersion adjustment.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_present</span></code></dt><dd><p>Dispersion contribution already contained in that underlying energy, if a
+supported dispersion wrapper was present.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_expected</span></code></dt><dd><p>D4 contribution specified by the selected CIDER model.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_delta</span></code></dt><dd><p>Adjustment <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span> <span class="pre">-</span> <span class="pre">e_vdw_present</span></code> added to <code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>.</p>
+</dd>
+</dl>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code> and already
+contains the expected D4 contribution exactly once.  No additional D4 wrapper
+is needed.  The D4 contribution is not included in the current PySCF CIDER
+nuclear gradient.</p>
+<p>The same accounting contract applies to all CIDER26XC models.  For
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, a supported D3/D4 wrapper attached
+to the incoming SCF object is disabled because the expected dispersion term is
+zero.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, an attached wrapper is retained long enough to
+measure its contribution; CiderPress then adds only the difference between
+that contribution and the model’s expected D4 term.  Thus the final energy
+contains the expected term exactly once in either case.</p>
 </section>
 <section id="loading-rules-and-model-trust">
 <h2>Loading rules and model trust<a class="headerlink" href="#loading-rules-and-model-trust" title="Link to this heading"></a></h2>
@@ -318,9 +339,9 @@ not included in the PySCF CIDER nuclear gradient.</p>
 other YAML or joblib models remain supported, and a real file at the supplied
 path takes precedence over a packaged name.</p>
 <p>Mapped CIDER YAML and joblib files reconstruct Python model objects.  Load
-only models obtained from a trusted source.  The packaged resources are
-release assets whose hashes are tested; arbitrary model files should be
-treated like executable Python input.</p>
+only models obtained from a trusted source.  Packaged models have the fixed
+checksums listed below; treat an external model file like executable Python
+input and record its checksum with the calculation.</p>
 </section>
 <section id="checksums">
 <h2>Checksums<a class="headerlink" href="#checksums" title="Link to this heading"></a></h2>
@@ -371,7 +392,7 @@ treated like executable Python input.</p>
 </tr>
 </tbody>
 </table>
-<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Reproducibility and Result Validation</span></a> for what to report with a result and
+<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for what to report with a result and
 <a class="reference internal" href="../reference/citing.html"><span class="doc">Citing CIDER and CiderPress</span></a> for family-specific citations.</p>
 </section>
 </section>
