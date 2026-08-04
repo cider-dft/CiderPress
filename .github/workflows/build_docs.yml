@@ -4,6 +4,10 @@ on:
   push:
     branches:
     - main
+    - release/0.5.0
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -58,3 +62,12 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build/html
         force_orphan: true
+    - name: Deploy release preview to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/release/0.5.0' }}
+      with:
+        publish_branch: gh-pages
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
+        destination_dir: release/0.5.0
+        keep_files: true

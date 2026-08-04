@@ -39,23 +39,21 @@ pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
 pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy
 ```
 
-See the tracked [installation guide](docs/installation/installation.rst) for
-compiler, MPI, FFT, MKL, GPAW, and source-build details. Because that link is
-relative to the repository, it works on branches before the corresponding
-HTML documentation is deployed.
+See the rendered [installation guide](https://mir-group.github.io/CiderPress/release/0.5.0/installation/installation.html)
+for compiler, MPI, FFT, MKL, GPAW, and source-build details.
 
 ## Documentation
 
-- [Documentation index](docs/index.rst)
-- [Choosing a packaged model](docs/usage/production_models.rst)
-- [PySCF guide](docs/usage/pyscf.rst)
-- [GPAW guide](docs/usage/gpaw.rst)
-- [SCF convergence recommendations](docs/usage/convergence.rst)
-- [CIDER framework and model lineage](docs/theory/framework.rst)
+- [Documentation index](https://mir-group.github.io/CiderPress/release/0.5.0/)
+- [Choosing a packaged model](https://mir-group.github.io/CiderPress/release/0.5.0/usage/production_models.html)
+- [PySCF guide](https://mir-group.github.io/CiderPress/release/0.5.0/usage/pyscf.html)
+- [GPAW guide](https://mir-group.github.io/CiderPress/release/0.5.0/usage/gpaw.html)
+- [SCF convergence recommendations](https://mir-group.github.io/CiderPress/release/0.5.0/usage/convergence.html)
+- [CIDER framework and model lineage](https://mir-group.github.io/CiderPress/release/0.5.0/theory/framework.html)
 
-The [published documentation site](https://mir-group.github.io/CiderPress/)
-tracks the version currently deployed from `main`. The repository-relative
-links above track the branch being viewed.
+These links use the rendered release preview. The
+[published documentation root](https://mir-group.github.io/CiderPress/)
+continues to track `main` until the release is reviewed and merged.
 
 ## Packaged Functional Families
 
@@ -68,7 +66,7 @@ CiderPress 0.5.0 includes the published mapped models from three generations:
   molecular/solid/surface-science applications.
 
 All are selected by short name anywhere an `mlfunc` path is accepted. The
-[model guide](docs/usage/production_models.rst)
+[model guide](https://mir-group.github.io/CiderPress/release/0.5.0/usage/production_models.html)
 lists every name, feature representation, supported backend, functional
 composition, and release checksum.
 
