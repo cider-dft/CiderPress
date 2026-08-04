@@ -1,17 +1,26 @@
 .. _models_module:
 
-The Models Module
-=================
+Regression, Training, and Mapping APIs
+======================================
 
-The :py:mod:`ciderpress.models` module is the workhorse for training
-Cider exchange-correlation functionals and mapping them to efficient
-models for evaluation in DFT codes. The :py:mod:`train` module
-contains the :py:class:`MOLGP` and :py:class:`MOLGP2` classes,
-which are used to construct Gaussian process models for the exchange
-and correlation energies. While these Gaussian process classes
-are custom to CiderPress, the kernel functions used to construct
-the covariance matrix are built on top of those in the scikit-learn
-package.
+The ``ciderpress.models`` package constructs Gaussian-process density
+functionals and maps them to compact inference evaluators.  The training
+objects operate on integrated system and reaction observations rather than
+ordinary pointwise scalar targets.
+
+:mod:`ciderpress.models.train` provides ``MOLGP`` and ``MOLGP2`` containers.
+The original representation maps to ``MappedXC``; the multi-component
+representation maps to ``MappedXC2`` and supports the separate exchange and
+correlation kernels used by full-XC models.  Covariance kernels build on
+scikit-learn primitives, while DFT kernels combine them with feature
+transforms, energy-density baselines, and sparse control points.
+
+Mapping plans under ``ciderpress.models.kernel_plans`` select an efficient
+evaluator for a trained kernel.  Mapping is part of model publication: the
+mapped model must preserve predictions, feature derivatives, settings,
+functional composition, and correction metadata.  See
+:doc:`../../workflows/models` and :doc:`../../workflows/training` before using
+the individual APIs below.
 
 .. toctree::
    :maxdepth: 1
@@ -21,4 +30,3 @@ package.
    dft_kernel
    kernels
    kernel_tools
-

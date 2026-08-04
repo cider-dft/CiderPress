@@ -14,7 +14,7 @@ SDMX versions are described below. These features take significant inspiration f
 "Rung 3.5" functionals developed by Janesko *et al.*.\ :footcite:p:`Janesko2010,Janesko2013,Janesko2014,Janesko2018`
 We also plan to implement Rung 3.5 functionals and add them as an alternative
 to SDMX features, but this development has not been done yet. The key difference between
-SDMX and the original Rung 3.5 approach is that SMDX features are strictly quadratic
+SDMX and the original Rung 3.5 approach is that SDMX features are strictly quadratic
 functionals of the density matrix, while Rung 3.5 functionals are not.
 
 One key consideration in the design of the SDMX features is their behavior under
@@ -85,4 +85,3 @@ additional computational cost if :math:`\boldsymbol{\rho}^1(R; \mathbf{r})`
 was already computed to evaluate :math:`H_j^\text{1}(\mathbf{r})`.
 
 .. footbibliography::
-

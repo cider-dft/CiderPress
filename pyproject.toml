@@ -38,6 +38,7 @@ dependencies = [
 
 [project.optional-dependencies]
 d4 = ["dftd4>=3.7"]
+cider24 = ["torch"]
 
 [project.urls]
 Repository = "https://github.com/mir-group/CiderPress"

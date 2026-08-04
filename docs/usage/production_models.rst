@@ -1,39 +1,222 @@
-Production Models
-=================
+Choosing a CIDER Functional
+===========================
 
-CiderPress 0.5.0 includes three full exchange-correlation (XC) models.  The
-names below are package resources: no separate model download or absolute file
-path is required.
+CiderPress 0.5.0 packages the published CIDER23X, CIDER24X, and CIDER26XC
+model files.  A packaged model is selected by short name; no download path is
+needed.  The families learn different parts of the functional, so model
+selection and functional initialization must be considered together.
 
-.. list-table:: Packaged CIDER26XC models
+Family selection
+----------------
+
+.. list-table:: Published functional families
    :header-rows: 1
-   :widths: 24 28 18 30
+   :widths: 15 23 20 22 20
 
-   * - Model
-     - Recommended domain
+   * - Family
+     - Learned quantity
+     - Electronic features
+     - Main use
      - Backend
-     - Dispersion treatment
+   * - CIDER23X
+     - Exchange
+     - Semilocal or NLDF
+     - Surrogate-hybrid molecular and solid calculations
+     - PySCF and classic GPAW
+   * - CIDER24X
+     - Exchange
+     - Semilocal and SDMX
+     - Molecular energetics and orbital-energy-sensitive applications
+     - PySCF; PyTorch required
+   * - CIDER26XC
+     - Full exchange-correlation
+     - Semilocal and NLDF
+     - Molecular chemistry, solids, surfaces, and adsorption
+     - PySCF and classic GPAW, subject to the model-specific restrictions below
+
+The CIDER22X work introduced the original CIDER representation, but version
+0.5.0 does not ship a CIDER22X inference model.  It remains an important part
+of the theoretical lineage described in :doc:`../theory/framework`.
+
+CIDER23X exchange models
+------------------------
+
+All CIDER23X files learn exchange and are normally evaluated in the
+PBE0/CIDER surrogate-hybrid form.  The semilocal models are useful references
+for separating the value of nonlocality from the regression method; the
+nonlocal meta-GGA variants are the main application models from that work.
+
+.. list-table:: CIDER23X model files
+   :header-rows: 1
+   :widths: 30 22 48
+
+   * - Name
+     - Feature level
+     - Distinguishing role
+   * - ``CIDER23X_SL_GGA``
+     - Semilocal GGA
+     - Learned semilocal exchange reference using the reduced gradient
+   * - ``CIDER23X_SL_MGGA``
+     - Semilocal meta-GGA
+     - Adds kinetic-energy-density information
+   * - ``CIDER23X_NL_GGA``
+     - Nonlocal GGA
+     - Adds three version-j NLDF descriptors
+   * - ``CIDER23X_NL_MGGA``
+     - Nonlocal meta-GGA
+     - Combines meta-GGA and version-j NLDF descriptors
+   * - ``CIDER23X_NL_MGGA_PBE``
+     - Nonlocal meta-GGA
+     - Uses a PBE exchange baseline in the learned exchange model
+   * - ``CIDER23X_NL_MGGA_DTR``
+     - Nonlocal meta-GGA
+     - Diverse-training retraining of the PBE-baseline model for improved numerical robustness
+
+Initialize one of these models with the exchange fraction and external
+semilocal terms stated explicitly:
+
+.. code-block:: python
+
+   mf = make_cider_calc(
+       dft.RKS(mol),
+       "CIDER23X_NL_MGGA_DTR",
+       xmix=0.25,
+       xkernel="GGA_X_PBE",
+       ckernel="GGA_C_PBE",
+   )
+
+The corresponding GPAW construction uses the same three composition
+arguments.  Changing ``xmix`` defines a different surrogate-hybrid
+composition and should be reported as such.
+
+CIDER24X SDMX exchange models
+-----------------------------
+
+The CIDER24X models use smoothed density-matrix exchange descriptors and a
+mapped neural evaluator.  Install their optional runtime before loading them:
+
+.. code-block:: bash
+
+   pip install 'ciderpress[cider24]'
+
+For systems requiring a platform-specific CPU or CUDA build, install PyTorch
+using its platform instructions before installing CiderPress.
+
+``CIDER24Xne``
+   Trained without eigenvalue labels.
+
+``CIDER24Xe``
+   Includes orbital-energy training information and was designed for improved
+   eigenvalue differences in addition to energetics.
+
+Both are exchange models.  Use the explicit PBE0/CIDER composition shown for
+CIDER23X.  They are supported through the molecular PySCF interface.  The
+periodic PySCF SDMX implementation is retained for reproducing the published
+work but is not the production periodic route.
+
+CIDER26XC full-XC models
+------------------------
+
+.. list-table:: CIDER26XC model files
+   :header-rows: 1
+   :widths: 28 30 22 20
+
+   * - Name
+     - Intended domain
+     - Dispersion
+     - Recommended backend
    * - ``CIDER26XCCHEM``
      - Molecular chemistry
+     - No explicit correction
      - PySCF
-     - No explicit long-range correction
    * - ``CIDER26XCCHEMD4``
-     - Molecular chemistry where D4 is appropriate
+     - Molecular chemistry where an explicit D4 asymptote is desired
+     - Post-density D4
      - PySCF only
-     - Geometry-dependent D4, evaluated after the SCF
    * - ``CIDER26XCSURFSCI``
-     - Solids, surfaces, adsorption, and combined-domain applications
+     - Molecules, solids, surfaces, and adsorption
+     - No separate D4 term
      - PySCF and classic GPAW
-     - Learned XC model without a separate D4 term
 
-The model contents can be identified independently of their installed path:
+These files already contain the full XC energy form described in
+:doc:`../theory/full_xc`.  PySCF's defaults are correct:
 
-.. list-table:: Model SHA-256 checksums
+.. code-block:: python
+
+   mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
+
+GPAW's initializer also supports exchange-only models, so its historical
+defaults add PBE exchange and correlation.  Override them for CIDER26XC:
+
+.. code-block:: python
+
+   xc = get_cider_functional(
+       "CIDER26XCSURFSCI",
+       xmix=1.0,
+       xkernel=None,
+       ckernel=None,
+   )
+
+``CIDER26XCCHEM`` can be evaluated in an isolated GPAW PAW box, but PySCF is
+the intended molecular representation.  ``CIDER26XCCHEMD4`` is rejected by
+GPAW because its post-density D4 contract is implemented only in PySCF.
+
+D4 energy accounting
+--------------------
+
+D4 is evaluated after the density SCF and does not change the CIDER potential
+or density.  CiderPress reconciles a pre-existing supported dispersion wrapper
+and applies the model's expected correction exactly once:
+
+.. code-block:: python
+
+   total = mf.e_tot
+   base = mf.e_tot_base
+   present = mf.e_vdw_present
+   expected = mf.e_vdw_expected
+   adjustment = mf.e_vdw_delta
+   assert abs(total - (base + adjustment)) < 1e-10
+
+Do not add a second D4 wrapper to the reported total.  The D4 contribution is
+not included in the PySCF CIDER nuclear gradient.
+
+Loading rules and model trust
+-----------------------------
+
+All packaged names accept an optional ``.yaml`` suffix.  Explicit paths to
+other YAML or joblib models remain supported, and a real file at the supplied
+path takes precedence over a packaged name.
+
+Mapped CIDER YAML and joblib files reconstruct Python model objects.  Load
+only models obtained from a trusted source.  The packaged resources are
+release assets whose hashes are tested; arbitrary model files should be
+treated like executable Python input.
+
+Checksums
+---------
+
+.. list-table:: SHA-256 of packaged models
    :header-rows: 1
-   :widths: 30 70
+   :widths: 34 66
 
    * - Model
      - SHA-256
+   * - ``CIDER23X_SL_GGA``
+     - ``2e518727b836cd806c4f27c5566e9401b8c15db77182e34380728efdea24f0ce``
+   * - ``CIDER23X_SL_MGGA``
+     - ``fdd60d58ae0f981dcdf64ec24437454bdc334e65b162e379e3630bb99dc82bba``
+   * - ``CIDER23X_NL_GGA``
+     - ``b4e29d9530eaa7c94a3c61cc5e942a0cf7cfd0dd3c4a265dc35395123ae26c86``
+   * - ``CIDER23X_NL_MGGA``
+     - ``f49060978575ffeb8b18c64df8b9eb917fddf2e0cb8b4cc120e4a11f8a01a537``
+   * - ``CIDER23X_NL_MGGA_PBE``
+     - ``9ce3303986f80aee859c00f8973c7947f02bf3837dfc356c57d7d82fa36660f4``
+   * - ``CIDER23X_NL_MGGA_DTR``
+     - ``93312ddde97a8b8e88a9f875df221a44f65a1a1b7c955a55d9214bd449e363ea``
+   * - ``CIDER24Xne``
+     - ``ab76620ad504ae2934f2f1d599c9c5457c3b882315cbbca710358d641b3e505a``
+   * - ``CIDER24Xe``
+     - ``f2650a9416ca13e0967d932e3b8d43e232fe87bd7bd2b27eb46fe6c82fd3aae1``
    * - ``CIDER26XCCHEM``
      - ``fd2e0b5cd7408cd4b0ff09495bb026b109b5066bc2f1267c011ce5f0408bdf1d``
    * - ``CIDER26XCCHEMD4``
@@ -41,92 +224,7 @@ The model contents can be identified independently of their installed path:
    * - ``CIDER26XCSURFSCI``
      - ``e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e``
 
-Loading a packaged model
-------------------------
-
-Pass the short name anywhere that CiderPress accepts an ``mlfunc`` path.  An
-optional ``.yaml`` suffix is accepted as well::
-
-   from pyscf import dft, gto
-   from ciderpress.pyscf.dft import make_cider_calc
-
-   mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="def2-tzvp")
-   mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
-   energy = mf.kernel()
-
-Explicit paths to other YAML or joblib models remain supported.  A real file
-at the supplied path takes precedence over a packaged short name.
-
-Full-XC settings
-----------------
-
-The CIDER26XC models predict the full XC energy.  They must not be combined
-with the PBE exchange/correlation baselines used by older CIDER exchange-only
-models.
-
-``make_cider_calc`` has the correct full-XC defaults.  In the GPAW interface,
-state the full-XC settings explicitly::
-
-   from ciderpress.gpaw.calculator import get_cider_functional
-
-   xc = get_cider_functional(
-       "CIDER26XCSURFSCI",
-       xmix=1.0,
-       xkernel=None,
-       ckernel=None,
-       pasdw_store_funcs=False,
-   )
-
-``pasdw_store_funcs=False`` is the memory-saving default.  The templates retain
-the default ``pasdw_ovlp_fit=True`` for improved numerical precision of the PAW
-projections.  Disabling overlap fitting can reduce its cost, but treat that
-choice as part of the numerical setup when comparing tightly converged results.
-
-.. warning::
-
-   Omitting ``xkernel=None`` and ``ckernel=None`` in
-   ``get_cider_functional`` adds the function's default PBE baselines.  That is
-   appropriate for some older exchange-only models, but not for CIDER26XC.
-
-D4 energy contract
-------------------
-
-Install the optional dependency before using ``CIDER26XCCHEMD4``::
-
-   pip install 'ciderpress[d4]'
-
-D4 is a geometry-dependent, post-density energy correction.  It does not
-enter the XC potential or change the converged density.  CiderPress applies the
-correction exactly once and exposes the accounting after ``kernel()``::
-
-   total = mf.e_tot
-   base = mf.e_tot_base
-   d4 = mf.e_vdw_expected
-   adjustment = mf.e_vdw_delta
-   assert abs(total - (base + adjustment)) < 1e-10
-
-Do not add a second PySCF D4 wrapper to the CIDER total.  If an incoming
-mean-field object already has a supported dispersion wrapper, CiderPress
-reconciles it with the model contract rather than silently double counting it.
-GPAW raises an error for ``CIDER26XCCHEMD4`` because this post-density D4
-contract is implemented only for PySCF in version 0.5.0.
-
-Choosing and reporting a model
-------------------------------
-
-Use ``CIDER26XCCHEM`` or ``CIDER26XCCHEMD4`` for molecular calculations and
-``CIDER26XCSURFSCI`` for periodic solids, surfaces, and adsorption studies.
-The model name does not replace ordinary numerical convergence: basis sets,
-integration grids, PAW setups, plane-wave cutoffs, cells, and k-point meshes
-must still be converged for the requested property.
-
-For reproducibility, report the CiderPress version, model name and checksum,
-backend version, numerical representation, charge and spin state, SCF
-settings, and whether a calculation was restarted from another functional.
-
-The CIDER26XC models are described in the forthcoming manuscript
-:footcite:t:`CIDER26XC`.  The CIDER representation and earlier molecular/solid
-implementations are described in :footcite:t:`CIDER22X` and
-:footcite:t:`CIDER23X`.
+See :doc:`reproducibility` for what to report with a result and
+:doc:`../reference/citing` for family-specific citations.
 
 .. footbibliography::

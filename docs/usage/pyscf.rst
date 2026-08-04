@@ -1,63 +1,151 @@
-Using CIDER26XC with PySCF
-==========================
+Molecular Calculations with PySCF
+=================================
 
-PySCF is the recommended backend for molecular calculations with
-``CIDER26XCCHEM`` and ``CIDER26XCCHEMD4``.  ``CIDER26XCSURFSCI`` can also be
-used in PySCF when a combined-domain model is desired.
+The PySCF interface decorates an existing restricted or unrestricted
+Kohn--Sham object.  Molecular geometry, charge, spin, basis, grids, density
+fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
+replaces the numerical XC evaluation and adds any model-level energy contract.
 
-Closed-shell molecules
-----------------------
+Choose the functional composition first
+---------------------------------------
 
-Start from a normal PySCF ``RKS`` object and decorate it with
-:func:`ciderpress.pyscf.dft.make_cider_calc`.  The following complete example
-also shows the optional D4 energy accounting:
+CIDER26XC models contain full exchange and correlation.  Their PySCF
+initializer defaults are correct:
+
+.. code-block:: python
+
+   mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
+
+CIDER23X and CIDER24X contain exchange.  Specify the surrogate-hybrid
+composition explicitly:
+
+.. code-block:: python
+
+   mf = make_cider_calc(
+       dft.RKS(mol),
+       "CIDER23X_NL_MGGA_DTR",
+       xmix=0.25,
+       xkernel="GGA_X_PBE",
+       ckernel="GGA_C_PBE",
+   )
+
+See :doc:`production_models` before changing the model or mixing fraction.
+
+Closed-shell workflow
+---------------------
+
+The complete first calculation is:
 
 .. literalinclude:: ../../examples/pyscf/production_calc.py
    :language: python
    :linenos:
 
-The basis and grid in an example are starting points, not universal
-production settings.  Converge them for the requested energy difference,
-force, or response property.  Density fitting affects the Coulomb evaluation;
-use a compatible auxiliary basis and keep the treatment consistent across all
-members of an energy difference.
+The example uses a moderate basis and grid so it can be run directly.  For a
+reported result, converge the basis, integration grid, SCF thresholds, and
+density-fitting approximation for the requested energy difference or
+derivative.
 
-Open-shell molecules and atoms
-------------------------------
+Density fitting
+---------------
 
-Use ``UKS`` when the target state is open shell.  Set ``mol.spin`` to the
-number of alpha electrons minus beta electrons and verify the final
-``spin_square()`` result, occupations, and orbital character.  A converged
-energy alone does not prove that the intended electronic state was obtained.
+Calling ``density_fit`` after ``make_cider_calc`` accelerates the Coulomb
+problem; CIDER26XC evaluates no exact exchange.  Select a compatible auxiliary
+basis and keep it consistent across an energy difference:
 
-For a difficult state, first converge a conventional functional using the
-same molecule, basis, grid, charge, and spin, then pass its density explicitly
-to CIDER:
+.. code-block:: python
+
+   mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
+   mf = mf.density_fit(auxbasis="def2-universal-jfit")
+
+The CIDER decorator preserves its model and D4 metadata across this PySCF
+wrapper.  Density fitting is a numerical approximation, not a change to the
+CIDER functional form.
+
+Open-shell systems
+------------------
+
+Use ``UKS`` and set ``mol.spin`` to :math:`N_\alpha-N_\beta`.  Supply a
+physically motivated initial state and verify the converged occupations,
+orbital character, and ``spin_square()`` result.  A converged total energy can
+belong to an unintended electronic basin.
+
+For a difficult system, first converge a conventional functional with the
+same molecule, basis, grid, charge, and spin, then provide its density to the
+CIDER calculation:
 
 .. literalinclude:: ../../examples/pyscf/restart_calc.py
    :language: python
    :linenos:
 
-Store the baseline and CIDER checkpoints separately.  If a fallback setting
-produces a stable density, use that density to rerun the intended tight
-calculation rather than reporting a deliberately loosened preconditioning
-step as the final result.
+The fallback ladder changes one control family at a time.  A relaxed or
+level-shifted rung supplies a new starting density; the example reruns that
+density with the intended tight controls before returning a result.
 
-Recommended numerical practice
-------------------------------
+Checkpoints and interrupted calculations
+----------------------------------------
 
-* Use the same basis, grid, density-fitting treatment, charge, and spin for
-  all systems entering an energy difference.
-* A target such as ``conv_tol = 1e-9`` Hartree is reasonable for molecular
-  energy differences, but the required tolerance is property dependent.
-* Warm-start related geometries or a sequence of CIDER calculations from the
-  previous converged density when the physical state is continuous.
-* Preserve each checkpoint and the settings that produced it.  Do not replace
-  a failed calculation with the energy of an earlier state.
-* Validate energy stationarity before relaxing ``conv_tol_grad``.  Persistent
-  orbital-gradient oscillation can indicate a different occupation, spin
-  state, or unstable SCF solution.
+Set a different ``chkfile`` for the baseline, each fallback rung, and the
+final CIDER calculation.  A checkpoint can recover molecular orbitals and a
+density after interruption:
 
-See :doc:`convergence` for suggested fallback settings by molecular
-calculation class and :doc:`production_models` for model selection and D4
-semantics.
+.. code-block:: python
+
+   from pyscf.scf import chkfile
+
+   mol_from_chk, scf_data = chkfile.load_scf("cider.chk")
+   mo = scf_data["mo_coeff"]
+   occ = scf_data["mo_occ"]
+   dm0 = mf.make_rdm1(mo, occ)
+   energy = mf.kernel(dm0=dm0)
+
+Reconstruct the calculator and model explicitly rather than assuming the
+checkpoint serializes the CiderPress decorator.  Confirm that the checkpoint
+molecule, basis, charge, spin, and orbital dimensions match the new object.
+
+D4-corrected energy
+-------------------
+
+``CIDER26XCCHEMD4`` uses the same SCF density path as its mapped full-XC model
+and evaluates D4 from the geometry afterward.  Inspect
+``e_tot_base``, ``e_vdw_present``, ``e_vdw_expected``, and ``e_vdw_delta``
+when combining wrappers or restarting an existing object.  The returned
+``kernel()`` value and ``e_tot`` include the final adjustment exactly once.
+
+D4 does not contribute to the current molecular gradient implementation.  See
+:doc:`properties` before using derivative-based workflows.
+
+CIDER24X
+--------
+
+Install ``ciderpress[cider24]`` and use the same exchange-only composition as
+CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
+evaluator.  Keep the model on the device selected by its evaluator and avoid
+mixing CUDA and CPU PyTorch installations within one environment.
+
+Gradients and other methods
+---------------------------
+
+Analytical restricted and unrestricted nuclear gradients are available for
+the molecular NLDF path, including density-fitted calculations.  Use
+``mf.nuc_grad_method()`` as shown in :doc:`properties`.
+
+Hessians, NMR, polarizability, coupled-cluster, multireference, and similar
+methods are not implemented on the decorated CIDER object.  SDMX and
+nonlocal-orbital molecular gradients are also unavailable.  Unsupported paths
+raise ``NotImplementedError`` instead of silently falling back to a different
+functional.
+
+SCF practice
+------------
+
+* Start routine closed-shell calculations with normal CDIIS and the accuracy
+  required by the final energy difference.
+* Use a baseline density for open-shell, transition-metal, stretched-bond, or
+  near-degenerate systems.
+* Preserve a fresh-atomic-guess route; a baseline density can select the wrong
+  basin.
+* Do not disable convergence validation merely to obtain a ``converged`` flag.
+* Diagnose occupation switching before applying finite-temperature smearing.
+
+The complete symptom-based ladder is in :doc:`convergence`, and the record to
+retain with a result is in :doc:`reproducibility`.

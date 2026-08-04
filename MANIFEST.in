@@ -23,5 +23,5 @@ recursive-exclude ciderpress/lib *.cl
 global-exclude *.py[cod]
 prune ciderpress/lib/build
 
-# docs
-recursive-exclude docs/
+# Documentation is built and deployed separately from the source package.
+prune docs

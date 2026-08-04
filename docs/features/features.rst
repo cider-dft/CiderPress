@@ -1,40 +1,106 @@
-Density and Orbital Features in CiderPress
-==========================================
+Electronic Features in CiderPress
+==================================
 
-To predict the exchange-correlation energy :math:`E_{\text{xc}}`, we need
-to train a machine learning model :math:`e_{\text{xc}}(\mathbf{x})` such that
+CIDER models predict a grid-resolved exchange or exchange-correlation energy
+density from an electronic feature vector.  In a pure density functional the
+features are functionals of :math:`n(\mathbf r)`; generalized Kohn--Sham
+models may additionally depend on the one-particle density matrix
+:math:`n_1(\mathbf r,\mathbf r')`:
 
-.. math:: E_{\text{xc}} = \int \text{d}^3\mathbf{r}\, e_\text{xc}(\mathbf{x}[n_1](\mathbf{r}))
+.. math::
 
-where :math:`\mathbf{x}[n_1](\mathbf{r})` is a position-dependent feature vector that is
-a functional of the density :math:`n(\mathbf{r})` in "pure" Kohn-Sham DFT and a 
-functional of the density matrix :math:`n_1(\mathbf{r}, \mathbf{r}')` in the case of
-"generalized" Kohn-Sham DFT. Cider provides several types of feature that can
-be used as input to the ML model. These features
-can be divided into four categories:
+   E_{\mathrm{xc}} = \int d^3\mathbf r\,
+   e_{\mathrm{xc}}\!\left(\mathbf x[n,n_1](\mathbf r)\right).
 
-* :ref:`Semilocal Features (SL) <sl_feat>`: Same features as in conventional GGA/meta-GGA functionals (i.e. :math:`n`, :math:`\nabla n`, :math:`\tau`).
-  NOTE: All Cider models must include semilocal features.
-  They need not be used explicitly in the model, but evaluating
-  them is required to evalute baseline functionals and other quantities in the code.
-* :ref:`Nonlocal Density Features (NLDF) <nldf_feat>`: These features are constructed by integrating the density
-  over a real-space kernel function to characterize the shape of the density around a point :math:`\mathbf{r}`.
-* :ref:`Nonlocal Orbital Features (NLOF) <nlof_feat>`: EXPERIMENTAL, NOT TESTED, NOT RECOMMENDED FOR USE.
-  One coordinate of the density matrix is operated on by a fractional Laplacian.
-* :ref:`Smooth Density Matrix Exchange (SDMX) <sdmx_feat>`:
-  One coordinate of the density matrix is convolved at different length scales. Then these convolutions
-  are contracted to approximately characterize the shape of the density matrix around a point :math:`\mathbf{r}`.
+The feature representation determines what spatial information is available
+to the regression, which exact scaling behavior can be imposed, which
+backends can evaluate the model, and which derivatives are available.  It is
+therefore part of the functional definition rather than a tunable SCF option.
 
-The set of features to be used in a model is specified using the :class:`FeatureSettings` object. To see
-the code API for setting up feature settings, see the :ref:`Settings module <settings_module>` section. To see
-mathematical descriptions and physical intuition for the different types of features, see
-the subsections below.
+Feature families
+----------------
+
+.. list-table:: Electronic information exposed by each feature family
+   :header-rows: 1
+   :widths: 16 29 28 27
+
+   * - Family
+     - Inputs
+     - Information represented
+     - Packaged use
+   * - :ref:`SL <sl_feat>`
+     - Density, gradient, and optionally kinetic-energy density
+     - Local GGA or meta-GGA environment
+     - Present in every packaged family
+   * - :ref:`NLDF <nldf_feat>`
+     - Density integrated through density-dependent real-space kernels
+     - Rotationally invariant finite-neighborhood density shape
+     - CIDER23X and CIDER26XC
+   * - :ref:`SDMX <sdmx_feat>`
+     - Smoothed one-particle density matrix
+     - Approximate exchange-hole and orbital information
+     - CIDER24X
+   * - :ref:`NLOF <nlof_feat>`
+     - Fractional-Laplacian orbital quantities
+     - Experimental orbital nonlocality
+     - No packaged production model
+
+All models require a semilocal block, even when the learned correction is
+driven mainly by nonlocal descriptors.  The density and semilocal ingredients
+also define energy baselines, kernel length scales, normalization factors, and
+low-density regularization.
+
+From raw quantities to model inputs
+-----------------------------------
+
+The arrays produced by a backend are not necessarily the coordinates passed
+to regression.  CiderPress applies three layers:
+
+1. A settings object declares the raw quantities and their parameters.
+2. Physical normalizers combine quantities into dimensionless or
+   controlled-scaling descriptors.
+3. bounded transforms place the descriptors in coordinates suitable for the
+   mapped Gaussian-process evaluator.
+
+The complete ordered settings, normalizers, and transforms are serialized in
+the model.  A packaged model should therefore be loaded as a unit.  Recreating
+an ``NLDFSettings`` or ``SDMXSettings`` object with similar parameters is not
+equivalent unless feature order, spin convention, exponents, normalization,
+and transforms all match.
+
+Family lineage
+--------------
+
+CIDER23X combines semilocal ingredients with efficient version-j NLDF
+descriptors.  CIDER24X replaces the density-only nonlocal block with SDMX and
+can train on orbital-occupation derivatives.  CIDER26XC uses version-j NLDF
+again, but supplies separate transformed inputs to learned exchange and
+correlation components.  The learned energy forms are explained in
+:doc:`../theory/full_xc`; model/backend compatibility is listed in
+:doc:`../usage/production_models`.
+
+Numerical and physical constraints
+----------------------------------
+
+Scale-invariant exchange descriptors allow the exact uniform-coordinate
+scaling of exchange to be built into the energy form.  Correlation has a
+different scaling structure and may retain explicit density dependence.
+Rotational invariance is obtained through scalar contractions of vector or
+angular components, while spin channels are combined according to the model's
+exchange or correlation contract.
+
+At very low density, near nuclei, and near interpolation boundaries, feature
+regularization is inseparable from numerical stability.  A change that makes
+forward features finite must also preserve their adjoint derivatives.  See
+:doc:`../theory/uniform_scaling`, :doc:`../theory/nldf_numerical`, and
+:doc:`../theory/numerical_evaluation` for these constraints, and
+:doc:`../workflows/extending` before changing a feature implementation.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Feature definitions
 
    sl
    nldf
-   nlof
    sdmx
-
+   nlof

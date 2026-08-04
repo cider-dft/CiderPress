@@ -27,11 +27,27 @@ import yaml
 from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
 
-BUILTIN_MODELS = (
+CIDER23X_MODELS = (
+    "CIDER23X_SL_GGA",
+    "CIDER23X_SL_MGGA",
+    "CIDER23X_NL_GGA",
+    "CIDER23X_NL_MGGA",
+    "CIDER23X_NL_MGGA_PBE",
+    "CIDER23X_NL_MGGA_DTR",
+)
+
+CIDER24X_MODELS = (
+    "CIDER24Xne",
+    "CIDER24Xe",
+)
+
+CIDER26XC_MODELS = (
     "CIDER26XCCHEM",
     "CIDER26XCCHEMD4",
     "CIDER26XCSURFSCI",
 )
+
+BUILTIN_MODELS = CIDER23X_MODELS + CIDER24X_MODELS + CIDER26XC_MODELS
 
 
 def _get_builtin_model_name(value):
@@ -65,8 +81,17 @@ def load_cider_model(mlfunc, mlfunc_format=None):
                 raise ValueError("Unsupported file format")
         if mlfunc_format == "yaml":
             context = resource.open("r") if resource is not None else open(mlfunc, "r")
-            with context as f:
-                mlfunc = yaml.load(f, Loader=yaml.CLoader)
+            try:
+                with context as f:
+                    mlfunc = yaml.load(f, Loader=yaml.CLoader)
+            except ModuleNotFoundError as exc:
+                if exc.name == "torch":
+                    raise ModuleNotFoundError(
+                        "This CIDER model requires PyTorch. Install the optional "
+                        "dependency with `pip install 'ciderpress[cider24]'`, or "
+                        "install a platform-specific PyTorch build before loading it."
+                    ) from exc
+                raise
         elif mlfunc_format == "joblib":
             mlfunc = joblib.load(mlfunc)
         else:

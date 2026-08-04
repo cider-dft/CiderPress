@@ -34,7 +34,7 @@ as :math:`\boldsymbol{\Sigma}_\text{noise}`. Using these components, the
 predictive function for a test point :math:`\mathbf{x}_*`
 takes the form :footcite:p:`Rasmussen2006`
 
-.. math:: f(\mathbf{x}_*) = \sum_\alpha k(\mathbf{x}_*, \mathbf{x}_i) \alpha_i
+.. math:: f(\mathbf{x}_*) = \sum_i k(\mathbf{x}_*, \mathbf{x}_i) \alpha_i
 
 with the following definition for the weight vector :math:`\boldsymbol{\alpha}`:
 
@@ -50,7 +50,7 @@ Fitting Total Energy Data
 
 Consider an extensive quantity :math:`F`, which is a contribution to the
 total electronic energy of a chemical system. In the case of CiderPress,
-this quanity will be the exchange, correlation, or exchange-correlation energy.
+this quantity will be the exchange, correlation, or exchange-correlation energy.
 We can fit :math:`F` by learning a function that gets integrated over
 real-space to yield :math:`F` for a given system:
 
@@ -67,7 +67,7 @@ where :math:`g` indexes quadrature points and :math:`w_g^m` are the respective q
 The covariances between the numerical integrals :math:`F^m` and :math:`F^n`
 can be written as
 
-.. math:: \text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n k(\mathbf{x}_g^m, \mathbf{x}_h^m)
+.. math:: \text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n k(\mathbf{x}_g^m, \mathbf{x}_h^n)
 
 where :math:`k(\mathbf{x}, \mathbf{x}')` is the covariance kernel for
 :math:`f(\mathbf{x})`. Computing the above double numerical integral directly
@@ -94,7 +94,7 @@ Fitting Eigenvalues
 The Gaussian process scheme discussed above can be extended to fit the eigenvalues
 of the Kohn-Sham Hamiltonian. :footcite:p:`CIDER24X`
 The :math:`i`-th eigenvalue :math:`\epsilon_i^m` of chemical system :math:`m` is
-the partial derivate of the total energy with respect to the occupation
+the partial derivative of the total energy with respect to the occupation
 number :math:`f_i^m` of the orbital: :footcite:p:`Janak1978`
 
 .. math:: \epsilon_i^m = \frac{\partial E}{\partial f_i^m}
@@ -145,4 +145,3 @@ which allows occupation derivative training data to be included in the Gaussian 
 For further details, see :footcite:t:`CIDER24X`
 
 .. footbibliography::
-

@@ -7,6 +7,32 @@ class of setting at a time, save checkpoints for each rung, and verify that a
 converged calculation represents the intended charge, spin, occupations, and
 electronic basin.
 
+Choose the next control from the observed failure rather than applying every
+fallback at once:
+
+.. list-table:: Failure pattern and first response
+   :header-rows: 1
+   :widths: 35 35 30
+
+   * - Observed pattern
+     - First control to change
+     - State to verify
+   * - Density residual decays, then stalls
+     - Reduce mixing or enlarge DIIS/Pulay history
+     - Same occupations and spin
+   * - Energy and occupations alternate
+     - Add controlled smearing or change eigensolver
+     - Frontier occupations
+   * - Magnetic moment drifts or flips
+     - Mix charge and magnetization separately
+     - Local and total moments
+   * - Restart immediately moves far from its checkpoint
+     - Rebuild the baseline with matching numerical settings
+     - Cell, basis/setup, bands, spin, and charge
+   * - A loose rung converges but the tight rung does not
+     - Use the loose density only as a new initial condition
+     - Final result satisfies the requested criteria
+
 Molecular calculations in PySCF
 -------------------------------
 

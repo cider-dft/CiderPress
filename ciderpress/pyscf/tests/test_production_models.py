@@ -6,7 +6,12 @@ import numpy as np
 import pytest
 from pyscf import dft, gto
 
-from ciderpress.dft.model_utils import BUILTIN_MODELS
+from ciderpress.dft.model_utils import (
+    BUILTIN_MODELS,
+    CIDER23X_MODELS,
+    CIDER24X_MODELS,
+    CIDER26XC_MODELS,
+)
 from ciderpress.pyscf import dft as cider_dft
 
 
@@ -16,7 +21,7 @@ def test_production_model_initializes_pyscf(name):
     calc = cider_dft.make_cider_calc(dft.RKS(mol), name)
 
     assert calc._numint.mlxc.nfeat == calc._numint.settings.nfeat
-    assert calc._cider_vdw_contract_enabled
+    assert calc._cider_vdw_contract_enabled == (name in CIDER26XC_MODELS)
     if name == "CIDER26XCCHEMD4":
         assert calc._cider_vdw_fit_term == "d4"
         assert calc._cider_vdw_fit_info["kind"] == "d4"
@@ -51,7 +56,7 @@ def test_post_density_vdw_is_applied_exactly_once(monkeypatch):
     assert cider_dft._apply_post_density_vdw_energy(calc) == pytest.approx(-10.07)
 
 
-@pytest.mark.parametrize("name", BUILTIN_MODELS)
+@pytest.mark.parametrize("name", CIDER26XC_MODELS)
 def test_production_model_scf_high_cost(name):
     """One-cycle end-to-end smoke test; selected explicitly for releases."""
     mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g", verbose=0)
@@ -68,3 +73,20 @@ def test_production_model_scf_high_cost(name):
         assert calc.e_vdw_expected < 0
     else:
         assert calc.e_vdw_expected == 0
+
+
+@pytest.mark.parametrize(
+    "name", (CIDER23X_MODELS[-1], CIDER24X_MODELS[-1])
+)
+def test_exchange_only_family_initializes_with_explicit_surrogate_mix(name):
+    mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g", verbose=0)
+    calc = cider_dft.make_cider_calc(
+        dft.RKS(mol),
+        name,
+        xmix=0.25,
+        xkernel="GGA_X_PBE",
+        ckernel="GGA_C_PBE",
+    )
+
+    assert calc._numint.mlxc.nfeat == calc._numint.settings.nfeat
+    assert not calc._cider_vdw_contract_enabled

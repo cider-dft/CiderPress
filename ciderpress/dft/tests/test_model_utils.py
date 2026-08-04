@@ -6,10 +6,23 @@ from pathlib import Path
 import pytest
 
 from ciderpress.data import functionals
-from ciderpress.dft.model_utils import BUILTIN_MODELS, load_cider_model
+from ciderpress.dft.model_utils import (
+    BUILTIN_MODELS,
+    CIDER24X_MODELS,
+    load_cider_model,
+)
+from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
 
 EXPECTED_HASHES = {
+    "CIDER23X_SL_GGA": "2e518727b836cd806c4f27c5566e9401b8c15db77182e34380728efdea24f0ce",
+    "CIDER23X_SL_MGGA": "fdd60d58ae0f981dcdf64ec24437454bdc334e65b162e379e3630bb99dc82bba",
+    "CIDER23X_NL_GGA": "b4e29d9530eaa7c94a3c61cc5e942a0cf7cfd0dd3c4a265dc35395123ae26c86",
+    "CIDER23X_NL_MGGA": "f49060978575ffeb8b18c64df8b9eb917fddf2e0cb8b4cc120e4a11f8a01a537",
+    "CIDER23X_NL_MGGA_PBE": "9ce3303986f80aee859c00f8973c7947f02bf3837dfc356c57d7d82fa36660f4",
+    "CIDER23X_NL_MGGA_DTR": "93312ddde97a8b8e88a9f875df221a44f65a1a1b7c955a55d9214bd449e363ea",
+    "CIDER24Xne": "ab76620ad504ae2934f2f1d599c9c5457c3b882315cbbca710358d641b3e505a",
+    "CIDER24Xe": "f2650a9416ca13e0967d932e3b8d43e232fe87bd7bd2b27eb46fe6c82fd3aae1",
     "CIDER26XCCHEM": "fd2e0b5cd7408cd4b0ff09495bb026b109b5066bc2f1267c011ce5f0408bdf1d",
     "CIDER26XCCHEMD4": "ee6824e258625246180efb75fdec7c1e23310a6fe2fcdf2ab836ec90d29bb00c",
     "CIDER26XCSURFSCI": "e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e",
@@ -53,16 +66,18 @@ def test_builtin_model_hash_and_aliases(name):
     plain = load_cider_model(name)
     suffixed = load_cider_model(name + ".yaml")
     explicit = load_cider_model(path)
-    assert isinstance(plain, MappedXC2)
+    assert isinstance(plain, (MappedXC, MappedXC2))
     for loaded in (suffixed, explicit):
         assert type(loaded) is type(plain)
         assert loaded.nfeat == plain.nfeat
         assert loaded.libxc_baseline == plain.libxc_baseline
         assert len(loaded.kernels) == len(plain.kernels)
         assert loaded.settings.sl_settings.level == plain.settings.sl_settings.level
-        assert (
-            loaded.settings.nldf_settings.feat_spec_list
-            == plain.settings.nldf_settings.feat_spec_list
+        assert type(loaded.settings.nldf_settings) is type(
+            plain.settings.nldf_settings
+        )
+        assert type(loaded.settings.sdmx_settings) is type(
+            plain.settings.sdmx_settings
         )
 
 
@@ -89,6 +104,18 @@ def test_builtin_model_vdw_contracts_and_portability():
 def test_builtin_model_rejects_non_yaml_format():
     with pytest.raises(ValueError, match="Built-in CIDER models use YAML"):
         load_cider_model("CIDER26XCCHEM", "joblib")
+
+
+@pytest.mark.parametrize("name", CIDER24X_MODELS)
+def test_cider24_missing_torch_message(name, monkeypatch):
+    import ciderpress.dft.model_utils as model_utils
+
+    def missing_torch(*args, **kwargs):
+        raise ModuleNotFoundError("No module named 'torch'", name="torch")
+
+    monkeypatch.setattr(model_utils.yaml, "load", missing_torch)
+    with pytest.raises(ModuleNotFoundError, match=r"ciderpress\[cider24\]"):
+        load_cider_model(name)
 
 
 @pytest.mark.parametrize("name", OLD_MODEL_NAMES)

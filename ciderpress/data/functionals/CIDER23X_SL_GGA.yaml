@@ -1,0 +1,109 @@
+!!python/object:ciderpress.dft.xc_evaluator.MappedXC
+kernels:
+- !!python/object:ciderpress.dft.xc_evaluator.MappedDFTKernel
+  _add_basefunc: !!python/name:ciderpress.dft.baselines.gga_x_chachiyo ''
+  _mul_basefunc: !!python/name:ciderpress.dft.baselines.lda_x ''
+  feature_list: !!python/object:ciderpress.dft.transform_data.FeatureList
+    feat_list:
+    - !!python/object:ciderpress.dft.transform_data.UMap
+      _bounds: !!python/tuple
+      - 0
+      - 1
+      gamma: 0.24308265985843178
+      i: 1
+  fevals:
+  - !!python/object:ciderpress.dft.xc_evaluator.SplineSetEvaluator
+    coeff_sets:
+    - !!python/object/apply:numpy.core.multiarray._reconstruct
+      args:
+      - &id001 !!python/name:numpy.ndarray ''
+      - !!python/tuple
+        - 0
+      - !!binary |
+        Yg==
+      state: !!python/tuple
+      - 1
+      - !!python/tuple
+        - 52
+      - &id002 !!python/object/apply:numpy.dtype
+        args:
+        - f8
+        - false
+        - true
+        state: !!python/tuple
+        - 3
+        - <
+        - null
+        - null
+        - null
+        - -1
+        - -1
+        - 0
+      - false
+      - !!binary |
+        /JGhCtfopD+gzEzzIsx7PinVmBfQ6KS/vYlfxz6bob8KLXC4B9B3vx4AHTHICKE/ch630SLFsD8D
+        0DrlJ9KzP3lMNaKVQ68/ICZ0b+bqkD+wbdPVUXOov4a1LHAC072/OQaO+gThxb+SJDDUtrfIv1XA
+        mpcn0sW/eDnraLV3ub+85W2Zu8uJP2zYVin69cI/NzsScWgL0j8ZTcXUqrLYP7Tz2HaezNs/QPSa
+        Fj4y2j+7eZ31FXfTP23sX8W1BcA/6AoK+gL4u7/uZZlsHM/XvxxUcqaIOeS/LlEw/B6C678MKosP
+        hIHwv5YBDXH7J/K/19EZ+xCu8r88TA75SDvyv2Uf+uWhG/G/xEdIXMZh779wLw3PXcPsv+ygQd/J
+        Euu/HG0ZYrnW6r8X7v6rIlbsv/bUNY2ek++/pQAzIXop8r8owNbESBP1v3U3yv7tQPi/Fhxgq45m
+        +7/IcaEjFzz+v7CoJ5xoQgDAA5Ip6lgKAcBJHc4xVmkBwKDLj9byXAHAl+vMcuDpAMBiaqPypyEA
+        wDwcqwZaCf6/tGMPKGTP+78=
+    const: 0.0
+    ind_sets:
+    - !!python/tuple
+      - !!python/object/apply:numpy.core.multiarray.scalar
+        - !!python/object/apply:numpy.dtype
+          args:
+          - i8
+          - false
+          - true
+          state: !!python/tuple
+          - 3
+          - <
+          - null
+          - null
+          - null
+          - -1
+          - -1
+          - 0
+        - !!binary |
+          AAAAAAAAAAA=
+    nterms: 1
+    scale: !!python/object/apply:numpy.core.multiarray._reconstruct
+      args:
+      - *id001
+      - !!python/tuple
+        - 0
+      - !!binary |
+        Yg==
+      state: !!python/tuple
+      - 1
+      - !!python/tuple
+        - 1
+      - *id002
+      - false
+      - !!binary |
+        FMF6ZrJm4j8=
+    spline_grids:
+    - !!python/tuple
+      - !!python/tuple
+        - 0
+        - 1
+        - 50
+  mode: SEP
+libxc_baseline: null
+settings: !!python/object:ciderpress.dft.settings.FeatureSettings
+  hyb_settings: !!python/object:ciderpress.dft.settings.EmptySettings {}
+  nldf_settings: !!python/object:ciderpress.dft.settings.EmptySettings {}
+  nlof_settings: !!python/object:ciderpress.dft.settings.EmptySettings {}
+  normalizers: !!python/object:ciderpress.dft.feat_normalizer.FeatNormalizerList
+    _normalizers:
+    - null
+    - null
+    cutoff: 1.0e-10
+    slmode: np
+  sdmx_settings: !!python/object:ciderpress.dft.settings.EmptySettings {}
+  sl_settings: !!python/object:ciderpress.dft.settings.SemilocalSettings
+    level: GGA
+    mode: np

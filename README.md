@@ -10,21 +10,24 @@ CiderPress provides tools for training and evaluating CIDER functionals for use 
 
 Please see the [CiderPress website](https://mir-group.github.io/CiderPress/) for installation instructions and documentation.
 
-## Production Models
+## Packaged Functional Families
 
-CiderPress 0.5.0 packages three production mapped models. They can be passed
-directly anywhere an `mlfunc` file path is accepted:
+CiderPress 0.5.0 includes the published mapped models from three generations:
 
-- `CIDER26XCCHEM`: molecular model without a dispersion correction.
-- `CIDER26XCCHEMD4`: molecular model with a post-density D4 correction.
-- `CIDER26XCSURFSCI`: model for molecular, solid-state, and surface-science
-  applications.
+- CIDER23X: six semilocal/NLDF exchange models, for PySCF and classic GPAW.
+- CIDER24X: `CIDER24Xne` and `CIDER24Xe`, SDMX exchange models for PySCF.
+- CIDER26XC: `CIDER26XCCHEM`, `CIDER26XCCHEMD4`, and
+  `CIDER26XCSURFSCI`, full-XC models for molecular chemistry and combined
+  molecular/solid/surface-science applications.
 
-The optional D4 dependency is installed with
-`pip install 'ciderpress[d4]'`. D4 post-density evaluation is supported by
-the PySCF backend; GPAW rejects `CIDER26XCCHEMD4` rather than silently evaluating
-the model without its fitted correction. Existing YAML/joblib paths remain
-supported, and the packaged aliases may optionally include the `.yaml` suffix.
+All are selected by short name anywhere an `mlfunc` path is accepted. The
+[model guide](https://mir-group.github.io/CiderPress/usage/production_models.html)
+lists every name, feature representation, supported backend, functional
+composition, and release checksum.
+
+CIDER23X and CIDER24X store exchange and normally use the explicit
+PBE0/CIDER surrogate-hybrid composition. CIDER26XC stores full XC and must not
+be combined with an additional semilocal XC baseline.
 
 For a molecular calculation:
 
@@ -34,6 +37,18 @@ from ciderpress.pyscf.dft import make_cider_calc
 
 mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
 energy = mf.kernel()
+```
+
+For an exchange-only model:
+
+```python
+mf = make_cider_calc(
+    dft.RKS(mol),
+    "CIDER23X_NL_MGGA_DTR",
+    xmix=0.25,
+    xkernel="GGA_X_PBE",
+    ckernel="GGA_C_PBE",
+)
 ```
 
 For a classic GPAW calculation, load the production model as a full XC
@@ -51,9 +66,22 @@ xc = get_cider_functional(
 )
 ```
 
-The documentation contains complete [PySCF](https://mir-group.github.io/CiderPress/usage/pyscf.html)
-and [GPAW](https://mir-group.github.io/CiderPress/usage/gpaw.html) examples and
-recommended SCF fallback settings by calculation class.
+Install optional runtimes only when needed:
+
+```bash
+pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
+pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy
+```
+
+D4 evaluation is supported by PySCF and is added once after the density SCF;
+its derivative is not part of the CIDER molecular gradient. GPAW rejects the
+D4 model rather than silently omitting the fitted correction. CiderPress
+0.5.0 supports classic GPAW with PAW setups, not `gpaw.new`.
+
+The documentation contains a [framework overview](https://mir-group.github.io/CiderPress/theory/framework.html),
+complete [PySCF](https://mir-group.github.io/CiderPress/usage/pyscf.html) and
+[GPAW](https://mir-group.github.io/CiderPress/usage/gpaw.html) workflows, and
+calculation-class-specific [SCF fallback settings](https://mir-group.github.io/CiderPress/usage/convergence.html).
 
 ## Questions and Comments
 

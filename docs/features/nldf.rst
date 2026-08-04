@@ -12,7 +12,7 @@ over real space to obtain features :math:`G(\mathbf{r})` that are nonlocal in th
 
 This is a fairly simple convolution-based descriptor, but it has a significant shortcoming.
 In order to guarantee a reasonable and finite value for :math:`G(\mathbf{r})`,
-:math:`k(\mathbf{r}-\mathbf{r}')` must decay exponetially on some length-scale
+:math:`k(\mathbf{r}-\mathbf{r}')` must decay exponentially on some length scale
 as :math:`|\mathbf{r}-\mathbf{r}'|` grows large. However, choosing a single
 length-scale will result in nontrivial behavior of the feature under
 :ref:`Uniform Scaling <unif_scaling>`. To cure this problem, we need a
@@ -23,9 +23,10 @@ then
 
 .. math:: G[n_\lambda](\mathbf{r}) = \lambda^j G[n](\lambda\mathbf{r})
 
-These features can then be reguralized to be scale-invariant and used in exchange functional models.
+These features can then be regularized to be scale invariant and used in
+exchange-functional models.
 
-There are three types of NLDF implemented in CiderPress currently: versions ``i``, ``j``, and ``k``.
+Three NLDF versions are implemented in CiderPress: ``i``, ``j``, and ``k``.
 It turns out that version ``i`` and ``j`` features can be efficiently computed together, so
 they can be combined into one feature version ``ij``.
 
@@ -95,7 +96,7 @@ one could have :math:`G=\mathbf{g}_\text{se_grad} \cdot \mathbf{g}_\text{se_grad
 As with Version J, there is experimental support for multiplying :math:`n(\mathbf{r}')` by another
 function :math:`b(\mathbf{r}')` before integrating.
 
-Unforunately, while all the above Version I variants are supported in the code (in any combination),
+Unfortunately, while all the above Version I variants are supported in the code (in any combination),
 most of them either have numerical precision issues (i.e. they are difficult to compute with high
 precision using the fast NLDF algorithms) or are physically unrealistic (being too large in the core
 region or similar issues). The two most physically and numerically sensible seem to be ``se_ap``
@@ -116,4 +117,3 @@ We have alternative options for the damping function, but the above exponential 
 one currently.
 
 .. footbibliography::
-

@@ -11,8 +11,8 @@ We can consider a transformed density of the form
 
 This transformation is called *uniform coordinate scaling*,\ :footcite:p:`Martin2004`
 because it essentially involves redefining
-:math:`\mathbf{r}\leftarrow\lambda\mathbf{r}`, which squishes
-(:math:`\lambda>0`) or expands (:math:`\lambda<0`) the
+:math:`\mathbf{r}\leftarrow\lambda\mathbf{r}`, which compresses
+(:math:`\lambda>1`) or expands (:math:`0<\lambda<1`) the
 density while maintaining its relative shape. The :math:`\lambda^3`
 prefactor ensures that the particle number is conserved, i.e.
 
@@ -65,4 +65,3 @@ uniform scaling (such as PBE/SCAN), this could help make more physically realist
 (However, it could also needlessly restrict the model's flexibility, so there are trade-offs involved).
 
 .. footbibliography::
-
