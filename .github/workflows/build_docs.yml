@@ -34,9 +34,12 @@ jobs:
           python=${{ matrix.python-version }}
           pip
           cmake<3.31
+          c-compiler
+          cxx-compiler
           doxygen
           fftw
           libxc
+          make
           openblas
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +52,8 @@ jobs:
           -DBUILD_LIBXC=OFF
       run: |
         pip install torch --index-url https://download.pytorch.org/whl/cpu
-        pip install gpaw
+        # Release 0.5.0 is validated against the classic GPAW 25.7 API.
+        pip install 'gpaw==25.7.0'
         export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
         export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
         pip install '.[d4]'
