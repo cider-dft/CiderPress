@@ -23,12 +23,11 @@ Install a published release with:
 pip install ciderpress
 ```
 
-From a source checkout, including this release branch, use:
+From a source checkout, use:
 
 ```bash
 git clone https://github.com/mir-group/CiderPress.git
 cd CiderPress
-git switch release/0.5.0  # omit this after the release is merged/tagged
 pip install .
 ```
 
@@ -39,21 +38,17 @@ pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
 pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy (pyscf-dispersion + dftd4)
 ```
 
-See the rendered [installation guide](https://mir-group.github.io/CiderPress/release/0.5.0/installation/installation.html)
+See the rendered [installation guide](https://mir-group.github.io/CiderPress/installation/installation.html)
 for compiler, MPI, FFT, MKL, GPAW, and source-build details.
 
 ## Documentation
 
-- [Documentation index](https://mir-group.github.io/CiderPress/release/0.5.0/)
-- [Choosing a packaged model](https://mir-group.github.io/CiderPress/release/0.5.0/usage/production_models.html)
-- [PySCF guide](https://mir-group.github.io/CiderPress/release/0.5.0/usage/pyscf.html)
-- [GPAW guide](https://mir-group.github.io/CiderPress/release/0.5.0/usage/gpaw.html)
-- [SCF convergence recommendations](https://mir-group.github.io/CiderPress/release/0.5.0/usage/convergence.html)
-- [CIDER framework and model lineage](https://mir-group.github.io/CiderPress/release/0.5.0/theory/framework.html)
-
-These links use the rendered release preview. The
-[published documentation root](https://mir-group.github.io/CiderPress/)
-continues to track `main` until the release is reviewed and merged.
+- [Documentation index](https://mir-group.github.io/CiderPress/)
+- [Choosing a packaged model](https://mir-group.github.io/CiderPress/usage/production_models.html)
+- [PySCF guide](https://mir-group.github.io/CiderPress/usage/pyscf.html)
+- [GPAW guide](https://mir-group.github.io/CiderPress/usage/gpaw.html)
+- [SCF convergence recommendations](https://mir-group.github.io/CiderPress/usage/convergence.html)
+- [CIDER framework and model lineage](https://mir-group.github.io/CiderPress/theory/framework.html)
 
 ## Packaged Functional Families
 
@@ -66,7 +61,7 @@ CiderPress 0.5.0 includes the published mapped models from three generations:
   molecular/solid/surface-science applications.
 
 All are selected by short name anywhere an `mlfunc` path is accepted. The
-[model guide](https://mir-group.github.io/CiderPress/release/0.5.0/usage/production_models.html)
+[model guide](https://mir-group.github.io/CiderPress/usage/production_models.html)
 lists every name, feature representation, supported backend, functional
 composition, and release checksum.
 
