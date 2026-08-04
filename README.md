@@ -1,14 +1,61 @@
 <div align="left">
-  <img src="https://github.com/mir-group/CiderPress/blob/main/docs/logos/cider_logo_and_name.png" height="80px"/>
+  <img src="docs/logos/cider_logo_and_name.svg" height="80px" alt="CiderPress"/>
 </div>
 
 CiderPress: Machine Learned Exchange-Correlation Functionals
 ------------------------------------------------------------
 ![Build Status](https://github.com/mir-group/CiderPress/actions/workflows/basic_tests.yml/badge.svg)
 
-CiderPress provides tools for training and evaluating CIDER functionals for use in Density Functional Theory calculations. Interfaces to the GPAW and PySCF codes are included.
+CiderPress provides tools for training and evaluating CIDER functionals in
+density-functional theory calculations. Interfaces to PySCF and classic GPAW
+are included.
 
-Please see the [CiderPress website](https://mir-group.github.io/CiderPress/) for installation instructions and documentation.
+## Installation
+
+CiderPress contains compiled C/C++ numerical kernels. A working C/C++ build
+toolchain, CMake, BLAS/LAPACK, and an FFT implementation are required. PySCF
+is installed as a core Python dependency; GPAW is a separate optional host
+code.
+
+Install a published release with:
+
+```bash
+pip install ciderpress
+```
+
+From a source checkout, including this release branch, use:
+
+```bash
+git clone https://github.com/mir-group/CiderPress.git
+cd CiderPress
+git switch release/0.5.0  # omit this after the release is merged/tagged
+pip install .
+```
+
+Optional model runtimes are installed only when needed:
+
+```bash
+pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
+pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy
+```
+
+See the tracked [installation guide](docs/installation/installation.rst) for
+compiler, MPI, FFT, MKL, GPAW, and source-build details. Because that link is
+relative to the repository, it works on branches before the corresponding
+HTML documentation is deployed.
+
+## Documentation
+
+- [Documentation index](docs/index.rst)
+- [Choosing a packaged model](docs/usage/production_models.rst)
+- [PySCF guide](docs/usage/pyscf.rst)
+- [GPAW guide](docs/usage/gpaw.rst)
+- [SCF convergence recommendations](docs/usage/convergence.rst)
+- [CIDER framework and model lineage](docs/theory/framework.rst)
+
+The [published documentation site](https://mir-group.github.io/CiderPress/)
+tracks the version currently deployed from `main`. The repository-relative
+links above track the branch being viewed.
 
 ## Packaged Functional Families
 
@@ -21,13 +68,15 @@ CiderPress 0.5.0 includes the published mapped models from three generations:
   molecular/solid/surface-science applications.
 
 All are selected by short name anywhere an `mlfunc` path is accepted. The
-[model guide](https://mir-group.github.io/CiderPress/usage/production_models.html)
+[model guide](docs/usage/production_models.rst)
 lists every name, feature representation, supported backend, functional
 composition, and release checksum.
 
 CIDER23X and CIDER24X store exchange and normally use the explicit
 PBE0/CIDER surrogate-hybrid composition. CIDER26XC stores full XC and must not
 be combined with an additional semilocal XC baseline.
+
+## Quick starts
 
 For a molecular calculation:
 
@@ -66,22 +115,13 @@ xc = get_cider_functional(
 )
 ```
 
-Install optional runtimes only when needed:
-
-```bash
-pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
-pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy
-```
-
 D4 evaluation is supported by PySCF and is added once after the density SCF;
 its derivative is not part of the CIDER molecular gradient. GPAW rejects the
 D4 model rather than silently omitting the fitted correction. CiderPress
 0.5.0 supports classic GPAW with PAW setups, not `gpaw.new`.
 
-The documentation contains a [framework overview](https://mir-group.github.io/CiderPress/theory/framework.html),
-complete [PySCF](https://mir-group.github.io/CiderPress/usage/pyscf.html) and
-[GPAW](https://mir-group.github.io/CiderPress/usage/gpaw.html) workflows, and
-calculation-class-specific [SCF fallback settings](https://mir-group.github.io/CiderPress/usage/convergence.html).
+Complete examples and fallback ladders are linked in the documentation list
+above.
 
 ## Questions and Comments
 
