@@ -57,4 +57,5 @@ jobs:
         publish_branch: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build/html
-        force_orphan: true
+        # Preserve versioned documentation previews alongside the main site.
+        keep_files: true
