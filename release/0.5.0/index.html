@@ -106,9 +106,18 @@
   <section id="ciderpress-machine-learned-exchange-correlation-functionals">
 <h1>CiderPress: Machine-Learned Exchange-Correlation Functionals<a class="headerlink" href="#ciderpress-machine-learned-exchange-correlation-functionals" title="Link to this heading"></a></h1>
 <p>CiderPress implements the CIDER framework for constructing and evaluating
-machine-learned density functionals.  It connects physically constrained
-electronic descriptors and mapped Gaussian-process models to self-consistent
-calculations in PySCF and GPAW.</p>
+machine-learned density functionals.  The code serves several purposes:</p>
+<ul class="simple">
+<li><p>Specify the physically constrained electronic descriptors used as model
+inputs for CIDER functionals, along with the numerical settings for
+evaluating these features.</p></li>
+<li><p>Train, evaluate, store, and load Gaussian process regression models
+representing CIDER functionals. Tools are also included to map
+Gaussian processes to more efficient inference-time models.</p></li>
+<li><p>Through interfaces to existing DFT backends (PySCF and GPAW), compute
+the electronic input descriptors, evaluate the XC energy and potential,
+and perform full self-consistent field calculations with CIDER functionals.</p></li>
+</ul>
 <p>CIDER stands for <em>Compressed scale-Invariant DEnsity Representation</em>.  The
 name originally described the scale-invariant nonlocal density features used
 to learn exchange.  The framework now also includes semilocal and smoothed
@@ -119,17 +128,18 @@ periodic numerical implementations.</p>
 <ul class="simple">
 <li><p>To run a calculation, begin with <a class="reference internal" href="installation/installation.html"><span class="doc">Installation</span></a>, then use
 <a class="reference internal" href="usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> and <a class="reference internal" href="usage/quickstart.html"><span class="doc">First Calculations</span></a>.</p></li>
-<li><p>To understand the functional, begin with <a class="reference internal" href="theory/framework.html"><span class="doc">The CIDER Framework</span></a> and
-<a class="reference internal" href="features/features.html"><span class="doc">Electronic Features in CiderPress</span></a>.</p></li>
+<li><p>To understand the functional forms used in CiderPress, begin with
+<a class="reference internal" href="theory/framework.html"><span class="doc">The CIDER Framework</span></a> and <a class="reference internal" href="features/features.html"><span class="doc">Electronic Features in CiderPress</span></a>.</p></li>
 <li><p>To inspect models, generate descriptors, or work on the implementation, use
 <a class="reference internal" href="workflows/workflows.html"><span class="doc">Model and Descriptor Workflows</span></a> and the API reference.</p></li>
 </ul>
-<p>The calculation guides state which combinations are supported.  In brief,
-PySCF is the molecular all-electron backend, while classic GPAW provides the
-periodic plane-wave PAW implementation.  The packaged functional families
-have different energy forms; in particular, the exchange-only CIDER23X and
-CIDER24X models must not be initialized with the full-XC settings used for
-CIDER26XC.</p>
+<p>The calculation guides state which combinations of models, settings, and DFT
+backends are supported.  In brief, PySCF is the molecular all-electron backend,
+while classic GPAW provides the periodic plane-wave PAW implementation.
+The packaged functional families compute different parts of the XC energy.
+In particular, the CIDER23X and CIDER24X models compute only the exchange
+energy, and therefore they must not be initialized with the full-XC
+settings used for CIDER26XC models.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
