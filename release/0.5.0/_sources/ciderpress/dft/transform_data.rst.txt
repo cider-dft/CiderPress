@@ -14,5 +14,7 @@ rational map :math:`y=\gamma x/(1+\gamma x)` and the ``SLTMap`` used for the
 bounded CIDER26XC kinetic-energy indicator.  Model loading supplies the exact
 list associated with a packaged functional.
 
+.. autoclass:: ciderpress.dft.transform_data.FeatureList
+
 .. automodule:: ciderpress.dft.transform_data
    :members:

@@ -63,8 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -246,10 +245,8 @@ target machine.  CiderPress and GPAW must resolve compatible versions of:</p>
 <li><p>the OpenMP runtime; and</p></li>
 <li><p>BLAS/LAPACK.</p></li>
 </ul>
-<p>Before a large parallel job, run a small CIDER plane-wave calculation with the
-same MPI launcher and rank layout.  This verifies that the MPI, FFT, BLAS, and
-OpenMP libraries work together in the intended execution environment.  An MPI
-GPAW calculation requires an MPI-enabled CiderPress build.</p>
+<p>An MPI GPAW calculation requires an MPI-enabled CiderPress build.  The
+periodic smoke-test calculation is <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>.</p>
 <p>The repository’s GPAW site-configuration template
 (<code class="docutils literal notranslate"><span class="pre">.github/workflows/gpaw_siteconfig.py</span></code>) illustrates an MKL/MPI build.
 Adapt its compiler and launcher settings to the local environment.  CiderPress

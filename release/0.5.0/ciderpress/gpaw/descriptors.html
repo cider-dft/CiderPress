@@ -54,8 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -176,8 +175,8 @@ weights, screening convention, and model feature order.</p>
 occupations. The routine constructs both the smooth-grid density response and
 the PAW atomic density-matrix response, then applies the descriptor
 forward/adjoint machinery at fixed orbitals.  The orbital indices,
-k-point distribution, spin convention, occupations, and numerical settings
-must be recorded with the arrays.</p>
+k-point distribution, spin convention, occupations, and NLDF numerical
+settings define the returned derivative arrays.</p>
 <p>This interface serves inspection and training-data construction.  Its
 occupation derivatives hold the orbitals fixed; a self-consistent energy is
 obtained through the calculator interface.</p>

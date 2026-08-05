@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -138,9 +137,9 @@ particular density matrix are distinct operations because multiple density
 matrices can yield the same density.  Orbital relaxation under the scaled
 potential can therefore make the minimizing density matrix at
 <span class="math notranslate nohighlight">\(n_\lambda\)</span> differ from <span class="math notranslate nohighlight">\(n_1^\lambda\)</span>, the coordinate-scaled form
-of the original minimizing density matrix.  The distinction is important
-when a statement depends explicitly on orbitals or the one-particle density
-matrix; see Görling and Ernzerhof<a class="footnote-reference brackets" href="#footcite-gorling1995" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.  The density notation
+of the original minimizing density matrix.</p>
+<p>This distinction enters statements that depend explicitly on orbitals or the
+one-particle density matrix; see Görling and Ernzerhof<a class="footnote-reference brackets" href="#footcite-gorling1995" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.  The density notation
 <span class="math notranslate nohighlight">\(n_\lambda\)</span> is used below for the density-functional scaling relations.</p>
 <p>The exact exchange functional <span class="math notranslate nohighlight">\(E_\text{x}[n]\)</span> has a simple,
 exact behavior under uniform scaling:<a class="footnote-reference brackets" href="#footcite-levy1985" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
@@ -160,8 +159,8 @@ exact behavior under uniform scaling:<a class="footnote-reference brackets" href
 <span class="math notranslate nohighlight">\(E_\text{x}[n_\lambda] = \lambda E_\text{x}[n]\)</span>.
 The LDA exchange energy density <span class="math notranslate nohighlight">\(e_\text{x}^\text{LDA}\propto n^{4/3}\)</span>
 supplies the required <span class="math notranslate nohighlight">\(\lambda\)</span> scaling.  The learned enhancement factor
-<span class="math notranslate nohighlight">\(F_\text{x}^\text{ML}\)</span> is scale invariant because its inputs are.
-With a correlation baseline, the multiplicative energy form inherits the
+<span class="math notranslate nohighlight">\(F_\text{x}^\text{ML}\)</span> is scale invariant because its inputs are.</p>
+<p>With a correlation baseline, the multiplicative energy form inherits the
 baseline’s scaling behavior.  Exact correlation has nonhomogeneous coordinate
 scaling, so a full-XC model may include explicit density dependence alongside
 scale-invariant descriptors.  The CIDER26XC construction follows this route,

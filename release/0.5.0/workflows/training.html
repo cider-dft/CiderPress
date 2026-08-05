@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -122,8 +121,8 @@
   <section id="training-and-mapping-workflow">
 <h1>Training and Mapping Workflow<a class="headerlink" href="#training-and-mapping-workflow" title="Link to this heading"></a></h1>
 <p>CiderPress supplies feature, covariance, fitting, and mapping primitives for
-constructing CIDER models.  A surrounding workflow supplies reference data,
-electronic-structure calculations, dataset provenance, and job scheduling.</p>
+constructing CIDER models.  Reference calculations, dataset assembly, and job
+scheduling are external to the model layer.</p>
 <section id="electronic-data-expected-by-the-model-layer">
 <h2>Electronic data expected by the model layer<a class="headerlink" href="#electronic-data-expected-by-the-model-layer" title="Link to this heading"></a></h2>
 <p>For each electronic system, the training layer consumes arrays generated with
@@ -139,7 +138,7 @@ one consistent feature definition:</p>
 <p><a class="reference internal" href="../ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer" title="ciderpress.pyscf.analyzers.ElectronAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronAnalyzer</span></code></a> and the descriptor tools
 in <a class="reference internal" href="descriptors.html"><span class="doc">Inspecting Densities and Descriptors</span></a> provide these electronic arrays.  Their stored geometry,
 basis or PAW representation, density-generating functional, grid, spin, and
-orbital conventions establish the provenance of a system record.</p>
+orbital conventions define the metadata of a system record.</p>
 </section>
 <section id="integrated-observations">
 <h2>Integrated observations<a class="headerlink" href="#integrated-observations" title="Link to this heading"></a></h2>
@@ -191,17 +190,15 @@ self-consistent predictions measure convergence of that outer procedure.</p>
 <p>The CIDER26XC work uses this approach together with reaction-specific noise
 and uniform-electron-gas constraints. <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>  Dataset
 selection, weighting policy, hyperparameter selection, and stopping criteria
-are scientific choices of the training workflow and should be stored with the
-resulting model provenance.</p>
+are inputs supplied by the surrounding training workflow.</p>
 </section>
 <section id="mapping-and-validation">
 <h2>Mapping and validation<a class="headerlink" href="#mapping-and-validation" title="Link to this heading"></a></h2>
-<p>The mapping step creates the inference evaluator described in
-<a class="reference internal" href="models.html"><span class="doc">Model Objects and Mapping</span></a>.  Validate pointwise energies and derivatives, integrated
+<p>The mapping step creates the inference evaluator described in <a class="reference internal" href="models.html"><span class="doc">Model Objects and Mapping</span></a>.
+Mapping tests compare pointwise energies and derivatives, integrated
 fixed-density values, self-consistent composition, serialized metadata, and
-backend derivatives at matching numerical settings.  Model publication also
-assigns the stable filename and checksum used to identify the inference
-artifact.</p>
+backend derivatives at matching numerical settings.  The published artifact
+adds a stable filename and checksum.</p>
 <p>The relevant APIs are <a class="reference internal" href="../ciderpress/models/train.html#module-ciderpress.models.train" title="ciderpress.models.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.train</span></code></a>,
 <a class="reference internal" href="../ciderpress/models/dft_kernel.html#module-ciderpress.models.dft_kernel" title="ciderpress.models.dft_kernel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.dft_kernel</span></code></a>,
 <a class="reference internal" href="../ciderpress/models/kernels.html#module-ciderpress.models.kernels" title="ciderpress.models.kernels"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.kernels</span></code></a>, and

@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -179,9 +178,10 @@ range.</p>
 one additional descriptor, the density itself, <span class="math notranslate nohighlight">\(X_6 = n\)</span>.  The
 scale-invariant features enforce the exchange scaling constraint.  The
 density coordinate gives the correlation model the additional scaling
-dependence required by its energy form.  Before entering the Gaussian-process
-kernel, every feature is mapped onto a finite interval by the bounded
-transforms stored in the serialized model (implemented in
+dependence required by its energy form.</p>
+<p>Before entering the Gaussian-process kernel, every feature is mapped onto a
+finite interval by the bounded transforms stored in the serialized model
+(implemented in
 <a class="reference internal" href="../ciderpress/dft/transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a>; the <span class="math notranslate nohighlight">\(t\)</span> indicator is handled by
 the <code class="docutils literal notranslate"><span class="pre">SLTMap</span></code> transform).</p>
 </section>

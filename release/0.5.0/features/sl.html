@@ -55,17 +55,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="features.html">Electronic Features in CiderPress</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="features.html#feature-families">Feature families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#from-raw-quantities-to-model-inputs">From raw quantities to model inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#family-lineage">Family lineage</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="features.html#numerical-and-physical-constraints">Numerical and physical constraints</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="features.html#representation-in-the-code">Representation in the code</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density-Matrix Exchange Features</a></li>
@@ -158,8 +155,8 @@ An associated <a class="reference internal" href="nldf.html#nldf-feat"><span cla
 scale-invariant, meaning that
 an exchange functional trained with these features and
 a proper exchange functional baseline will obey the
-uniform scaling rule (see <a class="reference internal" href="../theory/uniform_scaling.html#unif-scaling"><span class="std std-ref">Uniform Scaling Constraints</span></a>).
-The raw features <span class="math notranslate nohighlight">\(n\)</span>, <span class="math notranslate nohighlight">\(|\nabla n|^2\)</span>, and <span class="math notranslate nohighlight">\(\tau\)</span> carry
+uniform scaling rule (see <a class="reference internal" href="../theory/uniform_scaling.html#unif-scaling"><span class="std std-ref">Uniform Scaling Constraints</span></a>).</p>
+<p>The raw features <span class="math notranslate nohighlight">\(n\)</span>, <span class="math notranslate nohighlight">\(|\nabla n|^2\)</span>, and <span class="math notranslate nohighlight">\(\tau\)</span> carry
 nonzero scaling powers.  During model construction, normalizers and feature
 maps supply the behavior required by the chosen functional form.
 Those transformations are serialized with a trained model and are applied

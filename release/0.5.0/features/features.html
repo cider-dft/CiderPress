@@ -55,17 +55,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Electronic Features in CiderPress</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#feature-families">Feature families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#from-raw-quantities-to-model-inputs">From raw quantities to model inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#family-lineage">Family lineage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#numerical-and-physical-constraints">Numerical and physical constraints</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#representation-in-the-code">Representation in the code</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density-Matrix Exchange Features</a></li>
@@ -165,51 +162,73 @@ serialized feature representation is part of the functional definition.</p>
 </tr>
 </tbody>
 </table>
-<p>All models require a semilocal block, even when the learned correction is
-driven mainly by nonlocal descriptors.  The density and semilocal ingredients
-also define energy baselines, kernel length scales, normalization factors, and
-low-density regularization.</p>
+<p>Every packaged model begins with a semilocal block.  Its density ingredients
+also enter the energy baselines, kernel length scales, normalization factors,
+and low-density regularization.</p>
 </section>
-<section id="from-raw-quantities-to-model-inputs">
-<h2>From raw quantities to model inputs<a class="headerlink" href="#from-raw-quantities-to-model-inputs" title="Link to this heading"></a></h2>
-<p>The backend arrays pass through three layers before regression:</p>
-<ol class="arabic simple">
-<li><p>A settings object declares the raw quantities and their parameters.</p></li>
-<li><p>Physical normalizers combine them into dimensionless or
-controlled-scaling descriptors.</p></li>
-<li><p>Bounded transforms place the descriptors in coordinates suitable for the
-mapped Gaussian-process evaluator.</p></li>
-</ol>
-<p>The complete ordered settings, normalizers, and transforms are serialized in
-the model and are loaded as one unit.  An explicitly constructed settings
-object represents the same descriptors when its feature order, spin
-convention, exponents, normalization, and transforms all match.</p>
-</section>
-<section id="family-lineage">
-<h2>Family lineage<a class="headerlink" href="#family-lineage" title="Link to this heading"></a></h2>
-<p>CIDER23X combines semilocal ingredients with efficient version-j NLDF
-descriptors.  CIDER24X uses SDMX and can train on orbital-occupation
-derivatives.  CIDER26XC uses version-j NLDF with separate transformed inputs
-for its learned exchange and correlation components.  The learned energy
-forms and CIDER26XC feature vectors are explained in
-<a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>; model/backend compatibility is listed in
-<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
-</section>
-<section id="numerical-and-physical-constraints">
-<h2>Numerical and physical constraints<a class="headerlink" href="#numerical-and-physical-constraints" title="Link to this heading"></a></h2>
-<p>Scale-invariant exchange descriptors allow the exact uniform-coordinate
-scaling of exchange to be built into the energy form.  Correlation has a
-different scaling structure and may retain explicit density dependence.
-Scalar contractions of vector or angular components provide rotational
-invariance.  The model’s exchange or correlation energy form determines how
-spin channels are combined.</p>
-<p>At very low density, near nuclei, and near interpolation boundaries, feature
-regularization and numerical evaluation must be considered together.  A
-regularization applied in the forward evaluation must have the corresponding
-adjoint derivative.  See
-<a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>, <a class="reference internal" href="../theory/nldf_numerical.html"><span class="doc">Numerical Evaluation of NLDF Features</span></a>, and
-<a class="reference internal" href="../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for these constraints, and
-<a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> before changing a feature implementation.</p>
+<section id="representation-in-the-code">
+<h2>Representation in the code<a class="headerlink" href="#representation-in-the-code" title="Link to this heading"></a></h2>
+<p>For each grid point, CiderPress evaluates raw features <span class="math notranslate nohighlight">\(\mathbf X_0\)</span>,
+applies the model’s physical normalizers <span class="math notranslate nohighlight">\(\mathcal N\)</span>, and then applies
+the bounded feature maps <span class="math notranslate nohighlight">\(\mathcal T\)</span> used by the regression:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf X_0(\mathbf r)
+\xrightarrow{\mathcal N}
+\widetilde{\mathbf X}_0(\mathbf r)
+\xrightarrow{\mathcal T}
+\mathbf X_1(\mathbf r)
+\xrightarrow{f_{\mathrm{ML}}}
+e_{\mathrm{xc}}(\mathbf r).\]</div>
+<p>The corresponding objects are:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Feature representation objects</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 36.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Class</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Feature declaration</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings" title="ciderpress.dft.settings.FeatureSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSettings</span></code></a></p></td>
+<td><p>Stores the ordered semilocal, NLDF, or SDMX settings used by a model</p></td>
+</tr>
+<tr class="row-odd"><td><p>Physical normalization</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizerList" title="ciderpress.dft.feat_normalizer.FeatNormalizerList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code></a></p></td>
+<td><p>Converts the raw feature powers to the representation expected by the
+energy form</p></td>
+</tr>
+<tr class="row-even"><td><p>Bounded feature map</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.FeatureList" title="ciderpress.dft.transform_data.FeatureList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureList</span></code></a></p></td>
+<td><p>Maps normalized features to the coordinates of one regression kernel</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mapped evaluator</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a></p></td>
+<td><p>Evaluates the mapped exchange or full-XC model and its derivatives</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings" title="ciderpress.dft.settings.SemilocalSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SemilocalSettings</span></code></a>,
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a>, and
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXSettings" title="ciderpress.dft.settings.SDMXSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXSettings</span></code></a> define the individual feature
+blocks.  Their numerical plans are implemented by
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan" title="ciderpress.dft.plans.SemilocalPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SemilocalPlan</span></code></a>,
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a>, and
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan" title="ciderpress.dft.plans.SDMXPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXPlan</span></code></a>.</p>
+<p>The settings, normalizers, and mapped kernels are serialized together in a
+CIDER model file.  The PySCF and GPAW interfaces reconstruct them when the
+functional is loaded.</p>
+<p>The equations and parameter conventions for each block are given below.
+Uniform-scaling constraints are derived in <a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>,
+and the exchange and correlation energy forms used by CIDER26XC are defined
+in <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.  Backend support for the packaged families is
+listed in <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Feature definitions</span></p>
 <ul>

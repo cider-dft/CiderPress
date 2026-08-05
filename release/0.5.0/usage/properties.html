@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="SCF Convergence Recommendations" href="convergence.html" />
+    <link rel="next" title="SCF Fallback Settings" href="convergence.html" />
     <link rel="prev" title="Periodic and Isolated Calculations with GPAW" href="gpaw.html" /> 
 </head>
 
@@ -56,11 +56,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Energies and Derivative Properties</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#molecular-gradients">Molecular gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#periodic-forces-and-stress">Periodic forces and stress</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#energy-differences">Energy differences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#energy-composition">Energy composition</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -201,10 +200,8 @@ converged mean-field object:</p>
 <span class="linenos">38</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Use <code class="docutils literal notranslate"><span class="pre">grid_response=True</span></code> when the desired derivative must include the
-response of the atom-centered integration grid.  Converge the electronic SCF,
-basis, quadrature grid, and density-fitting treatment before interpreting a
-gradient.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">grid_response=True</span></code> to include the response of the atom-centered
+integration grid.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 to the final energy.  <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code> returns
 the electronic CIDER gradient.  A geometry optimization of the composite
 CIDER+D4 energy requires a separate implementation of the D4 force.</p>
@@ -251,24 +248,20 @@ SCF has converged:</p>
 </pre></div>
 </div>
 <p>The analytical contribution includes the FFT feature response and PAW/PASDW
-terms.  The supported meta-GGA force and stress route uses PAW setups.
-Converge the plane-wave cutoff, k-point mesh, cell, PAW setups, and electronic
-criteria to the accuracy required by the derivative.</p>
+terms.  The supported meta-GGA force and stress route uses PAW setups.</p>
 </section>
-<section id="energy-differences">
-<h2>Energy differences<a class="headerlink" href="#energy-differences" title="Link to this heading"></a></h2>
-<p>Every member of an energy difference must use the same model composition and
-compatible numerical settings.  In particular:</p>
+<section id="energy-composition">
+<h2>Energy composition<a class="headerlink" href="#energy-composition" title="Link to this heading"></a></h2>
+<p>The selected model determines how CIDER enters the total energy:</p>
 <ul class="simple">
-<li><p>Use the same full-XC or surrogate-hybrid initialization convention for every
-member.</p></li>
-<li><p>Apply D4 exactly once to every applicable structure.</p></li>
-<li><p>Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
-smearing conventions.</p></li>
-<li><p>Converge isolated references in their own representation to the accuracy
-required by the energy difference.</p></li>
+<li><p>CIDER23X and CIDER24X use the explicit surrogate-hybrid composition given by
+<code class="docutils literal notranslate"><span class="pre">xmix</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel</span></code>.</p></li>
+<li><p>CIDER26XC contains the complete exchange-correlation model and uses the
+full-XC initialization shown in <a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds its expected D4 contribution once through the
+<code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code> accounting described in <a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p></li>
 </ul>
-<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for the associated reporting checklist.</p>
+<p>The same model construction applies to every term in an energy difference.</p>
 </section>
 </section>
 
@@ -277,7 +270,7 @@ required by the energy difference.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="gpaw.html" class="btn btn-neutral float-left" title="Periodic and Isolated Calculations with GPAW" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="convergence.html" class="btn btn-neutral float-right" title="SCF Convergence Recommendations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="convergence.html" class="btn btn-neutral float-right" title="SCF Fallback Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

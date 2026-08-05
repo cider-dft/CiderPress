@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -135,7 +134,8 @@ CIDER23X and CIDER24X. <a class="footnote-reference brackets" href="#footcite-ci
 Let <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> be a feature matrix, where each row <span class="math notranslate nohighlight">\(\mathbf{x}_i\)</span>
 is the feature vector for training point <span class="math notranslate nohighlight">\(i\)</span>, and let <span class="math notranslate nohighlight">\(\mathbf{y}\)</span>
 be a target vector, where each element <span class="math notranslate nohighlight">\(y_i\)</span> is the observed value of
-the target function for training point <span class="math notranslate nohighlight">\(i\)</span>. The covariance kernel
+the target function for training point <span class="math notranslate nohighlight">\(i\)</span>.</p>
+<p>The covariance kernel
 <span class="math notranslate nohighlight">\(k(\mathbf{x}, \mathbf{x}')\)</span> defines the covariance between the
 predictive function at two points:
 <span class="math notranslate nohighlight">\(k(\mathbf{x}, \mathbf{x}')=\operatorname{Cov}(f(\mathbf{x}), f(\mathbf{x}'))\)</span>.
@@ -222,7 +222,8 @@ respect to the occupation <span class="math notranslate nohighlight">\(f_i^m\)</
 <span class="math notranslate nohighlight">\(N\)</span> are <span class="math notranslate nohighlight">\(-I\)</span> from below and <span class="math notranslate nohighlight">\(-A\)</span> from above, where
 <span class="math notranslate nohighlight">\(I\)</span> and <span class="math notranslate nohighlight">\(A\)</span> are the ionization potential and electron affinity.
 Their derivative discontinuity enters the relation between a neutral-system
-LUMO and <span class="math notranslate nohighlight">\(-A\)</span> in ordinary Kohn–Sham DFT.  Occupation-derivative labels
+LUMO and <span class="math notranslate nohighlight">\(-A\)</span> in ordinary Kohn–Sham DFT.</p>
+<p>Occupation-derivative labels
 provide valence- and conduction-edge information with this distinction kept
 explicit.  CIDER24X fits derivatives of the target energy contribution,
 <span class="math notranslate nohighlight">\(\partial F/\partial f_i^m\)</span>.</p>

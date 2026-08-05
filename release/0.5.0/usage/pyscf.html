@@ -61,13 +61,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#d4-corrected-energy">D4-corrected energy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cider24x">CIDER24X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gradients-and-other-methods">Gradients and other methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scf-practice">SCF practice</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -198,18 +196,16 @@ composition explicitly:</p>
 <span class="linenos">50</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The example uses a moderate basis and grid so it can be run directly.  For a
-quantitative calculation, converge the basis, integration grid, SCF thresholds,
-and density-fitting approximation for the requested energy difference or
-derivative.  For a small end-to-end energetics workflow,
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/c4eab2cbbf4c58814b33cce2ead5ede321bb09c7/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+<p>The example uses the <code class="docutils literal notranslate"><span class="pre">def2-svp</span></code> basis and PySCF grid level 3.  For a small
+end-to-end energetics workflow,
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
 with a chosen libxc or packaged CIDER functional.</p>
 </section>
 <section id="density-fitting">
 <h2>Density fitting<a class="headerlink" href="#density-fitting" title="Link to this heading"></a></h2>
 <p>Calling <code class="docutils literal notranslate"><span class="pre">density_fit</span></code> after <code class="docutils literal notranslate"><span class="pre">make_cider_calc</span></code> accelerates the Coulomb
-problem.  CIDER26XC has a zero exact-exchange fraction.  Select a compatible
-auxiliary basis and keep it consistent across an energy difference:</p>
+problem.  CIDER26XC has a zero exact-exchange fraction.  The auxiliary basis
+is supplied through the normal PySCF interface:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
 <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
 </pre></div>
@@ -219,10 +215,9 @@ model and its D4 behavior remain unchanged.</p>
 </section>
 <section id="open-shell-systems">
 <h2>Open-shell systems<a class="headerlink" href="#open-shell-systems" title="Link to this heading"></a></h2>
-<p>Use <code class="docutils literal notranslate"><span class="pre">UKS</span></code> and set <code class="docutils literal notranslate"><span class="pre">mol.spin</span></code> to <span class="math notranslate nohighlight">\(N_\alpha-N_\beta\)</span>.  Supply a
-physically motivated initial state and verify the converged occupations,
-orbital character, and <code class="docutils literal notranslate"><span class="pre">spin_square()</span></code> result.  Multiple stationary
-solutions can satisfy the SCF thresholds.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">UKS</span></code> and set <code class="docutils literal notranslate"><span class="pre">mol.spin</span></code> to <span class="math notranslate nohighlight">\(N_\alpha-N_\beta\)</span>.
+<code class="docutils literal notranslate"><span class="pre">spin_square()</span></code> returns <span class="math notranslate nohighlight">\(\langle S^2\rangle\)</span> and the corresponding
+multiplicity for the converged unrestricted solution.</p>
 <p>For a difficult system, first converge a conventional functional with the
 same molecule, basis, grid, charge, and spin, then provide its density to the
 CIDER calculation:</p>
@@ -338,15 +333,15 @@ density after interruption:</p>
 </pre></div>
 </div>
 <p>Recreate the selected CIDER model, then load the orbitals and occupations from
-the PySCF checkpoint.  Confirm that its molecule, basis, charge, spin, and
-orbital dimensions match the new calculation.</p>
+the PySCF checkpoint.  <code class="docutils literal notranslate"><span class="pre">load_scf</span></code> also returns the checkpoint’s <code class="docutils literal notranslate"><span class="pre">Mole</span></code>
+object; the stored orbital dimensions must match the new mean-field object.</p>
 </section>
 <section id="d4-corrected-energy">
 <h2>D4-corrected energy<a class="headerlink" href="#d4-corrected-energy" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> evaluates its electronic full-XC contribution during the
 SCF and D4 from the geometry afterward.  Every CIDER26XC calculation exposes
-<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code>.
-For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero
+<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code>.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero
 and a supported <code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper is disabled.  For
 <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures an attached wrapper contribution and
 adjusts it to the model’s expected D4 value.  The returned <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> value
@@ -361,7 +356,7 @@ See <a class="reference internal" href="properties.html"><span class="doc">Energ
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
 mixing CUDA and CPU PyTorch installations within one environment.  A minimal
-SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/c4eab2cbbf4c58814b33cce2ead5ede321bb09c7/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
 </section>
 <section id="gradients-and-other-methods">
 <h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>
@@ -373,22 +368,8 @@ the molecular NLDF path, including density-fitted calculations.  Use
 multireference, and similar response or post-SCF methods are outside that
 interface.  The documented analytical-gradient implementation covers the
 molecular NLDF path.</p>
-</section>
-<section id="scf-practice">
-<h2>SCF practice<a class="headerlink" href="#scf-practice" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Start routine closed-shell calculations with normal CDIIS and the accuracy
-required by the final energy difference.</p></li>
-<li><p>Use a baseline density for open-shell, transition-metal, stretched-bond, or
-near-degenerate systems.</p></li>
-<li><p>Compare baseline-seeded and atomic-guess solutions when multiple electronic
-states are plausible.</p></li>
-<li><p>Confirm that a converged solution has the intended occupations, spin state,
-and orbital character.</p></li>
-<li><p>Diagnose occupation switching before applying finite-temperature smearing.</p></li>
-</ul>
-<p>The complete symptom-based ladder is in <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a>, and the record to
-retain with a result is in <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a>.</p>
+<p>The PBE-seeded CDIIS, ADIIS, EDIIS, level-shift, and damping settings used by
+the restart example are listed in <a class="reference internal" href="convergence.html"><span class="doc">SCF Fallback Settings</span></a>.</p>
 </section>
 </section>
 

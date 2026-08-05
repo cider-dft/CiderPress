@@ -65,8 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -149,9 +148,8 @@ and CIDER26XCCHEMD4 uses the PySCF D4 energy interface.</p>
 </section>
 <section id="pbe-seeded-periodic-workflow">
 <h2>PBE-seeded periodic workflow<a class="headerlink" href="#pbe-seeded-periodic-workflow" title="Link to this heading"></a></h2>
-<p>Converge a PBE calculation using the final cell, PAW setups, cutoff, k-points,
-bands, symmetry, charge, spin, and occupations.  Write wavefunctions with
-<code class="docutils literal notranslate"><span class="pre">mode=&quot;all&quot;</span></code> and restart with a newly constructed CIDER functional:</p>
+<p>The periodic example evaluates PBE and writes its wavefunctions with
+<code class="docutils literal notranslate"><span class="pre">mode=&quot;all&quot;</span></code> before constructing the CIDER functional and restarting:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
 <span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;PBE-seeded periodic CIDER26XCSURFSCI calculation in classic GPAW.&quot;&quot;&quot;</span>
 <span class="linenos"> 3</span>
@@ -214,10 +212,8 @@ process.</p>
 </section>
 <section id="surfaces-and-adsorption-systems">
 <h2>Surfaces and adsorption systems<a class="headerlink" href="#surfaces-and-adsorption-systems" title="Link to this heading"></a></h2>
-<p>A surface calculation adds convergence dimensions beyond a bulk calculation:
-slab thickness, vacuum, lateral cell, k-point sampling, dipole treatment,
-adsorbate coverage, and magnetic state.  The workflow template preserves
-separate PBE and CIDER checkpoints:</p>
+<p>The surface template uses a dipole correction, a slab-adapted k-point mesh,
+and separate PBE and CIDER checkpoints:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
 <span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;PBE-seeded CIDER26XCSURFSCI template for a CO/Pt(111) slab.&quot;&quot;&quot;</span>
 <span class="linenos"> 3</span>
@@ -283,16 +279,11 @@ separate PBE and CIDER checkpoints:</p>
 <span class="linenos">63</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Evaluate the slab, isolated adsorbate/reference, and combined system with a
-consistent functional composition.  Each system can use the representation
-appropriate to its boundary conditions; for example, a molecule may use an
-isolated box.  Converge each representation to the accuracy required by the
-energy difference.</p>
 </section>
 <section id="isolated-systems-in-periodic-boxes">
 <h2>Isolated systems in periodic boxes<a class="headerlink" href="#isolated-systems-in-periodic-boxes" title="Link to this heading"></a></h2>
-<p>Use Gamma-point sampling, an explicit cell, the correct charge and spin, and
-enough vacuum for the property of interest:</p>
+<p>The isolated-system example places an atom in a 12 Angstrom cubic cell and
+uses Gamma-point sampling:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
 <span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Isolated molecule in a periodic box with classic GPAW and CIDER.&quot;&quot;&quot;</span>
 <span class="linenos"> 3</span>
@@ -370,10 +361,9 @@ enough vacuum for the property of interest:</p>
 <span class="linenos">75</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>A cubic box of approximately 12–15 Angstrom is a useful initial choice for a
-small neutral compact system.  Charged, diffuse, polar, or response-property
-calculations may require a larger cell and finite-size electrostatic
-treatment.  Use the intended magnetic state in both PBE and CIDER stages.</p>
+<p>For small neutral compact systems, 12–15 Angstrom is a practical initial box
+size.  Charged or diffuse systems generally require a larger cell and an
+appropriate finite-size electrostatic treatment.</p>
 </section>
 <section id="restarting-a-cider-checkpoint">
 <h2>Restarting a CIDER checkpoint<a class="headerlink" href="#restarting-a-cider-checkpoint" title="Link to this heading"></a></h2>
@@ -421,8 +411,7 @@ parameters, including <code class="docutils literal notranslate"><span class="pr
 <code class="docutils literal notranslate"><span class="pre">encut</span></code> derived from the <code class="docutils literal notranslate"><span class="pre">qmax</span></code> argument.  Opening the checkpoint with its
 saved XC setting makes <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a>
 reconstruct the saved CIDER functional.  An explicit <code class="docutils literal notranslate"><span class="pre">xc=</span></code> argument selects
-a replacement functional.  Verify the model name, composition, and requested
-numerical controls in the resumed output.</p>
+the functional for the resumed calculation.</p>
 </section>
 <section id="forces-and-stress">
 <h2>Forces and stress<a class="headerlink" href="#forces-and-stress" title="Link to this heading"></a></h2>
@@ -436,12 +425,11 @@ meta-GGA force/stress implementation uses PAW setups.</p>
 <p><code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs=False</span></code> is the memory-saving default.  Setting it to
 <code class="docutils literal notranslate"><span class="pre">True</span></code> caches atomic projector functions and can reduce repeated cost at
 substantial memory expense.  <code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit=True</span></code> selects overlap fitting
-for the projection.  Use the same value throughout a numerical comparison.</p>
-<p><code class="docutils literal notranslate"><span class="pre">qmax</span></code> and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> control the expansion of the nonlocal kernel.  Defaults
-are intended as general settings; smaller <code class="docutils literal notranslate"><span class="pre">lambd</span></code> gives denser interpolation
-and higher cost.  Treat a change to these values as a numerical convergence
-choice and keep it consistent across an energy difference.  <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> is
-normally determined automatically.</p>
+for the projection.  Both options are part of the PAW numerical
+representation.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qmax</span></code> and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> control the expansion of the nonlocal kernel.  Smaller
+<code class="docutils literal notranslate"><span class="pre">lambd</span></code> gives denser interpolation and higher cost.  <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> is normally
+determined automatically.</p>
 </section>
 <section id="parallel-execution-and-memory">
 <h2>Parallel execution and memory<a class="headerlink" href="#parallel-execution-and-memory" title="Link to this heading"></a></h2>
@@ -450,17 +438,13 @@ nonlocal FFT buffers and PAW data add memory beyond a comparable PBE
 calculation.  For memory-heavy systems, run each restart attempt as a separate
 job so memory from the previous calculator is released.</p>
 <p>The CiderPress extension and GPAW must use compatible MPI, FFT, BLAS, and
-OpenMP runtimes.  Validate the exact launcher and rank layout on a small job
-before scaling to multiple nodes.</p>
+OpenMP runtimes.</p>
 </section>
 <section id="scf-strategy">
 <h2>SCF strategy<a class="headerlink" href="#scf-strategy" title="Link to this heading"></a></h2>
-<p>Start from a converged PBE checkpoint.  If the direct CIDER restart fails,
-preconverge PBE with the mixer intended for the next CIDER attempt.  Metals
-and magnetic systems often need smaller density and magnetization mixing,
-occupation smearing, and explicit monitoring of local moments.</p>
-<p>Use <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a> for calculation-class ladders and
-<a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for the settings and checks to retain with a calculation.</p>
+<p><a class="reference internal" href="convergence.html"><span class="doc">SCF Fallback Settings</span></a> lists the mixer, eigensolver, occupation, and restart
+settings used by the bulk, surface, isolated-system, and magnetic fallback
+examples.</p>
 </section>
 </section>
 

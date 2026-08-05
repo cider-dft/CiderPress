@@ -37,8 +37,8 @@ Fixed-density versus self-consistent use
 Descriptor extraction evaluates a chosen, fixed density for model analysis,
 training-data construction, and comparison of feature representations.  A
 self-consistent energy calculation also updates that density through the
-model potential.  Identify the density-generating functional and numerical
-settings with a fixed-density result.
+model potential.  The density-generating calculation and the descriptor
+settings are separate inputs to a fixed-density analysis.
 
 The GPAW descriptor interface obtains plane-wave and PAW quantities from a
 live, completed GPAW calculator.  See

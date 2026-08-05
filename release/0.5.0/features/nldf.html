@@ -55,17 +55,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="features.html">Electronic Features in CiderPress</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="features.html#feature-families">Feature families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#from-raw-quantities-to-model-inputs">From raw quantities to model inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#family-lineage">Family lineage</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="features.html#numerical-and-physical-constraints">Numerical and physical constraints</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="features.html#representation-in-the-code">Representation in the code</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Nonlocal Density Features (NLDF)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#version-j">Version J</a></li>
@@ -169,8 +166,8 @@ meta-GGA exponents use <span class="math notranslate nohighlight">\(B_i=0\)</spa
 format also accepts nonzero gradient terms. In the serialized settings,
 the corresponding parameter array is named <code class="docutils literal notranslate"><span class="pre">[a0,</span> <span class="pre">grad_mul,</span> <span class="pre">tau_mul]</span></code>;
 <code class="docutils literal notranslate"><span class="pre">tau_mul</span></code> is omitted or ignored for a GGA exponent.  These fields correspond
-to the constant, gradient, and kinetic-energy terms in the equations above.
-Using different <span class="math notranslate nohighlight">\(A_i,B_i,C_i\)</span> for each <span class="math notranslate nohighlight">\(i\)</span> produces several feature
+to the constant, gradient, and kinetic-energy terms in the equations above.</p>
+<p>Using different <span class="math notranslate nohighlight">\(A_i,B_i,C_i\)</span> for each <span class="math notranslate nohighlight">\(i\)</span> produces several feature
 length scales in one auxiliary expansion. The source exponent
 <span class="math notranslate nohighlight">\(A_0,B_0,C_0\)</span> is shared by all features. Both the GGA and meta-GGA
 constructions obey</p>

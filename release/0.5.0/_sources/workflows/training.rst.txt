@@ -2,8 +2,8 @@ Training and Mapping Workflow
 =============================
 
 CiderPress supplies feature, covariance, fitting, and mapping primitives for
-constructing CIDER models.  A surrounding workflow supplies reference data,
-electronic-structure calculations, dataset provenance, and job scheduling.
+constructing CIDER models.  Reference calculations, dataset assembly, and job
+scheduling are external to the model layer.
 
 Electronic data expected by the model layer
 --------------------------------------------
@@ -21,7 +21,7 @@ one consistent feature definition:
 :class:`~ciderpress.pyscf.analyzers.ElectronAnalyzer` and the descriptor tools
 in :doc:`descriptors` provide these electronic arrays.  Their stored geometry,
 basis or PAW representation, density-generating functional, grid, spin, and
-orbital conventions establish the provenance of a system record.
+orbital conventions define the metadata of a system record.
 
 Integrated observations
 -----------------------
@@ -81,18 +81,16 @@ self-consistent predictions measure convergence of that outer procedure.
 The CIDER26XC work uses this approach together with reaction-specific noise
 and uniform-electron-gas constraints. :footcite:p:`CIDER26XC`  Dataset
 selection, weighting policy, hyperparameter selection, and stopping criteria
-are scientific choices of the training workflow and should be stored with the
-resulting model provenance.
+are inputs supplied by the surrounding training workflow.
 
 Mapping and validation
 ----------------------
 
-The mapping step creates the inference evaluator described in
-:doc:`models`.  Validate pointwise energies and derivatives, integrated
+The mapping step creates the inference evaluator described in :doc:`models`.
+Mapping tests compare pointwise energies and derivatives, integrated
 fixed-density values, self-consistent composition, serialized metadata, and
-backend derivatives at matching numerical settings.  Model publication also
-assigns the stable filename and checksum used to identify the inference
-artifact.
+backend derivatives at matching numerical settings.  The published artifact
+adds a stable filename and checksum.
 
 The relevant APIs are :mod:`ciderpress.models.train`,
 :mod:`ciderpress.models.dft_kernel`,

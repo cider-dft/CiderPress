@@ -44,10 +44,8 @@ converged mean-field object:
    :language: python
    :linenos:
 
-Use ``grid_response=True`` when the desired derivative must include the
-response of the atom-centered integration grid.  Converge the electronic SCF,
-basis, quadrature grid, and density-fitting treatment before interpreting a
-gradient.
+Use ``grid_response=True`` to include the response of the atom-centered
+integration grid.
 
 ``CIDER26XCCHEMD4`` adds D4 to the final energy.  ``nuc_grad_method()`` returns
 the electronic CIDER gradient.  A geometry optimization of the composite
@@ -65,21 +63,17 @@ SCF has converged:
 
 The analytical contribution includes the FFT feature response and PAW/PASDW
 terms.  The supported meta-GGA force and stress route uses PAW setups.
-Converge the plane-wave cutoff, k-point mesh, cell, PAW setups, and electronic
-criteria to the accuracy required by the derivative.
 
-Energy differences
+Energy composition
 ------------------
 
-Every member of an energy difference must use the same model composition and
-compatible numerical settings.  In particular:
+The selected model determines how CIDER enters the total energy:
 
-* Use the same full-XC or surrogate-hybrid initialization convention for every
-  member.
-* Apply D4 exactly once to every applicable structure.
-* Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
-  smearing conventions.
-* Converge isolated references in their own representation to the accuracy
-  required by the energy difference.
+* CIDER23X and CIDER24X use the explicit surrogate-hybrid composition given by
+  ``xmix``, ``xkernel``, and ``ckernel``.
+* CIDER26XC contains the complete exchange-correlation model and uses the
+  full-XC initialization shown in :doc:`production_models`.
+* ``CIDER26XCCHEMD4`` adds its expected D4 contribution once through the
+  ``e_vdw_delta`` accounting described in :doc:`production_models`.
 
-See :doc:`reproducibility` for the associated reporting checklist.
+The same model construction applies to every term in an energy difference.

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SCF Convergence Recommendations &mdash; CiderPress 0.5.0 documentation</title>
+  <title>SCF Fallback Settings &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Recording and Checking a Calculation" href="reproducibility.html" />
+    <link rel="next" title="Theory and Functional Design" href="../theory/theory.html" />
     <link rel="prev" title="Energies and Derivative Properties" href="properties.html" /> 
 </head>
 
@@ -54,15 +54,16 @@
 <li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SCF Convergence Recommendations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#molecular-calculations-in-pyscf">Molecular calculations in PySCF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#insulating-and-semiconducting-gpaw-calculations">Insulating and semiconducting GPAW calculations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#metallic-and-magnetic-gpaw-calculations">Metallic and magnetic GPAW calculations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#isolated-atoms-and-molecules-in-gpaw">Isolated atoms and molecules in GPAW</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#checks-after-convergence">Checks after convergence</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SCF Fallback Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pyscf-restart-ladder">PySCF restart ladder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gpaw-reference-settings">GPAW reference settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bounded-rmm-diis-steps">Bounded RMM-DIIS steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#magnetic-density-mixing">Magnetic density mixing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#restart-compatibility">Restart compatibility</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -101,7 +102,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">SCF Convergence Recommendations</li>
+      <li class="breadcrumb-item active">SCF Fallback Settings</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/usage/convergence.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -111,110 +112,73 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="scf-convergence-recommendations">
-<h1>SCF Convergence Recommendations<a class="headerlink" href="#scf-convergence-recommendations" title="Link to this heading"></a></h1>
-<p>SCF behavior depends on the spectrum, occupations, spin state, and numerical
-representation of the system.  The settings on this page are starting points
-for diagnosing common convergence patterns.  Numerical thresholds and any
-stabilizing controls form part of the reported calculation and should be
-converged for the requested property.</p>
-<p>Match the first change to the observed behavior:</p>
+  <section id="scf-fallback-settings">
+<h1>SCF Fallback Settings<a class="headerlink" href="#scf-fallback-settings" title="Link to this heading"></a></h1>
+<p>The CIDER interfaces use the SCF algorithms supplied by PySCF and GPAW.  This
+page collects the fallback settings used by the runnable examples, with the
+selected CIDER model and feature representation held fixed.</p>
+<section id="pyscf-restart-ladder">
+<h2>PySCF restart ladder<a class="headerlink" href="#pyscf-restart-ladder" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/pyscf/restart_calc.py">examples/pyscf/restart_calc.py</a> implements a molecular restart
+ladder for restricted or unrestricted calculations.  It first evaluates a
+PBE density for the same PySCF <code class="docutils literal notranslate"><span class="pre">Mole</span></code> object and then tries the following
+CIDER controls with both the PBE density and PySCF’s atomic initial guess:</p>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Failure pattern and first response</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<caption><span class="caption-text">Controls in the PySCF restart example</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
 <colgroup>
-<col style="width: 35.0%" />
-<col style="width: 35.0%" />
-<col style="width: 30.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Observed pattern</p></th>
-<th class="head"><p>Control to examine</p></th>
-<th class="head"><p>State to inspect</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Density residual decays, then stalls</p></td>
-<td><p>Mixing amplitude or DIIS/Pulay history</p></td>
-<td><p>Occupations and spin</p></td>
-</tr>
-<tr class="row-odd"><td><p>Energy and occupations alternate</p></td>
-<td><p>Smearing or eigensolver</p></td>
-<td><p>Frontier occupations</p></td>
-</tr>
-<tr class="row-even"><td><p>Magnetic moment drifts or flips</p></td>
-<td><p>Separate charge and magnetization mixing</p></td>
-<td><p>Local and total moments</p></td>
-</tr>
-<tr class="row-odd"><td><p>Restart moves far from its checkpoint</p></td>
-<td><p>Baseline and restart representations</p></td>
-<td><p>Cell, basis/setup, bands, spin, and charge</p></td>
-</tr>
-<tr class="row-even"><td><p>A relaxed calculation converges and a tighter one oscillates</p></td>
-<td><p>Restart from the relaxed density and test the tighter controls</p></td>
-<td><p>Energy, density, and electronic state</p></td>
-</tr>
-</tbody>
-</table>
-<p>Save a checkpoint before changing the SCF method.  Comparing one control at a
-time makes the source of an improvement easier to identify.</p>
-<section id="molecular-calculations-in-pyscf">
-<h2>Molecular calculations in PySCF<a class="headerlink" href="#molecular-calculations-in-pyscf" title="Link to this heading"></a></h2>
-<p>CDIIS with a history of about eight vectors is a useful initial method for a
-routine closed-shell molecule.  Open-shell, stretched-bond,
-transition-metal, and near-degenerate systems often benefit from an initial
-PBE or PBE0 density evaluated with the same molecule, basis, grid, charge, and
-spin.</p>
-<p>The following settings illustrate a progression from ordinary CDIIS to more
-conservative orbital updates:</p>
-<table class="docutils align-default" id="id2">
-<caption><span class="caption-text">PySCF starting and fallback settings</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
-<colgroup>
+<col style="width: 23.0%" />
 <col style="width: 18.0%" />
-<col style="width: 22.0%" />
 <col style="width: 15.0%" />
 <col style="width: 15.0%" />
 <col style="width: 15.0%" />
-<col style="width: 15.0%" />
+<col style="width: 14.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<tr class="row-odd"><th class="head"><p>Label</p></th>
 <th class="head"><p>DIIS method</p></th>
-<th class="head"><p>Space</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">diis_space</span></code></p></th>
 <th class="head"><p><code class="docutils literal notranslate"><span class="pre">conv_tol</span></code></p></th>
-<th class="head"><p>Level shift</p></th>
-<th class="head"><p>Damping</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">level_shift</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">damp</span></code></p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Standard CDIIS</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cdiis8</span></code></p></td>
 <td><p>CDIIS</p></td>
 <td><p>8</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1e-9</span></code></p></td>
 <td><p>0</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p>Larger history</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cdiis12</span></code></p></td>
 <td><p>CDIIS</p></td>
 <td><p>12</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1e-8</span></code></p></td>
 <td><p>0</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p>Energy-based mixing</p></td>
-<td><p>ADIIS or EDIIS</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adiis</span></code></p></td>
+<td><p>ADIIS</p></td>
 <td><p>12</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1e-7</span></code></p></td>
 <td><p>0</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p>Shifted orbitals</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ediis</span></code></p></td>
+<td><p>EDIIS</p></td>
+<td><p>12</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-7</span></code></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cdiis_shift02</span></code></p></td>
 <td><p>CDIIS</p></td>
 <td><p>8</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1e-7</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.2</span> <span class="pre">Ha</span></code></p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p>Stronger stabilization</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cdiis_shift05</span></code></p></td>
 <td><p>CDIIS</p></td>
 <td><p>8</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1e-6</span></code></p></td>
@@ -223,69 +187,58 @@ conservative orbital updates:</p>
 </tr>
 </tbody>
 </table>
-<p>A density from a relaxed, shifted, or damped calculation can initialize a
-tighter calculation.  Repeating the calculation with reduced stabilization
-measures the sensitivity of the energy and state to those controls.  A
-reported calculation may retain level shifting or damping when the method is
-stated and the target quantity is converged with respect to it.</p>
-<p>Baseline-seeded and atomic-guess calculations can converge to different
-stationary solutions.  Comparing their energies, occupations, spin
-expectation values, and orbital character helps identify the state of
-interest.</p>
-<p>Finite-temperature smearing in the range <code class="docutils literal notranslate"><span class="pre">0.01--0.05</span> <span class="pre">Ha</span></code> can stabilize
-genuinely near-degenerate frontier orbitals.  Report the occupation model and
-distinguish a finite-temperature free energy from an extrapolated
-zero-temperature energy when smearing is retained.</p>
-<p>The CIDER26XC PySCF integration path uses the conventional DIIS methods listed
-above; Newton/SOSCF is outside this path.  Deliberate non-Aufbau occupations
-should be recorded together with the procedure used to select them.</p>
+<p>When a relaxed rung converges, the example starts one final <code class="docutils literal notranslate"><span class="pre">cdiis8</span></code>
+calculation from its density.  Each attempt writes a separate checkpoint.
+The PySCF CIDER26XC integration supports the conventional DIIS methods used
+here; Newton/SOSCF is outside this integration path.</p>
 </section>
-<section id="insulating-and-semiconducting-gpaw-calculations">
-<h2>Insulating and semiconducting GPAW calculations<a class="headerlink" href="#insulating-and-semiconducting-gpaw-calculations" title="Link to this heading"></a></h2>
-<p>A converged PBE checkpoint provides a useful starting density when it uses
-the CIDER calculation’s cell, PAW setups, cutoff, k-points, bands, symmetry,
-charge, spin, and occupations.  The baseline calculation can also be repeated
-with the mixer planned for a difficult CIDER restart.</p>
-<table class="docutils align-default" id="id3">
-<caption><span class="caption-text">GPAW periodic starting and fallback settings</span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
+<section id="gpaw-reference-settings">
+<h2>GPAW reference settings<a class="headerlink" href="#gpaw-reference-settings" title="Link to this heading"></a></h2>
+<p>The GPAW examples use a PBE checkpoint containing wavefunctions
+(<code class="docutils literal notranslate"><span class="pre">write(...,</span> <span class="pre">mode=&quot;all&quot;)</span></code>), followed by a CIDER restart.  Saving
+wavefunctions is required because the packaged CIDER26XC models use the
+meta-GGA kinetic-energy density.</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Settings in the GPAW examples</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
 <colgroup>
-<col style="width: 20.0%" />
-<col style="width: 35.0%" />
-<col style="width: 20.0%" />
 <col style="width: 25.0%" />
+<col style="width: 26.0%" />
+<col style="width: 19.0%" />
+<col style="width: 30.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<tr class="row-odd"><th class="head"><p>Calculation</p></th>
 <th class="head"><p>Mixer</p></th>
 <th class="head"><p>Fermi width</p></th>
-<th class="head"><p>Eigensolver</p></th>
+<th class="head"><p>Source</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Moderate Pulay</p></td>
+<tr class="row-even"><td><p>Bulk Si</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
-<td><p>Inherited/default</p></td>
+<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Conservative Pulay</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">2,</span> <span class="pre">100)</span></code></p></td>
+<tr class="row-odd"><td><p>CO/Pt(111)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.03,</span> <span class="pre">5,</span> <span class="pre">100)</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
-<td><p>Inherited/default</p></td>
+<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/gpaw/surface_calc.py">examples/gpaw/surface_calc.py</a></p></td>
 </tr>
-<tr class="row-even"><td><p>Near-linear mixing</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
-<td><p>Inherited/default</p></td>
-</tr>
-<tr class="row-odd"><td><p>RMM-DIIS option</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">rmm-diis</span></code></p></td>
+<tr class="row-even"><td><p>Isolated He</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.01</span> <span class="pre">eV</span></code></p></td>
+<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a0d2511d7432b081a302bb13970492b1ee7a688f/examples/gpaw/isolated_calc.py">examples/gpaw/isolated_calc.py</a></p></td>
 </tr>
 </tbody>
 </table>
-<p>Persistent orbital-step oscillation can be tested with bounded RMM-DIIS
-steps:</p>
+<p>Two conservative Pulay settings used as fallbacks for difficult periodic,
+surface, or isolated calculations are <code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">2,</span> <span class="pre">100)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code>.  The latter has a single stored density and therefore
+approaches linear mixing.</p>
+<section id="bounded-rmm-diis-steps">
+<h3>Bounded RMM-DIIS steps<a class="headerlink" href="#bounded-rmm-diis-steps" title="Link to this heading"></a></h3>
+<p>For repeated large orbital steps, GPAW’s RMM-DIIS eigensolver accepts an
+explicit step interval:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw.eigensolvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMMDIIS</span>
 
 <span class="n">eigensolver</span> <span class="o">=</span> <span class="n">RMMDIIS</span><span class="p">(</span>
@@ -295,15 +248,14 @@ steps:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>This eigensolver can be paired with <code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code>.  Density and
-eigenstate criteria should then be chosen for the requested energy, force, or
-stress accuracy.</p>
+<p>This setting can be paired with <code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code>.  Davidson with a
+small number of inner iterations is the corresponding choice in the
+isolated-system example.</p>
 </section>
-<section id="metallic-and-magnetic-gpaw-calculations">
-<h2>Metallic and magnetic GPAW calculations<a class="headerlink" href="#metallic-and-magnetic-gpaw-calculations" title="Link to this heading"></a></h2>
-<p>Metals commonly require occupation smearing and smaller mixing amplitudes.
-For a magnetic system whose charge and spin densities converge on different
-scales, GPAW provides separate mixing parameters:</p>
+<section id="magnetic-density-mixing">
+<h3>Magnetic density mixing<a class="headerlink" href="#magnetic-density-mixing" title="Link to this heading"></a></h3>
+<p>GPAW’s <code class="docutils literal notranslate"><span class="pre">MixerDif</span></code> assigns separate histories and weights to charge and
+magnetization densities.  A conservative magnetic setting is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">MixerDif</span>
 
 <span class="n">mixer</span> <span class="o">=</span> <span class="n">MixerDif</span><span class="p">(</span>
@@ -314,24 +266,11 @@ scales, GPAW provides separate mixing parameters:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Track total and local magnetic moments throughout the restart sequence.
-Davidson with a small number of inner iterations is another useful choice
-when RMM-DIIS produces large orbital steps or repeated occupation changes.</p>
-<p>For an occupation-driven cycle, the Fermi width can be reduced in stages,
-for example <code class="docutils literal notranslate"><span class="pre">0.10</span> <span class="pre">-&gt;</span> <span class="pre">0.05</span> <span class="pre">-&gt;</span> <span class="pre">0.02</span> <span class="pre">eV</span></code>.  Each stage should start from the
-preceding checkpoint, and the final width should represent the intended
-electronic temperature or converged zero-temperature limit.</p>
-</section>
-<section id="isolated-atoms-and-molecules-in-gpaw">
-<h2>Isolated atoms and molecules in GPAW<a class="headerlink" href="#isolated-atoms-and-molecules-in-gpaw" title="Link to this heading"></a></h2>
-<p>Use Gamma-point sampling, an explicit charge and spin, and a cell converged
-for the property of interest.  For a gapped, closed-shell system, start from
-<code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code> with Davidson.  An open-shell
-or diffuse system may benefit from <code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">2,</span> <span class="pre">100)</span></code> or the near-linear
-<code class="docutils literal notranslate"><span class="pre">Mixer(0.02,</span> <span class="pre">1,</span> <span class="pre">50)</span></code> setting.</p>
-<p>Fixed total magnetization during a preconvergence stage can stabilize an
-intended open-shell state:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<p>For an open-shell isolated system, a fixed-total-magnetization preconvergence
+stage can be specified as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mixer</span>
+
+<span class="n">mixer</span> <span class="o">=</span> <span class="n">Mixer</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="n">occupations</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span>
     <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
@@ -339,17 +278,18 @@ intended open-shell state:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The isolated-system example supplies illustrative energy, density, and
-eigenstate criteria.  Cell size, plane-wave cutoff, PAW setup, occupations,
-and all electronic criteria require convergence for the target property.</p>
+<p>Occupation-driven cycles can also be restarted through successively smaller
+Fermi widths, for example <code class="docutils literal notranslate"><span class="pre">0.10</span></code>, <code class="docutils literal notranslate"><span class="pre">0.05</span></code>, and <code class="docutils literal notranslate"><span class="pre">0.02</span> <span class="pre">eV</span></code>.  The width in
+the final calculation defines its electronic temperature.</p>
 </section>
-<section id="checks-after-convergence">
-<h2>Checks after convergence<a class="headerlink" href="#checks-after-convergence" title="Link to this heading"></a></h2>
-<p>Record the functional and numerical representation together with the SCF
-controls that produced the result.  Inspect occupations and magnetic moments
-where relevant, and compare members of an energy difference using consistent
-functional composition and accuracy.  A restarted density is an initial
-condition; the resulting calculation supplies the energy and state to report.</p>
+</section>
+<section id="restart-compatibility">
+<h2>Restart compatibility<a class="headerlink" href="#restart-compatibility" title="Link to this heading"></a></h2>
+<p>A GPAW PBE checkpoint used to initialize CIDER must provide a compatible
+cell, PAW setups, plane-wave cutoff, k-points, bands, symmetry, charge, spin,
+and occupations.  A CIDER checkpoint additionally stores the mapped model
+and its NLDF interpolation parameters.  See <a class="reference internal" href="gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a> for checkpoint
+construction and restart syntax.</p>
 </section>
 </section>
 
@@ -358,7 +298,7 @@ condition; the resulting calculation supplies the energy and state to report.</p
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="properties.html" class="btn btn-neutral float-left" title="Energies and Derivative Properties" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="reproducibility.html" class="btn btn-neutral float-right" title="Recording and Checking a Calculation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../theory/theory.html" class="btn btn-neutral float-right" title="Theory and Functional Design" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

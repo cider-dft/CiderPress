@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -78,6 +77,7 @@
 <li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Bounded Regression Coordinates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.FeatureList"><code class="docutils literal notranslate"><span class="pre">FeatureList</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.EMap"><code class="docutils literal notranslate"><span class="pre">EMap</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.FeatureNormalizer"><code class="docutils literal notranslate"><span class="pre">FeatureNormalizer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.LMap"><code class="docutils literal notranslate"><span class="pre">LMap</span></code></a></li>
@@ -162,6 +162,11 @@ serialization preserves map types and parameters.  Examples include the
 rational map <span class="math notranslate nohighlight">\(y=\gamma x/(1+\gamma x)\)</span> and the <code class="docutils literal notranslate"><span class="pre">SLTMap</span></code> used for the
 bounded CIDER26XC kinetic-energy indicator.  Model loading supplies the exact
 list associated with a packaged functional.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.transform_data.FeatureList">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">FeatureList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feat_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.FeatureList" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py class" id="module-ciderpress.dft.transform_data">
 <dt class="sig sig-object py" id="ciderpress.dft.transform_data.EMap">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">EMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.EMap" title="Link to this definition"></a></dt>

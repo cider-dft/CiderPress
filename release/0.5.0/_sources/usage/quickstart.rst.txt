@@ -21,12 +21,11 @@ Run it from the repository root with:
 
    python examples/pyscf/production_calc.py --model CIDER26XCCHEM
 
-Check ``mf.converged`` before interpreting the energy.  For open-shell or
-difficult systems, also verify the occupations and electronic state.  The
-example prints the base, expected dispersion, and adjustment terms for every
-CIDER26XC model.  With ``CIDER26XCCHEMD4`` they show how the final total was
-assembled; ``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI`` print zero for the
-dispersion entries.
+The example raises ``RuntimeError`` when the SCF does not converge.  It prints
+the base, expected dispersion, and adjustment terms for every CIDER26XC
+model.  With ``CIDER26XCCHEMD4`` they show how the final total was assembled;
+``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI`` print zero for the dispersion
+entries.
 
 Exchange-only model with PySCF
 ------------------------------
@@ -59,7 +58,5 @@ installed GPAW build, for example:
 
    mpirun -np 4 python examples/gpaw/production_calc.py
 
-Before scaling up, verify a small calculation with the MPI, FFT, BLAS,
-OpenMP, and GPAW setup stack intended for the larger calculation.  Continue
-with :doc:`pyscf` or :doc:`gpaw`; :doc:`convergence` gives a restart sequence
-for difficult SCF calculations.
+Continue with :doc:`pyscf` or :doc:`gpaw`; :doc:`convergence` gives concrete
+restart settings for difficult SCF calculations.

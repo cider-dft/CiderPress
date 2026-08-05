@@ -63,8 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -117,8 +116,8 @@
 <h1>Choosing a CIDER Functional<a class="headerlink" href="#choosing-a-cider-functional" title="Link to this heading"></a></h1>
 <p>CiderPress 0.5.0 packages CIDER23X, CIDER24X, and CIDER26XC model files. Pass
 the model’s short name to the PySCF or GPAW constructor. The families learn
-different parts of the functional, so model selection and functional
-initialization must be considered together.</p>
+different parts of the functional, and the learned quantity determines the
+initializer arguments described below.</p>
 <section id="family-selection">
 <h2>Family selection<a class="headerlink" href="#family-selection" title="Link to this heading"></a></h2>
 <table class="docutils align-default" id="id1">
@@ -219,7 +218,7 @@ semilocal terms stated explicitly:</p>
 </div>
 <p>The corresponding GPAW construction uses the same three composition
 arguments.  Changing <code class="docutils literal notranslate"><span class="pre">xmix</span></code> defines a different surrogate-hybrid
-composition and should be reported as such.</p>
+functional.</p>
 </section>
 <section id="cider24x-sdmx-exchange-models">
 <h2>CIDER24X SDMX exchange models<a class="headerlink" href="#cider24x-sdmx-exchange-models" title="Link to this heading"></a></h2>
@@ -317,14 +316,15 @@ supported dispersion wrapper was present.</p>
 <dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_delta</span></code></dt><dd><p>Adjustment <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span> <span class="pre">-</span> <span class="pre">e_vdw_present</span></code> added to <code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>.</p>
 </dd>
 </dl>
-<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code>.  For
-<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero and
-CiderPress disables a supported D3/D4 wrapper attached to the incoming SCF
-object.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures any attached wrapper
+<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code>.
+For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero
+and CiderPress disables a supported D3/D4 wrapper attached to the incoming
+SCF object.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures any attached wrapper
 contribution and sets <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code> to the model’s expected D4 term minus
-that measured value.  These rules include the expected dispersion term once
-in the final energy.  The current PySCF CIDER nuclear gradient contains the
-electronic contribution; see <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for the D4 force limitation.</p>
+that measured value.</p>
+<p>These rules include the expected dispersion term once in the final energy.
+The current PySCF CIDER nuclear gradient contains the electronic contribution;
+see <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for the D4 force limitation.</p>
 </section>
 <section id="loading-rules-and-model-trust">
 <h2>Loading rules and model trust<a class="headerlink" href="#loading-rules-and-model-trust" title="Link to this heading"></a></h2>
@@ -333,8 +333,8 @@ other YAML or joblib models remain supported, and a real file at the supplied
 path takes precedence over a packaged name.</p>
 <p>Mapped CIDER YAML and joblib files reconstruct Python model objects and
 therefore require a trusted source.  Packaged models have the fixed checksums
-listed below.  Treat an external model file like executable Python input and
-record its checksum with the calculation.</p>
+listed below.  The checksum provides an exact identifier for an external
+model artifact.</p>
 </section>
 <section id="checksums">
 <h2>Checksums<a class="headerlink" href="#checksums" title="Link to this heading"></a></h2>
@@ -385,8 +385,7 @@ record its checksum with the calculation.</p>
 </tr>
 </tbody>
 </table>
-<p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for what to report with a result and
-<a class="reference internal" href="../reference/citing.html"><span class="doc">Citing CIDER and CiderPress</span></a> for family-specific citations.</p>
+<p>See <a class="reference internal" href="../reference/citing.html"><span class="doc">Citing CIDER and CiderPress</span></a> for family-specific citations.</p>
 </section>
 </section>
 

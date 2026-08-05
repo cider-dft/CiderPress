@@ -18,7 +18,9 @@ Let :math:`f(\mathbf{x})` denote the learned function, with
 Let :math:`\mathbf{X}` be a feature matrix, where each row :math:`\mathbf{x}_i`
 is the feature vector for training point :math:`i`, and let :math:`\mathbf{y}`
 be a target vector, where each element :math:`y_i` is the observed value of
-the target function for training point :math:`i`. The covariance kernel
+the target function for training point :math:`i`.
+
+The covariance kernel
 :math:`k(\mathbf{x}, \mathbf{x}')` defines the covariance between the
 predictive function at two points:
 :math:`k(\mathbf{x}, \mathbf{x}')=\operatorname{Cov}(f(\mathbf{x}), f(\mathbf{x}'))`.
@@ -124,7 +126,9 @@ The exact particle-number derivatives at an integer electron number
 :math:`N` are :math:`-I` from below and :math:`-A` from above, where
 :math:`I` and :math:`A` are the ionization potential and electron affinity.
 Their derivative discontinuity enters the relation between a neutral-system
-LUMO and :math:`-A` in ordinary Kohn--Sham DFT.  Occupation-derivative labels
+LUMO and :math:`-A` in ordinary Kohn--Sham DFT.
+
+Occupation-derivative labels
 provide valence- and conduction-edge information with this distinction kept
 explicit.  CIDER24X fits derivatives of the target energy contribution,
 :math:`\partial F/\partial f_i^m`.

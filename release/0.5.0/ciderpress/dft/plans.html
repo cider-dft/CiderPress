@@ -16,6 +16,7 @@
       <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -54,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -74,6 +74,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="dft.html#energy-composition-and-evaluation">Energy composition and evaluation</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Feature Evaluation Plans</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SemilocalPlan"><code class="docutils literal notranslate"><span class="pre">SemilocalPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SDMXPlan"><code class="docutils literal notranslate"><span class="pre">SDMXPlan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFGaussianPlan"><code class="docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFSplinePlan"><code class="docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a></li>
@@ -130,6 +132,41 @@
 <p>Plans implement the forward evaluation and adjoint derivatives associated
 with settings objects.  Backend adapters supply their grid and electronic
 arrays, and the plan preserves raw feature order and spin conventions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SemilocalPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SemilocalSettings</em>) – Settings for SL features</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>) – Number of spin channels.
+1 for non-spin-polarized and 2 for spin-polarized</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXPlan">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SDMXPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ovlp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXPlan" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SDMXSettings</em>) – Settings for the descriptor.</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>) – Number of spins, 2 for spin-polarized and 1 for
+non-spin-polarized</p></li>
+<li><p><strong>alpha0</strong> (<em>float</em>) – Minimum exponent. <span class="math notranslate nohighlight">\(1/\sqrt{\alpha_0}\)</span> should be at least
+the width of the system, or altneratively the maximum distance
+at which the exchange hole is expected to have significant density.</p></li>
+<li><p><strong>lambd</strong> (<em>float</em>) – ETB lambda parameter</p></li>
+<li><p><strong>nalpha</strong> (<em>int</em>) – Number of ETB basis functions</p></li>
+<li><p><strong>fit_metric</strong> (<em>str</em>) – ‘ovlp’ or ‘coul’, the metric for expanding the
+density matrix in the auxiliary basis.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class" id="module-ciderpress.dft.plans">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">NLDFAuxiliaryPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nldf_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gq'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'etb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhocut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_large_expnt_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_smooth_expnt_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan" title="Link to this definition"></a></dt>

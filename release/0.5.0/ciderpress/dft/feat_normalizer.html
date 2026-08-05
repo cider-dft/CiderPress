@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -77,6 +76,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
 <li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Physical Feature Normalization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizerList"><code class="docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.ConstantNormalizer"><code class="docutils literal notranslate"><span class="pre">ConstantNormalizer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.DensityNormalizer"><code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizer"><code class="docutils literal notranslate"><span class="pre">FeatNormalizer</span></code></a></li>
@@ -146,6 +146,19 @@ uniform-electron-gas value.</p>
 mode determines how density, reduced-gradient, and kinetic-energy-density
 inputs form the inhomogeneity variable.  The list and its cutoff are serialized
 with the feature settings.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.feat_normalizer.FeatNormalizerList">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.feat_normalizer.</span></span><span class="sig-name descname"><span class="pre">FeatNormalizerList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalizers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slmode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.feat_normalizer.FeatNormalizerList" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>normalizers</strong> (<em>list[FeatNormalizer or None]</em>)</p></li>
+<li><p><strong>list of feature normalizers</strong></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <p id="module-ciderpress.dft.feat_normalizer">This class provides tools for normalizing features to have more
 desirable behavior under uniform scaling.</p>
 <dl class="py class">

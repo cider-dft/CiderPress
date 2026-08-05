@@ -3,8 +3,8 @@ Choosing a CIDER Functional
 
 CiderPress 0.5.0 packages CIDER23X, CIDER24X, and CIDER26XC model files. Pass
 the model's short name to the PySCF or GPAW constructor. The families learn
-different parts of the functional, so model selection and functional
-initialization must be considered together.
+different parts of the functional, and the learned quantity determines the
+initializer arguments described below.
 
 Family selection
 ----------------
@@ -83,7 +83,7 @@ semilocal terms stated explicitly:
 
 The corresponding GPAW construction uses the same three composition
 arguments.  Changing ``xmix`` defines a different surrogate-hybrid
-composition and should be reported as such.
+functional.
 
 CIDER24X SDMX exchange models
 -----------------------------
@@ -183,14 +183,16 @@ describe the energy assembly:
 ``mf.e_vdw_delta``
    Adjustment ``e_vdw_expected - e_vdw_present`` added to ``e_tot_base``.
 
-The returned ``mf.e_tot`` is ``mf.e_tot_base + mf.e_vdw_delta``.  For
-``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, the expected dispersion is zero and
-CiderPress disables a supported D3/D4 wrapper attached to the incoming SCF
-object.  For ``CIDER26XCCHEMD4``, CiderPress measures any attached wrapper
+The returned ``mf.e_tot`` is ``mf.e_tot_base + mf.e_vdw_delta``.
+For ``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, the expected dispersion is zero
+and CiderPress disables a supported D3/D4 wrapper attached to the incoming
+SCF object.  For ``CIDER26XCCHEMD4``, CiderPress measures any attached wrapper
 contribution and sets ``e_vdw_delta`` to the model's expected D4 term minus
-that measured value.  These rules include the expected dispersion term once
-in the final energy.  The current PySCF CIDER nuclear gradient contains the
-electronic contribution; see :doc:`properties` for the D4 force limitation.
+that measured value.
+
+These rules include the expected dispersion term once in the final energy.
+The current PySCF CIDER nuclear gradient contains the electronic contribution;
+see :doc:`properties` for the D4 force limitation.
 
 Loading rules and model trust
 -----------------------------
@@ -201,8 +203,8 @@ path takes precedence over a packaged name.
 
 Mapped CIDER YAML and joblib files reconstruct Python model objects and
 therefore require a trusted source.  Packaged models have the fixed checksums
-listed below.  Treat an external model file like executable Python input and
-record its checksum with the calculation.
+listed below.  The checksum provides an exact identifier for an external
+model artifact.
 
 Checksums
 ---------
@@ -236,5 +238,4 @@ Checksums
    * - ``CIDER26XCSURFSCI``
      - ``e141a998359da9a64f3c5d06b4804e06762ab2e53dc6409979ff3eb0eacd793e``
 
-See :doc:`reproducibility` for what to report with a result and
-:doc:`../reference/citing` for family-specific citations.
+See :doc:`../reference/citing` for family-specific citations.

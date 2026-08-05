@@ -55,8 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -71,7 +70,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#loading-and-inspection">Loading and inspection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#trainable-and-mapped-representations">Trainable and mapped representations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#baselines-and-functional-composition">Baselines and functional composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#serialization-and-validation">Serialization and validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serialization-and-mapping-tests">Serialization and mapping tests</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html">Inspecting Densities and Descriptors</a></li>
@@ -205,12 +204,12 @@ correlation components in CIDER26XC.  See <a class="reference internal" href="..
 for the baseline API and <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a> for the CIDER26XC energy
 form.</p>
 </section>
-<section id="serialization-and-validation">
-<h2>Serialization and validation<a class="headerlink" href="#serialization-and-validation" title="Link to this heading"></a></h2>
+<section id="serialization-and-mapping-tests">
+<h2>Serialization and mapping tests<a class="headerlink" href="#serialization-and-mapping-tests" title="Link to this heading"></a></h2>
 <p>Joblib files store trainable Python objects and their fitting state.  Mapped
 YAML stores the inference object used by the calculation interfaces.  Both
 formats reconstruct Python objects and should be loaded from trusted sources.</p>
-<p>Validate a mapped artifact against:</p>
+<p>Mapping validation covers:</p>
 <ul class="simple">
 <li><p>pointwise predictions and feature derivatives against the trainable model;</p></li>
 <li><p>fixed-density integrated energies on representative systems;</p></li>

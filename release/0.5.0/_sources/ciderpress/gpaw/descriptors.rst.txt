@@ -68,8 +68,8 @@ Supplying ``p_i`` evaluates derivatives with respect to the selected orbital
 occupations. The routine constructs both the smooth-grid density response and
 the PAW atomic density-matrix response, then applies the descriptor
 forward/adjoint machinery at fixed orbitals.  The orbital indices,
-k-point distribution, spin convention, occupations, and numerical settings
-must be recorded with the arrays.
+k-point distribution, spin convention, occupations, and NLDF numerical
+settings define the returned derivative arrays.
 
 This interface serves inspection and training-data construction.  Its
 occupation derivatives hold the orbitals fixed; a self-consistent energy is

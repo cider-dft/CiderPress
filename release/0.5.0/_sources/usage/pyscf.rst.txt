@@ -41,10 +41,8 @@ A complete closed-shell example is:
    :language: python
    :linenos:
 
-The example uses a moderate basis and grid so it can be run directly.  For a
-quantitative calculation, converge the basis, integration grid, SCF thresholds,
-and density-fitting approximation for the requested energy difference or
-derivative.  For a small end-to-end energetics workflow,
+The example uses the ``def2-svp`` basis and PySCF grid level 3.  For a small
+end-to-end energetics workflow,
 :source:`examples/pyscf/compute_ae.py` computes a molecular atomization energy
 with a chosen libxc or packaged CIDER functional.
 
@@ -52,8 +50,8 @@ Density fitting
 ---------------
 
 Calling ``density_fit`` after ``make_cider_calc`` accelerates the Coulomb
-problem.  CIDER26XC has a zero exact-exchange fraction.  Select a compatible
-auxiliary basis and keep it consistent across an energy difference:
+problem.  CIDER26XC has a zero exact-exchange fraction.  The auxiliary basis
+is supplied through the normal PySCF interface:
 
 .. code-block:: python
 
@@ -66,10 +64,9 @@ model and its D4 behavior remain unchanged.
 Open-shell systems
 ------------------
 
-Use ``UKS`` and set ``mol.spin`` to :math:`N_\alpha-N_\beta`.  Supply a
-physically motivated initial state and verify the converged occupations,
-orbital character, and ``spin_square()`` result.  Multiple stationary
-solutions can satisfy the SCF thresholds.
+Use ``UKS`` and set ``mol.spin`` to :math:`N_\alpha-N_\beta`.
+``spin_square()`` returns :math:`\langle S^2\rangle` and the corresponding
+multiplicity for the converged unrestricted solution.
 
 For a difficult system, first converge a conventional functional with the
 same molecule, basis, grid, charge, and spin, then provide its density to the
@@ -101,8 +98,8 @@ density after interruption:
    energy = mf.kernel(dm0=dm0)
 
 Recreate the selected CIDER model, then load the orbitals and occupations from
-the PySCF checkpoint.  Confirm that its molecule, basis, charge, spin, and
-orbital dimensions match the new calculation.
+the PySCF checkpoint.  ``load_scf`` also returns the checkpoint's ``Mole``
+object; the stored orbital dimensions must match the new mean-field object.
 
 D4-corrected energy
 -------------------
@@ -110,6 +107,7 @@ D4-corrected energy
 ``CIDER26XCCHEMD4`` evaluates its electronic full-XC contribution during the
 SCF and D4 from the geometry afterward.  Every CIDER26XC calculation exposes
 ``e_tot_base``, ``e_vdw_present``, ``e_vdw_expected``, and ``e_vdw_delta``.
+
 For ``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, the expected dispersion is zero
 and a supported ``with_dftd3``/``with_dftd4`` wrapper is disabled.  For
 ``CIDER26XCCHEMD4``, CiderPress measures an attached wrapper contribution and
@@ -142,18 +140,5 @@ multireference, and similar response or post-SCF methods are outside that
 interface.  The documented analytical-gradient implementation covers the
 molecular NLDF path.
 
-SCF practice
-------------
-
-* Start routine closed-shell calculations with normal CDIIS and the accuracy
-  required by the final energy difference.
-* Use a baseline density for open-shell, transition-metal, stretched-bond, or
-  near-degenerate systems.
-* Compare baseline-seeded and atomic-guess solutions when multiple electronic
-  states are plausible.
-* Confirm that a converged solution has the intended occupations, spin state,
-  and orbital character.
-* Diagnose occupation switching before applying finite-temperature smearing.
-
-The complete symptom-based ladder is in :doc:`convergence`, and the record to
-retain with a result is in :doc:`reproducibility`.
+The PBE-seeded CDIIS, ADIIS, EDIIS, level-shift, and damping settings used by
+the restart example are listed in :doc:`convergence`.

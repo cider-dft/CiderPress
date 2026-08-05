@@ -53,8 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">SCF Convergence Recommendations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage/reproducibility.html">Recording and Checking a Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">SCF Fallback Settings</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -137,9 +136,8 @@ periodic numerical implementations.</p>
 backends are supported.  In brief, PySCF is the molecular all-electron backend,
 while classic GPAW provides the periodic plane-wave PAW implementation.
 The packaged functional families compute different parts of the XC energy.
-In particular, the CIDER23X and CIDER24X models compute only the exchange
-energy, and therefore they must not be initialized with the full-XC
-settings used for CIDER26XC models.</p>
+CIDER23X and CIDER24X use an explicit surrogate-hybrid composition;
+CIDER26XC uses the full-XC initialization described in the model guide.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
@@ -183,7 +181,6 @@ settings used for CIDER26XC models.</p>
 <li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#d4-corrected-energy">D4-corrected energy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#cider24x">CIDER24X</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#gradients-and-other-methods">Gradients and other methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#scf-practice">SCF practice</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a><ul>
@@ -201,21 +198,13 @@ settings used for CIDER26XC models.</p>
 <li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="usage/properties.html#molecular-gradients">Molecular gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/properties.html#periodic-forces-and-stress">Periodic forces and stress</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/properties.html#energy-differences">Energy differences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/properties.html#energy-composition">Energy composition</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">SCF Convergence Recommendations</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#molecular-calculations-in-pyscf">Molecular calculations in PySCF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#insulating-and-semiconducting-gpaw-calculations">Insulating and semiconducting GPAW calculations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#metallic-and-magnetic-gpaw-calculations">Metallic and magnetic GPAW calculations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#isolated-atoms-and-molecules-in-gpaw">Isolated atoms and molecules in GPAW</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#checks-after-convergence">Checks after convergence</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="usage/reproducibility.html">Recording and Checking a Calculation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage/reproducibility.html#functional-identity">Functional identity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/reproducibility.html#electronic-and-numerical-state">Electronic and numerical state</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/reproducibility.html#recommended-checks-for-a-final-calculation">Recommended checks for a final calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">SCF Fallback Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#pyscf-restart-ladder">PySCF restart ladder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#gpaw-reference-settings">GPAW reference settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#restart-compatibility">Restart compatibility</a></li>
 </ul>
 </li>
 </ul>
@@ -234,9 +223,7 @@ settings used for CIDER26XC models.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="features/features.html">Electronic Features in CiderPress</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="features/features.html#feature-families">Feature families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features/features.html#from-raw-quantities-to-model-inputs">From raw quantities to model inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features/features.html#family-lineage">Family lineage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features/features.html#numerical-and-physical-constraints">Numerical and physical constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features/features.html#representation-in-the-code">Representation in the code</a></li>
 </ul>
 </li>
 </ul>

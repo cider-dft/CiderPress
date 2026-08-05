@@ -7,5 +7,9 @@ Plans implement the forward evaluation and adjoint derivatives associated
 with settings objects.  Backend adapters supply their grid and electronic
 arrays, and the plan preserves raw feature order and spin conventions.
 
+.. autoclass:: ciderpress.dft.plans.SemilocalPlan
+
+.. autoclass:: ciderpress.dft.plans.SDMXPlan
+
 .. automodule:: ciderpress.dft.plans
    :members: SemilocalPlan, SemilocalPlan2, SDMXPlan, SDMXFullPlan, SDMXIntPlan, NLDFAuxiliaryPlan, NLDFGaussianPlan, NLDFSplinePlan
