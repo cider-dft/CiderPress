@@ -920,7 +920,7 @@ class HybridSettings(BaseSettings):
 
     def get_feat_usps(self):
         # USP of exchange energy density is 4, but we have normalized it with LDA exchange energy density so it is 0
-        return [0]
+        return [4]
 
     def ueg_vector(self, rho: float = 1.0):
         # The uniform-electron-gas value of ε_x^EXX is the LDA exchange energy
