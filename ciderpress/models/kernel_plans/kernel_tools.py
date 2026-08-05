@@ -37,7 +37,7 @@ def get_rbf_kernel(
         indexes (array-like): Indexes of the features the kernel acts on.
         length_scale (np.ndarray): Per-feature RBF length scales; the entries
             selected by ``indexes`` are used.
-        scale (float): Initial constant covariance prefactor.
+        scale (float): Constant covariance prefactor.
         opt_hparams (bool): If True, leave the length scales and prefactor
             open for hyperparameter optimization; otherwise fix them.
         min_lscale (float or None): Lower length-scale optimization bound
@@ -59,11 +59,13 @@ def get_rbf_kernel(
 
 
 def get_antisym_rbf_kernel(length_scale, scale=1.0, opt_hparams=False, min_lscale=None):
-    """Construct a constant-scaled, spin-antisymmetrized RBF covariance kernel.
+    """Construct a constant-scaled antisymmetric RBF covariance kernel.
 
-    The first two entries of ``length_scale`` correspond to the paired spin
-    features and are averaged into a single shared length scale so that the
-    kernel is symmetric under exchange of the spin channels.
+    The returned kernel is antisymmetric to exchange of the first two feature inputs.
+    So :math:`k(x_0, x_1, ...; x_0', x_1', ...) = -k(x_1, x_0, ...; x_0', x_1', ...)`
+    and :math:`k(x_0, x_1, ...; x_0', x_1', ...) = -k(x_0, x_1, ...; x_1', x_0', ...)`.
+    This kernel can help with exact constraint enforcement because
+    :math:`k(x_0, x_0, ...; x_0', x_1', ...) = 0`.
 
     Args:
         length_scale (np.ndarray): Per-feature RBF length scales.
@@ -105,7 +107,7 @@ def get_agpr_kernel(
     """Construct an additive-RBF (ARBF) covariance kernel.
 
     The additive Gaussian process kernel expands the covariance in terms of
-    feature subsets up to ``order``, optionally multiplied by a plain RBF
+    feature subsets up to size ``order``, optionally multiplied by a plain RBF
     factor over the ``sinds`` features.
 
     Args:
@@ -113,8 +115,8 @@ def get_agpr_kernel(
             RBF factor; ignored if ``nsingle`` is 0.
         ainds (array-like): Feature indexes entering the additive kernel.
         length_scale (np.ndarray): Per-feature RBF length scales.
-        scale (list or None): Initial covariance prefactors, one per additive
-            order (default all 1).
+        scale (list or None): Covariance prefactors, one per additive
+            order (default all 1). Should be of length ``order + 1``.
         order (int): Maximum interaction order of the additive kernel.
         nsingle (int): Enable the multiplicative RBF factor when nonzero;
             0 omits the factor. The selected features are given by ``sinds``.
