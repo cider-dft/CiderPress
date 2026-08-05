@@ -2,10 +2,11 @@ Core DFT Representation
 =======================
 
 The ``ciderpress.dft`` package defines the backend-independent contract
-between an electronic feature representation and a mapped XC model.  A
-backend reads the stored settings, computes the requested raw features, calls
-the evaluator, and propagates the returned feature derivatives to its density
-or density matrix.  :doc:`../../theory/framework` introduces the scientific
+between an electronic feature representation and a mapped XC model.  A DFT
+backend (PySCF or GPAW) reads the stored settings, computes the requested
+raw features, calls the evaluator, and propagates the returned feature
+derivatives into the Kohn-Sham effective potential.
+:doc:`../../theory/framework` introduces the scientific
 data flow; the pages below document the corresponding objects.
 
 Settings and numerical plans
@@ -37,6 +38,9 @@ energy-density factors for model construction.  The
 :mod:`ciderpress.dft.xc_evaluator` and
 :mod:`ciderpress.dft.xc_evaluator2` modules combine those factors with mapped
 spline, neural, or direct RBF predictions and return feature derivatives.
+The role of both XC evaluator modules is to wrap trained models into
+computationally efficient, black-box interfaces for evaluating the
+functionals within self-consistent DFT calculations.
 :mod:`ciderpress.dft.model_utils` resolves packaged model names and trusted
 YAML/joblib paths.
 
