@@ -76,6 +76,7 @@ jobs:
             libxc=*=cpu_*
             fftw
             openblas
+            numba=0.60.0
             numpy=1.26.4
             scipy=1.14.1
       - name: Install PyTorch
@@ -152,7 +153,8 @@ jobs:
             fftw
             openblas
             gpaw=25.7.0
-            numpy=2.5.1
+            numba=0.66.0
+            numpy=2.3.5
             scipy=1.18.0
       - name: Build CiderPress
         id: build_ciderpress
