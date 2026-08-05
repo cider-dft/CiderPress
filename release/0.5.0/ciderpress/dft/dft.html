@@ -122,10 +122,11 @@
   <section id="core-dft-representation">
 <h1>Core DFT Representation<a class="headerlink" href="#core-dft-representation" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ciderpress.dft</span></code> package defines the backend-independent contract
-between an electronic feature representation and a mapped XC model.  A
-backend reads the stored settings, computes the requested raw features, calls
-the evaluator, and propagates the returned feature derivatives to its density
-or density matrix.  <a class="reference internal" href="../../theory/framework.html"><span class="doc">The CIDER Framework</span></a> introduces the scientific
+between an electronic feature representation and a mapped XC model.  A DFT
+backend (PySCF or GPAW) reads the stored settings, computes the requested
+raw features, calls the evaluator, and propagates the returned feature
+derivatives into the Kohn-Sham effective potential.
+<a class="reference internal" href="../../theory/framework.html"><span class="doc">The CIDER Framework</span></a> introduces the scientific
 data flow; the pages below document the corresponding objects.</p>
 <section id="settings-and-numerical-plans">
 <h2>Settings and numerical plans<a class="headerlink" href="#settings-and-numerical-plans" title="Link to this heading"></a></h2>
@@ -153,6 +154,9 @@ energy-density factors for model construction.  The
 <a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator" title="ciderpress.dft.xc_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator</span></code></a> and
 <a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator2" title="ciderpress.dft.xc_evaluator2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator2</span></code></a> modules combine those factors with mapped
 spline, neural, or direct RBF predictions and return feature derivatives.
+The role of both XC evaluator modules is to wrap trained models into
+computationally efficient, black-box interfaces for evaluating the
+functionals within self-consistent DFT calculations.
 <a class="reference internal" href="model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves packaged model names and trusted
 YAML/joblib paths.</p>
 <p>Settings, feature order, normalization, spin treatment, energy baselines, and
