@@ -123,11 +123,14 @@
              
   <section id="energy-density-baselines">
 <h1>Energy-Density Baselines<a class="headerlink" href="#energy-density-baselines" title="Link to this heading"></a></h1>
-<p>A CIDER kernel combines a learned scalar function with energy-density
-factors.  For the original <code class="docutils literal notranslate"><span class="pre">DFTKernel</span></code> interface, Python callables evaluate</p>
+<p>A CIDER kernel combines a learned scalar function with baseline energy-density
+models.  For the original <code class="docutils literal notranslate"><span class="pre">DFTKernel</span></code> interface, Python callables evaluate</p>
 <div class="math notranslate nohighlight">
 \[e(\mathbf X)=a(\mathbf X)+m(\mathbf X)f_\mathrm{ML}(\mathbf X)\]</div>
 <p>and return the corresponding derivatives with respect to the raw features.
+In the above equation, <span class="math notranslate nohighlight">\(a(\mathbf X)\)</span> and <span class="math notranslate nohighlight">\(m(\mathbf X)\)</span> are
+additive and multiplicative baselines, respectively, and <span class="math notranslate nohighlight">\(f(\mathbf X)\)</span>
+is the function learned via Gaussian process regression.
 <code class="docutils literal notranslate"><span class="pre">zero_xc</span></code> and <code class="docutils literal notranslate"><span class="pre">one_xc</span></code> provide constant additive or multiplicative terms;
 the exchange and correlation helpers provide LDA/GGA factors.  These
 callables are selected during model construction and serialized into the
