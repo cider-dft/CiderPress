@@ -106,33 +106,36 @@
              
   <section id="supported-paths-and-limitations">
 <h1>Supported Paths and Limitations<a class="headerlink" href="#supported-paths-and-limitations" title="Link to this heading"></a></h1>
-<p>This page collects implementation boundaries that otherwise become easy to
-miss across backend and feature documentation.</p>
+<p>The following boundaries define the documented backend, feature, and property
+interfaces in this release.</p>
 <ul class="simple">
-<li><p>CiderPress 0.5.0 supports classic GPAW, not <code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code>.</p></li>
+<li><p>CiderPress 0.5.0 supports the classic GPAW calculator.  <code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code> is
+outside this release interface.</p></li>
 <li><p>The supported periodic CIDER26XC route is plane-wave mode with PAW setups.
-Norm-conserving pseudopotentials omit all-electron information needed by
-nonlocal features and are not recommended for production.</p></li>
-<li><p>GPAW implements version-j NLDF models.  SDMX and nonlocal-orbital feature
-models are not supported there.</p></li>
+PAW supplies the all-electron information needed by its nonlocal features.</p></li>
+<li><p>GPAW implements version-j NLDF models.  CIDER24X SDMX models use PySCF.</p></li>
 <li><p>CIDER24X requires PyTorch and is evaluated through PySCF.  Periodic PySCF
-SDMX support is retained primarily for reproducing the published work.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> is PySCF-only.  Its D4 contribution is energy-only in the
-current CiderPress interface and is absent from molecular gradients.</p></li>
-<li><p>PySCF CIDER Hessians, NMR, polarizability, post-Hartree–Fock methods, and
-related response interfaces are not implemented by the decorated object.</p></li>
-<li><p>Newton/SOSCF is not supported by the production CIDER26XC PySCF numerical
+SDMX support covers methodological reproduction of the CIDER24X work.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the PySCF interface.  Its D4 contribution enters the
+energy; molecular gradients contain the electronic CIDER contribution.</p></li>
+<li><p>The PySCF CIDER decorator provides SCF energies and the gradients listed in
+<a class="reference internal" href="../usage/properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  Hessians, NMR, polarizability,
+post-Hartree–Fock methods, and related response interfaces are outside its
+scope.</p></li>
+<li><p>Newton/SOSCF is outside the CIDER26XC PySCF numerical
 integration path.</p></li>
 <li><p>Nonlocal features add memory and communication overhead.  GPAW jobs should
 use augmented-grid parallelization and a consistent MPI/FFT/OpenMP stack.</p></li>
-<li><p>Load mapped YAML and joblib files only from trusted sources because loading
-them reconstructs Python objects.</p></li>
+<li><p>Mapped YAML and joblib files reconstruct Python objects and therefore
+require a trusted source.</p></li>
+<li><p>The documented feature interfaces cover semilocal, NLDF, and SDMX models.
+Other feature classes in the source tree are experimental.  Release
+compatibility guarantees apply to the documented families.</p></li>
 </ul>
 <p>Numerical robustness is system dependent.  Difficult open-shell,
-near-degenerate, metallic, or magnetic systems may require the controlled
-restart sequences in <a class="reference internal" href="../usage/convergence.html"><span class="doc">SCF Convergence Recommendations</span></a>.  A workaround that reaches
-a low residual does not remove the need to validate the intended electronic
-state and final numerical settings.</p>
+near-degenerate, metallic, or magnetic systems may require the restart
+sequences in <a class="reference internal" href="../usage/convergence.html"><span class="doc">SCF Convergence Recommendations</span></a>.  Validate the electronic state and
+converge the numerical settings used for the reported property.</p>
 </section>
 
 

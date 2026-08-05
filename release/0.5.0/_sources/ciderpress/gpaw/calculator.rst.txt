@@ -3,15 +3,16 @@
 GPAW Calculator Interface
 =========================
 
-The GPAW calculator interface modifies GPAW to be
-compatible with CIDER functionals. There are two
-key components. The first is the function
-:func:`ciderpress.gpaw.calculator.get_cider_functional`,
-which generates a CIDER functional for use in GPAW.
-The second is the :class:`ciderpress.gpaw.calculator.CiderGPAW`
-class, which modifies the ``GPAW`` calculator object
-to be able to read and write calculations that use CIDER
-functionals.
+:func:`ciderpress.gpaw.calculator.get_cider_functional` loads a mapped model,
+validates its feature support and XC composition, and constructs the matching
+GGA or meta-GGA smooth-grid/PAW object.  Exchange models receive their
+``xmix``, ``xkernel``, and ``ckernel`` composition.  Full-XC models receive the
+composition stored in the model.
+
+:class:`ciderpress.gpaw.calculator.CiderGPAW` extends the classic ``GPAW``
+calculator with CIDER checkpoint state.  Its dictionary stores the mapped
+model text, XC composition, NLDF interpolation parameters, and PASDW options
+needed to reconstruct the functional during restart.
 
 .. code-block:: python
 

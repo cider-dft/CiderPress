@@ -1,9 +1,9 @@
 First Calculations
 ==================
 
-This page provides the shortest supported path from an installed environment
-to a CIDER result.  The complete backend guides explain numerical choices,
-properties, and restarts.
+The examples below run one molecular and one periodic CIDER calculation.  The
+complete :doc:`PySCF <pyscf>` and :doc:`GPAW <gpaw>` guides cover numerical
+choices, properties, and restarts.
 
 Molecule with PySCF
 -------------------
@@ -24,21 +24,22 @@ Run it from the repository root with:
 Check ``mf.converged`` before interpreting the energy.  For open-shell or
 difficult systems, also verify the occupations and electronic state.  The
 example prints the base, expected dispersion, and adjustment terms for every
-CIDER26XC model; with ``CIDER26XCCHEMD4`` they show how the final total was
-assembled, while for the models without an explicit D4 term the dispersion
-entries are zero.
+CIDER26XC model.  With ``CIDER26XCCHEMD4`` they show how the final total was
+assembled; ``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI`` print zero for the
+dispersion entries.
 
 Exchange-only model with PySCF
 ------------------------------
 
-Published CIDER23X and CIDER24X models contain exchange rather than full XC.
-The following example uses the PBE0/CIDER surrogate composition:
+Packaged CIDER23X and CIDER24X are exchange functionals.  The following
+example supplies the PBE0/CIDER surrogate composition:
 
 .. literalinclude:: ../../examples/pyscf/exchange_model.py
    :language: python
    :linenos:
 
-The explicit ``xmix``, ``xkernel``, and ``ckernel`` arguments are essential.
+The explicit ``xmix``, ``xkernel``, and ``ckernel`` arguments define the
+surrogate-hybrid composition.
 For CIDER24X, install ``ciderpress[cider24]`` and select the corresponding name.
 
 Periodic solid with GPAW
@@ -58,7 +59,7 @@ installed GPAW build, for example:
 
    mpirun -np 4 python examples/gpaw/production_calc.py
 
-Before scaling up, verify a small calculation with the same MPI, FFT, BLAS,
-OpenMP, and GPAW setup stack intended for production.  Continue with
-:doc:`pyscf` or :doc:`gpaw`, and use :doc:`convergence` if the direct SCF path
-does not converge.
+Before scaling up, verify a small calculation with the MPI, FFT, BLAS,
+OpenMP, and GPAW setup stack intended for the larger calculation.  Continue
+with :doc:`pyscf` or :doc:`gpaw`; :doc:`convergence` gives a restart sequence
+for difficult SCF calculations.

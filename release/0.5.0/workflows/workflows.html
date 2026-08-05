@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Model Objects and Mapping" href="models.html" />
-    <link rel="prev" title="Nonlocal Orbital Features (NLOF)" href="../features/nlof.html" /> 
+    <link rel="prev" title="Smoothed Density-Matrix Exchange Features" href="../features/sdmx.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -67,7 +67,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Model and Descriptor Workflows</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="models.html">Model Objects and Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html">Inspecting Densities and Descriptors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="training.html">Training and Mapping Boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="training.html">Training and Mapping Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extending.html">Extending CiderPress</a></li>
 </ul>
 </li>
@@ -112,22 +112,21 @@
              
   <section id="model-and-descriptor-workflows">
 <h1>Model and Descriptor Workflows<a class="headerlink" href="#model-and-descriptor-workflows" title="Link to this heading"></a></h1>
-<p>The calculation guides treat a packaged functional as one object.  This
-section opens that object and follows the code paths used to construct,
-inspect, and extend it.</p>
-<p>The central distinction is between a trainable model and a mapped evaluator.
-A trainable <a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP" title="ciderpress.models.train.MOLGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MOLGP</span></code></a> or
+<p>This section describes how CiderPress models are constructed, inspected, and
+extended.  A trainable model and its mapped evaluator serve different stages
+of that workflow.</p>
+<p>A trainable <a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP" title="ciderpress.models.train.MOLGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MOLGP</span></code></a> or
 <a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP2" title="ciderpress.models.train.MOLGP2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MOLGP2</span></code></a> retains reaction observations,
 covariances, noise models, and control-point fitting state.  Mapping converts
 that object into <a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
-<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>, which contains only the
-objects required for efficient DFT evaluation.</p>
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>, which contains the objects
+required for efficient DFT evaluation.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Model Objects and Mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="descriptors.html">Inspecting Densities and Descriptors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="training.html">Training and Mapping Boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="training.html">Training and Mapping Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extending.html">Extending CiderPress</a></li>
 </ul>
 </div>
@@ -137,7 +136,7 @@ objects required for efficient DFT evaluation.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../features/nlof.html" class="btn btn-neutral float-left" title="Nonlocal Orbital Features (NLOF)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../features/sdmx.html" class="btn btn-neutral float-left" title="Smoothed Density-Matrix Exchange Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="models.html" class="btn btn-neutral float-right" title="Model Objects and Mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

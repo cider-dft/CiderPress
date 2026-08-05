@@ -119,12 +119,12 @@ the electronic input descriptors, evaluate the XC energy and potential,
 and perform full self-consistent field calculations with CIDER functionals.</p></li>
 </ul>
 <p>CIDER stands for <em>Compressed scale-Invariant DEnsity Representation</em>.  The
-name originally described the scale-invariant nonlocal density features used
-to learn exchange.  The framework now also includes semilocal and smoothed
+name originally described the scale-invariant density features used
+to learn exchange.  The framework now also includes smoothed
 density-matrix features, full exchange-correlation models, and molecular and
 periodic numerical implementations.</p>
-<section id="choose-a-path">
-<h2>Choose a path<a class="headerlink" href="#choose-a-path" title="Link to this heading"></a></h2>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>To run a calculation, begin with <a class="reference internal" href="installation/installation.html"><span class="doc">Installation</span></a>, then use
 <a class="reference internal" href="usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> and <a class="reference internal" href="usage/quickstart.html"><span class="doc">First Calculations</span></a>.</p></li>
@@ -209,7 +209,7 @@ settings used for CIDER26XC models.</p>
 <li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#insulating-and-semiconducting-gpaw-calculations">Insulating and semiconducting GPAW calculations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#metallic-and-magnetic-gpaw-calculations">Metallic and magnetic GPAW calculations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#isolated-atoms-and-molecules-in-gpaw">Isolated atoms and molecules in GPAW</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#diagnosing-the-failure-mode">Diagnosing the failure mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#checks-after-convergence">Checks after convergence</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage/reproducibility.html">Recording and Checking a Calculation</a><ul>
@@ -247,7 +247,7 @@ settings used for CIDER26XC models.</p>
 <li class="toctree-l1"><a class="reference internal" href="workflows/workflows.html">Model and Descriptor Workflows</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="workflows/models.html">Model Objects and Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflows/descriptors.html">Inspecting Densities and Descriptors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="workflows/training.html">Training and Mapping Boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows/training.html">Training and Mapping Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="workflows/extending.html">Extending CiderPress</a></li>
 </ul>
 </li>
@@ -257,26 +257,23 @@ settings used for CIDER26XC models.</p>
 <p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">Core DFT Representation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/settings.html">The Settings Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/plans.html">The Plans Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/xc_evaluator.html">The XC Evaluator Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/model_utils.html">Model Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/dft.html#regression-coordinates">Regression coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/dft.html#energy-composition-and-evaluation">Energy composition and evaluation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">Regression, Training, and Mapping APIs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/train.html">ciderpress.models.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/dft_kernel.html">ciderpress.models.dft_kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/kernels.html">ciderpress.models.kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/train.html">Integrated-System GP Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/dft_kernel.html">DFT Kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/kernels.html">Differentiable Covariance Kernels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ciderpress/models/kernel_tools.html">Kernel Tools</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/dft.html">dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/pbc/dft.html">pbc.dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/analyzers.html">analyzers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/descriptors.html">descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/dft.html">PySCF Calculator Decoration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/pbc/dft.html">Periodic PySCF Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/analyzers.html">PySCF Electronic Analyzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/descriptors.html">PySCF Descriptor Extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/numerical.html">PySCF Numerical and Derivative Implementation</a></li>
 </ul>
 </li>
@@ -297,7 +294,6 @@ settings used for CIDER26XC models.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Paths and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider22x-and-the-original-representation">CIDER22X and the original representation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider23x-and-molecular-periodic-nldf-evaluation">CIDER23X and molecular/periodic NLDF evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider24x-and-sdmx-eigenvalue-training">CIDER24X and SDMX/eigenvalue training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider26xc">CIDER26XC</a></li>

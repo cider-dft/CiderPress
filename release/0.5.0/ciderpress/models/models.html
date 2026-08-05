@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ciderpress.models.train" href="train.html" />
+    <link rel="next" title="Integrated-System GP Models" href="train.html" />
     <link rel="prev" title="Model Loading" href="../dft/model_utils.html" /> 
 </head>
 
@@ -70,9 +70,9 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Regression, Training, and Mapping APIs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="train.html">ciderpress.models.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dft_kernel.html">ciderpress.models.dft_kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="kernels.html">ciderpress.models.kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="train.html">Integrated-System GP Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft_kernel.html">DFT Kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kernels.html">Differentiable Covariance Kernels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel_tools.html">Kernel Tools</a></li>
 </ul>
 </li>
@@ -114,28 +114,27 @@
 <span id="models-module"></span><h1>Regression, Training, and Mapping APIs<a class="headerlink" href="#regression-training-and-mapping-apis" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">ciderpress.models</span></code> package constructs Gaussian-process density
 functionals and maps them to compact inference evaluators.  The training
-objects operate on integrated system and reaction observations rather than
-ordinary pointwise scalar targets.</p>
+objects operate on integrated system and reaction observations.</p>
 <p><a class="reference internal" href="train.html#module-ciderpress.models.train" title="ciderpress.models.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.train</span></code></a> provides <code class="docutils literal notranslate"><span class="pre">MOLGP</span></code> and <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code> containers.
 The original representation maps to
 <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a>; the multi-component
 representation maps to <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a> and
 supports the separate exchange and correlation kernels used by full-XC
 models.  Covariance kernels build on
-scikit-learn primitives, while DFT kernels combine them with feature
-transforms, energy-density baselines, and sparse control points.</p>
-<p>Mapping plans under <code class="docutils literal notranslate"><span class="pre">ciderpress.models.kernel_plans</span></code> select an efficient
-evaluator for a trained kernel.  Mapping is part of model publication: the
-mapped model must preserve predictions, feature derivatives, settings,
-functional composition, and correction metadata.  See
-<a class="reference internal" href="../../workflows/models.html"><span class="doc">Model Objects and Mapping</span></a> and <a class="reference internal" href="../../workflows/training.html"><span class="doc">Training and Mapping Boundary</span></a> before using
+scikit-learn primitives.  DFT kernels combine those covariance functions with
+feature transforms, energy-density baselines, and sparse control points.</p>
+<p>Mapping plans under <code class="docutils literal notranslate"><span class="pre">ciderpress.models.kernel_plans</span></code> select an inference
+evaluator for a trained kernel.  A validated mapped model preserves
+predictions, feature derivatives, settings, functional composition, and
+correction metadata.  See
+<a class="reference internal" href="../../workflows/models.html"><span class="doc">Model Objects and Mapping</span></a> and <a class="reference internal" href="../../workflows/training.html"><span class="doc">Training and Mapping Workflow</span></a> before using
 the individual APIs below.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="train.html">ciderpress.models.train</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dft_kernel.html">ciderpress.models.dft_kernel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kernels.html">ciderpress.models.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Integrated-System GP Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dft_kernel.html">DFT Kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">Differentiable Covariance Kernels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kernel_tools.html">Kernel Tools</a></li>
 </ul>
 </div>
@@ -146,7 +145,7 @@ the individual APIs below.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../dft/model_utils.html" class="btn btn-neutral float-left" title="Model Loading" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="train.html" class="btn btn-neutral float-right" title="ciderpress.models.train" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="train.html" class="btn btn-neutral float-right" title="Integrated-System GP Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Feature Normalizer Module &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Physical Feature Normalization &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -16,11 +16,12 @@
       <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="The Transform Data Module" href="transform_data.html" />
-    <link rel="prev" title="The Plans Module" href="plans.html" /> 
+    <link rel="next" title="Bounded Regression Coordinates" href="transform_data.html" />
+    <link rel="prev" title="Common LCAO NLDF Infrastructure" href="lcao_numerical.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -69,39 +70,26 @@
 <p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="dft.html">Core DFT Representation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="settings.html">The Settings Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plans.html">The Plans Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The Feature Normalizer Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.ConstantNormalizer"><code class="docutils literal notranslate"><span class="pre">ConstantNormalizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.ConstantNormalizer.fill_bwd"><code class="docutils literal notranslate"><span class="pre">ConstantNormalizer.fill_bwd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.ConstantNormalizer.fill_fwd"><code class="docutils literal notranslate"><span class="pre">ConstantNormalizer.fill_fwd()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#regression-coordinates">Regression coordinates</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dft.html#energy-composition-and-evaluation">Energy composition and evaluation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Physical Feature Normalization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.ConstantNormalizer"><code class="docutils literal notranslate"><span class="pre">ConstantNormalizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.DensityNormalizer"><code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizer"><code class="docutils literal notranslate"><span class="pre">FeatNormalizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.GeneralNormalizer"><code class="docutils literal notranslate"><span class="pre">GeneralNormalizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.InhomogeneityNormalizer"><code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.DensityNormalizer"><code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.DensityNormalizer.fill_bwd"><code class="docutils literal notranslate"><span class="pre">DensityNormalizer.fill_bwd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.DensityNormalizer.fill_fwd"><code class="docutils literal notranslate"><span class="pre">DensityNormalizer.fill_fwd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="transform_data.html">Bounded Regression Coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizer"><code class="docutils literal notranslate"><span class="pre">FeatNormalizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizer.fill_bwd"><code class="docutils literal notranslate"><span class="pre">FeatNormalizer.fill_bwd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizer.fill_fwd"><code class="docutils literal notranslate"><span class="pre">FeatNormalizer.fill_fwd()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.GeneralNormalizer"><code class="docutils literal notranslate"><span class="pre">GeneralNormalizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.GeneralNormalizer.fill_bwd"><code class="docutils literal notranslate"><span class="pre">GeneralNormalizer.fill_bwd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.GeneralNormalizer.fill_fwd"><code class="docutils literal notranslate"><span class="pre">GeneralNormalizer.fill_fwd()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.InhomogeneityNormalizer"><code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.InhomogeneityNormalizer.fill_bwd"><code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer.fill_bwd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.InhomogeneityNormalizer.fill_fwd"><code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer.fill_fwd()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="xc_evaluator.html">The XC Evaluator Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
@@ -130,7 +118,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
-      <li class="breadcrumb-item active">The Feature Normalizer Module</li>
+      <li class="breadcrumb-item active">Physical Feature Normalization</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/dft/feat_normalizer.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -140,9 +128,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-ciderpress.dft.feat_normalizer">
-<span id="the-feature-normalizer-module"></span><span id="feat-normalizer-module"></span><h1>The Feature Normalizer Module<a class="headerlink" href="#module-ciderpress.dft.feat_normalizer" title="Link to this heading"></a></h1>
-<p>This class provides tools for normalizing features to have more
+  <section id="physical-feature-normalization">
+<h1>Physical Feature Normalization<a class="headerlink" href="#physical-feature-normalization" title="Link to this heading"></a></h1>
+<p>Raw NLDF and SDMX quantities carry density and length-scale powers.  Feature
+normalizers combine a raw quantity <span class="math notranslate nohighlight">\(x\)</span> with the spin density and a
+dimensionless inhomogeneity variable to produce the coordinates expected by a
+model.  <code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code>, <code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">GeneralNormalizer</span></code> implement factors of the form</p>
+<div class="math notranslate nohighlight">
+\[x_\mathrm n
+= c_1 x\,n^p(1+c_2 I)^q.\]</div>
+<p>Their backward operations propagate a mapped-model derivative to
+<span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(I\)</span>.  <code class="docutils literal notranslate"><span class="pre">get_usp</span></code> reports the uniform-scaling
+power of the normalized quantity, and <code class="docutils literal notranslate"><span class="pre">get_ueg</span></code> evaluates its
+uniform-electron-gas value.</p>
+<p><code class="docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code> applies one normalizer per raw feature.  Its semilocal
+mode determines how density, reduced-gradient, and kinetic-energy-density
+inputs form the inhomogeneity variable.  The list and its cutoff are serialized
+with the feature settings.</p>
+<p id="module-ciderpress.dft.feat_normalizer">This class provides tools for normalizing features to have more
 desirable behavior under uniform scaling.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.feat_normalizer.ConstantNormalizer">
@@ -350,8 +354,8 @@ desirable behavior under uniform scaling.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="plans.html" class="btn btn-neutral float-left" title="The Plans Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="transform_data.html" class="btn btn-neutral float-right" title="The Transform Data Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="lcao_numerical.html" class="btn btn-neutral float-left" title="Common LCAO NLDF Infrastructure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="transform_data.html" class="btn btn-neutral float-right" title="Bounded Regression Coordinates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

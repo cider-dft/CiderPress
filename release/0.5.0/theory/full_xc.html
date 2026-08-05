@@ -138,7 +138,7 @@ exchange-only model is initialized. Bystrom and Kozinsky<a class="footnote-refer
 </section>
 <section id="cider26xc-functional-form">
 <h2>CIDER26XC functional form<a class="headerlink" href="#cider26xc-functional-form" title="Link to this heading"></a></h2>
-<p>The CIDER26XC models instead return the full exchange-correlation energy.  In
+<p>The CIDER26XC models return the full exchange-correlation energy.  In
 the notation of the CIDER26XC work, the energy density contains an additive
 PBE baseline and learned exchange and correlation corrections,</p>
 <div class="math notranslate nohighlight">
@@ -153,38 +153,37 @@ PBE baseline and learned exchange and correlation corrections,</p>
 <p>Exchange is evaluated separately for the two spin channels.  Correlation uses
 a spin-coupled PBE multiplier and the spin-averaged CIDER feature vector.  The
 exchange descriptors are scale invariant; correlation additionally receives
-density information because correlation does not obey the same homogeneous
-scaling rule.</p>
-<p>Because the YAML model already contains its additive PBE contributions, no
-external exchange or correlation kernel may be added during evaluation.  This
-is why the GPAW initializer must be called with <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>,
-<code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code> for CIDER26XC.  CiderPress validates
-these arguments and rejects an additional semilocal contribution.  See
-<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> for the required call.</p>
+density information to represent correlation’s nonhomogeneous scaling.</p>
+<p>The YAML model contains its additive PBE contributions.  The corresponding
+GPAW construction uses <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code>.
+CiderPress validates this composition so that the stored full-XC form is
+evaluated as trained.  See <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> for the complete
+call.</p>
 </section>
 <section id="cider26xc-feature-vectors">
 <h2>CIDER26XC feature vectors<a class="headerlink" href="#cider26xc-feature-vectors" title="Link to this heading"></a></h2>
 <p>The exchange feature vector <span class="math notranslate nohighlight">\(\mathbf{X}^{\mathrm{x}}_\sigma\)</span> contains
 the scale-invariant semilocal descriptors and the three version-j nonlocal
 density features used by the CIDER23X nonlocal meta-GGA models
-(<a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a> and <a class="reference internal" href="../features/nldf.html"><span class="doc">Nonlocal Density Features (NLDF)</span></a>), with one substitution:
-the SCAN-style iso-orbital indicator <span class="math notranslate nohighlight">\(\alpha\)</span> is replaced by the
-bounded indicator</p>
+(<a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a> and <a class="reference internal" href="../features/nldf.html"><span class="doc">Nonlocal Density Features (NLDF)</span></a>).  CIDER26XC represents
+the iso-orbital information with the bounded indicator</p>
 <div class="math notranslate nohighlight">
 \[t = \frac{\tau-\tau_0}{\tau+\tau_0},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the kinetic-energy density and <span class="math notranslate nohighlight">\(\tau_0\)</span> its
-uniform-electron-gas value as defined in <a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a>.  Like
-<span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(t\)</span> is scale invariant and, in combination with the
-reduced-gradient descriptor, carries the same iso-orbital information, but it
-is bounded and numerically better behaved in the trained models.</p>
+uniform-electron-gas value as defined in <a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a>.  The
+CIDER23X models use the SCAN-style indicator <span class="math notranslate nohighlight">\(\alpha\)</span> for this role.
+Both choices are scale invariant and carry the same iso-orbital information
+when combined with the reduced-gradient descriptor; <span class="math notranslate nohighlight">\(t\)</span> has a finite
+range.</p>
 <p>The correlation feature vector <span class="math notranslate nohighlight">\(\mathbf{X}^{\mathrm{c}}_\sigma\)</span> appends
-one additional descriptor, the density itself, <span class="math notranslate nohighlight">\(X_6 = n\)</span>.  The other
-features are scale invariant, which enforces the exchange scaling constraint
-but is too restrictive for correlation, so the correlation model receives the
-density explicitly.  Before entering the Gaussian-process kernel, every
-feature is mapped onto a finite interval by the bounded transforms stored in
-the serialized model (implemented in <a class="reference internal" href="../ciderpress/dft/transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a>;
-the <span class="math notranslate nohighlight">\(t\)</span> indicator is handled by the <code class="docutils literal notranslate"><span class="pre">SLTMap</span></code> transform).</p>
+one additional descriptor, the density itself, <span class="math notranslate nohighlight">\(X_6 = n\)</span>.  The
+scale-invariant features enforce the exchange scaling constraint.  The
+density coordinate gives the correlation model the additional scaling
+dependence required by its energy form.  Before entering the Gaussian-process
+kernel, every feature is mapped onto a finite interval by the bounded
+transforms stored in the serialized model (implemented in
+<a class="reference internal" href="../ciderpress/dft/transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a>; the <span class="math notranslate nohighlight">\(t\)</span> indicator is handled by
+the <code class="docutils literal notranslate"><span class="pre">SLTMap</span></code> transform).</p>
 </section>
 <section id="self-consistent-training">
 <h2>Self-consistent training<a class="headerlink" href="#self-consistent-training" title="Link to this heading"></a></h2>
@@ -193,29 +192,29 @@ density matrix.  For a reaction-energy-trained full-XC functional, the density
 is part of the prediction: once the model is placed in an SCF loop, orbital
 relaxation changes both the features and the remaining Kohn–Sham energy
 contributions.</p>
-<p>CIDER26XC addresses this distribution shift by iterating the training density.
-At iteration <span class="math notranslate nohighlight">\(k\)</span>, descriptors and residual labels are constructed from
-the current densities, the model is refit, and self-consistent calculations
-with that model generate the next densities.  The process is converged when
+<p>CIDER26XC iterates the training density to account for orbital relaxation.  At
+iteration <span class="math notranslate nohighlight">\(k\)</span>, descriptors and residual labels are constructed from the
+current densities, the model is refit, and self-consistent calculations with
+that model generate the next densities.  The process is converged when
 fixed-density and self-consistent errors agree at the required resolution.
 Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
 <p>CiderPress provides the descriptor, model, kernel, and mapping primitives used
-by this process.  Dataset construction and orchestration of a complete
-self-consistent training campaign are not part of the installed package; see
-<a class="reference internal" href="../workflows/training.html"><span class="doc">Training and Mapping Boundary</span></a> for the supported boundary.</p>
+by this process.  Dataset construction and orchestration are supplied by the
+surrounding training workflow; <a class="reference internal" href="../workflows/training.html"><span class="doc">Training and Mapping Workflow</span></a> describes the
+data expected by CiderPress.</p>
 </section>
 <section id="optional-long-range-correction">
 <h2>Optional long-range correction<a class="headerlink" href="#optional-long-range-correction" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> was trained with a D4 term removed from each target and
 therefore adds the same term back when the model is evaluated.  D4 is evaluated
-from nuclear geometry after the density SCF.  It does not alter the CIDER
-potential or density.  The PySCF interface records the base energy, expected D4
-energy, any correction already present on the incoming object, and the final
-adjustment so that the correction is included exactly once.</p>
-<p>This construction restores an explicit long-range asymptote; it should not be
-interpreted as evidence that every noncovalent application requires D4.  The
-dispersion-free model can learn nonlocal interaction physics within the range
-represented by its electronic descriptors.</p>
+from nuclear geometry after the density SCF.  The potential and density are
+those of the electronic CIDER model.  The PySCF interface records the base
+energy, expected D4 energy, any correction already present on the incoming
+object, and the final adjustment so that the correction is included exactly
+once.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> uses its learned electronic XC contribution.
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> combines that learned contribution with the D4 term
+described above, which supplies an explicit long-range asymptote.</p>
 <div class="docutils container" id="id4">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">

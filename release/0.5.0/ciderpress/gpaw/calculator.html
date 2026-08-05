@@ -121,15 +121,15 @@
              
   <section id="gpaw-calculator-interface">
 <span id="id1"></span><h1>GPAW Calculator Interface<a class="headerlink" href="#gpaw-calculator-interface" title="Link to this heading"></a></h1>
-<p>The GPAW calculator interface modifies GPAW to be
-compatible with CIDER functionals. There are two
-key components. The first is the function
-<a class="reference internal" href="#ciderpress.gpaw.calculator.get_cider_functional" title="ciderpress.gpaw.calculator.get_cider_functional"><code class="xref py py-func docutils literal notranslate"><span class="pre">ciderpress.gpaw.calculator.get_cider_functional()</span></code></a>,
-which generates a CIDER functional for use in GPAW.
-The second is the <a class="reference internal" href="#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.gpaw.calculator.CiderGPAW</span></code></a>
-class, which modifies the <code class="docutils literal notranslate"><span class="pre">GPAW</span></code> calculator object
-to be able to read and write calculations that use CIDER
-functionals.</p>
+<p><a class="reference internal" href="#ciderpress.gpaw.calculator.get_cider_functional" title="ciderpress.gpaw.calculator.get_cider_functional"><code class="xref py py-func docutils literal notranslate"><span class="pre">ciderpress.gpaw.calculator.get_cider_functional()</span></code></a> loads a mapped model,
+validates its feature support and XC composition, and constructs the matching
+GGA or meta-GGA smooth-grid/PAW object.  Exchange models receive their
+<code class="docutils literal notranslate"><span class="pre">xmix</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel</span></code> composition.  Full-XC models receive the
+composition stored in the model.</p>
+<p><a class="reference internal" href="#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.gpaw.calculator.CiderGPAW</span></code></a> extends the classic <code class="docutils literal notranslate"><span class="pre">GPAW</span></code>
+calculator with CIDER checkpoint state.  Its dictionary stores the mapped
+model text, XC composition, NLDF interpolation parameters, and PASDW options
+needed to reconstruct the functional during restart.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
 
 <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
@@ -138,7 +138,7 @@ functionals.</p>
 <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For a full example, see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/594ad960a61d35ba63a1fd4167ea1101c7ca05c3/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>
+<p>For a full example, see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3badc003629b17f649b18ad12733b7e690537d34/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>
 and <a class="reference internal" href="../../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.</p>
 <dl class="py class" id="module-ciderpress.gpaw.calculator">
 <dt class="sig sig-object py" id="ciderpress.gpaw.calculator.CiderGPAW">

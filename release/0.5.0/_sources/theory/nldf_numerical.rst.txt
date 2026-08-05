@@ -3,52 +3,108 @@
 Numerical Evaluation of NLDF Features
 =====================================
 
-Computing :ref:`Nonlocal Density Features <nldf_feat>` (NLDFs) using simple
-numerical integration can be unwieldy and computationally costly, so in
-practical calculations, the feature integrals are expanded as a sum
-of convolutions. The expansion is slightly different for each
-feature version.
+An NLDF contains a density-dependent length scale at its source and, for
+version J, at its target.  Direct evaluation couples every pair of real-space
+grid points.  CiderPress replaces that double-grid operation with an
+interpolation over kernel exponents followed by ordinary convolutions.  This
+is the density-dependent-kernel strategy used for the molecular and periodic
+algorithms in CIDER23X. :footcite:p:`CIDER23X,Roman-Perez2009`
 
-For Version J, the general form of the feature is
+Exponent interpolation
+----------------------
 
-.. math::
-
-   G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
-   k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)
-   n(\mathbf{r}')
-
-In the context of implementing a nonlocal van der Waals density functional, :footcite:t:`Roman-Perez2009`
-found that the kernel :math:`k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)`
-can be approximated as
+For version J, write the feature as
 
 .. math::
 
-   k(a, b, r) \approx \sum_\alpha \sum_\beta k(\alpha, \beta, r) p_\alpha(a) p_\beta(b)
+   G_i(\mathbf r)
+   = \int \mathrm d^3\mathbf r'\,
+     k\!\left(a_0(\mathbf r'),a_i(\mathbf r),
+     |\mathbf r-\mathbf r'|\right)n(\mathbf r').
 
-where :math:`\alpha` and :math:`\beta` are a set of interpolating points that span the range
-of values taken by :math:`a_0` and :math:`a_i` over the density distribution,
-and :math:`p_\alpha(a)` is a cubic spline that is :math:`1` when :math:`a=\alpha` and :math:`0`
-when :math:`a=\beta` (with :math:`\beta` being another interpolation point not equal to :math:`\alpha`).
-Because the interpolation points are constants independent of the density, the above approximation
-converts the feature integral into a sum over convolutions.
+The density-dependent exponents are represented on an ordered grid
+:math:`\{q_\alpha\}`.  Interpolation functions :math:`p_\alpha(a)` give
 
-The :py:class:`ciderpress.dft.plans.NLDFSplinePlan` class implements this interpolation
-approach.
+.. math::
 
-The Version-J integration kernel :math:`k(a, b, r)` is separable in :math:`a` and :math:`b`:
+   k(a,b,R)
+   \simeq \sum_{\alpha\beta}
+   p_\alpha(a)\,k(q_\alpha,q_\beta,R)\,p_\beta(b).
 
-.. math:: k(a, b, r) = \exp(-(a+b)r^2) = \exp(-a r^2) \exp(-b r^2)
+The source coefficients
 
-Because of this, the interpolations can also be performed by expanding :math:`\exp(-a r^2)`
-as a linear combination of the interpolation functions :math:`\exp(-\alpha r^2)`. This
-modified approach is implemented by the :py:class:`ciderpress.dft.plans.NLDFGaussianPlan` class.
+.. math::
 
-The details of how this interpolation approximation is used to compute the NLDFs
-is dependent on the periodicity, type of grid, and type of basis set used in a DFT
-calculation. For details on the implementation of this approach for isolated Gaussian-type
-orbital calculations and periodic plane-wave DFT calculations, see :footcite:t:`CIDER23X`.
+   \theta_\alpha(\mathbf r')
+   = p_\alpha(a_0(\mathbf r'))n(\mathbf r')
 
-The other feature versions (i and k) require slightly modified versions of this approach,
-but the basic idea is the same and the implementation quite similar.
+can then be convolved with the fixed kernels
+:math:`k(q_\alpha,q_\beta,R)`.  Interpolation at
+:math:`a_i(\mathbf r)` combines the resulting channels into each feature.
+The exponent grid and interpolation coefficients also enter the adjoint
+calculation that returns the NLDF contribution to the XC potential.
+
+Version-J squared-exponential kernels have the separable form
+
+.. math::
+
+   k(a,b,R)=\exp[-(a+b)R^2]
+   =\exp(-aR^2)\exp(-bR^2).
+
+:class:`~ciderpress.dft.plans.NLDFGaussianPlan` represents the exponent
+dependence in the auxiliary Gaussian basis.
+:class:`~ciderpress.dft.plans.NLDFSplinePlan` uses spline interpolation on a
+dense exponent coordinate.  The packaged molecular models use the spline
+plan.  Both plans implement the same raw feature definitions and provide
+matching forward and adjoint interpolation operations.
+
+Molecular Gaussian-basis algorithm
+----------------------------------
+
+The PySCF path expands each source channel in an atom-centered, even-tempered
+Gaussian auxiliary basis.  Convolution matrices connect those auxiliary
+coefficients to the required exponent channels, and an atom-centered
+interpolator transfers the results to and from the molecular quadrature grid.
+The angular expansion is truncated at a selected spherical-harmonic order.
+
+:mod:`ciderpress.pyscf.gen_cider_grid` records the radial and angular layout
+of PySCF's sorted quadrature points.  The auxiliary expansion, convolution,
+and interpolation are assembled by
+:mod:`ciderpress.pyscf.nldf_convolutions`,
+:mod:`ciderpress.dft.lcao_convolutions`,
+:mod:`ciderpress.dft.lcao_interpolation`, and
+:mod:`ciderpress.dft.lcao_nldf_generator`.
+The same grid indexer, auxiliary basis, exponent grid, and interpolation
+scheme are used in the energy and potential paths.
+
+Periodic FFT and PAW algorithm
+------------------------------
+
+On a uniform periodic grid, each fixed-kernel convolution is a product in
+reciprocal space.  :mod:`ciderpress.gpaw.nldf_interface` and the compiled
+plane-wave library transform the source channels, multiply by the reciprocal
+kernel, and transform the convolved channels back to real space.  ``qmax``,
+``lambd``, and ``Nalpha`` set the covered exponent range and its resolution.
+
+The FFT evaluates the smooth pseudo-density contribution.  The PAW/PASDW
+path supplies the all-electron source and on-site corrections required inside
+augmentation spheres.  Its returned potentials use the adjoint of the same
+source augmentation and projection operations.  The complete PAW data flow
+is described in :doc:`../ciderpress/gpaw/numerical`.
+
+Numerical controls
+------------------
+
+The exponent range must cover the values generated by the density.  The
+spacing controls interpolation error and the number of convolution channels.
+The molecular angular cutoff and auxiliary basis, or the periodic plane-wave
+cutoff and PAW projection basis, add representation errors of their own.
+Energies, potentials, forces, and stress used in one comparison must share
+these settings.
+
+Version-I and version-K features use the same auxiliary-expansion framework
+with their corresponding source, target, vector, and damping terms.  Their
+available molecular plans are model-construction interfaces; packaged models
+and the GPAW calculation path use version J.
 
 .. footbibliography::

@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="GPAW Interface and PAW Implementation" href="../gpaw/gpaw.html" />
-    <link rel="prev" title="descriptors" href="descriptors.html" /> 
+    <link rel="prev" title="PySCF Descriptor Extraction" href="descriptors.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -71,10 +71,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="pyscf.html">PySCF Interface and Numerical Modules</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="dft.html">dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">pbc.dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="analyzers.html">analyzers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="descriptors.html">descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html">PySCF Calculator Decoration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">Periodic PySCF Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analyzers.html">PySCF Electronic Analyzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">PySCF Descriptor Extraction</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PySCF Numerical and Derivative Implementation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-ciderpress.pyscf.numint">Blockwise XC integration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.pyscf.numint.nr_rks"><code class="docutils literal notranslate"><span class="pre">nr_rks()</span></code></a></li>
@@ -139,12 +139,11 @@
              
   <section id="pyscf-numerical-and-derivative-implementation">
 <h1>PySCF Numerical and Derivative Implementation<a class="headerlink" href="#pyscf-numerical-and-derivative-implementation" title="Link to this heading"></a></h1>
-<p>This page is an implementation reference for the molecular backend. The
-objects documented here support the public calculation and descriptor
-interfaces, but are not themselves compatibility-stable user APIs. Code that
-only runs calculations should use
-<a class="reference internal" href="dft.html#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a>; code that extracts fixed-density
-data should use <a class="reference internal" href="descriptors.html#ciderpress.pyscf.descriptors.get_descriptors" title="ciderpress.pyscf.descriptors.get_descriptors"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_descriptors()</span></code></a>.</p>
+<p>This page is an implementation reference for the molecular backend.  Construct
+a calculation with <a class="reference internal" href="dft.html#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a> and extract
+fixed-density data with
+<a class="reference internal" href="descriptors.html#ciderpress.pyscf.descriptors.get_descriptors" title="ciderpress.pyscf.descriptors.get_descriptors"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_descriptors()</span></code></a>.  The objects below
+implement those public interfaces.</p>
 <section id="module-ciderpress.pyscf.numint">
 <span id="blockwise-xc-integration"></span><h2>Blockwise XC integration<a class="headerlink" href="#module-ciderpress.pyscf.numint" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="#module-ciderpress.pyscf.numint" title="ciderpress.pyscf.numint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.numint</span></code></a> connects PySCF’s atom-centered quadrature to
@@ -152,14 +151,14 @@ the feature settings stored in a mapped model. For each grid block it:</p>
 <ol class="arabic simple">
 <li><p>evaluates the density, gradient, and, for meta-GGA models,
 kinetic-energy density from the density matrix;</p></li>
-<li><p>evaluates semilocal, NLDF, SDMX, and any enabled hybrid feature blocks in
-their serialized order;</p></li>
+<li><p>evaluates semilocal, NLDF, and SDMX feature blocks in their serialized
+order;</p></li>
 <li><p>applies the mapped model to obtain an energy density and feature
 derivatives; and</p></li>
 <li><p>applies the adjoint of every feature operation to assemble the matrix XC
 potential returned to PySCF.</p></li>
 </ol>
-<p>The restricted and unrestricted routes use the same feature plans, while the
+<p>The restricted and unrestricted routes use the same feature plans.  The
 unrestricted route retains separate alpha- and beta-spin arrays until the
 model’s spin-combination rule is applied.</p>
 <dl class="py function">
@@ -180,9 +179,9 @@ matrices.</p>
 <dt class="sig sig-object py" id="ciderpress.pyscf.numint.CiderNumInt">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.pyscf.numint.</span></span><span class="sig-name descname"><span class="pre">CiderNumInt</span></span><a class="headerlink" href="#ciderpress.pyscf.numint.CiderNumInt" title="Link to this definition"></a></dt>
 <dd><p>PySCF <code class="docutils literal notranslate"><span class="pre">NumInt</span></code> implementation that owns the mapped evaluator and the
-feature generators selected from its settings. Specialized subclasses add
-NLDF or fractional-Laplacian behavior; callers should let
-<a class="reference internal" href="dft.html#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a> select the appropriate class.</p>
+feature generators selected from its settings.  The constructor
+<a class="reference internal" href="dft.html#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a> selects the appropriate NLDF
+or SDMX path.</p>
 </dd></dl>
 
 </section>
@@ -225,9 +224,8 @@ corresponding density and exponent derivatives.</p>
 <section id="module-ciderpress.pyscf.sdmx">
 <span id="sdmx-feature-evaluation"></span><h2>SDMX feature evaluation<a class="headerlink" href="#module-ciderpress.pyscf.sdmx" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="#module-ciderpress.pyscf.sdmx" title="ciderpress.pyscf.sdmx"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx</span></code></a> evaluates the optimized smoothed density-matrix
-features used by CIDER24X. Rather than depending only on local density
-ingredients, these features contract the one-particle density matrix with
-smoothed atom-centered orbital quantities.</p>
+features used by CIDER24X.  These features contract the one-particle density
+matrix with smoothed atom-centered orbital quantities.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.pyscf.sdmx.PySCFSDMXInitializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.pyscf.sdmx.</span></span><span class="sig-name descname"><span class="pre">PySCFSDMXInitializer</span></span><a class="headerlink" href="#ciderpress.pyscf.sdmx.PySCFSDMXInitializer" title="Link to this definition"></a></dt>
@@ -242,10 +240,11 @@ layout are known.</p>
 density-matrix potential.</p>
 </dd></dl>
 
-<p id="module-ciderpress.pyscf.sdmx_slow"><a class="reference internal" href="#module-ciderpress.pyscf.sdmx_slow" title="ciderpress.pyscf.sdmx_slow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx_slow</span></code></a> is the slower reference formulation used to
-check the optimized contractions. It is useful for implementation validation,
-not production calculation setup. Analytical SDMX nuclear gradients are not a
-supported release-0.5.0 property.</p>
+<p id="module-ciderpress.pyscf.sdmx_slow"><a class="reference internal" href="#module-ciderpress.pyscf.sdmx_slow" title="ciderpress.pyscf.sdmx_slow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx_slow</span></code></a> is the reference formulation used to check
+the optimized contractions.  Calculation setup uses the optimized
+<a class="reference internal" href="#module-ciderpress.pyscf.sdmx" title="ciderpress.pyscf.sdmx"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx</span></code></a> path.  The current SDMX interface provides
+energies and potentials; its property scope is listed in
+<a class="reference internal" href="../../usage/properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
 </section>
 <section id="module-ciderpress.pyscf.rks_grad">
 <span id="nuclear-gradient-response"></span><h2>Nuclear-gradient response<a class="headerlink" href="#module-ciderpress.pyscf.rks_grad" title="Link to this heading"></a></h2>
@@ -286,10 +285,9 @@ alpha and beta densities.</p>
 <h2>Consistency requirements<a class="headerlink" href="#consistency-requirements" title="Link to this heading"></a></h2>
 <p>Finite-difference comparisons must use the same basis, atom-centered and
 CIDER grids, feature settings, density-fitting treatment, occupations, and
-electronic state as the analytical calculation. Agreement of total energies
-alone does not validate a new feature: its raw values, mapped derivatives,
-matrix potential, and nuclear response must agree through the complete
-forward/adjoint path.</p>
+electronic state as the analytical calculation.  Validation of a new feature
+covers its raw values, mapped derivatives, matrix potential, and nuclear
+response through the complete forward/adjoint path.</p>
 <p>See <a class="reference internal" href="../../theory/nldf_numerical.html"><span class="doc">Numerical Evaluation of NLDF Features</span></a> for the molecular NLDF algorithm,
 <a class="reference internal" href="../../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for the backend comparison, and
 <a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for guidance on extending the implementation.</p>
@@ -300,7 +298,7 @@ forward/adjoint path.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="descriptors.html" class="btn btn-neutral float-left" title="descriptors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="descriptors.html" class="btn btn-neutral float-left" title="PySCF Descriptor Extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../gpaw/gpaw.html" class="btn btn-neutral float-right" title="GPAW Interface and PAW Implementation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

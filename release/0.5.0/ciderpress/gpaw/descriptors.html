@@ -120,8 +120,8 @@
 <p>The GPAW descriptor interface evaluates semilocal or version-J NLDF features
 on the fixed density and orbitals of a completed classic GPAW plane-wave
 calculation. It combines uniform-grid values with the matching PAW
-all-electron-minus-pseudo contributions. Descriptor extraction does not run a
-new self-consistent CIDER calculation.</p>
+all-electron-minus-pseudo contributions and uses the electronic state retained
+by the calculator.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ciderpress.gpaw.descriptors.get_descriptors">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.descriptors.</span></span><span class="sig-name descname"><span class="pre">get_descriptors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_paw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screen_dens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.gpaw.descriptors.get_descriptors" title="Link to this definition"></a></dt>
@@ -129,16 +129,15 @@ new self-consistent CIDER calculation.</p>
 <p><code class="docutils literal notranslate"><span class="pre">calc</span></code> must retain its density, wavefunctions, PAW setups, and grid
 distribution. <code class="docutils literal notranslate"><span class="pre">settings</span></code> is a semilocal or NLDF settings object, or the
 string <code class="docutils literal notranslate"><span class="pre">&quot;l&quot;</span></code> for the raw density/gradient/kinetic-energy-density vector.
-Fractional-Laplacian and SDMX settings are not implemented in the GPAW
-descriptor backend.</p>
+The documented GPAW descriptor settings are semilocal and version-J NLDF.</p>
 <p>With <code class="docutils literal notranslate"><span class="pre">p_i=None</span></code>, the return value is <code class="docutils literal notranslate"><span class="pre">(features,</span> <span class="pre">weights)</span></code>. <code class="docutils literal notranslate"><span class="pre">features</span></code>
 has shape <code class="docutils literal notranslate"><span class="pre">(nspin,</span> <span class="pre">nfeature,</span> <span class="pre">npoint)</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> has shape
 <code class="docutils literal notranslate"><span class="pre">(npoint,)</span></code>. With selected orbitals, the return value is
 <code class="docutils literal notranslate"><span class="pre">(features,</span> <span class="pre">feature_derivatives,</span> <span class="pre">weights)</span></code>;
 <code class="docutils literal notranslate"><span class="pre">feature_derivatives</span></code> has shape <code class="docutils literal notranslate"><span class="pre">(norbital,</span> <span class="pre">nfeature,</span> <span class="pre">npoint)</span></code>.
 Each orbital selector is a zero-based <code class="docutils literal notranslate"><span class="pre">(spin,</span> <span class="pre">kpoint,</span> <span class="pre">band)</span></code> tuple.</p>
-<p><code class="docutils literal notranslate"><span class="pre">use_paw=True</span></code> includes the atomic all-electron correction and is the
-production interpretation of descriptors from PAW calculations.
+<p><code class="docutils literal notranslate"><span class="pre">use_paw=True</span></code> includes the atomic all-electron correction used by the
+supported PAW calculation path.
 <code class="docutils literal notranslate"><span class="pre">screen_dens=True</span></code> removes very-low-density uniform-grid points before
 returning arrays. Keyword arguments such as <code class="docutils literal notranslate"><span class="pre">qmax</span></code> and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> select
 the same NLDF numerical representation used by a CIDER calculation.</p>
@@ -146,9 +145,8 @@ the same NLDF numerical representation used by a CIDER calculation.</p>
 
 <section id="using-settings-from-a-packaged-model">
 <h2>Using settings from a packaged model<a class="headerlink" href="#using-settings-from-a-packaged-model" title="Link to this heading"></a></h2>
-<p>Feature order and normalization belong to the model. Load the model and pass
-its serialized component settings instead of recreating a similar-looking
-settings object:</p>
+<p>Feature order and normalization belong to the model.  Load its serialized
+component settings to preserve the exact feature definition:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.dft.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_cider_model</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_descriptors</span>
 
@@ -168,22 +166,21 @@ settings object:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The two calls describe the same retained electronic state, but their returned
-point lists should be treated independently. Verify weights and concatenate
-features only through a workflow that preserves the model’s feature order and
-matching screening convention.</p>
+<p>The two calls describe the same retained electronic state and return
+independent point lists.  A workflow that combines them must align the
+weights, screening convention, and model feature order.</p>
 </section>
 <section id="occupation-derivatives">
 <h2>Occupation derivatives<a class="headerlink" href="#occupation-derivatives" title="Link to this heading"></a></h2>
 <p>Supplying <code class="docutils literal notranslate"><span class="pre">p_i</span></code> evaluates derivatives with respect to the selected orbital
 occupations. The routine constructs both the smooth-grid density response and
 the PAW atomic density-matrix response, then applies the descriptor
-forward/adjoint machinery without relaxing the orbitals. The orbital indices,
+forward/adjoint machinery at fixed orbitals.  The orbital indices,
 k-point distribution, spin convention, occupations, and numerical settings
 must be recorded with the arrays.</p>
-<p>This interface is intended for inspection and training-data construction. It
-does not turn a fixed-density descriptor array into a self-consistent energy,
-and occupation derivatives do not include orbital relaxation.</p>
+<p>This interface serves inspection and training-data construction.  Its
+occupation derivatives hold the orbitals fixed; a self-consistent energy is
+obtained through the calculator interface.</p>
 <p>See <a class="reference internal" href="../../workflows/descriptors.html"><span class="doc">Inspecting Densities and Descriptors</span></a> for the cross-backend workflow and
 <a class="reference internal" href="numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a> for the GPAW/PASDW implementation.</p>
 </section>

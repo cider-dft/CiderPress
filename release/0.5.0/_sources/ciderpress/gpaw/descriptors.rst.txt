@@ -6,8 +6,8 @@ GPAW Descriptor Interface
 The GPAW descriptor interface evaluates semilocal or version-J NLDF features
 on the fixed density and orbitals of a completed classic GPAW plane-wave
 calculation. It combines uniform-grid values with the matching PAW
-all-electron-minus-pseudo contributions. Descriptor extraction does not run a
-new self-consistent CIDER calculation.
+all-electron-minus-pseudo contributions and uses the electronic state retained
+by the calculator.
 
 .. py:function:: get_descriptors(calc, settings, p_i=None, use_paw=True, screen_dens=True, **kwargs)
 
@@ -16,8 +16,7 @@ new self-consistent CIDER calculation.
    ``calc`` must retain its density, wavefunctions, PAW setups, and grid
    distribution. ``settings`` is a semilocal or NLDF settings object, or the
    string ``"l"`` for the raw density/gradient/kinetic-energy-density vector.
-   Fractional-Laplacian and SDMX settings are not implemented in the GPAW
-   descriptor backend.
+   The documented GPAW descriptor settings are semilocal and version-J NLDF.
 
    With ``p_i=None``, the return value is ``(features, weights)``. ``features``
    has shape ``(nspin, nfeature, npoint)`` and ``weights`` has shape
@@ -26,8 +25,8 @@ new self-consistent CIDER calculation.
    ``feature_derivatives`` has shape ``(norbital, nfeature, npoint)``.
    Each orbital selector is a zero-based ``(spin, kpoint, band)`` tuple.
 
-   ``use_paw=True`` includes the atomic all-electron correction and is the
-   production interpretation of descriptors from PAW calculations.
+   ``use_paw=True`` includes the atomic all-electron correction used by the
+   supported PAW calculation path.
    ``screen_dens=True`` removes very-low-density uniform-grid points before
    returning arrays. Keyword arguments such as ``qmax`` and ``lambd`` select
    the same NLDF numerical representation used by a CIDER calculation.
@@ -35,9 +34,8 @@ new self-consistent CIDER calculation.
 Using settings from a packaged model
 ------------------------------------
 
-Feature order and normalization belong to the model. Load the model and pass
-its serialized component settings instead of recreating a similar-looking
-settings object:
+Feature order and normalization belong to the model.  Load its serialized
+component settings to preserve the exact feature definition:
 
 .. code-block:: python
 
@@ -59,10 +57,9 @@ settings object:
        lambd=1.8,
    )
 
-The two calls describe the same retained electronic state, but their returned
-point lists should be treated independently. Verify weights and concatenate
-features only through a workflow that preserves the model's feature order and
-matching screening convention.
+The two calls describe the same retained electronic state and return
+independent point lists.  A workflow that combines them must align the
+weights, screening convention, and model feature order.
 
 Occupation derivatives
 ----------------------
@@ -70,13 +67,13 @@ Occupation derivatives
 Supplying ``p_i`` evaluates derivatives with respect to the selected orbital
 occupations. The routine constructs both the smooth-grid density response and
 the PAW atomic density-matrix response, then applies the descriptor
-forward/adjoint machinery without relaxing the orbitals. The orbital indices,
+forward/adjoint machinery at fixed orbitals.  The orbital indices,
 k-point distribution, spin convention, occupations, and numerical settings
 must be recorded with the arrays.
 
-This interface is intended for inspection and training-data construction. It
-does not turn a fixed-density descriptor array into a self-consistent energy,
-and occupation derivatives do not include orbital relaxation.
+This interface serves inspection and training-data construction.  Its
+occupation derivatives hold the orbitals fixed; a self-consistent energy is
+obtained through the calculator interface.
 
 See :doc:`../../workflows/descriptors` for the cross-backend workflow and
 :doc:`numerical` for the GPAW/PASDW implementation.

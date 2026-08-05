@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nonlocal Orbital Features (NLOF) &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Experimental Feature Interfaces &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -18,9 +18,7 @@
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Model and Descriptor Workflows" href="../workflows/workflows.html" />
-    <link rel="prev" title="Smoothed Density Matrix Exchange (SDMX)" href="sdmx.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,21 +56,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/reproducibility.html">Recording and Checking a Calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="features.html">Electronic Features in CiderPress</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="features.html#feature-families">Feature families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#from-raw-quantities-to-model-inputs">From raw quantities to model inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features.html#family-lineage">Family lineage</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="features.html#numerical-and-physical-constraints">Numerical and physical constraints</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Nonlocal Orbital Features (NLOF)</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Electronic Features in CiderPress</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
 <ul>
@@ -106,8 +92,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="features.html">Electronic Features in CiderPress</a></li>
-      <li class="breadcrumb-item active">Nonlocal Orbital Features (NLOF)</li>
+      <li class="breadcrumb-item active">Experimental Feature Interfaces</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/features/nlof.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -117,22 +102,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="nonlocal-orbital-features-nlof">
-<span id="nlof-feat"></span><h1>Nonlocal Orbital Features (NLOF)<a class="headerlink" href="#nonlocal-orbital-features-nlof" title="Link to this heading"></a></h1>
-<p>Nonlocal orbital features are an experimental interface for fractional-
-Laplacian orbital descriptors.  No packaged production model uses them in
-release 0.5.0, and their settings and numerical interfaces are not guaranteed
-to remain compatible across releases.  They are documented here so that
-serialized research models containing an NLOF block can be identified.</p>
+  <section id="experimental-feature-interfaces">
+<h1>Experimental Feature Interfaces<a class="headerlink" href="#experimental-feature-interfaces" title="Link to this heading"></a></h1>
+<p>The release guide and packaged models cover the semilocal, NLDF, and SDMX
+families listed in <a class="reference internal" href="features.html"><span class="doc">Electronic Features in CiderPress</span></a>.  Additional feature classes in the source
+tree remain experimental.</p>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="sdmx.html" class="btn btn-neutral float-left" title="Smoothed Density Matrix Exchange (SDMX)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../workflows/workflows.html" class="btn btn-neutral float-right" title="Model and Descriptor Workflows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

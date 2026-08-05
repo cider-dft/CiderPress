@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dft" href="dft.html" />
+    <link rel="next" title="PySCF Calculator Decoration" href="dft.html" />
     <link rel="prev" title="Kernel Tools" href="../models/kernel_tools.html" /> 
 </head>
 
@@ -71,10 +71,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">PySCF Interface and Numerical Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dft.html">dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">pbc.dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="analyzers.html">analyzers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="descriptors.html">descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html">PySCF Calculator Decoration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">Periodic PySCF Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analyzers.html">PySCF Electronic Analyzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">PySCF Descriptor Extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numerical.html">PySCF Numerical and Derivative Implementation</a></li>
 </ul>
 </li>
@@ -125,7 +125,7 @@ website.</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="dft.html#module-ciderpress.pyscf.dft" title="ciderpress.pyscf.dft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.dft</span></code></a> constructs the decorated SCF object and defines
 total-energy, dispersion, checkpoint, and gradient behavior.</p></li>
-<li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.numint" title="ciderpress.pyscf.numint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.numint</span></code></a> connects semilocal and NLDF feature
+<li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.numint" title="ciderpress.pyscf.numint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.numint</span></code></a> connects semilocal, NLDF, and SDMX feature
 evaluation to PySCF’s blockwise atom-centered quadrature.</p></li>
 <li><p><a class="reference internal" href="numerical.html#module-ciderpress.pyscf.gen_cider_grid" title="ciderpress.pyscf.gen_cider_grid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.gen_cider_grid</span></code></a> and
 <a class="reference internal" href="numerical.html#module-ciderpress.pyscf.nldf_convolutions" title="ciderpress.pyscf.nldf_convolutions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.nldf_convolutions</span></code></a> build and evaluate the auxiliary
@@ -138,23 +138,23 @@ propagate feature and grid response into nuclear gradients.</p></li>
 <a class="reference internal" href="descriptors.html#module-ciderpress.pyscf.descriptors" title="ciderpress.pyscf.descriptors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.descriptors</span></code></a> expose fixed-density ingredients for
 inspection and training-data construction.</p></li>
 </ul>
-<p>For production model selection, complete examples, and restart guidance, see
+<p>For packaged model selection, complete examples, and restart guidance, see
 <a class="reference internal" href="../../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>, <a class="reference internal" href="../../usage/pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a>, and
 <a class="reference internal" href="../../usage/convergence.html"><span class="doc">SCF Convergence Recommendations</span></a>.</p>
-<p>The periodic PySCF SDMX path requires pseudopotentials and a uniform XC grid.
-It is retained mainly for methodological reproduction; classic GPAW with PAW
-is the documented periodic route for NLDF production models.</p>
+<p>The periodic PySCF SDMX path requires pseudopotentials and a uniform XC grid
+and supports methodological reproduction of the CIDER24X work.  Packaged
+periodic NLDF calculations use classic GPAW with PAW.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dft.html">dft</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="dft.html">PySCF Calculator Decoration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dft.html#ciderpress.pyscf.dft.make_cider_calc"><code class="docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="pbc/dft.html">pbc.dft</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html#ciderpress.pyscf.pbc.dft.make_cider_calc"><code class="docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="pbc/dft.html">Periodic PySCF Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html#module-ciderpress.pyscf.pbc.numint">Numerical implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="analyzers.html">analyzers</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="analyzers.html">PySCF Electronic Analyzers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer"><code class="docutils literal notranslate"><span class="pre">ElectronAnalyzer</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer"><code class="docutils literal notranslate"><span class="pre">RHFAnalyzer</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="analyzers.html#ciderpress.pyscf.analyzers.RKSAnalyzer"><code class="docutils literal notranslate"><span class="pre">RKSAnalyzer</span></code></a></li>
@@ -162,7 +162,7 @@ is the documented periodic route for NLDF production models.</p>
 <li class="toctree-l2"><a class="reference internal" href="analyzers.html#ciderpress.pyscf.analyzers.UKSAnalyzer"><code class="docutils literal notranslate"><span class="pre">UKSAnalyzer</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="descriptors.html">descriptors</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="descriptors.html">PySCF Descriptor Extraction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html#ciderpress.pyscf.descriptors.get_descriptors"><code class="docutils literal notranslate"><span class="pre">get_descriptors()</span></code></a></li>
 </ul>
 </li>
@@ -183,7 +183,7 @@ is the documented periodic route for NLDF production models.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../models/kernel_tools.html" class="btn btn-neutral float-left" title="Kernel Tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="dft.html" class="btn btn-neutral float-right" title="dft" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dft.html" class="btn btn-neutral float-right" title="PySCF Calculator Decoration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

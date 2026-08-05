@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Settings Module &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Feature Settings &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="The Plans Module" href="plans.html" />
+    <link rel="next" title="Feature Evaluation Plans" href="plans.html" />
     <link rel="prev" title="Core DFT Representation" href="dft.html" /> 
 </head>
 
@@ -70,155 +70,26 @@
 <p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="dft.html">Core DFT Representation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The Settings Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.ALLOWED_I_SPECS_L0"><code class="docutils literal notranslate"><span class="pre">ALLOWED_I_SPECS_L0</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.ALLOWED_I_SPECS_L1"><code class="docutils literal notranslate"><span class="pre">ALLOWED_I_SPECS_L1</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.ALLOWED_J_SPECS"><code class="docutils literal notranslate"><span class="pre">ALLOWED_J_SPECS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.ALLOWED_K_SPECS"><code class="docutils literal notranslate"><span class="pre">ALLOWED_K_SPECS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.ALLOWED_RHO_DAMPS"><code class="docutils literal notranslate"><span class="pre">ALLOWED_RHO_DAMPS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.ALLOWED_RHO_MULTS"><code class="docutils literal notranslate"><span class="pre">ALLOWED_RHO_MULTS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.BaseSettings"><code class="docutils literal notranslate"><span class="pre">BaseSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.BaseSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">BaseSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">BaseSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.BaseSettings.is_empty"><code class="docutils literal notranslate"><span class="pre">BaseSettings.is_empty</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.BaseSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">BaseSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.BaseSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">BaseSettings.ueg_vector()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#regression-coordinates">Regression coordinates</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dft.html#energy-composition-and-evaluation">Energy composition and evaluation</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Feature Settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-ciderpress.dft.settings">Composite settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semilocal-settings">Semilocal settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nldf-settings">NLDF settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sdmx-settings">SDMX settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semilocal-helper-functions">Semilocal helper functions</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.EmptySettings"><code class="docutils literal notranslate"><span class="pre">EmptySettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.EmptySettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">EmptySettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.EmptySettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">EmptySettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.EmptySettings.nfeat"><code class="docutils literal notranslate"><span class="pre">EmptySettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.EmptySettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">EmptySettings.ueg_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transform_data.html">Bounded Regression Coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.FeatureSettings"><code class="docutils literal notranslate"><span class="pre">FeatureSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FeatureSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">FeatureSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">FeatureSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FeatureSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">FeatureSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FeatureSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">FeatureSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.FracLaplSettings"><code class="docutils literal notranslate"><span class="pre">FracLaplSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FracLaplSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">FracLaplSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FracLaplSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">FracLaplSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FracLaplSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">FracLaplSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.FracLaplSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">FracLaplSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.HybridSettings"><code class="docutils literal notranslate"><span class="pre">HybridSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.HybridSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">HybridSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.HybridSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">HybridSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.HybridSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">HybridSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.HybridSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">HybridSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings"><code class="docutils literal notranslate"><span class="pre">NLDFSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.feat_spec_list"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.feat_spec_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.nldf_type"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.nldf_type</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.num_feat_param_sets"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.num_feat_param_sets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettings.num_vi_feats"><code class="docutils literal notranslate"><span class="pre">NLDFSettings.num_vi_feats</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI.feat_spec_list"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI.feat_spec_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI.num_feat_param_sets"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI.num_feat_param_sets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI.num_vi_feats"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI.num_vi_feats</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVI.ueg_vector"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVI.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ.feat_spec_list"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ.feat_spec_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ.num_feat_param_sets"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ.num_feat_param_sets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ.num_vi_feats"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ.num_vi_feats</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVIJ.ueg_vector"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVIJ.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ.feat_spec_list"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ.feat_spec_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ.num_feat_param_sets"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ.num_feat_param_sets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ.num_vi_feats"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ.num_vi_feats</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVJ.ueg_vector"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK.feat_spec_list"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK.feat_spec_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK.num_feat_param_sets"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK.num_feat_param_sets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK.num_vi_feats"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK.num_vi_feats</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.NLDFSettingsVK.ueg_vector"><code class="docutils literal notranslate"><span class="pre">NLDFSettingsVK.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SADMSettings"><code class="docutils literal notranslate"><span class="pre">SADMSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SADMSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SADMSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SADMSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SADMSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SADMSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">SADMSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SADMSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SADMSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SDMX1Settings"><code class="docutils literal notranslate"><span class="pre">SDMX1Settings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMX1Settings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SDMX1Settings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMX1Settings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SDMX1Settings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMX1Settings.nfeat"><code class="docutils literal notranslate"><span class="pre">SDMX1Settings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMX1Settings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SDMX1Settings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SDMXBaseSettings"><code class="docutils literal notranslate"><span class="pre">SDMXBaseSettings</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SDMXFullSettings"><code class="docutils literal notranslate"><span class="pre">SDMXFullSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXFullSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SDMXFullSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXFullSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SDMXFullSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXFullSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">SDMXFullSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXFullSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SDMXFullSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SDMXG1Settings"><code class="docutils literal notranslate"><span class="pre">SDMXG1Settings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXG1Settings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SDMXG1Settings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXG1Settings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SDMXG1Settings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXG1Settings.nfeat"><code class="docutils literal notranslate"><span class="pre">SDMXG1Settings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXG1Settings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SDMXG1Settings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SDMXGSettings"><code class="docutils literal notranslate"><span class="pre">SDMXGSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXGSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SDMXGSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXGSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SDMXGSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXGSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">SDMXGSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXGSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SDMXGSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SDMXSettings"><code class="docutils literal notranslate"><span class="pre">SDMXSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SDMXSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SDMXSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">SDMXSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SDMXSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SDMXSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SPEC_USPS"><code class="docutils literal notranslate"><span class="pre">SPEC_USPS</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.SemilocalSettings"><code class="docutils literal notranslate"><span class="pre">SemilocalSettings</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SemilocalSettings.get_feat_usps"><code class="docutils literal notranslate"><span class="pre">SemilocalSettings.get_feat_usps()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer"><code class="docutils literal notranslate"><span class="pre">SemilocalSettings.get_reasonable_normalizer()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SemilocalSettings.nfeat"><code class="docutils literal notranslate"><span class="pre">SemilocalSettings.nfeat</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.settings.SemilocalSettings.ueg_vector"><code class="docutils literal notranslate"><span class="pre">SemilocalSettings.ueg_vector()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.get_cider_exponent"><code class="docutils literal notranslate"><span class="pre">get_cider_exponent()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.settings.get_cider_exponent_gga"><code class="docutils literal notranslate"><span class="pre">get_cider_exponent_gga()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="plans.html">The Plans Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="xc_evaluator.html">The XC Evaluator Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
@@ -247,7 +118,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
-      <li class="breadcrumb-item active">The Settings Module</li>
+      <li class="breadcrumb-item active">Feature Settings</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/dft/settings.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -257,143 +128,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-ciderpress.dft.settings">
-<span id="the-settings-module"></span><span id="settings-module"></span><h1>The Settings Module<a class="headerlink" href="#module-ciderpress.dft.settings" title="Link to this heading"></a></h1>
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_I_SPECS_L0">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_I_SPECS_L0</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se',</span> <span class="pre">'se_r2',</span> <span class="pre">'se_apr2',</span> <span class="pre">'se_ap',</span> <span class="pre">'se_ap2r2',</span> <span class="pre">'se_lapl']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_I_SPECS_L0" title="Link to this definition"></a></dt>
-<dd><p>Allowed spec strings for version-I <span class="math notranslate nohighlight">\(\ell=0\)</span> features.</p>
-<p><code class="docutils literal notranslate"><span class="pre">se</span></code>: squared exponential, <span class="math notranslate nohighlight">\(\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_r2</span></code>: <span class="math notranslate nohighlight">\(R^2\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_apr2</span></code>: <span class="math notranslate nohighlight">\(aR^2\exp(-aR^2)\)</span>, where <span class="math notranslate nohighlight">\(a\)</span> is the exponent
-at the integrated coordinate <span class="math notranslate nohighlight">\(\mathbf r'\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_ap</span></code>: <span class="math notranslate nohighlight">\(a\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_ap2r2</span></code>: <span class="math notranslate nohighlight">\(a^2R^2\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_lapl</span></code>: <span class="math notranslate nohighlight">\((4a^2R^2-2a)\exp(-aR^2)\)</span> (the historical
-one-dimensional second-derivative form used by the implementation)</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_I_SPECS_L1">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_I_SPECS_L1</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se_grad',</span> <span class="pre">'se_rvec']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_I_SPECS_L1" title="Link to this definition"></a></dt>
-<dd><p>Allowed spec strings for version-I <span class="math notranslate nohighlight">\(\ell=1\)</span> features.</p>
-<p><code class="docutils literal notranslate"><span class="pre">se_grad</span></code>: <span class="math notranslate nohighlight">\(a(\mathbf r'-\mathbf r)\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_rvec</span></code>: <span class="math notranslate nohighlight">\((\mathbf r'-\mathbf r)\exp(-aR^2)\)</span></p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_J_SPECS">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_J_SPECS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se',</span> <span class="pre">'se_ar2',</span> <span class="pre">'se_a2r4',</span> <span class="pre">'se_erf_rinv',</span> <span class="pre">'se_rinv4',</span> <span class="pre">'rinv2_rinv4',</span> <span class="pre">'rinv4_rinv2',</span> <span class="pre">'se_rinv2']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_J_SPECS" title="Link to this definition"></a></dt>
-<dd><p>Allowed spec strings for version-J features.
-Version-K features have the same allowed spec strings.</p>
-<p><code class="docutils literal notranslate"><span class="pre">se</span></code>: squared exponential, <span class="math notranslate nohighlight">\(\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_ar2</span></code>: <span class="math notranslate nohighlight">\(aR^2\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_a2r4</span></code>: <span class="math notranslate nohighlight">\(a^2R^4\exp(-aR^2)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">se_erf_rinv</span></code>: squared exponential times <span class="math notranslate nohighlight">\(1/R\)</span>, with short-range
-error-function damping</p>
-<p>The rational-kernel specs below are experimental and require
-<code class="docutils literal notranslate"><span class="pre">vdw_param=True</span></code> when constructing <code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">se_rinv4</span></code>: <span class="math notranslate nohighlight">\(\exp(-aR^2)/(aR^2+1)^2\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">rinv2_rinv4</span></code>: <span class="math notranslate nohighlight">\(1/(aR^2+1)\)</span> at one coordinate and
-<span class="math notranslate nohighlight">\(1/(aR^2+1)^2\)</span> at the other</p>
-<p><code class="docutils literal notranslate"><span class="pre">rinv2</span></code> component: <span class="math notranslate nohighlight">\(1/(aR^2+1)\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">rinv4</span></code> component: <span class="math notranslate nohighlight">\(1/(aR^2+1)^2\)</span></p>
-<p><code class="docutils literal notranslate"><span class="pre">rinv4_rinv2</span></code>: <span class="math notranslate nohighlight">\(1/(aR^2+1)^2\)</span> at one coordinate and
-<span class="math notranslate nohighlight">\(1/(aR^2+1)\)</span> at the other</p>
-<p><code class="docutils literal notranslate"><span class="pre">se_rinv2</span></code>: <span class="math notranslate nohighlight">\(\exp(-aR^2)/(aR^2+1)\)</span></p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_K_SPECS">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_K_SPECS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['se',</span> <span class="pre">'se_ar2',</span> <span class="pre">'se_a2r4',</span> <span class="pre">'se_erf_rinv',</span> <span class="pre">'se_rinv4',</span> <span class="pre">'rinv2_rinv4',</span> <span class="pre">'rinv4_rinv2',</span> <span class="pre">'se_rinv2']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_K_SPECS" title="Link to this definition"></a></dt>
-<dd><p>See <code class="docutils literal notranslate"><span class="pre">ALLOWED_J_SPECS</span></code></p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_RHO_DAMPS">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_RHO_DAMPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['exponential']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_RHO_DAMPS" title="Link to this definition"></a></dt>
-<dd><p>These strings specify the allowed options for how to “damp”
-the density for the version k features. Currently the only allowed
-option is <code class="docutils literal notranslate"><span class="pre">exponential</span></code>, which results in the integral
-<span class="math notranslate nohighlight">\(\int g[n](|r-r'|) n(r') \exp[-3 a_0[n](r')/(2 a_i[n](r))]\)</span>,
-where <span class="math notranslate nohighlight">\(a_0\)</span> is the exponent given by <code class="docutils literal notranslate"><span class="pre">theta_params</span></code>
-and <span class="math notranslate nohighlight">\(a_i\)</span> is an exponent given by <code class="docutils literal notranslate"><span class="pre">feat_params</span></code>.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.ALLOWED_RHO_MULTS">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_RHO_MULTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['one',</span> <span class="pre">'expnt']</span></span><a class="headerlink" href="#ciderpress.dft.settings.ALLOWED_RHO_MULTS" title="Link to this definition"></a></dt>
-<dd><p>These strings specify the allowed options for what value
-to multiply the density by before integrating it to construct
-NLDF features. The options are:</p>
-<p><code class="docutils literal notranslate"><span class="pre">one</span></code>: Identity, i.e. multiply the density by 1.</p>
-<p><code class="docutils literal notranslate"><span class="pre">expnt</span></code>: Multiply the density by the NLDF exponent specified by
-<code class="docutils literal notranslate"><span class="pre">theta_params</span></code>. This option is experimental and not thoroughly tested.</p>
-</dd></dl>
-
+  <section id="feature-settings">
+<span id="settings-module"></span><h1>Feature Settings<a class="headerlink" href="#feature-settings" title="Link to this heading"></a></h1>
+<p>Settings objects are the serialized declarations of a model’s raw electronic
+features.  Their parameter order, spin convention, scaling powers, and
+uniform-electron-gas limits define the inputs expected by the normalizers and
+mapped evaluator.  Calculation interfaces read these objects from the model;
+model-construction and descriptor workflows can create them explicitly.</p>
+<section id="module-ciderpress.dft.settings">
+<span id="composite-settings"></span><h2>Composite settings<a class="headerlink" href="#module-ciderpress.dft.settings" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">BaseSettings</span></span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings" title="Link to this definition"></a></dt>
-<dd><p>This is a base class for storing the settings for different
-types of density/density matrix feature in CiderPress.
-Settings objects indicate which features must be evaluated,
-and with which hyperparameters, to use as input to an ML functional.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.get_feat_usps">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">FeatureSettings</span></span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings" title="Link to this definition"></a></dt>
+<dd><p>Composite feature declaration stored by a trainable or mapped model.  The
+documented model families use <code class="docutils literal notranslate"><span class="pre">sl_settings</span></code> together with an optional
+<code class="docutils literal notranslate"><span class="pre">nldf_settings</span></code> or <code class="docutils literal notranslate"><span class="pre">sdmx_settings</span></code> component.  <code class="docutils literal notranslate"><span class="pre">normalizers</span></code> records
+the transformation of the concatenated raw blocks, and <code class="docutils literal notranslate"><span class="pre">nfeat</span></code> gives the
+resulting raw feature count.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.is_empty">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_empty</span></span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.is_empty" title="Link to this definition"></a></dt>
-<dd><p>Return true of this settings object specifies zero features.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.nfeat" title="Link to this definition"></a></dt>
-<dd><p>Returns:
-Number of features in this feature set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.ueg_vector">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+</section>
+<section id="semilocal-settings">
+<h2>Semilocal settings<a class="headerlink" href="#semilocal-settings" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.EmptySettings">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">EmptySettings</span></span><a class="headerlink" href="#ciderpress.dft.settings.EmptySettings" title="Link to this definition"></a></dt>
@@ -453,26 +209,13 @@ as a function of the density rho</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">FeatureSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nldf_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlof_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sdmx_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyb_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalizers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings" title="Link to this definition"></a></dt>
-<dd><p>The FeatureSettings object is a container for the settings of each
-type of feature in the model.</p>
-<p>Initialize FeatureSettings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sl_settings</strong> (<em>SemilocalSettings or EmptySettings</em>) – Semilocal feature settings</p></li>
-<li><p><strong>nldf_settings</strong> (<em>NLDFSettings or EmptySettings</em>) – Nonlocal density feature settings</p></li>
-<li><p><strong>nlof_settings</strong> (<em>FracLaplSettings or EmptySettings</em>) – Nonlocal orbital feature settings</p></li>
-<li><p><strong>sdmx_settings</strong> (<em>SDMXBaseSettings or EmptySettings</em>) – Spherically averaged EXX settings</p></li>
-<li><p><strong>hyb_settings</strong> (<em>HybridSettings or EmptySettings</em>) – (Local) hybrid DFT settings</p></li>
-<li><p><strong>normalizers</strong> (<em>FeatNormalizerList</em>) – List of normalizers for features</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SemilocalSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nst'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings" title="Link to this definition"></a></dt>
+<dd><p>Semilocal feature set. Currently only supports meta-GGA.
+Should not be edited from default in general.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_normalizers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.get_feat_usps" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.get_feat_usps">
+<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.get_feat_usps" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
@@ -481,8 +224,8 @@ type of feature in the model.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of normalizers for these features</p>
@@ -494,15 +237,15 @@ type of feature in the model.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.nfeat" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.nfeat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.nfeat" title="Link to this definition"></a></dt>
 <dd><p>Returns:
 Number of features in this feature set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_normalizers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.ueg_vector" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.ueg_vector">
+<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.ueg_vector" title="Link to this definition"></a></dt>
 <dd><p>Return the feature vector for the uniform electron gas
 as a function of the density rho</p>
 <dl class="field-list simple">
@@ -520,178 +263,9 @@ as a function of the density rho</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FracLaplSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">FracLaplSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nk0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nk1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_dots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nd1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld_dots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FracLaplSettings" title="Link to this definition"></a></dt>
-<dd><p>Settings for Fractional Laplacian feature set.</p>
-<p>Initialize FracLaplSettings object. Note, in the documentation below
-on the indexing of the features, <code class="docutils literal notranslate"><span class="pre">fl_rho</span></code> is the part of the density
-ingredient vector AFTER the semilocal part.</p>
-<p>Note on the <span class="math notranslate nohighlight">\(\ell=1\)</span> feature indexing. If
-<code class="docutils literal notranslate"><span class="pre">l1_dots[i]</span> <span class="pre">=</span> <span class="pre">(j,</span> <span class="pre">k)</span></code>, then:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fl_feat</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">nk0</span><span class="p">]</span> <span class="o">=</span> <span class="n">einsum</span><span class="p">(</span>
-    <span class="s1">&#39;xg,xg-&gt;g&#39;</span><span class="p">,</span>
-    <span class="n">fl_rho</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="n">nk0</span> <span class="p">:</span> <span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="o">+</span><span class="n">nk0</span><span class="p">],</span>
-    <span class="n">fl_rho</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">k</span><span class="o">+</span><span class="n">nk0</span> <span class="p">:</span> <span class="mi">3</span><span class="o">*</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="o">+</span><span class="n">nk0</span><span class="p">],</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>If <code class="docutils literal notranslate"><span class="pre">ld_dots[i]</span> <span class="pre">=</span> <span class="pre">(j,</span> <span class="pre">k)</span></code>, then:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nstart</span> <span class="o">=</span> <span class="n">nk0</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nk1</span>
-<span class="n">fl_feat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">nk0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">l1_dots</span><span class="p">)]</span> <span class="o">=</span> <span class="n">einsum</span><span class="p">(</span>
-    <span class="s1">&#39;xg,xg-&gt;g&#39;</span><span class="p">,</span>
-    <span class="n">fl_rho</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="n">nstart</span> <span class="p">:</span> <span class="mi">3</span><span class="o">*</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="o">+</span><span class="n">nstart</span><span class="p">],</span>
-    <span class="n">fl_rho</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">k</span><span class="o">+</span><span class="n">nstart</span> <span class="p">:</span> <span class="mi">3</span><span class="o">*</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="o">+</span><span class="n">nstart</span><span class="p">],</span>
-<span class="p">)</span>
-<span class="n">nstart</span> <span class="o">=</span> <span class="n">nk0</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nk1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nd1</span>
-<span class="n">fl_feat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">nk0</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">l1_dots</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">ld_dots</span><span class="p">)]</span> <span class="o">=</span> <span class="n">fl_rho</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">nstart</span><span class="p">]</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>slist</strong> (<em>list of float</em>) – s parameters for the fractional
-Laplacian. For each s, <span class="math notranslate nohighlight">\((-\Delta)^s \phi_i\)</span> is computed
-for each single-particle orbital.</p></li>
-<li><p><strong>nk0</strong> (<em>int</em>) – Number of scalar (<span class="math notranslate nohighlight">\(\ell=0\)</span>) features. Must be
-<code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>. For <code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">slist[i]</span></code>, <code class="docutils literal notranslate"><span class="pre">fl_feat[i]</span></code> and
-<code class="docutils literal notranslate"><span class="pre">fl_rho[i]</span></code> contain
-<span class="math notranslate nohighlight">\((-\Delta')^s \rho(r,r')|_{r'=r}\)</span>.</p></li>
-<li><p><strong>nk1</strong> (<em>int</em>) – Number of vector (<span class="math notranslate nohighlight">\(\ell=1\)</span>) features
-<span class="math notranslate nohighlight">\(F_s^1\)</span>. Must be <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>. For
-<code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">slist[i]</span></code>, the corresponding three entries in
-<code class="docutils literal notranslate"><span class="pre">fl_rho</span></code> contain
-<span class="math notranslate nohighlight">\(\nabla''(-\Delta')^s\rho(r'',r')|_{r'=r,r''=r}\)</span>.</p></li>
-<li><p><strong>l1_dots</strong> (<em>list of (int, int)</em>) – List of index tuples for contracting
-the <span class="math notranslate nohighlight">\(\ell=1\)</span> features <span class="math notranslate nohighlight">\(F_s^1\)</span>. <code class="docutils literal notranslate"><span class="pre">-1</span></code> indicates
-the semilocal density gradient.</p></li>
-<li><p><strong>nd1</strong> (<em>int</em>) – Number of vector features <span class="math notranslate nohighlight">\(F_s^d\)</span>. Must be
-<code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">len(slist)</span></code>.
-With <code class="docutils literal notranslate"><span class="pre">nstart</span> <span class="pre">=</span> <span class="pre">nk0</span> <span class="pre">+</span> <span class="pre">3</span> <span class="pre">*</span> <span class="pre">nk1</span></code>,
-<code class="docutils literal notranslate"><span class="pre">fl_rho[i</span> <span class="pre">*</span> <span class="pre">3</span> <span class="pre">+</span> <span class="pre">nstart</span> <span class="pre">:</span> <span class="pre">(i+1)</span> <span class="pre">*</span> <span class="pre">3</span> <span class="pre">+</span> <span class="pre">nstart]</span> <span class="pre">=</span></code>
-<span class="math notranslate nohighlight">\(\nabla' (-\Delta')^s \rho(r, r') |_{r'=r}\)</span>,
-with <code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">slist[i]</span></code>.</p></li>
-<li><p><strong>ld_dots</strong> (<em>list of (int, int)</em>) – Same as <code class="docutils literal notranslate"><span class="pre">l1_dots</span></code> but for the
-<span class="math notranslate nohighlight">\(F_s^d\)</span> features. <code class="docutils literal notranslate"><span class="pre">-1</span></code> indicates the semilocal density
-gradient.</p></li>
-<li><p><strong>ndd</strong> (<em>int</em>) – Number of dot-product features <span class="math notranslate nohighlight">\(F_s^{dd}\)</span>. Must
-be <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">nd1</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FracLaplSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FracLaplSettings.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FracLaplSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FracLaplSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FracLaplSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.FracLaplSettings.nfeat" title="Link to this definition"></a></dt>
-<dd><p>Returns:
-Number of features in this feature set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.FracLaplSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FracLaplSettings.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.HybridSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">HybridSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surrogate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.HybridSettings" title="Link to this definition"></a></dt>
-<dd><p>Settings object for local (or global) hybrid functionals.  For the first
-implementation we only support a single learned mixing fraction
-α(r) (no range–separation).  The settings object therefore contains just
-one feature placeholder so that the GP kernel can attach to it.</p>
-<p>Create a HybridSettings instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>surrogate</strong> (<em>bool</em>) – If False (default), the model uses actual seminumerical exchange, if True, the model uses a CIDER model (not implemented yet) for the exchange energy density.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.HybridSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.HybridSettings.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.HybridSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.HybridSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.HybridSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.HybridSettings.nfeat" title="Link to this definition"></a></dt>
-<dd><p>Returns:
-Number of features in this feature set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.HybridSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.HybridSettings.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+</section>
+<section id="nldf-settings">
+<h2>NLDF settings<a class="headerlink" href="#nldf-settings" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettings">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">NLDFSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_mult</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettings" title="Link to this definition"></a></dt>
@@ -865,6 +439,98 @@ as a function of the density rho</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">NLDFSettingsVJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_mult</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ" title="Link to this definition"></a></dt>
+<dd><p>Initialize NLDFSettingsVJ</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sl_level</strong> (<em>str</em>) – “GGA” or “MGGA”, the level of semilocal ingredients
+used to construct the length-scale exponent.</p></li>
+<li><p><strong>theta_params</strong> (<em>np.ndarray</em>) – Settings for the squared-exponential kernel exponent for the r’
+(integrated) coordinate of the features. For version ‘k’, this
+‘exponent’ is not used in the squared-exponential but rather
+within the density damping scheme (see rho_damp).</p></li>
+<li><p><strong>rho_mult</strong> (<em>str</em>) – Multiply the density that gets integrated
+by a prefactor. Options: See ALLOWED_RHO_MULTS.</p></li>
+<li><p><strong>feat_specs</strong> (<em>list of str</em>) – Each item in the list is a string specifying the formula
+to be used for a feature (see ALLOWED_J_SPECS for options).
+feat_specs[i] uses the parameterization of feat_params[i].
+feat_specs and feat_params must be the same length.</p></li>
+<li><p><strong>feat_params</strong> (<em>list of np.ndarray</em>) – Each item in the list is an array with the parameters for the
+feature corresponding to the feat_specs above. Typically, each array
+has three numbers [a0, grad_mul, tau_mul], except erf_rinv which
+has an additional parameter erf_mul for the ratio of the
+erf / rinv exponent to the squared-exponential exponent.
+tau_mul is ignored if sl_level=”GGA” and may therefore be excluded.</p></li>
+<li><p><strong>vdw_param</strong> (<em>bool</em>) – Enable the experimental rational-kernel feature
+specs in <code class="docutils literal notranslate"><span class="pre">EXPERIMENTAL_VDW_J_SPECS</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.feat_spec_list">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">feat_spec_list</span></span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.feat_spec_list" title="Link to this definition"></a></dt>
+<dd><p>Return a list containing feature specs in appropriate order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.get_feat_usps">
+<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.get_feat_usps" title="Link to this definition"></a></dt>
+<dd><p>Returns a list containing the usp of each contracted feature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of normalizers for these features</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.num_feat_param_sets">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_feat_param_sets</span></span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.num_feat_param_sets" title="Link to this definition"></a></dt>
+<dd><p>Number of unique feature parameter sets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.num_vi_feats">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_vi_feats</span></span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.num_vi_feats" title="Link to this definition"></a></dt>
+<dd><p>Return the number of version i-type features.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.ueg_vector">
+<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.ueg_vector" title="Link to this definition"></a></dt>
+<dd><p>Return the feature vector for the uniform electron gas
+as a function of the density rho</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>UEG feature vector</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVIJ">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">NLDFSettingsVIJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_mult</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0_feat_specs_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_feat_specs_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_feat_dots_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_specs_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_params_j</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVIJ" title="Link to this definition"></a></dt>
 <dd><div class="admonition note">
@@ -971,98 +637,6 @@ as a function of the density rho</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">NLDFSettingsVJ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_mult</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_specs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ" title="Link to this definition"></a></dt>
-<dd><p>Initialize NLDFSettingsVJ</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sl_level</strong> (<em>str</em>) – “GGA” or “MGGA”, the level of semilocal ingredients
-used to construct the length-scale exponent.</p></li>
-<li><p><strong>theta_params</strong> (<em>np.ndarray</em>) – Settings for the squared-exponential kernel exponent for the r’
-(integrated) coordinate of the features. For version ‘k’, this
-‘exponent’ is not used in the squared-exponential but rather
-within the density damping scheme (see rho_damp).</p></li>
-<li><p><strong>rho_mult</strong> (<em>str</em>) – Multiply the density that gets integrated
-by a prefactor. Options: See ALLOWED_RHO_MULTS.</p></li>
-<li><p><strong>feat_specs</strong> (<em>list of str</em>) – Each item in the list is a string specifying the formula
-to be used for a feature (see ALLOWED_J_SPECS for options).
-feat_specs[i] uses the parameterization of feat_params[i].
-feat_specs and feat_params must be the same length.</p></li>
-<li><p><strong>feat_params</strong> (<em>list of np.ndarray</em>) – Each item in the list is an array with the parameters for the
-feature corresponding to the feat_specs above. Typically, each array
-has three numbers [a0, grad_mul, tau_mul], except erf_rinv which
-has an additional parameter erf_mul for the ratio of the
-erf / rinv exponent to the squared-exponential exponent.
-tau_mul is ignored if sl_level=”GGA” and may therefore be excluded.</p></li>
-<li><p><strong>vdw_param</strong> (<em>bool</em>) – Enable the experimental rational-kernel feature
-specs in <code class="docutils literal notranslate"><span class="pre">EXPERIMENTAL_VDW_J_SPECS</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.feat_spec_list">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">feat_spec_list</span></span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.feat_spec_list" title="Link to this definition"></a></dt>
-<dd><p>Return a list containing feature specs in appropriate order.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><p>Returns a list containing the usp of each contracted feature.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.num_feat_param_sets">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_feat_param_sets</span></span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.num_feat_param_sets" title="Link to this definition"></a></dt>
-<dd><p>Number of unique feature parameter sets</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Returns</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.num_vi_feats">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_vi_feats</span></span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.num_vi_feats" title="Link to this definition"></a></dt>
-<dd><p>Return the number of version i-type features.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVJ.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVJ.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.NLDFSettingsVK">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">NLDFSettingsVK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_mult</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_damp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.NLDFSettingsVK" title="Link to this definition"></a></dt>
 <dd><p>Initialize NLDFSettingsVK</p>
@@ -1150,17 +724,27 @@ as a function of the density rho</p>
 
 </dd></dl>
 
+</section>
+<section id="sdmx-settings">
+<h2>SDMX settings<a class="headerlink" href="#sdmx-settings" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SADMSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SADMSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SADMSettings" title="Link to this definition"></a></dt>
-<dd><p>Settings for Spherically Averaged Density Matrix descriptor, i.e.
-the self-repulsion of the exchange hole constructed only from
-the spherically averaged density matrix at a point.</p>
-<p>WARNING: DEPRECATED, especially ‘exact’ which is not numerically
-accurate. Use SDMXSettings and its variants instead.</p>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pows</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings" title="Link to this definition"></a></dt>
+<dd><p>Initialize SDMX settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pows</strong> (<em>list of int</em>) – For each <span class="math notranslate nohighlight">\(n\)</span> in <code class="docutils literal notranslate"><span class="pre">pows</span></code>,
+<span class="math notranslate nohighlight">\(\int \mathrm{d}R\,R^{2-n}\rho_{\mathrm{smooth}}(R)\)</span>
+is computed. Technically, <span class="math notranslate nohighlight">\(n\)</span> can be any float, but it
+should be 0, 1, or 2 for
+normalizability and ability to compute UEG values.
+If not 0, 1, or 2, UEG limit cannot be computed,
+and features might be poorly defined/numerically inaccurate.</p>
+</dd>
+</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SADMSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SADMSettings.get_feat_usps" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.get_feat_usps">
+<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.get_feat_usps" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
@@ -1169,8 +753,8 @@ accurate. Use SDMXSettings and its variants instead.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SADMSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SADMSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of normalizers for these features</p>
@@ -1182,15 +766,79 @@ accurate. Use SDMXSettings and its variants instead.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SADMSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SADMSettings.nfeat" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.nfeat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.nfeat" title="Link to this definition"></a></dt>
 <dd><p>Returns:
 Number of features in this feature set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SADMSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SADMSettings.ueg_vector" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.ueg_vector">
+<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.ueg_vector" title="Link to this definition"></a></dt>
+<dd><p>Return the feature vector for the uniform electron gas
+as a function of the density rho</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>UEG feature vector</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXGSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings" title="Link to this definition"></a></dt>
+<dd><p>Initialize SDMXGSettings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pows</strong> (<em>list of int</em>) – list of 0, 1, 2, see SDMXSettings docstring.</p></li>
+<li><p><strong>ndt</strong> (<em>int</em>) – Number of gradient features <span class="math notranslate nohighlight">\(H_n^d\)</span>. Computes
+features for the first <code class="docutils literal notranslate"><span class="pre">ndt</span></code> values of <span class="math notranslate nohighlight">\(n\)</span> in
+<code class="docutils literal notranslate"><span class="pre">pows</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.get_feat_usps">
+<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.get_feat_usps" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of normalizers for these features</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.nfeat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.nfeat" title="Link to this definition"></a></dt>
+<dd><p>Returns:
+Number of features in this feature set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.ueg_vector">
+<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.ueg_vector" title="Link to this definition"></a></dt>
 <dd><p>Return the feature vector for the uniform electron gas
 as a function of the density rho</p>
 <dl class="field-list simple">
@@ -1255,73 +903,6 @@ Number of features in this feature set.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.SDMX1Settings.ueg_vector">
 <span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMX1Settings.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXBaseSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXBaseSettings</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXBaseSettings" title="Link to this definition"></a></dt>
-<dd><p>Base object for the SDMX-like settings.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXFullSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings_dict</strong> (<em>dict</em>) – Each key is float. Each value
-is a 2-tuple. The first item is a list of pows.
-The second item is a 4-list/tuple with the number
-of pows for 0, d, 1, and 1d features.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.nfeat" title="Link to this definition"></a></dt>
-<dd><p>Returns:
-Number of features in this feature set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.ueg_vector" title="Link to this definition"></a></dt>
 <dd><p>Return the feature vector for the uniform electron gas
 as a function of the density rho</p>
 <dl class="field-list simple">
@@ -1407,22 +988,19 @@ as a function of the density rho</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXGSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings" title="Link to this definition"></a></dt>
-<dd><p>Initialize SDMXGSettings</p>
-<dl class="field-list simple">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXFullSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pows</strong> (<em>list of int</em>) – list of 0, 1, 2, see SDMXSettings docstring.</p></li>
-<li><p><strong>ndt</strong> (<em>int</em>) – Number of gradient features <span class="math notranslate nohighlight">\(H_n^d\)</span>. Computes
-features for the first <code class="docutils literal notranslate"><span class="pre">ndt</span></code> values of <span class="math notranslate nohighlight">\(n\)</span> in
-<code class="docutils literal notranslate"><span class="pre">pows</span></code>.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>settings_dict</strong> (<em>dict</em>) – Each key is float. Each value
+is a 2-tuple. The first item is a list of pows.
+The second item is a 4-list/tuple with the number
+of pows for 0, d, 1, and 1d features.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.get_feat_usps" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.get_feat_usps">
+<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.get_feat_usps" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
@@ -1431,8 +1009,8 @@ features for the first <code class="docutils literal notranslate"><span class="p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of normalizers for these features</p>
@@ -1444,15 +1022,15 @@ features for the first <code class="docutils literal notranslate"><span class="p
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.nfeat" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.nfeat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.nfeat" title="Link to this definition"></a></dt>
 <dd><p>Returns:
 Number of features in this feature set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXGSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXGSettings.ueg_vector" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXFullSettings.ueg_vector">
+<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXFullSettings.ueg_vector" title="Link to this definition"></a></dt>
 <dd><p>Return the feature vector for the uniform electron gas
 as a function of the density rho</p>
 <dl class="field-list simple">
@@ -1470,135 +1048,9 @@ as a function of the density rho</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SDMXSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pows</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings" title="Link to this definition"></a></dt>
-<dd><p>Initialize SDMX settings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pows</strong> (<em>list of int</em>) – For each <span class="math notranslate nohighlight">\(n\)</span> in <code class="docutils literal notranslate"><span class="pre">pows</span></code>,
-<span class="math notranslate nohighlight">\(\int \mathrm{d}R\,R^{2-n}\rho_{\mathrm{smooth}}(R)\)</span>
-is computed. Technically, <span class="math notranslate nohighlight">\(n\)</span> can be any float, but it
-should be 0, 1, or 2 for
-normalizability and ability to compute UEG values.
-If not 0, 1, or 2, UEG limit cannot be computed,
-and features might be poorly defined/numerically inaccurate.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.nfeat" title="Link to this definition"></a></dt>
-<dd><p>Returns:
-Number of features in this feature set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SDMXSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SDMXSettings.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SPEC_USPS">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SPEC_USPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'grad_rho':</span> <span class="pre">4,</span> <span class="pre">'rinv2_rinv4':</span> <span class="pre">0,</span> <span class="pre">'rinv4_rinv2':</span> <span class="pre">0,</span> <span class="pre">'se':</span> <span class="pre">0,</span> <span class="pre">'se_a2r4':</span> <span class="pre">0,</span> <span class="pre">'se_ap':</span> <span class="pre">2,</span> <span class="pre">'se_ap2r2':</span> <span class="pre">2,</span> <span class="pre">'se_apr2':</span> <span class="pre">0,</span> <span class="pre">'se_ar2':</span> <span class="pre">0,</span> <span class="pre">'se_erf_rinv':</span> <span class="pre">0,</span> <span class="pre">'se_grad':</span> <span class="pre">1,</span> <span class="pre">'se_lapl':</span> <span class="pre">2,</span> <span class="pre">'se_r2':</span> <span class="pre">-2,</span> <span class="pre">'se_rinv2':</span> <span class="pre">0,</span> <span class="pre">'se_rinv4':</span> <span class="pre">0,</span> <span class="pre">'se_rvec':</span> <span class="pre">-1}</span></span><a class="headerlink" href="#ciderpress.dft.settings.SPEC_USPS" title="Link to this definition"></a></dt>
-<dd><p>Uniform-scaling powers (USPs) describe how features scale under
-<span class="math notranslate nohighlight">\(n_\lambda(\mathbf r)=\lambda^3n(\lambda\mathbf r)\)</span>. If the USP of a
-functional <span class="math notranslate nohighlight">\(F\)</span> is <span class="math notranslate nohighlight">\(u\)</span>, then
-<span class="math notranslate nohighlight">\(F[n_\lambda](\mathbf r)=\lambda^uF[n](\lambda\mathbf r)\)</span>.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">SemilocalSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nst'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings" title="Link to this definition"></a></dt>
-<dd><p>Semilocal feature set. Currently only supports meta-GGA.
-Should not be edited from default in general.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.get_feat_usps">
-<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.get_feat_usps" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer">
-<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of normalizers for these features</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.nfeat">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.nfeat" title="Link to this definition"></a></dt>
-<dd><p>Returns:
-Number of features in this feature set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.settings.SemilocalSettings.ueg_vector">
-<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.SemilocalSettings.ueg_vector" title="Link to this definition"></a></dt>
-<dd><p>Return the feature vector for the uniform electron gas
-as a function of the density rho</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>UEG feature vector</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray(float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+</section>
+<section id="semilocal-helper-functions">
+<h2>Semilocal helper functions<a class="headerlink" href="#semilocal-helper-functions" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.get_cider_exponent">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">get_cider_exponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03125</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhocut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.get_cider_exponent" title="Link to this definition"></a></dt>
@@ -1611,6 +1063,27 @@ as a function of the density rho</p>
 <dd><p>Evaluate an NLDF length-scale exponent at the GGA level.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.get_uniform_tau">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">get_uniform_tau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.get_uniform_tau" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.get_single_orbital_tau">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">get_single_orbital_tau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_grad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.get_single_orbital_tau" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.get_s2">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">get_s2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.get_s2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.get_alpha">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">get_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.get_alpha" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
 </section>
 
 
@@ -1618,7 +1091,7 @@ as a function of the density rho</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="dft.html" class="btn btn-neutral float-left" title="Core DFT Representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="plans.html" class="btn btn-neutral float-right" title="The Plans Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="plans.html" class="btn btn-neutral float-right" title="Feature Evaluation Plans" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

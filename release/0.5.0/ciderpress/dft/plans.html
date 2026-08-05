@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Plans Module &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Feature Evaluation Plans &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -16,12 +16,11 @@
       <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="The Feature Normalizer Module" href="feat_normalizer.html" />
-    <link rel="prev" title="The Settings Module" href="settings.html" /> 
+    <link rel="next" title="Common LCAO NLDF Infrastructure" href="lcao_numerical.html" />
+    <link rel="prev" title="Feature Settings" href="settings.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -70,33 +69,24 @@
 <p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="dft.html">Core DFT Representation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="settings.html">The Settings Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The Plans Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.plans.FracLaplPlan"><code class="docutils literal notranslate"><span class="pre">FracLaplPlan</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_feat_exp"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan.eval_feat_exp()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_full"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan.eval_rho_full()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_full"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan.eval_vxc_full()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_function_to_convolve"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan.get_function_to_convolve()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_q2a"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan.get_q2a()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vj"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan.num_vj</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#regression-coordinates">Regression coordinates</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dft.html#energy-composition-and-evaluation">Energy composition and evaluation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Feature Evaluation Plans</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFGaussianPlan"><code class="docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFSplinePlan"><code class="docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.plans.NLDFGaussianPlan"><code class="docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.plans.NLDFSplinePlan"><code class="docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFSplinePlan.get_a2q_fast"><code class="docutils literal notranslate"><span class="pre">NLDFSplinePlan.get_a2q_fast()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transform_data.html">Bounded Regression Coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.plans.SADMPlan"><code class="docutils literal notranslate"><span class="pre">SADMPlan</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SADMPlan.get_features"><code class="docutils literal notranslate"><span class="pre">SADMPlan.get_features()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="xc_evaluator.html">The XC Evaluator Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
@@ -125,7 +115,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
-      <li class="breadcrumb-item active">The Plans Module</li>
+      <li class="breadcrumb-item active">Feature Evaluation Plans</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/dft/plans.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -135,26 +125,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-ciderpress.dft.plans">
-<span id="the-plans-module"></span><span id="plans-module"></span><h1>The Plans Module<a class="headerlink" href="#module-ciderpress.dft.plans" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.plans.FracLaplPlan">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">FracLaplPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrho_sl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.FracLaplPlan" title="Link to this definition"></a></dt>
-<dd><p>Plan for the Fractional Laplacian features. These features do not
-require additional settings for how to compute them, so this
-class basically just stores the settings class and nspin. Currently,
-evaluation of the orbital operations must be implemented
-in each DFT code separately.</p>
-<p>Initialize FracLaplPlan instance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>settings</strong> (<em>FracLaplSettings</em>) – settings for the fractional
-laplacian descriptors</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
+  <section id="feature-evaluation-plans">
+<span id="plans-module"></span><h1>Feature Evaluation Plans<a class="headerlink" href="#feature-evaluation-plans" title="Link to this heading"></a></h1>
+<p>Plans implement the forward evaluation and adjoint derivatives associated
+with settings objects.  Backend adapters supply their grid and electronic
+arrays, and the plan preserves raw feature order and spin conventions.</p>
+<dl class="py class" id="module-ciderpress.dft.plans">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">NLDFAuxiliaryPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nldf_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gq'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'etb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhocut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_large_expnt_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_smooth_expnt_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan" title="Link to this definition"></a></dt>
 <dd><p>Plan for expanding the NLDFs using an auxiliary basis or spline.
@@ -418,47 +394,14 @@ for the local alphas.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.plans.SADMPlan">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SADMPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ovlp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SADMPlan" title="Link to this definition"></a></dt>
-<dd><p>Plan for evaluating exchange energy of spherically averaged density
-matrix. Stores the settings (basically an empty class since the feature
-is not tunable, though local range separation might be added later),
-the nspin, and paramters for an even-tempered Gaussian basis for
-expanding the spherically averaged density matrix. Currently,
-evaluation of the integrals must be implemented in each DFT code separately.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>settings</strong> (<em>SADMSettings</em>) – Settings for the descriptor.</p></li>
-<li><p><strong>nspin</strong> (<em>int</em>) – Number of spins, 2 for spin-polarized and 1 for
-non-spin-polarized</p></li>
-<li><p><strong>alpha0</strong> (<em>float</em>) – Minimum exponent. <span class="math notranslate nohighlight">\(1/\sqrt{\alpha_0}\)</span> should be at least
-the width of the system, or altneratively the maximum distance
-at which the exchange hole is expected to have significant density.</p></li>
-<li><p><strong>lambd</strong> (<em>float</em>) – ETB lambda parameter</p></li>
-<li><p><strong>nalpha</strong> (<em>int</em>) – Number of ETB basis functions</p></li>
-<li><p><strong>fit_metric</strong> (<em>str</em>) – ‘ovlp’ or ‘coul’, the metric for expanding the
-density matrix in the auxiliary basis.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.dft.plans.SADMPlan.get_features">
-<span class="sig-name descname"><span class="pre">get_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_vag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0tmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1tmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SADMPlan.get_features" title="Link to this definition"></a></dt>
-<dd><p>Should pass out[idm], l0tmp[idm], etc. to this function</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="settings.html" class="btn btn-neutral float-left" title="The Settings Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="feat_normalizer.html" class="btn btn-neutral float-right" title="The Feature Normalizer Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="settings.html" class="btn btn-neutral float-left" title="Feature Settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lcao_numerical.html" class="btn btn-neutral float-right" title="Common LCAO NLDF Infrastructure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

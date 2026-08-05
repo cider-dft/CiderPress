@@ -111,9 +111,8 @@
              
   <section id="recording-and-checking-a-calculation">
 <h1>Recording and Checking a Calculation<a class="headerlink" href="#recording-and-checking-a-calculation" title="Link to this heading"></a></h1>
-<p>A converged SCF flag is necessary but does not by itself identify the
-functional, numerical representation, or electronic state.  Preserve enough
-information to reconstruct all three.</p>
+<p>Record the functional, numerical representation, and electronic state
+alongside the converged SCF flag.  Together these identify the calculation.</p>
 <section id="functional-identity">
 <h2>Functional identity<a class="headerlink" href="#functional-identity" title="Link to this heading"></a></h2>
 <p>Record the CiderPress version, model short name, model SHA-256, and complete
@@ -136,23 +135,21 @@ calculation began from PBE or a CIDER checkpoint.</p>
 <section id="recommended-checks-for-a-final-calculation">
 <h2>Recommended checks for a final calculation<a class="headerlink" href="#recommended-checks-for-a-final-calculation" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Confirm energy, density, and orbital/eigenstate criteria rather than relying
-on the final energy alone.</p></li>
+<li><p>Confirm the energy, density, and orbital/eigenstate criteria.</p></li>
 <li><p>Inspect occupations, gaps, spin expectation values, and total/local magnetic
 moments where relevant.</p></li>
 <li><p>Verify that a restarted calculation retains the intended model and numerical
 controls.</p></li>
-<li><p>Repeat a final calculation without temporary level shifting, damping, or
-deliberately relaxed tolerances unless those settings define the reported
-method.</p></li>
+<li><p>Record level shifting, damping, smearing, and relaxed tolerances when they
+are used.  Test the sensitivity of the requested property to these controls.</p></li>
 <li><p>Converge the numerical parameters that affect the requested difference,
 force, or stress.</p></li>
 <li><p>Preserve the input, text output, checkpoint, environment/package versions,
 and model hash together.</p></li>
 </ul>
 <p>When a calculation follows a geometry or parameter series, compare adjacent
-states for discontinuous occupation or magnetic changes.  A previous density
-is a useful starting point only while the intended electronic state remains
+states for discontinuous occupation or magnetic changes.  Use a previous
+density as the starting point when the intended electronic state remains
 continuous.</p>
 </section>
 </section>

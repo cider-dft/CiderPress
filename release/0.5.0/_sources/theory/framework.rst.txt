@@ -25,39 +25,33 @@ applies the following sequence:
        -> XC energy density and feature derivatives
        -> XC potential, forces, and stress
 
-The same model object therefore contains more than regression coefficients.
-Its :class:`~ciderpress.dft.settings.FeatureSettings` identify the required
-electronic ingredients, its feature transforms define the coordinates seen by
-the regression, and its mapped evaluators return both the energy density and
-the derivatives needed for self-consistency.
+The model object contains regression coefficients together with
+:class:`~ciderpress.dft.settings.FeatureSettings`, feature transforms, and
+mapped evaluators.  These objects identify the required electronic
+ingredients, define the regression coordinates, and return the energy density
+and derivatives needed for self-consistency.
 
 Why nonlocal electronic features?
 ---------------------------------
 
-A semilocal functional sees only the density and a small set of derivatives at
-one point.  CIDER augments those quantities with descriptors constructed from
-the density or density matrix over a finite neighborhood.  These descriptors
-are geometry independent: they are defined from the electronic state rather
-than atom types, bonds, or a graph of the structure.  The same functional can
-therefore be evaluated for molecules, solids, and surfaces.
+A semilocal functional uses the density and a small set of derivatives at one
+point.  CIDER augments those quantities with descriptors constructed from the
+density or density matrix over a finite neighborhood.  The descriptors derive
+from the electronic state and are independent of atom types, bonds, or a
+structural graph.  The same functional can therefore be evaluated for
+molecules, solids, and surfaces.
 
 The original CIDER representation was designed so that its exchange features
-obey simple uniform-coordinate-scaling rules.  This allows an exact exchange
-constraint to be enforced by construction instead of learned from data.  See
+obey simple uniform-coordinate-scaling rules.  This construction encodes the
+exact exchange scaling constraint.  See
 :doc:`uniform_scaling` and :doc:`../features/features` for the corresponding
 feature definitions.
 
-Published functional families
------------------------------
+Packaged functional families
+----------------------------
 
-The published CIDER developments use the same broad framework but expose
-different information and learn different quantities:
-
-``CIDER22X``
-   Introduced nonlocal, scale-invariant density features and learned exchange
-   energy densities under exact constraints.  This is the conceptual origin
-   of the framework; CiderPress 0.5.0 does not ship a CIDER22X inference
-   file. :footcite:t:`CIDER22X`
+The packaged functional families differ in their descriptors, training
+labels, and learned energy contributions:
 
 ``CIDER23X``
    Redesigned the nonlocal density features for efficient molecular and
@@ -67,9 +61,10 @@ different information and learn different quantities:
 
 ``CIDER24X``
    Introduced smoothed density-matrix exchange (SDMX) descriptors and extended
-   Gaussian-process training to orbital-energy labels.  ``CIDER24Xe`` includes
-   eigenvalue information; ``CIDER24Xne`` does not.  These models require
-   PyTorch and are evaluated through PySCF. :footcite:t:`CIDER24X`
+   Gaussian-process training to orbital-energy labels.  ``CIDER24Xe`` uses
+   energy and eigenvalue information; ``CIDER24Xne`` uses energy information.
+   These models require PyTorch and are evaluated through PySCF.
+   :footcite:t:`CIDER24X`
 
 ``CIDER26XC``
    Extends the framework from exchange to the full XC energy.  Separate
@@ -78,10 +73,9 @@ different information and learn different quantities:
    molecular--surface-science variants are provided.  See :doc:`full_xc`.
    :footcite:t:`CIDER26XC`
 
-The model families are not interchangeable names for the same functional.
-Their feature requirements, learned energy contribution, external baseline,
-and supported backends differ.  The executable selection matrix is given in
-:doc:`../usage/production_models`.
+The :doc:`model guide <../usage/production_models>` lists the feature
+requirements, learned energy contribution, external baseline, and supported
+backends for each family.
 
 Relationship to the code
 ------------------------

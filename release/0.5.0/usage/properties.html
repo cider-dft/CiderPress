@@ -112,10 +112,10 @@
   <section id="energies-and-derivative-properties">
 <h1>Energies and Derivative Properties<a class="headerlink" href="#energies-and-derivative-properties" title="Link to this heading"></a></h1>
 <p>CIDER models participate in a self-consistent calculation through their
-energy density and functional derivatives.  Property support nevertheless
-depends on the feature family, backend, and any additive correction.</p>
+energy density and functional derivatives.  Property support depends on the
+feature family, backend, and any additive correction.</p>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Property support in the documented production paths</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<caption><span class="caption-text">Property support in the documented calculation paths</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 28.0%" />
 <col style="width: 24.0%" />
@@ -153,7 +153,7 @@ depends on the feature family, backend, and any additive correction.</p>
 <tr class="row-even"><td><p>Hessians and response properties</p></td>
 <td><p>Not implemented by the CIDER decorator</p></td>
 <td><p>Not implemented</p></td>
-<td><p>Not documented as a production interface</p></td>
+<td><p>Outside the documented interface</p></td>
 </tr>
 </tbody>
 </table>
@@ -205,9 +205,9 @@ converged mean-field object:</p>
 response of the atom-centered integration grid.  Converge the electronic SCF,
 basis, quadrature grid, and density-fitting treatment before interpreting a
 gradient.</p>
-<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 only to the final energy.  Its D4 derivative is not
-included in <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code>.  A geometry optimization of the composite
-CIDER+D4 energy therefore requires a separate implementation of the D4 force.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 to the final energy.  <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code> returns
+the electronic CIDER gradient.  A geometry optimization of the composite
+CIDER+D4 energy requires a separate implementation of the D4 force.</p>
 </section>
 <section id="periodic-forces-and-stress">
 <h2>Periodic forces and stress<a class="headerlink" href="#periodic-forces-and-stress" title="Link to this heading"></a></h2>
@@ -251,10 +251,9 @@ SCF has converged:</p>
 </pre></div>
 </div>
 <p>The analytical contribution includes the FFT feature response and PAW/PASDW
-terms.  Production meta-GGA forces and stress are unavailable with
-norm-conserving pseudopotentials.  Converge the plane-wave cutoff, k-point
-mesh, cell, PAW setups, and electronic criteria for the derivative—not only
-for the total energy.</p>
+terms.  The supported meta-GGA force and stress route uses PAW setups.
+Converge the plane-wave cutoff, k-point mesh, cell, PAW setups, and electronic
+criteria to the accuracy required by the derivative.</p>
 </section>
 <section id="energy-differences">
 <h2>Energy differences<a class="headerlink" href="#energy-differences" title="Link to this heading"></a></h2>
@@ -266,8 +265,8 @@ member.</p></li>
 <li><p>Apply D4 exactly once to every applicable structure.</p></li>
 <li><p>Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
 smearing conventions.</p></li>
-<li><p>Converge isolated references in their own representation instead of
-assuming error cancellation with a periodic system.</p></li>
+<li><p>Converge isolated references in their own representation to the accuracy
+required by the energy difference.</p></li>
 </ul>
 <p>See <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for the associated reporting checklist.</p>
 </section>

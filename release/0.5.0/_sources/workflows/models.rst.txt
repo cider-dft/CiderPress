@@ -1,34 +1,42 @@
 Model Objects and Mapping
 =========================
 
-Model contents
---------------
+Contents of a mapped functional
+-------------------------------
 
-A mapped CIDER functional contains four coupled layers:
+A mapped CIDER functional combines the scientific choices needed to evaluate
+one energy form:
 
-``FeatureSettings``
-   Declares semilocal, NLDF, SDMX, nonlocal-orbital, and other electronic
-   ingredients.  Backends inspect these settings to choose their numerical
-   integrator.
+Feature settings
+   :class:`~ciderpress.dft.settings.FeatureSettings` records the ordered
+   semilocal, NLDF, and SDMX blocks required by the model.  A backend uses
+   these settings to construct its numerical integrator.
 
 Normalizers and transforms
-   Convert raw density-dependent quantities into physically normalized and
-   bounded regression coordinates.  Normalization can carry exact scaling
-   behavior; bounded transforms improve regression and extrapolation behavior.
+   Physical normalizers convert raw electronic quantities into descriptors
+   with the scaling behavior chosen for the functional.  Bounded transforms
+   produce the coordinates used by the regression model.
 
-Mapped kernels
-   Evaluate the learned enhancement or correction from control points and
-   return derivatives with respect to every transformed input.
+Mapped kernels and baselines
+   Each kernel combines a learned function with additive and multiplicative
+   energy-density baselines.  It returns the energy contribution and
+   derivatives with respect to every raw input.
 
-Energy baselines and contracts
-   Define additive and multiplicative energy-density factors, optional libxc
-   contributions, and metadata such as a fitted D4 correction.
+Evaluation representation
+   A mapped kernel can evaluate control-point RBFs directly or use a fitted
+   spline or neural representation.  The evaluator type is stored in the
+   model file.
+
+Functional metadata
+   The top-level object records feature settings, optional libxc composition,
+   and fitted correction metadata such as the D4 term associated with
+   ``CIDER26XCCHEMD4``.
 
 Loading and inspection
 ----------------------
 
-Use :func:`ciderpress.dft.model_utils.load_cider_model` for a packaged name or
-trusted explicit path:
+Use :func:`ciderpress.dft.model_utils.load_cider_model` with a packaged name
+or trusted explicit path:
 
 .. code-block:: python
 
@@ -40,39 +48,71 @@ trusted explicit path:
    print(model.settings.sl_settings.level)
    print(model.settings.nldf_settings.version)
 
-The backend is selected from the stored settings, not from the filename.  A
-filename is nevertheless part of the public scientific identity and should
-not be repurposed for a different model.
+The stored settings determine the backend requirements.  A model's short
+name and checksum identify the released scientific artifact; the checksum
+table is in :doc:`../usage/production_models`.
 
 Trainable and mapped representations
 ------------------------------------
 
-The :mod:`ciderpress.models.train` classes assemble covariances between
-integrated electronic systems and the model's control points.  After fitting,
-``map(mapping_plans)`` converts each trainable kernel into a mapped kernel.
-Mapping plans choose an evaluator representation appropriate to the kernel;
-the resulting object can be serialized and evaluated without the training
-database.
+:class:`~ciderpress.models.dft_kernel.DFTKernel` and
+:class:`~ciderpress.models.dft_kernel.DFTKernel2` hold a covariance kernel,
+feature transforms, control points, and energy baselines.  A
+:class:`~ciderpress.models.train.MOLGP` or
+:class:`~ciderpress.models.train.MOLGP2` combines one or more such kernels
+with feature settings, integrated system observations, reaction definitions,
+and noise assignments.
 
-``MOLGP`` and :class:`~ciderpress.dft.xc_evaluator.MappedXC` provide the
-original single-output evaluation interface.  ``MOLGP2`` and
-:class:`~ciderpress.dft.xc_evaluator2.MappedXC2` support separate exchange
-and correlation components and the additional density inputs required by the
-full-XC form.  CIDER26XC uses the latter representation.
+After fitting, ``MOLGP.map(mapping_plans)`` or
+``MOLGP2.map(mapping_plans)`` performs the following conversion:
 
-Model files
------------
+1. Each mapping plan constructs a
+   :class:`~ciderpress.dft.xc_evaluator.FuncEvaluator` for its trained kernel.
+2. The evaluator, transforms, mode, and baselines form a mapped DFT kernel.
+3. The mapped kernels and shared settings form
+   :class:`~ciderpress.dft.xc_evaluator.MappedXC` or
+   :class:`~ciderpress.dft.xc_evaluator2.MappedXC2`.
+4. Correction metadata is copied to the mapped object before YAML
+   serialization.
 
-Joblib files normally store a trainable Python object, including training and
-mapping state.  Mapped YAML stores an inference object and is the preferred
-artifact for calculations and release packaging.  Model-specific metadata,
-including the D4 fit/evaluation behavior, must survive the joblib-to-YAML
-mapping step.
+The packaged families illustrate three evaluator choices.  CIDER23X uses
+mapped spline evaluators.  CIDER24X uses a neural evaluator trained to
+reproduce its GP.  CIDER26XC stores the sparse control-point prediction in an
+optimized RBF evaluator, preserving direct evaluation of that GP form.
 
-Both formats reconstruct Python objects and are unsafe when obtained from an
-untrusted source.  A release artifact should have a stable filename and
-checksum and should be tested through the same backend entry points users will
-call.
+Baselines and functional composition
+------------------------------------
 
-See :doc:`training` for the data boundary and the API reference under
-:doc:`../ciderpress/models/models` for individual classes.
+For the original evaluator interface, ``DFTKernel`` accepts Python baseline
+callables from :mod:`ciderpress.dft.baselines`.  Its local energy contribution
+has the form
+
+.. math::
+
+   e(\mathbf X)=a(\mathbf X)+m(\mathbf X)f_\mathrm{ML}(\mathbf X).
+
+``DFTKernel2`` identifies additive and multiplicative baselines by libxc
+string and evaluates their energy and derivative terms through
+``MappedDFTKernel2``.  This interface supplies the separate exchange and
+correlation components in CIDER26XC.  See :doc:`../ciderpress/dft/baselines`
+for the baseline API and :doc:`../theory/full_xc` for the CIDER26XC energy
+form.
+
+Serialization and validation
+----------------------------
+
+Joblib files store trainable Python objects and their fitting state.  Mapped
+YAML stores the inference object used by the calculation interfaces.  Both
+formats reconstruct Python objects and should be loaded from trusted sources.
+
+Validate a mapped artifact against:
+
+* pointwise predictions and feature derivatives against the trainable model;
+* fixed-density integrated energies on representative systems;
+* self-consistent energy composition in each supported backend;
+* analytical derivatives against finite differences at matched numerical
+  settings; and
+* YAML round trips, correction metadata, short name, and checksum.
+
+See :doc:`training` for the expected training-data boundary and
+:doc:`../ciderpress/models/models` for the regression APIs.

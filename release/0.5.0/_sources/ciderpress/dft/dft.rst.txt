@@ -4,48 +4,55 @@ Core DFT Representation
 The ``ciderpress.dft`` package defines the backend-independent contract
 between an electronic feature representation and a mapped XC model.  A
 backend reads the stored settings, computes the requested raw features, calls
-the evaluator, and propagates the returned feature derivatives back to its
-density or density matrix.  Start with :doc:`../../theory/framework` for the
-scientific data flow and use the pages below for individual objects.
+the evaluator, and propagates the returned feature derivatives to its density
+or density matrix.  :doc:`../../theory/framework` introduces the scientific
+data flow; the pages below document the corresponding objects.
 
-* The :mod:`ciderpress.dft.settings` module consists of classes
-  for specifying the types of features to be computed
-  for an ML model along with the parametrizations of those features.
-* The :mod:`ciderpress.dft.plans` module provides classes
-  that specify *how* a given set of features is to be computed.
-  For example, an instance of
-  :class:`~ciderpress.dft.settings.NLDFSettingsVJ` specifies that version-j
-  :ref:`NLDF <nldf_feat>` features are required, and an instance of
-  :class:`~ciderpress.dft.plans.NLDFSplinePlan` specifies their spline-based
-  evaluation (see
-  :ref:`NLDF Numerical Evaluation <nldf_numerical>`).
-* The :mod:`ciderpress.dft.feat_normalizer` module provides
-  utilities to transform "raw" features (which might not be scale-invariant)
-  to scale-invariant "normalized features". Note it is not necessary to make
-  every feature scale-invariant unless you want to enforce the uniform
-  scaling rule for exchange.
-* The :mod:`ciderpress.dft.transform_data` module provides
-  utilities to transform "normalized" features (which do not necessarily fall
-  in a finite interval, making them unwieldy for ML models) into
-  "transformed" features suitable for direct input into Gaussian process
-  regression.
-* The :mod:`ciderpress.dft.xc_evaluator` and
-  :mod:`ciderpress.dft.xc_evaluator2`
-  modules provide tools to efficiently evaluate trained CIDER models.
-* The :mod:`ciderpress.dft.model_utils` module resolves packaged model names
-  and trusted YAML/joblib paths.
+Settings and numerical plans
+----------------------------
 
-Settings are serialized scientific state.  Feature order, normalization,
-spin treatment, energy baselines, and the distinction between exchange-only
-and full-XC evaluators must be preserved when a model is mapped or extended.
-See :doc:`../../workflows/extending` before changing these interfaces.
+:mod:`ciderpress.dft.settings` declares the ordered semilocal, NLDF, and SDMX
+features and their parameters.  :mod:`ciderpress.dft.plans` implements their
+backend-neutral forward and adjoint operations.  For example,
+:class:`~ciderpress.dft.settings.NLDFSettingsVJ` defines version-j NLDF
+features, and :class:`~ciderpress.dft.plans.NLDFSplinePlan` defines one
+interpolation representation for them.  The numerical algorithm is described
+in :ref:`nldf_numerical`.
+
+Regression coordinates
+----------------------
+
+:mod:`ciderpress.dft.feat_normalizer` converts raw electronic quantities into
+descriptors with the scaling behavior chosen for the functional.
+:mod:`ciderpress.dft.transform_data` applies the bounded maps used by the
+regression.  Scale-invariant coordinates support the exchange scaling
+construction in :doc:`../../theory/uniform_scaling`; full-XC correlation
+models can retain explicit density dependence.
+
+Energy composition and evaluation
+---------------------------------
+
+:mod:`ciderpress.dft.baselines` provides additive and multiplicative
+energy-density factors for model construction.  The
+:mod:`ciderpress.dft.xc_evaluator` and
+:mod:`ciderpress.dft.xc_evaluator2` modules combine those factors with mapped
+spline, neural, or direct RBF predictions and return feature derivatives.
+:mod:`ciderpress.dft.model_utils` resolves packaged model names and trusted
+YAML/joblib paths.
+
+Settings, feature order, normalization, spin treatment, energy baselines, and
+evaluator type form part of the functional definition.  Preserve them together
+when mapping or extending a model.  The extension contract is described in
+:doc:`../../workflows/extending`.
 
 .. toctree::
    :maxdepth: 1
 
    settings
    plans
+   lcao_numerical
    feat_normalizer
    transform_data
+   baselines
    xc_evaluator
    model_utils

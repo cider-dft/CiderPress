@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ciderpress.models.kernels &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Differentiable Covariance Kernels &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Kernel Tools" href="kernel_tools.html" />
-    <link rel="prev" title="ciderpress.models.dft_kernel" href="dft_kernel.html" /> 
+    <link rel="prev" title="DFT Kernels" href="dft_kernel.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -71,19 +71,9 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="models.html">Regression, Training, and Mapping APIs</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="train.html">ciderpress.models.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dft_kernel.html">ciderpress.models.dft_kernel</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ciderpress.models.kernels</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel"><code class="docutils literal notranslate"><span class="pre">ADKernel</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.bounds"><code class="docutils literal notranslate"><span class="pre">ADKernel.bounds</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.diag"><code class="docutils literal notranslate"><span class="pre">ADKernel.diag()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.get_params"><code class="docutils literal notranslate"><span class="pre">ADKernel.get_params()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.hyperparameters"><code class="docutils literal notranslate"><span class="pre">ADKernel.hyperparameters</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.is_stationary"><code class="docutils literal notranslate"><span class="pre">ADKernel.is_stationary()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.requires_vector_input"><code class="docutils literal notranslate"><span class="pre">ADKernel.requires_vector_input</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.ADKernel.theta"><code class="docutils literal notranslate"><span class="pre">ADKernel.theta</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="train.html">Integrated-System GP Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft_kernel.html">DFT Kernels</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Differentiable Covariance Kernels</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DensityNoise"><code class="docutils literal notranslate"><span class="pre">DensityNoise</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DensityNoise.diag"><code class="docutils literal notranslate"><span class="pre">DensityNoise.diag()</span></code></a></li>
 </ul>
@@ -105,16 +95,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffAddRQ.is_stationary"><code class="docutils literal notranslate"><span class="pre">DiffAddRQ.is_stationary()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffAdditiveMixin"><code class="docutils literal notranslate"><span class="pre">DiffAdditiveMixin</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffAdditiveMixin.diag"><code class="docutils literal notranslate"><span class="pre">DiffAdditiveMixin.diag()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffAntisymRBF"><code class="docutils literal notranslate"><span class="pre">DiffAntisymRBF</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffAntisymRBF.k_and_deriv"><code class="docutils literal notranslate"><span class="pre">DiffAntisymRBF.k_and_deriv()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffConstantKernel"><code class="docutils literal notranslate"><span class="pre">DiffConstantKernel</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffExponentiation"><code class="docutils literal notranslate"><span class="pre">DiffExponentiation</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffLinearKernel"><code class="docutils literal notranslate"><span class="pre">DiffLinearKernel</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffLinearKernel.diag"><code class="docutils literal notranslate"><span class="pre">DiffLinearKernel.diag()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffLinearKernel.is_stationary"><code class="docutils literal notranslate"><span class="pre">DiffLinearKernel.is_stationary()</span></code></a></li>
@@ -125,12 +110,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffPolyKernel.is_stationary"><code class="docutils literal notranslate"><span class="pre">DiffPolyKernel.is_stationary()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffProduct"><code class="docutils literal notranslate"><span class="pre">DiffProduct</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffRBF"><code class="docutils literal notranslate"><span class="pre">DiffRBF</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffRBF.k_and_deriv"><code class="docutils literal notranslate"><span class="pre">DiffRBF.k_and_deriv()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffSum"><code class="docutils literal notranslate"><span class="pre">DiffSum</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.DiffTransform"><code class="docutils literal notranslate"><span class="pre">DiffTransform</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffTransform.bounds"><code class="docutils literal notranslate"><span class="pre">DiffTransform.bounds</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.DiffTransform.diag"><code class="docutils literal notranslate"><span class="pre">DiffTransform.diag()</span></code></a></li>
@@ -155,24 +138,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.PartialRBF.k_and_deriv"><code class="docutils literal notranslate"><span class="pre">PartialRBF.k_and_deriv()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.QARBF"><code class="docutils literal notranslate"><span class="pre">QARBF</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.QARBF.diag"><code class="docutils literal notranslate"><span class="pre">QARBF.diag()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SingleDot"><code class="docutils literal notranslate"><span class="pre">SingleDot</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SingleRBF"><code class="docutils literal notranslate"><span class="pre">SingleRBF</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SpinSymARBF"><code class="docutils literal notranslate"><span class="pre">SpinSymARBF</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SpinSymKernel"><code class="docutils literal notranslate"><span class="pre">SpinSymKernel</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.kernels.SpinSymKernel.get_params"><code class="docutils literal notranslate"><span class="pre">SpinSymKernel.get_params()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SpinSymPoly"><code class="docutils literal notranslate"><span class="pre">SpinSymPoly</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SpinSymRBF"><code class="docutils literal notranslate"><span class="pre">SpinSymRBF</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SubsetARBF"><code class="docutils literal notranslate"><span class="pre">SubsetARBF</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SubsetAddLLRBF"><code class="docutils literal notranslate"><span class="pre">SubsetAddLLRBF</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SubsetAddRQ"><code class="docutils literal notranslate"><span class="pre">SubsetAddRQ</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SubsetPoly"><code class="docutils literal notranslate"><span class="pre">SubsetPoly</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.kernels.SubsetRBF"><code class="docutils literal notranslate"><span class="pre">SubsetRBF</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="kernel_tools.html">Kernel Tools</a></li>
@@ -203,7 +171,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="models.html">Regression, Training, and Mapping APIs</a></li>
-      <li class="breadcrumb-item active">ciderpress.models.kernels</li>
+      <li class="breadcrumb-item active">Differentiable Covariance Kernels</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/models/kernels.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -213,90 +181,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-ciderpress.models.kernels">
-<span id="ciderpress-models-kernels"></span><h1>ciderpress.models.kernels<a class="headerlink" href="#module-ciderpress.models.kernels" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">ADKernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_dims</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel" title="Link to this definition"></a></dt>
-<dd><dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.bounds">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.bounds" title="Link to this definition"></a></dt>
-<dd><p>Returns the log-transformed bounds on the theta.
-:returns: <strong>bounds</strong> – The log-transformed bounds on the kernel’s hyperparameters theta
-:rtype: ndarray of shape (n_dims, 2)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.diag">
-<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.diag" title="Link to this definition"></a></dt>
-<dd><p>Returns the diagonal of the kernel k(X, X).</p>
-<p>The result of this method is identical to np.diag(self(X)); however,
-it can be evaluated more efficiently since only the diagonal is
-evaluated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>array-like of shape (n_samples,)</em>) – Left argument of the returned kernel k(X, Y)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>K_diag</strong> – Diagonal of kernel k(X, X)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray of shape (n_samples_X,)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.get_params" title="Link to this definition"></a></dt>
-<dd><p>Get parameters of this kernel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deep</strong> (<em>bool, default=True</em>) – If True, will return the parameters for this estimator and
-contained subobjects that are estimators.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>params</strong> – Parameter names mapped to their values.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.hyperparameters">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">hyperparameters</span></span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.hyperparameters" title="Link to this definition"></a></dt>
-<dd><p>Returns a list of all hyperparameter.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.is_stationary">
-<span class="sig-name descname"><span class="pre">is_stationary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.is_stationary" title="Link to this definition"></a></dt>
-<dd><p>Returns whether the kernel is stationary.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.requires_vector_input">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">requires_vector_input</span></span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.requires_vector_input" title="Link to this definition"></a></dt>
-<dd><p>Returns whether the kernel is stationary.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.ADKernel.theta">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">theta</span></span><a class="headerlink" href="#ciderpress.models.kernels.ADKernel.theta" title="Link to this definition"></a></dt>
-<dd><p>Returns the (flattened, log-transformed) non-fixed hyperparameters.
-Note that theta are typically the log-transformed values of the
-kernel’s hyperparameters as this representation of the search space
-is more amenable for hyperparameter search, as hyperparameters like
-length-scales naturally live on a log-scale.
-:returns: <strong>theta</strong> – The non-fixed, log-transformed hyperparameters of the kernel
-:rtype: ndarray of shape (n_dims,)</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
+  <section id="differentiable-covariance-kernels">
+<h1>Differentiable Covariance Kernels<a class="headerlink" href="#differentiable-covariance-kernels" title="Link to this heading"></a></h1>
+<p>These kernels extend scikit-learn covariance objects with derivatives with
+respect to descriptor coordinates.  DFT kernels use those derivatives to
+construct XC potentials and occupation-derivative observations.  Subset and
+spin-symmetry wrappers apply a base kernel to selected coordinates and
+preserve the corresponding derivative layout.</p>
+<dl class="py class" id="module-ciderpress.models.kernels">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.DensityNoise">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DensityNoise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DensityNoise" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
@@ -457,32 +349,6 @@ dk (X.shape[0], Y.shape[0], X.shape[1])</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.DiffAdditiveMixin">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffAdditiveMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffAdditiveMixin" title="Link to this definition"></a></dt>
-<dd><p>Need to define is_stationary, _get_k0_dk0_train,
-and _get_k0_dk0_eval.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>order</strong> (<em>int</em>) – Order of kernel</p></li>
-<li><p><strong>length_scale</strong> (<em>float or array</em>) – length scale of kernel</p></li>
-<li><p><strong>scale</strong> (<em>array</em>) – coefficients of each order, starting with
-0 and ascending.</p></li>
-<li><p><strong>length_scale_bounds</strong> – bounds of length_scale</p></li>
-<li><p><strong>scale_bounds</strong> – bounds of scale</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.DiffAdditiveMixin.diag">
-<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffAdditiveMixin.diag" title="Link to this definition"></a></dt>
-<dd><p>NOTE: Quite inefficient, but this is not used much for the
-functionals anyway.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.DiffAntisymRBF">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffAntisymRBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffAntisymRBF" title="Link to this definition"></a></dt>
 <dd><p>This is like a regular RBF kernel, except it obeys an antisymmetry-like
@@ -519,11 +385,6 @@ dk (X.shape[0], Y.shape[0], X.shape[1])</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.DiffConstantKernel">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffConstantKernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constant_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_value_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffConstantKernel" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.DiffExponentiation">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffExponentiation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exponent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffExponentiation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -589,11 +450,6 @@ evaluated.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.DiffProduct">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffProduct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffProduct" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.DiffRBF">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffRBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffRBF" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
@@ -620,11 +476,6 @@ dk (X.shape[0], Y.shape[0], X.shape[1])</p>
 </dd></dl>
 
 </dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.DiffSum">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">DiffSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.DiffSum" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.DiffTransform">
@@ -826,45 +677,6 @@ dk (X.shape[0], Y.shape[0], X.shape[1])</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.QARBF">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">QARBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ndim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.QARBF" title="Link to this definition"></a></dt>
-<dd><p>ARBF, except order is restricted to 2 and
-the algorithm is more efficient.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.QARBF.diag">
-<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.QARBF.diag" title="Link to this definition"></a></dt>
-<dd><p>Returns the diagonal of the kernel k(X, X).</p>
-<p>The result of this method is identical to np.diag(self(X)); however,
-it can be evaluated more efficiently since only the diagonal is
-evaluated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>array-like of shape (n_samples,)</em>) – Left argument of the returned kernel k(X, Y)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>K_diag</strong> – Diagonal of kernel k(X, X)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray of shape (n_samples_X,)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SingleDot">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SingleDot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_0_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SingleDot" title="Link to this definition"></a></dt>
-<dd><p>DotProduct kernel with single index of X selected.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SingleRBF">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SingleRBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e-05,</span> <span class="pre">100000.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SingleRBF" title="Link to this definition"></a></dt>
-<dd><p>RBF kernel with single index of X selected.</p>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.SpinSymARBF">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SpinSymARBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_ind</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SpinSymARBF" title="Link to this definition"></a></dt>
 <dd><p>Additive RBF kernel with alpha/beta spin symmetry.</p>
@@ -879,29 +691,6 @@ evaluated.</p>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SpinSymKernel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SpinSymKernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up_active_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">down_active_dims</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SpinSymKernel" title="Link to this definition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SpinSymKernel.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SpinSymKernel.get_params" title="Link to this definition"></a></dt>
-<dd><p>Get parameters of this kernel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deep</strong> (<em>bool, default=True</em>) – If True, will return the parameters for this estimator and
-contained subobjects that are estimators.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>params</strong> – Parameter names mapped to their values.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -938,93 +727,13 @@ contained subobjects that are estimators.</p>
 </dl>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetARBF">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetARBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetARBF" title="Link to this definition"></a></dt>
-<dd><p>Additive RBF kernel evaluated on a subset of input features.</p>
-<p>Initialize a kernel that acts on a subset of features.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indexes</strong> – list/tuple of indexes or slice</p></li>
-<li><p><strong>*args</strong> – positional arguments to the parent kernel</p></li>
-<li><p><strong>**kwargs</strong> – keyword arguments to the parent kernel</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetAddLLRBF">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetAddLLRBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetAddLLRBF" title="Link to this definition"></a></dt>
-<dd><p>Additive RBF kernel with multiplicative linear term, evaluated on selected features.</p>
-<p>Initialize a kernel that acts on a subset of features.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indexes</strong> – list/tuple of indexes or slice</p></li>
-<li><p><strong>*args</strong> – positional arguments to the parent kernel</p></li>
-<li><p><strong>**kwargs</strong> – keyword arguments to the parent kernel</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetAddRQ">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetAddRQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetAddRQ" title="Link to this definition"></a></dt>
-<dd><p>Additive rational-quadratic kernel evaluated on selected features.</p>
-<p>Initialize a kernel that acts on a subset of features.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indexes</strong> – list/tuple of indexes or slice</p></li>
-<li><p><strong>*args</strong> – positional arguments to the parent kernel</p></li>
-<li><p><strong>**kwargs</strong> – keyword arguments to the parent kernel</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetPoly">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetPoly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetPoly" title="Link to this definition"></a></dt>
-<dd><p>Polynomial kernel evaluated on a subset of input features.</p>
-<p>Initialize a kernel that acts on a subset of features.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indexes</strong> – list/tuple of indexes or slice</p></li>
-<li><p><strong>*args</strong> – positional arguments to the parent kernel</p></li>
-<li><p><strong>**kwargs</strong> – keyword arguments to the parent kernel</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetRBF">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetRBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetRBF" title="Link to this definition"></a></dt>
-<dd><p>RBF kernel evaluated on a subset of input features.</p>
-<p>Initialize a kernel that acts on a subset of features.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>indexes</strong> – list/tuple of indexes or slice</p></li>
-<li><p><strong>*args</strong> – positional arguments to the parent kernel</p></li>
-<li><p><strong>**kwargs</strong> – keyword arguments to the parent kernel</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dft_kernel.html" class="btn btn-neutral float-left" title="ciderpress.models.dft_kernel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dft_kernel.html" class="btn btn-neutral float-left" title="DFT Kernels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="kernel_tools.html" class="btn btn-neutral float-right" title="Kernel Tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

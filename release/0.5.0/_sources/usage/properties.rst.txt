@@ -2,10 +2,10 @@ Energies and Derivative Properties
 ==================================
 
 CIDER models participate in a self-consistent calculation through their
-energy density and functional derivatives.  Property support nevertheless
-depends on the feature family, backend, and any additive correction.
+energy density and functional derivatives.  Property support depends on the
+feature family, backend, and any additive correction.
 
-.. list-table:: Property support in the documented production paths
+.. list-table:: Property support in the documented calculation paths
    :header-rows: 1
    :widths: 28 24 24 24
 
@@ -32,7 +32,7 @@ depends on the feature family, backend, and any additive correction.
    * - Hessians and response properties
      - Not implemented by the CIDER decorator
      - Not implemented
-     - Not documented as a production interface
+     - Outside the documented interface
 
 Molecular gradients
 -------------------
@@ -49,9 +49,9 @@ response of the atom-centered integration grid.  Converge the electronic SCF,
 basis, quadrature grid, and density-fitting treatment before interpreting a
 gradient.
 
-``CIDER26XCCHEMD4`` adds D4 only to the final energy.  Its D4 derivative is not
-included in ``nuc_grad_method()``.  A geometry optimization of the composite
-CIDER+D4 energy therefore requires a separate implementation of the D4 force.
+``CIDER26XCCHEMD4`` adds D4 to the final energy.  ``nuc_grad_method()`` returns
+the electronic CIDER gradient.  A geometry optimization of the composite
+CIDER+D4 energy requires a separate implementation of the D4 force.
 
 Periodic forces and stress
 --------------------------
@@ -64,10 +64,9 @@ SCF has converged:
    :linenos:
 
 The analytical contribution includes the FFT feature response and PAW/PASDW
-terms.  Production meta-GGA forces and stress are unavailable with
-norm-conserving pseudopotentials.  Converge the plane-wave cutoff, k-point
-mesh, cell, PAW setups, and electronic criteria for the derivative—not only
-for the total energy.
+terms.  The supported meta-GGA force and stress route uses PAW setups.
+Converge the plane-wave cutoff, k-point mesh, cell, PAW setups, and electronic
+criteria to the accuracy required by the derivative.
 
 Energy differences
 ------------------
@@ -80,7 +79,7 @@ compatible numerical settings.  In particular:
 * Apply D4 exactly once to every applicable structure.
 * Use consistent charge, spin, basis/grid or cutoff, setups, k-points, and
   smearing conventions.
-* Converge isolated references in their own representation instead of
-  assuming error cancellation with a periodic system.
+* Converge isolated references in their own representation to the accuracy
+  required by the energy difference.
 
 See :doc:`reproducibility` for the associated reporting checklist.

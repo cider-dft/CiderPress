@@ -15,7 +15,7 @@ The molecular implementation is divided by responsibility:
 
 * :mod:`ciderpress.pyscf.dft` constructs the decorated SCF object and defines
   total-energy, dispersion, checkpoint, and gradient behavior.
-* :mod:`ciderpress.pyscf.numint` connects semilocal and NLDF feature
+* :mod:`ciderpress.pyscf.numint` connects semilocal, NLDF, and SDMX feature
   evaluation to PySCF's blockwise atom-centered quadrature.
 * :mod:`ciderpress.pyscf.gen_cider_grid` and
   :mod:`ciderpress.pyscf.nldf_convolutions` build and evaluate the auxiliary
@@ -28,13 +28,13 @@ The molecular implementation is divided by responsibility:
   :mod:`ciderpress.pyscf.descriptors` expose fixed-density ingredients for
   inspection and training-data construction.
 
-For production model selection, complete examples, and restart guidance, see
+For packaged model selection, complete examples, and restart guidance, see
 :doc:`../../usage/production_models`, :doc:`../../usage/pyscf`, and
 :doc:`../../usage/convergence`.
 
-The periodic PySCF SDMX path requires pseudopotentials and a uniform XC grid.
-It is retained mainly for methodological reproduction; classic GPAW with PAW
-is the documented periodic route for NLDF production models.
+The periodic PySCF SDMX path requires pseudopotentials and a uniform XC grid
+and supports methodological reproduction of the CIDER24X work.  Packaged
+periodic NLDF calculations use classic GPAW with PAW.
 
 .. toctree::
    :maxdepth: 2

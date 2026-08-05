@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dft &mdash; CiderPress 0.5.0 documentation</title>
+  <title>PySCF Calculator Decoration &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pbc.dft" href="pbc/dft.html" />
+    <link rel="next" title="Periodic PySCF Interface" href="pbc/dft.html" />
     <link rel="prev" title="PySCF Interface and Numerical Modules" href="pyscf.html" /> 
 </head>
 
@@ -71,13 +71,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="pyscf.html">PySCF Interface and Numerical Modules</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">dft</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PySCF Calculator Decoration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.pyscf.dft.make_cider_calc"><code class="docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">pbc.dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="analyzers.html">analyzers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="descriptors.html">descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">Periodic PySCF Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analyzers.html">PySCF Electronic Analyzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">PySCF Descriptor Extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="numerical.html">PySCF Numerical and Derivative Implementation</a></li>
 </ul>
 </li>
@@ -105,7 +105,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="pyscf.html">PySCF Interface and Numerical Modules</a></li>
-      <li class="breadcrumb-item active">dft</li>
+      <li class="breadcrumb-item active">PySCF Calculator Decoration</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/pyscf/dft.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -115,17 +115,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="dft">
-<h1>dft<a class="headerlink" href="#dft" title="Link to this heading"></a></h1>
-<p>The <a class="reference internal" href="#module-ciderpress.pyscf.dft" title="ciderpress.pyscf.dft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.dft</span></code></a> module provides the
-function <a class="reference internal" href="#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a>, which takes
-a PySCF Kohn–Sham DFT object and a CIDER
-functional object (<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
-<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>)
-and returns a decorated subclass that uses the CIDER functional. The function
-is similar to native PySCF routines such as <code class="docutils literal notranslate"><span class="pre">density_fit</span></code>,
-in which the input SCF object is “decorated” with the
-necessary routines to evaluate the CIDER functional.</p>
+  <section id="pyscf-calculator-decoration">
+<h1>PySCF Calculator Decoration<a class="headerlink" href="#pyscf-calculator-decoration" title="Link to this heading"></a></h1>
+<p><a class="reference internal" href="#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a> decorates a restricted or
+unrestricted PySCF Kohn–Sham object with a mapped CIDER functional.  The
+<code class="docutils literal notranslate"><span class="pre">mlfunc</span></code> argument accepts a packaged name, trusted model path, or loaded
+<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a>/
+<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a> object.  The decorator selects
+its numerical integrator from the stored feature settings and supplies CIDER
+energy, potential, checkpoint, density-fitting, and supported gradient
+behavior.</p>
+<p>Exchange models use <code class="docutils literal notranslate"><span class="pre">xmix</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel</span></code> to define their
+surrogate-hybrid composition.  Full-XC models use their serialized energy
+composition.  D4 metadata is reconciled after the SCF energy as described in
+<a class="reference internal" href="../../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
 <p>The basic full-XC use case is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">gto</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">RKS</span>
@@ -138,8 +141,8 @@ necessary routines to evaluate the CIDER functional.</p>
 <span class="n">etot</span> <span class="o">=</span> <span class="n">ks</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For a complete example, please see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/594ad960a61d35ba63a1fd4167ea1101c7ca05c3/examples/pyscf/production_calc.py">examples/pyscf/production_calc.py</a>
-and <a class="reference internal" href="../../usage/pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a>.</p>
+<p>See <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3badc003629b17f649b18ad12733b7e690537d34/examples/pyscf/production_calc.py">examples/pyscf/production_calc.py</a> and
+<a class="reference internal" href="../../usage/pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a> for a complete example.</p>
 <dl class="py function" id="module-ciderpress.pyscf.dft">
 <dt class="sig sig-object py" id="ciderpress.pyscf.dft.make_cider_calc">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.pyscf.dft.</span></span><span class="sig-name descname"><span class="pre">make_cider_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xkernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ckernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlfunc_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlc_coeff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nldf_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sdmx_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhocut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.pyscf.dft.make_cider_calc" title="Link to this definition"></a></dt>
@@ -188,7 +191,7 @@ if file type cannot be determined.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="pyscf.html" class="btn btn-neutral float-left" title="PySCF Interface and Numerical Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pbc/dft.html" class="btn btn-neutral float-right" title="pbc.dft" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pbc/dft.html" class="btn btn-neutral float-right" title="Periodic PySCF Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

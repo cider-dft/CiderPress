@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Training and Mapping Boundary" href="training.html" />
+    <link rel="next" title="Training and Mapping Workflow" href="training.html" />
     <link rel="prev" title="Model Objects and Mapping" href="models.html" /> 
 </head>
 
@@ -72,7 +72,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fixed-density-versus-self-consistent-use">Fixed-density versus self-consistent use</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="training.html">Training and Mapping Boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="training.html">Training and Mapping Workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extending.html">Extending CiderPress</a></li>
 </ul>
 </li>
@@ -118,10 +118,9 @@
              
   <section id="inspecting-densities-and-descriptors">
 <h1>Inspecting Densities and Descriptors<a class="headerlink" href="#inspecting-densities-and-descriptors" title="Link to this heading"></a></h1>
-<p>The PySCF analyzer and descriptor modules expose the same electronic
-ingredients used to construct training data and diagnose a mapped model.
-These tools operate on a fixed density; they do not run an SCF calculation by
-themselves.</p>
+<p>The PySCF analyzer and descriptor modules expose the electronic ingredients
+used to construct training data and inspect a mapped model.  They evaluate the
+fixed density and orbitals supplied by a completed calculation.</p>
 <section id="analyzer-objects">
 <h2>Analyzer objects<a class="headerlink" href="#analyzer-objects" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer" title="ciderpress.pyscf.analyzers.RHFAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">RHFAnalyzer</span></code></a> and
@@ -173,24 +172,21 @@ component at a time.  The descriptor array has shape
 <code class="docutils literal notranslate"><span class="pre">(nspin,</span> <span class="pre">nfeature,</span> <span class="pre">ngrid)</span></code>.  When orbital selectors are supplied, the
 routine also returns feature derivatives with respect to selected occupation
 numbers and their corresponding orbital energies.</p>
-<p>Use the settings stored in the model being analyzed.  Constructing a new
-<code class="docutils literal notranslate"><span class="pre">NLDFSettings</span></code> object with similar-looking parameters does not guarantee the
-same descriptors because normalizers, exponent parameters, and feature order
-are part of the model definition.</p>
+<p>Use the settings stored in the model being analyzed.  They preserve its exact
+normalizers, exponent parameters, and feature order.</p>
 </section>
 <section id="fixed-density-versus-self-consistent-use">
 <h2>Fixed-density versus self-consistent use<a class="headerlink" href="#fixed-density-versus-self-consistent-use" title="Link to this heading"></a></h2>
-<p>Descriptor extraction evaluates the chosen density.  It is appropriate for
-model analysis, training-data construction, and comparing feature
-representations.  It is not equivalent to evaluating a total energy with the
-model self-consistently.  When reporting a fixed-density result, identify the
-functional and numerical settings that generated the density.</p>
-<p>The GPAW descriptor interface provides analogous access to plane-wave and PAW
-quantities, but it is coupled to a live, completed GPAW calculator. See
+<p>Descriptor extraction evaluates a chosen, fixed density for model analysis,
+training-data construction, and comparison of feature representations.  A
+self-consistent energy calculation also updates that density through the
+model potential.  Identify the density-generating functional and numerical
+settings with a fixed-density result.</p>
+<p>The GPAW descriptor interface obtains plane-wave and PAW quantities from a
+live, completed GPAW calculator.  See
 <a class="reference internal" href="../ciderpress/gpaw/descriptors.html"><span class="doc">GPAW Descriptor Interface</span></a> for its supported settings, array
-shapes, PAW behavior, and occupation selectors. Use the point layout and
-orbital-index convention documented for each backend; they are not generally
-interchangeable.</p>
+shapes, PAW behavior, and occupation selectors.  Use each backend’s documented
+point layout and orbital-index convention.</p>
 </section>
 </section>
 
@@ -199,7 +195,7 @@ interchangeable.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="models.html" class="btn btn-neutral float-left" title="Model Objects and Mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="training.html" class="btn btn-neutral float-right" title="Training and Mapping Boundary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="training.html" class="btn btn-neutral float-right" title="Training and Mapping Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,15 +1,30 @@
 GPAW FFT, PAW, and Radial Implementation
 ========================================
 
-This page describes the numerical implementation beneath the GPAW calculator
-interface. These modules are linked so that the forward and derivative paths
-can be inspected, but their classes are implementation details rather than
-compatibility-stable user APIs. Production calculations should construct the
+The GPAW backend connects the mapped functional to smooth-grid FFT operations,
+PAW/PASDW corrections, and their derivatives.  Calculations construct the
 functional with :func:`~ciderpress.gpaw.calculator.get_cider_functional` and
-use :class:`~ciderpress.gpaw.calculator.CiderGPAW`.
+use :class:`~ciderpress.gpaw.calculator.CiderGPAW`; the modules below implement
+the numerical layers beneath those interfaces.
 
 Smooth-grid forward and adjoint
 -------------------------------
+
+.. py:module:: ciderpress.gpaw.cider_kernel
+
+:mod:`ciderpress.gpaw.cider_kernel` is the bridge between GPAW density arrays
+and :class:`~ciderpress.dft.xc_evaluator.MappedXC` or
+:class:`~ciderpress.dft.xc_evaluator2.MappedXC2`.  It assembles semilocal and
+NLDF blocks in serialized order, applies normalization, calls the mapped
+model, and distributes the returned derivatives to the density, gradient,
+kinetic-energy-density, and NLDF potentials.  The GGA/MGGA kernel classes also
+assemble the explicit exchange and correlation terms selected by
+``get_cider_functional``.
+
+.. py:module:: ciderpress.gpaw.cider_sl
+
+:mod:`ciderpress.gpaw.cider_sl` connects packaged semilocal CIDER23X models to
+the same GGA/MGGA and PAW lifecycle.
 
 .. py:module:: ciderpress.gpaw.nldf_interface
 
@@ -60,11 +75,11 @@ smooth cell term and atom-centered all-electron-minus-pseudo corrections,
    = \widetilde E_{\mathrm{xc}}
    + \sum_A\left(E_{\mathrm{xc}}^A-\widetilde E_{\mathrm{xc}}^A\right).
 
-An NLDF at a point depends on density in a finite surrounding region. A
-correction confined to the final on-site energy therefore cannot restore the
-all-electron source seen by a convolution outside the augmentation sphere.
-CiderPress uses the projector augmented-wave and smooth double-wave
-(PAW/PASDW) construction introduced with CIDER23X. :footcite:p:`CIDER23X`
+An NLDF at a point depends on density in a finite surrounding region.  A
+final on-site energy correction leaves the convolution source outside the
+augmentation sphere unchanged.  CiderPress transports that all-electron
+source with the PAW/PASDW construction introduced with
+CIDER23X. :footcite:p:`CIDER23X`
 
 The transfer has two coupled stages. First, localized source functions
 :math:`g_i^A` augment the smooth kernel source,
@@ -87,10 +102,10 @@ grids. Their projection coefficients have the form
    \widetilde F_\beta^{\mathrm{aug}}(\mathbf r_g)
    \widetilde p_j^A(\mathbf r_g).
 
-The on-site all-electron and pseudo features are then evaluated with the same
-returned field, plus the localized residual required on the all-electron
-side. This yields the normal PAW energy difference while retaining the
-nonlocal information transported through the cell grid.
+The on-site all-electron and pseudo features use the same returned field, with
+the required localized residual added on the all-electron side.  Their
+difference gives the PAW correction and includes the nonlocal information
+transported through the cell grid.
 
 PAW/PASDW modules
 -----------------
@@ -120,24 +135,34 @@ forward/backward atomic contractions used by PASDW.
    Owns the per-setup PASDW data and applies atom-to-grid, grid-to-atom,
    energy, potential, force, and stress contractions for a calculation.
 
+.. py:module:: ciderpress.gpaw.fit_paw_gauss_pot
+
+:mod:`ciderpress.gpaw.fit_paw_gauss_pot` builds the localized radial source
+and projector bases.
+
+.. py:module:: ciderpress.dft.pwutil
+
+:mod:`ciderpress.dft.pwutil` wraps the compiled spline, spherical-harmonic,
+and atom/grid contraction kernels.
+
 .. py:module:: ciderpress.gpaw.atom_descriptor_utils
 
 :mod:`ciderpress.gpaw.atom_descriptor_utils` applies the corresponding atomic
 corrections when extracting fixed-density descriptor arrays and occupation
 derivatives.
 
-``pasdw_ovlp_fit`` selects overlap fitting for the transfer and should remain
-enabled for sensitive comparisons. ``pasdw_store_funcs`` controls caching of
-atom-centered projector values: it changes memory use and repeated cost, not
-the mathematical functional.
+``pasdw_ovlp_fit`` selects overlap fitting for the transfer; use the same
+value throughout a numerical comparison.  ``pasdw_store_funcs`` controls
+caching of atom-centered projector values.  Caching uses more memory to reduce
+repeated cost and preserves the evaluated functional.
 
 Radial reconstruction and on-site correction
 ---------------------------------------------
 
 .. py:module:: ciderpress.gpaw.interp_paw
 
-:mod:`ciderpress.gpaw.interp_paw` is one layer of the PAW/PASDW route, not the
-whole algorithm. It reconstructs differentiable all-electron and pseudo
+:mod:`ciderpress.gpaw.interp_paw` handles the radial on-site layer of the
+PAW/PASDW route.  It reconstructs differentiable all-electron and pseudo
 partial-wave density ingredients on an appropriate radial grid and evaluates
 the on-site GGA, meta-GGA, or CIDER correction. The returned derivatives are
 contracted back into GPAW's PAW density matrices.
@@ -157,22 +182,27 @@ contracted back into GPAW's PAW density matrices.
    Differentiable radial meta-GGA correction, including reconstructed
    kinetic-energy-density terms.
 
+.. py:module:: ciderpress.gpaw.gpaw_grids
+
+:mod:`ciderpress.gpaw.gpaw_grids` supplies the radial-grid descriptors used
+for this reconstruction.
+
 For heavier elements, the implementation retains the setup's native dense
 all-electron radial form inside the required cutoff; lighter elements use the
-generated CIDER radial representation. This choice limits interpolation error
-without exposing an element-specific SCF setting.
+generated CIDER radial representation.  The implementation selects this
+radial treatment by element to control interpolation error.
 
 Two safeguards preserve physical and numerical invariants:
 
-* A mapped point that exceeds an interpolation endpoint only by floating-point
-  roundoff is clipped to that endpoint. A genuine request outside the source
-  radial grid raises an error instead of silently extrapolating partial waves.
+* A mapped point that exceeds an interpolation endpoint by floating-point
+  roundoff is clipped to that endpoint.  A request outside the source radial
+  grid raises an error.
 * Interpolated all-electron and pseudo core kinetic-energy densities are
   bounded below by the von Weizsaecker value
   :math:`\tau_{\mathrm W}=|\nabla n|^2/(8n)` (with the corresponding
-  spherical-harmonic normalization used on the radial grid). This removes a
-  finite-representation violation of the Fermi-hole-curvature/iso-orbital
-  bound; it is not a change to the model or an SCF convergence device.
+  spherical-harmonic normalization used on the radial grid).  This enforces
+  the Fermi-hole-curvature/iso-orbital bound in the finite radial
+  representation.
 
 Forward/derivative contract
 ---------------------------
@@ -181,13 +211,10 @@ The PASDW transfer is linear, so the returned potential must be the exact
 adjoint of the discretized forward transfer. Forces additionally differentiate
 the localized functions and projectors with respect to atomic position;
 stress differentiates the reciprocal kernel and the cell-scaled transfer.
-A feature is not validated by matching an energy alone: smooth-grid and PAW
-feature values, potentials, forces, and stress must all be checked with the
-same interpolation and projection settings.
-
-Mixer changes can help the density reach self-consistency but cannot repair a
-mismatched forward/adjoint pair. See :doc:`../../usage/convergence` for SCF
-fallbacks, :doc:`../../theory/numerical_evaluation` for the complete backend
-path, and :doc:`../../workflows/extending` for implementation invariants.
+Validation covers smooth-grid and PAW feature values, potentials, forces, and
+stress at the same interpolation and projection settings.  See
+:doc:`../../usage/convergence` for SCF controls,
+:doc:`../../theory/numerical_evaluation` for the complete backend path, and
+:doc:`../../workflows/extending` for implementation invariants.
 
 .. footbibliography::

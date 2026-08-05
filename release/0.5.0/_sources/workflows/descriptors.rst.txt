@@ -1,10 +1,9 @@
 Inspecting Densities and Descriptors
 ====================================
 
-The PySCF analyzer and descriptor modules expose the same electronic
-ingredients used to construct training data and diagnose a mapped model.
-These tools operate on a fixed density; they do not run an SCF calculation by
-themselves.
+The PySCF analyzer and descriptor modules expose the electronic ingredients
+used to construct training data and inspect a mapped model.  They evaluate the
+fixed density and orbitals supplied by a completed calculation.
 
 Analyzer objects
 ----------------
@@ -29,23 +28,20 @@ component at a time.  The descriptor array has shape
 routine also returns feature derivatives with respect to selected occupation
 numbers and their corresponding orbital energies.
 
-Use the settings stored in the model being analyzed.  Constructing a new
-``NLDFSettings`` object with similar-looking parameters does not guarantee the
-same descriptors because normalizers, exponent parameters, and feature order
-are part of the model definition.
+Use the settings stored in the model being analyzed.  They preserve its exact
+normalizers, exponent parameters, and feature order.
 
 Fixed-density versus self-consistent use
 ----------------------------------------
 
-Descriptor extraction evaluates the chosen density.  It is appropriate for
-model analysis, training-data construction, and comparing feature
-representations.  It is not equivalent to evaluating a total energy with the
-model self-consistently.  When reporting a fixed-density result, identify the
-functional and numerical settings that generated the density.
+Descriptor extraction evaluates a chosen, fixed density for model analysis,
+training-data construction, and comparison of feature representations.  A
+self-consistent energy calculation also updates that density through the
+model potential.  Identify the density-generating functional and numerical
+settings with a fixed-density result.
 
-The GPAW descriptor interface provides analogous access to plane-wave and PAW
-quantities, but it is coupled to a live, completed GPAW calculator. See
+The GPAW descriptor interface obtains plane-wave and PAW quantities from a
+live, completed GPAW calculator.  See
 :doc:`../ciderpress/gpaw/descriptors` for its supported settings, array
-shapes, PAW behavior, and occupation selectors. Use the point layout and
-orbital-index convention documented for each backend; they are not generally
-interchangeable.
+shapes, PAW behavior, and occupation selectors.  Use each backend's documented
+point layout and orbital-index convention.

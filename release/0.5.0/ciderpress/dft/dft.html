@@ -19,7 +19,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="The Settings Module" href="settings.html" />
+    <link rel="next" title="Feature Settings" href="settings.html" />
     <link rel="prev" title="Extending CiderPress" href="../../workflows/extending.html" /> 
 </head>
 
@@ -69,12 +69,19 @@
 <p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Core DFT Representation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="settings.html">The Settings Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plans.html">The Plans Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="xc_evaluator.html">The XC Evaluator Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regression-coordinates">Regression coordinates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#energy-composition-and-evaluation">Energy composition and evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transform_data.html">Bounded Regression Coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
@@ -117,51 +124,54 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">ciderpress.dft</span></code> package defines the backend-independent contract
 between an electronic feature representation and a mapped XC model.  A
 backend reads the stored settings, computes the requested raw features, calls
-the evaluator, and propagates the returned feature derivatives back to its
-density or density matrix.  Start with <a class="reference internal" href="../../theory/framework.html"><span class="doc">The CIDER Framework</span></a> for the
-scientific data flow and use the pages below for individual objects.</p>
-<ul class="simple">
-<li><p>The <a class="reference internal" href="settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a> module consists of classes
-for specifying the types of features to be computed
-for an ML model along with the parametrizations of those features.</p></li>
-<li><p>The <a class="reference internal" href="plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> module provides classes
-that specify <em>how</em> a given set of features is to be computed.
-For example, an instance of
-<a class="reference internal" href="settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a> specifies that version-j
-<a class="reference internal" href="../../features/nldf.html#nldf-feat"><span class="std std-ref">NLDF</span></a> features are required, and an instance of
-<a class="reference internal" href="plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a> specifies their spline-based
-evaluation (see
-<a class="reference internal" href="../../theory/nldf_numerical.html#nldf-numerical"><span class="std std-ref">NLDF Numerical Evaluation</span></a>).</p></li>
-<li><p>The <a class="reference internal" href="feat_normalizer.html#module-ciderpress.dft.feat_normalizer" title="ciderpress.dft.feat_normalizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.feat_normalizer</span></code></a> module provides
-utilities to transform “raw” features (which might not be scale-invariant)
-to scale-invariant “normalized features”. Note it is not necessary to make
-every feature scale-invariant unless you want to enforce the uniform
-scaling rule for exchange.</p></li>
-<li><p>The <a class="reference internal" href="transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a> module provides
-utilities to transform “normalized” features (which do not necessarily fall
-in a finite interval, making them unwieldy for ML models) into
-“transformed” features suitable for direct input into Gaussian process
-regression.</p></li>
-<li><p>The <a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator" title="ciderpress.dft.xc_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator</span></code></a> and
-<a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator2" title="ciderpress.dft.xc_evaluator2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator2</span></code></a>
-modules provide tools to efficiently evaluate trained CIDER models.</p></li>
-<li><p>The <a class="reference internal" href="model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> module resolves packaged model names
-and trusted YAML/joblib paths.</p></li>
-</ul>
-<p>Settings are serialized scientific state.  Feature order, normalization,
-spin treatment, energy baselines, and the distinction between exchange-only
-and full-XC evaluators must be preserved when a model is mapped or extended.
-See <a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> before changing these interfaces.</p>
+the evaluator, and propagates the returned feature derivatives to its density
+or density matrix.  <a class="reference internal" href="../../theory/framework.html"><span class="doc">The CIDER Framework</span></a> introduces the scientific
+data flow; the pages below document the corresponding objects.</p>
+<section id="settings-and-numerical-plans">
+<h2>Settings and numerical plans<a class="headerlink" href="#settings-and-numerical-plans" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a> declares the ordered semilocal, NLDF, and SDMX
+features and their parameters.  <a class="reference internal" href="plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> implements their
+backend-neutral forward and adjoint operations.  For example,
+<a class="reference internal" href="settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a> defines version-j NLDF
+features, and <a class="reference internal" href="plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a> defines one
+interpolation representation for them.  The numerical algorithm is described
+in <a class="reference internal" href="../../theory/nldf_numerical.html#nldf-numerical"><span class="std std-ref">Numerical Evaluation of NLDF Features</span></a>.</p>
+</section>
+<section id="regression-coordinates">
+<h2>Regression coordinates<a class="headerlink" href="#regression-coordinates" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="feat_normalizer.html#module-ciderpress.dft.feat_normalizer" title="ciderpress.dft.feat_normalizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.feat_normalizer</span></code></a> converts raw electronic quantities into
+descriptors with the scaling behavior chosen for the functional.
+<a class="reference internal" href="transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a> applies the bounded maps used by the
+regression.  Scale-invariant coordinates support the exchange scaling
+construction in <a class="reference internal" href="../../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>; full-XC correlation
+models can retain explicit density dependence.</p>
+</section>
+<section id="energy-composition-and-evaluation">
+<h2>Energy composition and evaluation<a class="headerlink" href="#energy-composition-and-evaluation" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="baselines.html#module-ciderpress.dft.baselines" title="ciderpress.dft.baselines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.baselines</span></code></a> provides additive and multiplicative
+energy-density factors for model construction.  The
+<a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator" title="ciderpress.dft.xc_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator</span></code></a> and
+<a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator2" title="ciderpress.dft.xc_evaluator2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator2</span></code></a> modules combine those factors with mapped
+spline, neural, or direct RBF predictions and return feature derivatives.
+<a class="reference internal" href="model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves packaged model names and trusted
+YAML/joblib paths.</p>
+<p>Settings, feature order, normalization, spin treatment, energy baselines, and
+evaluator type form part of the functional definition.  Preserve them together
+when mapping or extending a model.  The extension contract is described in
+<a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a>.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="settings.html">The Settings Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="plans.html">The Plans Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xc_evaluator.html">The XC Evaluator Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Feature Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transform_data.html">Bounded Regression Coordinates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </div>
+</section>
 </section>
 
 
@@ -169,7 +179,7 @@ See <a class="reference internal" href="../../workflows/extending.html"><span cl
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../../workflows/extending.html" class="btn btn-neutral float-left" title="Extending CiderPress" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="settings.html" class="btn btn-neutral float-right" title="The Settings Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="settings.html" class="btn btn-neutral float-right" title="Feature Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

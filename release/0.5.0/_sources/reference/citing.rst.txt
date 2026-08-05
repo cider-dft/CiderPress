@@ -4,17 +4,11 @@ Citing CIDER and CiderPress
 Choose citations according to the functional family and feature methodology
 used in the calculation.
 
-CIDER22X and the original representation
-----------------------------------------
-
-The original nonlocal scale-invariant CIDER representation was introduced in
-:footcite:t:`CIDER22X`.
-
 CIDER23X and molecular/periodic NLDF evaluation
 -----------------------------------------------
 
-For CIDER23X models, the efficient molecular and plane-wave implementations,
-or the PAW/FFT NLDF algorithms, cite :footcite:t:`CIDER23X`.
+Cite :footcite:t:`CIDER23X` for CIDER23X models and for the molecular or
+PAW/FFT implementations of NLDF evaluation.
 
 CIDER24X and SDMX/eigenvalue training
 -------------------------------------
@@ -25,17 +19,15 @@ framework, additionally cite :footcite:t:`CIDER24X`.
 CIDER26XC
 ---------
 
-The CIDER26XC production models are described in :footcite:t:`CIDER26XC`.
-The citation currently records the forthcoming manuscript and will be updated
-when its public identifier is available.
+The CIDER26XC packaged models are described in the forthcoming manuscript
+:footcite:t:`CIDER26XC`.
 
 Citing the software
 -------------------
 
-Cite the CiderPress software itself by its repository,
+Cite the CiderPress software by its repository,
 `github.com/mir-group/CiderPress <https://github.com/mir-group/CiderPress>`__,
-and the version used (for example, CiderPress 0.5.0).  An archived software
-record will be referenced here when one is published.
+and the version used (for example, CiderPress 0.5.0).
 
 Also cite the host electronic-structure code and any separately evaluated
 method such as D4.  A reproducible methods section should state the exact

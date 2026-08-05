@@ -65,7 +65,13 @@
 <li class="toctree-l2"><a class="reference internal" href="uniform_scaling.html">Uniform Scaling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="full_xc.html">From Exchange Models to Full XC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gp.html">Machine Learning Framework for CIDER Functionals</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Numerical Evaluation of NLDF Features</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Numerical Evaluation of NLDF Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#exponent-interpolation">Exponent interpolation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#molecular-gaussian-basis-algorithm">Molecular Gaussian-basis algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#periodic-fft-and-paw-algorithm">Periodic FFT and PAW algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numerical-controls">Numerical controls</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="numerical_evaluation.html">Numerical Evaluation in PySCF and GPAW</a></li>
 </ul>
 </li>
@@ -116,53 +122,101 @@
              
   <section id="numerical-evaluation-of-nldf-features">
 <span id="nldf-numerical"></span><h1>Numerical Evaluation of NLDF Features<a class="headerlink" href="#numerical-evaluation-of-nldf-features" title="Link to this heading"></a></h1>
-<p>Computing <a class="reference internal" href="../features/nldf.html#nldf-feat"><span class="std std-ref">Nonlocal Density Features</span></a> (NLDFs) using simple
-numerical integration can be unwieldy and computationally costly, so in
-practical calculations, the feature integrals are expanded as a sum
-of convolutions. The expansion is slightly different for each
-feature version.</p>
-<p>For Version J, the general form of the feature is</p>
+<p>An NLDF contains a density-dependent length scale at its source and, for
+version J, at its target.  Direct evaluation couples every pair of real-space
+grid points.  CiderPress replaces that double-grid operation with an
+interpolation over kernel exponents followed by ordinary convolutions.  This
+is the density-dependent-kernel strategy used for the molecular and periodic
+algorithms in CIDER23X. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-roman-perez2009" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<section id="exponent-interpolation">
+<h2>Exponent interpolation<a class="headerlink" href="#exponent-interpolation" title="Link to this heading"></a></h2>
+<p>For version J, write the feature as</p>
 <div class="math notranslate nohighlight">
-\[G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
-k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)
-n(\mathbf{r}')\]</div>
-<p>In the context of implementing a nonlocal van der Waals density functional, Román-Pérez and Soler<a class="footnote-reference brackets" href="#footcite-roman-perez2009" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
-found that the kernel <span class="math notranslate nohighlight">\(k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)\)</span>
-can be approximated as</p>
+\[G_i(\mathbf r)
+= \int \mathrm d^3\mathbf r'\,
+  k\!\left(a_0(\mathbf r'),a_i(\mathbf r),
+  |\mathbf r-\mathbf r'|\right)n(\mathbf r').\]</div>
+<p>The density-dependent exponents are represented on an ordered grid
+<span class="math notranslate nohighlight">\(\{q_\alpha\}\)</span>.  Interpolation functions <span class="math notranslate nohighlight">\(p_\alpha(a)\)</span> give</p>
 <div class="math notranslate nohighlight">
-\[k(a, b, r) \approx \sum_\alpha \sum_\beta k(\alpha, \beta, r) p_\alpha(a) p_\beta(b)\]</div>
-<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> are a set of interpolating points that span the range
-of values taken by <span class="math notranslate nohighlight">\(a_0\)</span> and <span class="math notranslate nohighlight">\(a_i\)</span> over the density distribution,
-and <span class="math notranslate nohighlight">\(p_\alpha(a)\)</span> is a cubic spline that is <span class="math notranslate nohighlight">\(1\)</span> when <span class="math notranslate nohighlight">\(a=\alpha\)</span> and <span class="math notranslate nohighlight">\(0\)</span>
-when <span class="math notranslate nohighlight">\(a=\beta\)</span> (with <span class="math notranslate nohighlight">\(\beta\)</span> being another interpolation point not equal to <span class="math notranslate nohighlight">\(\alpha\)</span>).
-Because the interpolation points are constants independent of the density, the above approximation
-converts the feature integral into a sum over convolutions.</p>
-<p>The <a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.dft.plans.NLDFSplinePlan</span></code></a> class implements this interpolation
-approach.</p>
-<p>The Version-J integration kernel <span class="math notranslate nohighlight">\(k(a, b, r)\)</span> is separable in <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>:</p>
+\[k(a,b,R)
+\simeq \sum_{\alpha\beta}
+p_\alpha(a)\,k(q_\alpha,q_\beta,R)\,p_\beta(b).\]</div>
+<p>The source coefficients</p>
 <div class="math notranslate nohighlight">
-\[k(a, b, r) = \exp(-(a+b)r^2) = \exp(-a r^2) \exp(-b r^2)\]</div>
-<p>Because of this, the interpolations can also be performed by expanding <span class="math notranslate nohighlight">\(\exp(-a r^2)\)</span>
-as a linear combination of the interpolation functions <span class="math notranslate nohighlight">\(\exp(-\alpha r^2)\)</span>. This
-modified approach is implemented by the <a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFGaussianPlan" title="ciderpress.dft.plans.NLDFGaussianPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.dft.plans.NLDFGaussianPlan</span></code></a> class.</p>
-<p>The details of how this interpolation approximation is used to compute the NLDFs
-is dependent on the periodicity, type of grid, and type of basis set used in a DFT
-calculation. For details on the implementation of this approach for isolated Gaussian-type
-orbital calculations and periodic plane-wave DFT calculations, see Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
-<p>The other feature versions (i and k) require slightly modified versions of this approach,
-but the basic idea is the same and the implementation quite similar.</p>
+\[\theta_\alpha(\mathbf r')
+= p_\alpha(a_0(\mathbf r'))n(\mathbf r')\]</div>
+<p>can then be convolved with the fixed kernels
+<span class="math notranslate nohighlight">\(k(q_\alpha,q_\beta,R)\)</span>.  Interpolation at
+<span class="math notranslate nohighlight">\(a_i(\mathbf r)\)</span> combines the resulting channels into each feature.
+The exponent grid and interpolation coefficients also enter the adjoint
+calculation that returns the NLDF contribution to the XC potential.</p>
+<p>Version-J squared-exponential kernels have the separable form</p>
+<div class="math notranslate nohighlight">
+\[k(a,b,R)=\exp[-(a+b)R^2]
+=\exp(-aR^2)\exp(-bR^2).\]</div>
+<p><a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFGaussianPlan" title="ciderpress.dft.plans.NLDFGaussianPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a> represents the exponent
+dependence in the auxiliary Gaussian basis.
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a> uses spline interpolation on a
+dense exponent coordinate.  The packaged molecular models use the spline
+plan.  Both plans implement the same raw feature definitions and provide
+matching forward and adjoint interpolation operations.</p>
+</section>
+<section id="molecular-gaussian-basis-algorithm">
+<h2>Molecular Gaussian-basis algorithm<a class="headerlink" href="#molecular-gaussian-basis-algorithm" title="Link to this heading"></a></h2>
+<p>The PySCF path expands each source channel in an atom-centered, even-tempered
+Gaussian auxiliary basis.  Convolution matrices connect those auxiliary
+coefficients to the required exponent channels, and an atom-centered
+interpolator transfers the results to and from the molecular quadrature grid.
+The angular expansion is truncated at a selected spherical-harmonic order.</p>
+<p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.gen_cider_grid" title="ciderpress.pyscf.gen_cider_grid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.gen_cider_grid</span></code></a> records the radial and angular layout
+of PySCF’s sorted quadrature points.  The auxiliary expansion, convolution,
+and interpolation are assembled by
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.nldf_convolutions" title="ciderpress.pyscf.nldf_convolutions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.nldf_convolutions</span></code></a>,
+<a class="reference internal" href="../ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_convolutions" title="ciderpress.dft.lcao_convolutions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.lcao_convolutions</span></code></a>,
+<a class="reference internal" href="../ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_interpolation" title="ciderpress.dft.lcao_interpolation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.lcao_interpolation</span></code></a>, and
+<a class="reference internal" href="../ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_nldf_generator" title="ciderpress.dft.lcao_nldf_generator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.lcao_nldf_generator</span></code></a>.
+The same grid indexer, auxiliary basis, exponent grid, and interpolation
+scheme are used in the energy and potential paths.</p>
+</section>
+<section id="periodic-fft-and-paw-algorithm">
+<h2>Periodic FFT and PAW algorithm<a class="headerlink" href="#periodic-fft-and-paw-algorithm" title="Link to this heading"></a></h2>
+<p>On a uniform periodic grid, each fixed-kernel convolution is a product in
+reciprocal space.  <a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.nldf_interface" title="ciderpress.gpaw.nldf_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.nldf_interface</span></code></a> and the compiled
+plane-wave library transform the source channels, multiply by the reciprocal
+kernel, and transform the convolved channels back to real space.  <code class="docutils literal notranslate"><span class="pre">qmax</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lambd</span></code>, and <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> set the covered exponent range and its resolution.</p>
+<p>The FFT evaluates the smooth pseudo-density contribution.  The PAW/PASDW
+path supplies the all-electron source and on-site corrections required inside
+augmentation spheres.  Its returned potentials use the adjoint of the same
+source augmentation and projection operations.  The complete PAW data flow
+is described in <a class="reference internal" href="../ciderpress/gpaw/numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a>.</p>
+</section>
+<section id="numerical-controls">
+<h2>Numerical controls<a class="headerlink" href="#numerical-controls" title="Link to this heading"></a></h2>
+<p>The exponent range must cover the values generated by the density.  The
+spacing controls interpolation error and the number of convolution channels.
+The molecular angular cutoff and auxiliary basis, or the periodic plane-wave
+cutoff and PAW projection basis, add representation errors of their own.
+Energies, potentials, forces, and stress used in one comparison must share
+these settings.</p>
+<p>Version-I and version-K features use the same auxiliary-expansion framework
+with their corresponding source, target, vector, and damping terms.  Their
+available molecular plans are model-construction interfaces; packaged models
+and the GPAW calculation path use version J.</p>
 <div class="docutils container" id="id3">
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="footcite-roman-perez2009" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Guillermo Román-Pérez and José M Soler. Efficient Implementation of a van der Waals Density Functional: Application to Double-Wall Carbon Nanotubes. <em>Phys. Rev. Lett.</em>, 103(9):096102, August 2009. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.103.096102">doi:10.1103/PhysRevLett.103.096102</a>.</p>
-</aside>
 <aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-roman-perez2009" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Guillermo Román-Pérez and José M Soler. Efficient Implementation of a van der Waals Density Functional: Application to Double-Wall Carbon Nanotubes. <em>Phys. Rev. Lett.</em>, 103(9):096102, August 2009. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.103.096102">doi:10.1103/PhysRevLett.103.096102</a>.</p>
 </aside>
 </aside>
 </div>
+</section>
 </section>
 
 

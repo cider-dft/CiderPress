@@ -2,9 +2,9 @@ Electronic Features in CiderPress
 ==================================
 
 CIDER models predict a grid-resolved exchange or exchange-correlation energy
-density from an electronic feature vector.  In a pure density functional the
-features are functionals of :math:`n(\mathbf r)`; generalized Kohn--Sham
-models may additionally depend on the one-particle density matrix
+density from an electronic feature vector.  Density-based models use
+functionals of :math:`n(\mathbf r)`; generalized Kohn--Sham models may also
+depend on the one-particle density matrix
 :math:`n_1(\mathbf r,\mathbf r')`:
 
 .. math::
@@ -14,8 +14,8 @@ models may additionally depend on the one-particle density matrix
 
 The feature representation determines what spatial information is available
 to the regression, which exact scaling behavior can be imposed, which
-backends can evaluate the model, and which derivatives are available.  It is
-therefore part of the functional definition rather than a tunable SCF option.
+backends can evaluate the model, and which derivatives are available.  The
+serialized feature representation is part of the functional definition.
 
 Feature families
 ----------------
@@ -40,10 +40,6 @@ Feature families
      - Smoothed one-particle density matrix
      - Approximate exchange-hole and orbital information
      - CIDER24X
-   * - :ref:`NLOF <nlof_feat>`
-     - Fractional-Laplacian orbital quantities
-     - Experimental orbital nonlocality
-     - No packaged production model
 
 All models require a semilocal block, even when the learned correction is
 driven mainly by nonlocal descriptors.  The density and semilocal ingredients
@@ -53,31 +49,29 @@ low-density regularization.
 From raw quantities to model inputs
 -----------------------------------
 
-The arrays produced by a backend are not necessarily the coordinates passed
-to regression.  CiderPress applies three layers:
+The backend arrays pass through three layers before regression:
 
 1. A settings object declares the raw quantities and their parameters.
-2. Physical normalizers combine quantities into dimensionless or
+2. Physical normalizers combine them into dimensionless or
    controlled-scaling descriptors.
 3. Bounded transforms place the descriptors in coordinates suitable for the
    mapped Gaussian-process evaluator.
 
 The complete ordered settings, normalizers, and transforms are serialized in
-the model.  A packaged model should therefore be loaded as a unit.  Recreating
-an ``NLDFSettings`` or ``SDMXSettings`` object with similar parameters is not
-equivalent unless feature order, spin convention, exponents, normalization,
-and transforms all match.
+the model and are loaded as one unit.  An explicitly constructed settings
+object represents the same descriptors when its feature order, spin
+convention, exponents, normalization, and transforms all match.
 
 Family lineage
 --------------
 
 CIDER23X combines semilocal ingredients with efficient version-j NLDF
-descriptors.  CIDER24X replaces the density-only nonlocal block with SDMX and
-can train on orbital-occupation derivatives.  CIDER26XC uses version-j NLDF
-again, but supplies separate transformed inputs to learned exchange and
-correlation components.  The learned energy forms and the CIDER26XC feature
-vectors are explained in :doc:`../theory/full_xc`; model/backend
-compatibility is listed in :doc:`../usage/production_models`.
+descriptors.  CIDER24X uses SDMX and can train on orbital-occupation
+derivatives.  CIDER26XC uses version-j NLDF with separate transformed inputs
+for its learned exchange and correlation components.  The learned energy
+forms and CIDER26XC feature vectors are explained in
+:doc:`../theory/full_xc`; model/backend compatibility is listed in
+:doc:`../usage/production_models`.
 
 Numerical and physical constraints
 ----------------------------------
@@ -85,13 +79,14 @@ Numerical and physical constraints
 Scale-invariant exchange descriptors allow the exact uniform-coordinate
 scaling of exchange to be built into the energy form.  Correlation has a
 different scaling structure and may retain explicit density dependence.
-Rotational invariance is obtained through scalar contractions of vector or
-angular components, while spin channels are combined according to the model's
-exchange or correlation energy form.
+Scalar contractions of vector or angular components provide rotational
+invariance.  The model's exchange or correlation energy form determines how
+spin channels are combined.
 
 At very low density, near nuclei, and near interpolation boundaries, feature
-regularization is inseparable from numerical stability.  A change that makes
-forward features finite must also preserve their adjoint derivatives.  See
+regularization and numerical evaluation must be considered together.  A
+regularization applied in the forward evaluation must have the corresponding
+adjoint derivative.  See
 :doc:`../theory/uniform_scaling`, :doc:`../theory/nldf_numerical`, and
 :doc:`../theory/numerical_evaluation` for these constraints, and
 :doc:`../workflows/extending` before changing a feature implementation.
@@ -103,4 +98,3 @@ forward features finite must also preserve their adjoint derivatives.  See
    sl
    nldf
    sdmx
-   nlof

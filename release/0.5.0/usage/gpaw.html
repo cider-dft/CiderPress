@@ -118,13 +118,13 @@
   <section id="periodic-and-isolated-calculations-with-gpaw">
 <h1>Periodic and Isolated Calculations with GPAW<a class="headerlink" href="#periodic-and-isolated-calculations-with-gpaw" title="Link to this heading"></a></h1>
 <p>CiderPress integrates with the classic GPAW calculator in plane-wave mode.
-The production route uses PAW setups so the nonlocal descriptors include the
+The supported route uses PAW setups so the nonlocal descriptors include the
 all-electron core-region information described in
 <a class="reference internal" href="../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a>.</p>
 <section id="functional-construction">
 <h2>Functional construction<a class="headerlink" href="#functional-construction" title="Link to this heading"></a></h2>
-<p>CIDER26XC is a full-XC model.  Disable the initializer’s historical
-exchange-only baselines explicitly:</p>
+<p>CIDER26XC is a full-XC model.  Construct it with the composition stored in the
+model:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
     <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
     <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -144,8 +144,8 @@ composition:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is available only
-through PySCF because GPAW does not apply the model’s D4 energy correction.</p>
+<p>The GPAW interface evaluates NLDF models.  CIDER24X uses the PySCF SDMX path,
+and CIDER26XCCHEMD4 uses the PySCF D4 energy interface.</p>
 </section>
 <section id="pbe-seeded-periodic-workflow">
 <h2>PBE-seeded periodic workflow<a class="headerlink" href="#pbe-seeded-periodic-workflow" title="Link to this heading"></a></h2>
@@ -207,9 +207,10 @@ bands, symmetry, charge, spin, and occupations.  Write wavefunctions with
 <span class="linenos">53</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Use <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a> for a calculation that will
-be saved or restarted.  A normal <code class="docutils literal notranslate"><span class="pre">GPAW</span></code> calculator can evaluate an in-memory
-CIDER object, but it does not save all CIDER-specific restart information.</p>
+<p>Use <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a> for checkpointed
+calculations; it saves the CIDER-specific restart information.  A normal
+<code class="docutils literal notranslate"><span class="pre">GPAW</span></code> calculator can evaluate an in-memory CIDER object within the current
+process.</p>
 </section>
 <section id="surfaces-and-adsorption-systems">
 <h2>Surfaces and adsorption systems<a class="headerlink" href="#surfaces-and-adsorption-systems" title="Link to this heading"></a></h2>
@@ -283,10 +284,10 @@ separate PBE and CIDER checkpoints:</p>
 </pre></div>
 </div>
 <p>Evaluate the slab, isolated adsorbate/reference, and combined system with a
-consistent functional composition.  Their numerical representations need not
-be identical when physically inappropriate—for example, a molecule may use an
-isolated box—but each representation must be independently converged so that
-the energy difference is meaningful.</p>
+consistent functional composition.  Each system can use the representation
+appropriate to its boundary conditions; for example, a molecule may use an
+isolated box.  Converge each representation to the accuracy required by the
+energy difference.</p>
 </section>
 <section id="isolated-systems-in-periodic-boxes">
 <h2>Isolated systems in periodic boxes<a class="headerlink" href="#isolated-systems-in-periodic-boxes" title="Link to this heading"></a></h2>
@@ -317,8 +318,8 @@ enough vacuum for the property of interest:</p>
 <span class="linenos">23</span>        <span class="s2">&quot;eigenstates&quot;</span><span class="p">:</span> <span class="mf">5e-3</span><span class="p">,</span>
 <span class="linenos">24</span>        <span class="s2">&quot;bands&quot;</span><span class="p">:</span> <span class="s2">&quot;occupied&quot;</span><span class="p">,</span>
 <span class="linenos">25</span>    <span class="p">}</span>
-<span class="linenos">26</span>    <span class="c1"># The baseline is a density preconditioner, so a looser density target is</span>
-<span class="linenos">27</span>    <span class="c1"># sufficient here; the CIDER stage below applies the final target.</span>
+<span class="linenos">26</span>    <span class="c1"># This example uses a relaxed baseline density criterion before the CIDER</span>
+<span class="linenos">27</span>    <span class="c1"># restart.  Converge both stages for the target property.</span>
 <span class="linenos">28</span>    <span class="n">pbe_convergence</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">convergence</span><span class="p">)</span>
 <span class="linenos">29</span>    <span class="n">pbe_convergence</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-2</span>
 <span class="linenos">30</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">GPAW</span><span class="p">(</span>
@@ -370,10 +371,9 @@ enough vacuum for the property of interest:</p>
 </pre></div>
 </div>
 <p>A cubic box of approximately 12–15 Angstrom is a useful initial choice for a
-small neutral compact system, not a convergence guarantee.  Charged, diffuse,
-polar, or response-property calculations may require a larger cell and
-finite-size electrostatic treatment.  Preserve intended magnetic moments
-through both PBE and CIDER stages.</p>
+small neutral compact system.  Charged, diffuse, polar, or response-property
+calculations may require a larger cell and finite-size electrostatic
+treatment.  Use the intended magnetic state in both PBE and CIDER stages.</p>
 </section>
 <section id="restarting-a-cider-checkpoint">
 <h2>Restarting a CIDER checkpoint<a class="headerlink" href="#restarting-a-cider-checkpoint" title="Link to this heading"></a></h2>
@@ -418,26 +418,25 @@ calculator is recreated:</p>
 </div>
 <p>The checkpoint stores the mapped model text and nonlocal interpolation
 parameters, including <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code>, <code class="docutils literal notranslate"><span class="pre">lambd</span></code>, and the plane-wave cutoff
-<code class="docutils literal notranslate"><span class="pre">encut</span></code> derived from the <code class="docutils literal notranslate"><span class="pre">qmax</span></code> argument.  When a checkpoint is opened
-without an explicit <code class="docutils literal notranslate"><span class="pre">xc=</span></code> override, <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a>
-reconstructs the saved CIDER functional automatically.  Passing <code class="docutils literal notranslate"><span class="pre">xc=</span></code>
-explicitly requests an override instead.  In either case, verify the model
-name, composition, and requested numerical controls in the resumed output.</p>
+<code class="docutils literal notranslate"><span class="pre">encut</span></code> derived from the <code class="docutils literal notranslate"><span class="pre">qmax</span></code> argument.  Opening the checkpoint with its
+saved XC setting makes <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a>
+reconstruct the saved CIDER functional.  An explicit <code class="docutils literal notranslate"><span class="pre">xc=</span></code> argument selects
+a replacement functional.  Verify the model name, composition, and requested
+numerical controls in the resumed output.</p>
 </section>
 <section id="forces-and-stress">
 <h2>Forces and stress<a class="headerlink" href="#forces-and-stress" title="Link to this heading"></a></h2>
 <p>ASE’s normal <code class="docutils literal notranslate"><span class="pre">get_forces()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_stress()</span></code> calls include the CIDER FFT
 and PAW derivative contributions for the supported PAW path.  See
-<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> and the complete force/stress template.  Meta-GGA
-force/stress calculations with norm-conserving pseudopotentials are not
-supported.</p>
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> and the complete force/stress template.  The supported
+meta-GGA force/stress implementation uses PAW setups.</p>
 </section>
 <section id="pasdw-and-interpolation-controls">
 <h2>PASDW and interpolation controls<a class="headerlink" href="#pasdw-and-interpolation-controls" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs=False</span></code> is the memory-saving default.  Setting it to
 <code class="docutils literal notranslate"><span class="pre">True</span></code> caches atomic projector functions and can reduce repeated cost at
-substantial memory expense.  <code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit=True</span></code> improves projection
-consistency and should remain fixed in sensitive comparisons.</p>
+substantial memory expense.  <code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit=True</span></code> selects overlap fitting
+for the projection.  Use the same value throughout a numerical comparison.</p>
 <p><code class="docutils literal notranslate"><span class="pre">qmax</span></code> and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> control the expansion of the nonlocal kernel.  Defaults
 are intended as general settings; smaller <code class="docutils literal notranslate"><span class="pre">lambd</span></code> gives denser interpolation
 and higher cost.  Treat a change to these values as a numerical convergence
@@ -457,10 +456,9 @@ before scaling to multiple nodes.</p>
 <section id="scf-strategy">
 <h2>SCF strategy<a class="headerlink" href="#scf-strategy" title="Link to this heading"></a></h2>
 <p>Start from a converged PBE checkpoint.  If the direct CIDER restart fails,
-preconverge PBE with the mixer intended for the next CIDER attempt rather than
-changing several controls only on the CIDER side.  Metals and magnetic systems
-often need smaller density and magnetization mixing, occupation smearing, and
-explicit monitoring of local moments.</p>
+preconverge PBE with the mixer intended for the next CIDER attempt.  Metals
+and magnetic systems often need smaller density and magnetization mixing,
+occupation smearing, and explicit monitoring of local moments.</p>
 <p>Use <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a> for calculation-class ladders and
 <a class="reference internal" href="reproducibility.html"><span class="doc">Recording and Checking a Calculation</span></a> for the settings and checks to retain with a calculation.</p>
 </section>

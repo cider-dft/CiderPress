@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Transform Data Module &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Bounded Regression Coordinates &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="The XC Evaluator Modules" href="xc_evaluator.html" />
-    <link rel="prev" title="The Feature Normalizer Module" href="feat_normalizer.html" /> 
+    <link rel="next" title="Energy-Density Baselines" href="baselines.html" />
+    <link rel="prev" title="Physical Feature Normalization" href="feat_normalizer.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -70,40 +70,47 @@
 <p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="dft.html">Core DFT Representation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="settings.html">The Settings Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plans.html">The Plans Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">The Transform Data Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.EMap"><code class="docutils literal notranslate"><span class="pre">EMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.FeatureNormalizer"><code class="docutils literal notranslate"><span class="pre">FeatureNormalizer</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.LMap"><code class="docutils literal notranslate"><span class="pre">LMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.OmegaMap"><code class="docutils literal notranslate"><span class="pre">OmegaMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLBMap"><code class="docutils literal notranslate"><span class="pre">SLBMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLDMap"><code class="docutils literal notranslate"><span class="pre">SLDMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLNMap"><code class="docutils literal notranslate"><span class="pre">SLNMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLR2Map"><code class="docutils literal notranslate"><span class="pre">SLR2Map</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLR3Map"><code class="docutils literal notranslate"><span class="pre">SLR3Map</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLRMap"><code class="docutils literal notranslate"><span class="pre">SLRMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLTMap"><code class="docutils literal notranslate"><span class="pre">SLTMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLTWMap"><code class="docutils literal notranslate"><span class="pre">SLTWMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SLXMap"><code class="docutils literal notranslate"><span class="pre">SLXMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.SignedUMap"><code class="docutils literal notranslate"><span class="pre">SignedUMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.TMap"><code class="docutils literal notranslate"><span class="pre">TMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.UMap"><code class="docutils literal notranslate"><span class="pre">UMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.V2Map"><code class="docutils literal notranslate"><span class="pre">V2Map</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.V3Map"><code class="docutils literal notranslate"><span class="pre">V3Map</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.V4Map"><code class="docutils literal notranslate"><span class="pre">V4Map</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.VMap"><code class="docutils literal notranslate"><span class="pre">VMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.VZMap"><code class="docutils literal notranslate"><span class="pre">VZMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.WMap"><code class="docutils literal notranslate"><span class="pre">WMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.XMap"><code class="docutils literal notranslate"><span class="pre">XMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.YMap"><code class="docutils literal notranslate"><span class="pre">YMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.ZMap"><code class="docutils literal notranslate"><span class="pre">ZMap</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ciderpress.dft.transform_data.cls"><code class="docutils literal notranslate"><span class="pre">cls</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#regression-coordinates">Regression coordinates</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dft.html#energy-composition-and-evaluation">Energy composition and evaluation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Bounded Regression Coordinates</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.EMap"><code class="docutils literal notranslate"><span class="pre">EMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.FeatureNormalizer"><code class="docutils literal notranslate"><span class="pre">FeatureNormalizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.LMap"><code class="docutils literal notranslate"><span class="pre">LMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.OmegaMap"><code class="docutils literal notranslate"><span class="pre">OmegaMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLBMap"><code class="docutils literal notranslate"><span class="pre">SLBMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLDMap"><code class="docutils literal notranslate"><span class="pre">SLDMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLNMap"><code class="docutils literal notranslate"><span class="pre">SLNMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLR2Map"><code class="docutils literal notranslate"><span class="pre">SLR2Map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLR3Map"><code class="docutils literal notranslate"><span class="pre">SLR3Map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLRMap"><code class="docutils literal notranslate"><span class="pre">SLRMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLTMap"><code class="docutils literal notranslate"><span class="pre">SLTMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLTWMap"><code class="docutils literal notranslate"><span class="pre">SLTWMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SLXMap"><code class="docutils literal notranslate"><span class="pre">SLXMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.SignedUMap"><code class="docutils literal notranslate"><span class="pre">SignedUMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.TMap"><code class="docutils literal notranslate"><span class="pre">TMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.UMap"><code class="docutils literal notranslate"><span class="pre">UMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.V2Map"><code class="docutils literal notranslate"><span class="pre">V2Map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.V3Map"><code class="docutils literal notranslate"><span class="pre">V3Map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.V4Map"><code class="docutils literal notranslate"><span class="pre">V4Map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.VMap"><code class="docutils literal notranslate"><span class="pre">VMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.VZMap"><code class="docutils literal notranslate"><span class="pre">VZMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.WMap"><code class="docutils literal notranslate"><span class="pre">WMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.XMap"><code class="docutils literal notranslate"><span class="pre">XMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.YMap"><code class="docutils literal notranslate"><span class="pre">YMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.ZMap"><code class="docutils literal notranslate"><span class="pre">ZMap</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.transform_data.cls"><code class="docutils literal notranslate"><span class="pre">cls</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="xc_evaluator.html">The XC Evaluator Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
@@ -132,7 +139,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
-      <li class="breadcrumb-item active">The Transform Data Module</li>
+      <li class="breadcrumb-item active">Bounded Regression Coordinates</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/dft/transform_data.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -142,9 +149,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-ciderpress.dft.transform_data">
-<span id="the-transform-data-module"></span><span id="transform-data-module"></span><h1>The Transform Data Module<a class="headerlink" href="#module-ciderpress.dft.transform_data" title="Link to this heading"></a></h1>
-<dl class="py class">
+  <section id="bounded-regression-coordinates">
+<h1>Bounded Regression Coordinates<a class="headerlink" href="#bounded-regression-coordinates" title="Link to this heading"></a></h1>
+<p>After physical normalization, a feature can still be unbounded or strongly
+skewed.  The map classes in this module define the algebraic coordinates used
+by the covariance kernel or mapped evaluator.  Each map records its raw input
+indices and parameters, evaluates one transformed coordinate, and propagates
+its derivative back to every raw input it uses.</p>
+<p><code class="docutils literal notranslate"><span class="pre">FeatureList</span></code> stores these maps in regression order.  <code class="docutils literal notranslate"><span class="pre">fill_vals_</span></code> applies
+the forward maps, <code class="docutils literal notranslate"><span class="pre">fill_derivs_</span></code> applies their adjoints, and YAML
+serialization preserves map types and parameters.  Examples include the
+rational map <span class="math notranslate nohighlight">\(y=\gamma x/(1+\gamma x)\)</span> and the <code class="docutils literal notranslate"><span class="pre">SLTMap</span></code> used for the
+bounded CIDER26XC kinetic-energy indicator.  Model loading supplies the exact
+list associated with a packaged functional.</p>
+<dl class="py class" id="module-ciderpress.dft.transform_data">
 <dt class="sig sig-object py" id="ciderpress.dft.transform_data.EMap">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.transform_data.</span></span><span class="sig-name descname"><span class="pre">EMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.transform_data.EMap" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -287,8 +305,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="feat_normalizer.html" class="btn btn-neutral float-left" title="The Feature Normalizer Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="xc_evaluator.html" class="btn btn-neutral float-right" title="The XC Evaluator Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="feat_normalizer.html" class="btn btn-neutral float-left" title="Physical Feature Normalization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="baselines.html" class="btn btn-neutral float-right" title="Energy-Density Baselines" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

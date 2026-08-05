@@ -68,8 +68,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#numerical-and-physical-constraints">Numerical and physical constraints</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density-Matrix Exchange Features</a></li>
 </ul>
 </li>
 </ul>
@@ -120,17 +119,17 @@
   <section id="electronic-features-in-ciderpress">
 <h1>Electronic Features in CiderPress<a class="headerlink" href="#electronic-features-in-ciderpress" title="Link to this heading"></a></h1>
 <p>CIDER models predict a grid-resolved exchange or exchange-correlation energy
-density from an electronic feature vector.  In a pure density functional the
-features are functionals of <span class="math notranslate nohighlight">\(n(\mathbf r)\)</span>; generalized Kohn–Sham
-models may additionally depend on the one-particle density matrix
+density from an electronic feature vector.  Density-based models use
+functionals of <span class="math notranslate nohighlight">\(n(\mathbf r)\)</span>; generalized Kohn–Sham models may also
+depend on the one-particle density matrix
 <span class="math notranslate nohighlight">\(n_1(\mathbf r,\mathbf r')\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[E_{\mathrm{xc}} = \int d^3\mathbf r\,
 e_{\mathrm{xc}}\!\left(\mathbf x[n,n_1](\mathbf r)\right).\]</div>
 <p>The feature representation determines what spatial information is available
 to the regression, which exact scaling behavior can be imposed, which
-backends can evaluate the model, and which derivatives are available.  It is
-therefore part of the functional definition rather than a tunable SCF option.</p>
+backends can evaluate the model, and which derivatives are available.  The
+serialized feature representation is part of the functional definition.</p>
 <section id="feature-families">
 <h2>Feature families<a class="headerlink" href="#feature-families" title="Link to this heading"></a></h2>
 <table class="docutils align-default" id="id1">
@@ -164,11 +163,6 @@ therefore part of the functional definition rather than a tunable SCF option.</p
 <td><p>Approximate exchange-hole and orbital information</p></td>
 <td><p>CIDER24X</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="nlof.html#nlof-feat"><span class="std std-ref">NLOF</span></a></p></td>
-<td><p>Fractional-Laplacian orbital quantities</p></td>
-<td><p>Experimental orbital nonlocality</p></td>
-<td><p>No packaged production model</p></td>
-</tr>
 </tbody>
 </table>
 <p>All models require a semilocal block, even when the learned correction is
@@ -178,42 +172,41 @@ low-density regularization.</p>
 </section>
 <section id="from-raw-quantities-to-model-inputs">
 <h2>From raw quantities to model inputs<a class="headerlink" href="#from-raw-quantities-to-model-inputs" title="Link to this heading"></a></h2>
-<p>The arrays produced by a backend are not necessarily the coordinates passed
-to regression.  CiderPress applies three layers:</p>
+<p>The backend arrays pass through three layers before regression:</p>
 <ol class="arabic simple">
 <li><p>A settings object declares the raw quantities and their parameters.</p></li>
-<li><p>Physical normalizers combine quantities into dimensionless or
+<li><p>Physical normalizers combine them into dimensionless or
 controlled-scaling descriptors.</p></li>
 <li><p>Bounded transforms place the descriptors in coordinates suitable for the
 mapped Gaussian-process evaluator.</p></li>
 </ol>
 <p>The complete ordered settings, normalizers, and transforms are serialized in
-the model.  A packaged model should therefore be loaded as a unit.  Recreating
-an <code class="docutils literal notranslate"><span class="pre">NLDFSettings</span></code> or <code class="docutils literal notranslate"><span class="pre">SDMXSettings</span></code> object with similar parameters is not
-equivalent unless feature order, spin convention, exponents, normalization,
-and transforms all match.</p>
+the model and are loaded as one unit.  An explicitly constructed settings
+object represents the same descriptors when its feature order, spin
+convention, exponents, normalization, and transforms all match.</p>
 </section>
 <section id="family-lineage">
 <h2>Family lineage<a class="headerlink" href="#family-lineage" title="Link to this heading"></a></h2>
 <p>CIDER23X combines semilocal ingredients with efficient version-j NLDF
-descriptors.  CIDER24X replaces the density-only nonlocal block with SDMX and
-can train on orbital-occupation derivatives.  CIDER26XC uses version-j NLDF
-again, but supplies separate transformed inputs to learned exchange and
-correlation components.  The learned energy forms and the CIDER26XC feature
-vectors are explained in <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>; model/backend
-compatibility is listed in <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
+descriptors.  CIDER24X uses SDMX and can train on orbital-occupation
+derivatives.  CIDER26XC uses version-j NLDF with separate transformed inputs
+for its learned exchange and correlation components.  The learned energy
+forms and CIDER26XC feature vectors are explained in
+<a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>; model/backend compatibility is listed in
+<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
 </section>
 <section id="numerical-and-physical-constraints">
 <h2>Numerical and physical constraints<a class="headerlink" href="#numerical-and-physical-constraints" title="Link to this heading"></a></h2>
 <p>Scale-invariant exchange descriptors allow the exact uniform-coordinate
 scaling of exchange to be built into the energy form.  Correlation has a
 different scaling structure and may retain explicit density dependence.
-Rotational invariance is obtained through scalar contractions of vector or
-angular components, while spin channels are combined according to the model’s
-exchange or correlation energy form.</p>
+Scalar contractions of vector or angular components provide rotational
+invariance.  The model’s exchange or correlation energy form determines how
+spin channels are combined.</p>
 <p>At very low density, near nuclei, and near interpolation boundaries, feature
-regularization is inseparable from numerical stability.  A change that makes
-forward features finite must also preserve their adjoint derivatives.  See
+regularization and numerical evaluation must be considered together.  A
+regularization applied in the forward evaluation must have the corresponding
+adjoint derivative.  See
 <a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>, <a class="reference internal" href="../theory/nldf_numerical.html"><span class="doc">Numerical Evaluation of NLDF Features</span></a>, and
 <a class="reference internal" href="../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for these constraints, and
 <a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> before changing a feature implementation.</p>
@@ -222,8 +215,7 @@ forward features finite must also preserve their adjoint derivatives.  See
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdmx.html">Smoothed Density-Matrix Exchange Features</a></li>
 </ul>
 </div>
 </section>

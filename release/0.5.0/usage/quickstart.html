@@ -111,9 +111,9 @@
              
   <section id="first-calculations">
 <h1>First Calculations<a class="headerlink" href="#first-calculations" title="Link to this heading"></a></h1>
-<p>This page provides the shortest supported path from an installed environment
-to a CIDER result.  The complete backend guides explain numerical choices,
-properties, and restarts.</p>
+<p>The examples below run one molecular and one periodic CIDER calculation.  The
+complete <a class="reference internal" href="pyscf.html"><span class="doc">PySCF</span></a> and <a class="reference internal" href="gpaw.html"><span class="doc">GPAW</span></a> guides cover numerical
+choices, properties, and restarts.</p>
 <section id="molecule-with-pyscf">
 <h2>Molecule with PySCF<a class="headerlink" href="#molecule-with-pyscf" title="Link to this heading"></a></h2>
 <p>The packaged CIDER26XC molecular model uses the normal PySCF molecular and SCF
@@ -177,14 +177,14 @@ objects:</p>
 <p>Check <code class="docutils literal notranslate"><span class="pre">mf.converged</span></code> before interpreting the energy.  For open-shell or
 difficult systems, also verify the occupations and electronic state.  The
 example prints the base, expected dispersion, and adjustment terms for every
-CIDER26XC model; with <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> they show how the final total was
-assembled, while for the models without an explicit D4 term the dispersion
-entries are zero.</p>
+CIDER26XC model.  With <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> they show how the final total was
+assembled; <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code> print zero for the
+dispersion entries.</p>
 </section>
 <section id="exchange-only-model-with-pyscf">
 <h2>Exchange-only model with PySCF<a class="headerlink" href="#exchange-only-model-with-pyscf" title="Link to this heading"></a></h2>
-<p>Published CIDER23X and CIDER24X models contain exchange rather than full XC.
-The following example uses the PBE0/CIDER surrogate composition:</p>
+<p>Packaged CIDER23X and CIDER24X are exchange functionals.  The following
+example supplies the PBE0/CIDER surrogate composition:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
 <span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Run a packaged CIDER23X or CIDER24X exchange model with PySCF.&quot;&quot;&quot;</span>
 <span class="linenos"> 3</span>
@@ -235,7 +235,8 @@ The following example uses the PBE0/CIDER surrogate composition:</p>
 <span class="linenos">48</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The explicit <code class="docutils literal notranslate"><span class="pre">xmix</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel</span></code> arguments are essential.
+<p>The explicit <code class="docutils literal notranslate"><span class="pre">xmix</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel</span></code> arguments define the
+surrogate-hybrid composition.
 For CIDER24X, install <code class="docutils literal notranslate"><span class="pre">ciderpress[cider24]</span></code> and select the corresponding name.</p>
 </section>
 <section id="periodic-solid-with-gpaw">
@@ -302,10 +303,10 @@ installed GPAW build, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">4</span><span class="w"> </span>python<span class="w"> </span>examples/gpaw/production_calc.py
 </pre></div>
 </div>
-<p>Before scaling up, verify a small calculation with the same MPI, FFT, BLAS,
-OpenMP, and GPAW setup stack intended for production.  Continue with
-<a class="reference internal" href="pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a> or <a class="reference internal" href="gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>, and use <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a> if the direct SCF path
-does not converge.</p>
+<p>Before scaling up, verify a small calculation with the MPI, FFT, BLAS,
+OpenMP, and GPAW setup stack intended for the larger calculation.  Continue
+with <a class="reference internal" href="pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a> or <a class="reference internal" href="gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>; <a class="reference internal" href="convergence.html"><span class="doc">SCF Convergence Recommendations</span></a> gives a restart sequence
+for difficult SCF calculations.</p>
 </section>
 </section>
 

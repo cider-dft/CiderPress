@@ -29,12 +29,13 @@ composition explicitly:
        ckernel="GGA_C_PBE",
    )
 
-See :doc:`production_models` before changing the model or mixing fraction.
+The compositions associated with each packaged model are listed in
+:doc:`production_models`.
 
 Closed-shell workflow
 ---------------------
 
-The complete first calculation is:
+A complete closed-shell example is:
 
 .. literalinclude:: ../../examples/pyscf/production_calc.py
    :language: python
@@ -51,24 +52,24 @@ Density fitting
 ---------------
 
 Calling ``density_fit`` after ``make_cider_calc`` accelerates the Coulomb
-problem; CIDER26XC evaluates no exact exchange.  Select a compatible auxiliary
-basis and keep it consistent across an energy difference:
+problem.  CIDER26XC has a zero exact-exchange fraction.  Select a compatible
+auxiliary basis and keep it consistent across an energy difference:
 
 .. code-block:: python
 
    mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
    mf = mf.density_fit(auxbasis="def2-universal-jfit")
 
-Density fitting leaves the selected CIDER model and its D4 behavior unchanged.
-It is a numerical approximation, not a change to the CIDER functional form.
+Density fitting approximates the Coulomb contribution.  The selected CIDER
+model and its D4 behavior remain unchanged.
 
 Open-shell systems
 ------------------
 
 Use ``UKS`` and set ``mol.spin`` to :math:`N_\alpha-N_\beta`.  Supply a
 physically motivated initial state and verify the converged occupations,
-orbital character, and ``spin_square()`` result.  A converged total energy can
-belong to an unintended electronic basin.
+orbital character, and ``spin_square()`` result.  Multiple stationary
+solutions can satisfy the SCF thresholds.
 
 For a difficult system, first converge a conventional functional with the
 same molecule, basis, grid, charge, and spin, then provide its density to the
@@ -78,9 +79,9 @@ CIDER calculation:
    :language: python
    :linenos:
 
-The fallback ladder changes one control family at a time.  A relaxed or
-level-shifted rung supplies a new starting density; the example reruns that
-density with the intended tight controls before returning a result.
+The fallback ladder records each control set separately.  A relaxed or
+level-shifted rung supplies a new starting density, followed in this example
+by a calculation with the listed standard CDIIS controls.
 
 Checkpoints and interrupted calculations
 ----------------------------------------
@@ -99,31 +100,25 @@ density after interruption:
    dm0 = mf.make_rdm1(mo, occ)
    energy = mf.kernel(dm0=dm0)
 
-Recreate the CIDER calculation before loading the checkpoint orbitals; a PySCF
-checkpoint does not recreate the selected CIDER model automatically.  Confirm
-that its molecule, basis, charge, spin, and orbital dimensions match the new
-calculation.
+Recreate the selected CIDER model, then load the orbitals and occupations from
+the PySCF checkpoint.  Confirm that its molecule, basis, charge, spin, and
+orbital dimensions match the new calculation.
 
 D4-corrected energy
 -------------------
 
-``CIDER26XCCHEMD4`` uses the same SCF density path as its mapped full-XC model
-and evaluates D4 from the geometry afterward.  Inspect
-``e_tot_base``, ``e_vdw_present``, ``e_vdw_expected``, and ``e_vdw_delta``
-when combining wrappers or restarting an existing object.  The returned
-``kernel()`` value and ``e_tot`` include the final adjustment exactly once.
+``CIDER26XCCHEMD4`` evaluates its electronic full-XC contribution during the
+SCF and D4 from the geometry afterward.  Every CIDER26XC calculation exposes
+``e_tot_base``, ``e_vdw_present``, ``e_vdw_expected``, and ``e_vdw_delta``.
+For ``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, the expected dispersion is zero
+and a supported ``with_dftd3``/``with_dftd4`` wrapper is disabled.  For
+``CIDER26XCCHEMD4``, CiderPress measures an attached wrapper contribution and
+adjusts it to the model's expected D4 value.  The returned ``kernel()`` value
+and ``e_tot`` contain the final energy.  See :doc:`production_models` for the
+attribute definitions and accounting formula.
 
-This dispersion accounting is active for every CIDER26XC model.  CiderPress
-disables a supported ``with_dftd3``/``with_dftd4`` wrapper for
-``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, whose expected dispersion term is
-zero.  For ``CIDER26XCCHEMD4``, it measures any attached wrapper contribution
-and reconciles it with the model's expected D4 value.  The reported
-``e_tot_base`` is the total before this final reconciliation; inspect
-``e_vdw_present``, ``e_vdw_expected``, and ``e_vdw_delta`` to see the complete
-accounting.
-
-D4 does not contribute to the current molecular gradient implementation.  See
-:doc:`properties` before using derivative-based workflows.
+The current molecular gradient contains the electronic CIDER contribution.
+See :doc:`properties` for composite CIDER+D4 derivatives.
 
 CIDER24X
 --------
@@ -141,10 +136,11 @@ Analytical restricted and unrestricted nuclear gradients are available for
 the molecular NLDF path, including density-fitted calculations.  Use
 ``mf.nuc_grad_method()`` as shown in :doc:`properties`.
 
-Hessians, NMR, polarizability, coupled-cluster, multireference, and similar
-methods are not available from a CIDER mean-field object.  SDMX and
-nonlocal-orbital molecular gradients are also unavailable.  The complete list
-of currently supported properties is given in :doc:`properties`.
+The CIDER mean-field object provides the energies and derivatives listed in
+:doc:`properties`.  Hessians, NMR, polarizability, coupled-cluster,
+multireference, and similar response or post-SCF methods are outside that
+interface.  The documented analytical-gradient implementation covers the
+molecular NLDF path.
 
 SCF practice
 ------------
@@ -153,8 +149,8 @@ SCF practice
   required by the final energy difference.
 * Use a baseline density for open-shell, transition-metal, stretched-bond, or
   near-degenerate systems.
-* Preserve a fresh-atomic-guess route; a baseline density can select the wrong
-  basin.
+* Compare baseline-seeded and atomic-guess solutions when multiple electronic
+  states are plausible.
 * Confirm that a converged solution has the intended occupations, spin state,
   and orbital character.
 * Diagnose occupation switching before applying finite-temperature smearing.

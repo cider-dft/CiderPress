@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model Loading &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Energy-Density Baselines &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -16,11 +16,12 @@
       <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Regression, Training, and Mapping APIs" href="../models/models.html" />
-    <link rel="prev" title="Mapped XC Evaluators" href="xc_evaluator.html" /> 
+    <link rel="next" title="Mapped XC Evaluators" href="xc_evaluator.html" />
+    <link rel="prev" title="Bounded Regression Coordinates" href="transform_data.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -77,14 +78,9 @@
 <li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Physical Feature Normalization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="transform_data.html">Bounded Regression Coordinates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Energy-Density Baselines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Model Loading</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.get_slxc_settings"><code class="docutils literal notranslate"><span class="pre">get_slxc_settings()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.load_cider_model"><code class="docutils literal notranslate"><span class="pre">load_cider_model()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.validate_cider_composition"><code class="docutils literal notranslate"><span class="pre">validate_cider_composition()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
 </ul>
 </li>
 </ul>
@@ -115,9 +111,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
-      <li class="breadcrumb-item active">Model Loading</li>
+      <li class="breadcrumb-item active">Energy-Density Baselines</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/ciderpress/dft/model_utils.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/ciderpress/dft/baselines.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -125,43 +121,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="model-loading">
-<h1>Model Loading<a class="headerlink" href="#model-loading" title="Link to this heading"></a></h1>
-<p>Packaged names and explicit files enter the same mapped-model interface.
-<code class="docutils literal notranslate"><span class="pre">BUILTIN_MODELS</span></code> is the authoritative list shipped in the installed
-package.  A real filesystem path takes precedence over a packaged alias, and
-the optional <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> suffix is accepted for built-in names.</p>
-<p>YAML and joblib inputs reconstruct Python objects and must be trusted.  Use
-the release checksums in <a class="reference internal" href="../../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> when an exact
-artifact identity matters.</p>
-<dl class="py function" id="module-ciderpress.dft.model_utils">
-<dt class="sig sig-object py" id="ciderpress.dft.model_utils.get_slxc_settings">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">get_slxc_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xkernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ckernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.get_slxc_settings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ciderpress.dft.model_utils.load_cider_model">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">load_cider_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlfunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlfunc_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.load_cider_model" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ciderpress.dft.model_utils.validate_cider_composition">
-<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">validate_cider_composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlfunc</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xkernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ckernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CiderPress'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.validate_cider_composition" title="Link to this definition"></a></dt>
-<dd><p>Reject additive semilocal terms for mapped full-XC models.</p>
-<p><code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> objects already contain their complete exchange-correlation
-baseline.  Mixing them with an external exchange or correlation kernel
-changes the functional and, in GPAW’s historical default configuration,
-silently double-counts PBE correlation.</p>
-</dd></dl>
-
-</section>
+  <section id="energy-density-baselines">
+<h1>Energy-Density Baselines<a class="headerlink" href="#energy-density-baselines" title="Link to this heading"></a></h1>
+<p>A CIDER kernel combines a learned scalar function with energy-density
+factors.  For the original <code class="docutils literal notranslate"><span class="pre">DFTKernel</span></code> interface, Python callables evaluate</p>
+<div class="math notranslate nohighlight">
+\[e(\mathbf X)=a(\mathbf X)+m(\mathbf X)f_\mathrm{ML}(\mathbf X)\]</div>
+<p>and return the corresponding derivatives with respect to the raw features.
+<code class="docutils literal notranslate"><span class="pre">zero_xc</span></code> and <code class="docutils literal notranslate"><span class="pre">one_xc</span></code> provide constant additive or multiplicative terms;
+the exchange and correlation helpers provide LDA/GGA factors.  These
+callables are selected during model construction and serialized into the
+mapped kernel.</p>
+<p><code class="docutils literal notranslate"><span class="pre">DFTKernel2</span></code> stores libxc identifiers for <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(m\)</span>.
+<code class="docutils literal notranslate"><span class="pre">MappedDFTKernel2</span></code> evaluates their energy, density, gradient, and
+kinetic-energy-density derivatives through <code class="docutils literal notranslate"><span class="pre">get_libxc_baseline</span></code>.  This is
+the baseline path used by the separate exchange and correlation kernels in
+CIDER26XC.</p>
+<span class="target" id="module-ciderpress.dft.baselines"></span></section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="xc_evaluator.html" class="btn btn-neutral float-left" title="Mapped XC Evaluators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../models/models.html" class="btn btn-neutral float-right" title="Regression, Training, and Mapping APIs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="transform_data.html" class="btn btn-neutral float-left" title="Bounded Regression Coordinates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="xc_evaluator.html" class="btn btn-neutral float-right" title="Mapped XC Evaluators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

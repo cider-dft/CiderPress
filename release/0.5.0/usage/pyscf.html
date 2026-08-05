@@ -140,11 +140,12 @@ composition explicitly:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> before changing the model or mixing fraction.</p>
+<p>The compositions associated with each packaged model are listed in
+<a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
 </section>
 <section id="closed-shell-workflow">
 <h2>Closed-shell workflow<a class="headerlink" href="#closed-shell-workflow" title="Link to this heading"></a></h2>
-<p>The complete first calculation is:</p>
+<p>A complete closed-shell example is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
 <span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Closed-shell molecular CIDER26XC calculation in PySCF.&quot;&quot;&quot;</span>
 <span class="linenos"> 3</span>
@@ -201,27 +202,27 @@ composition explicitly:</p>
 quantitative calculation, converge the basis, integration grid, SCF thresholds,
 and density-fitting approximation for the requested energy difference or
 derivative.  For a small end-to-end energetics workflow,
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/594ad960a61d35ba63a1fd4167ea1101c7ca05c3/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3badc003629b17f649b18ad12733b7e690537d34/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
 with a chosen libxc or packaged CIDER functional.</p>
 </section>
 <section id="density-fitting">
 <h2>Density fitting<a class="headerlink" href="#density-fitting" title="Link to this heading"></a></h2>
 <p>Calling <code class="docutils literal notranslate"><span class="pre">density_fit</span></code> after <code class="docutils literal notranslate"><span class="pre">make_cider_calc</span></code> accelerates the Coulomb
-problem; CIDER26XC evaluates no exact exchange.  Select a compatible auxiliary
-basis and keep it consistent across an energy difference:</p>
+problem.  CIDER26XC has a zero exact-exchange fraction.  Select a compatible
+auxiliary basis and keep it consistent across an energy difference:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
 <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Density fitting leaves the selected CIDER model and its D4 behavior unchanged.
-It is a numerical approximation, not a change to the CIDER functional form.</p>
+<p>Density fitting approximates the Coulomb contribution.  The selected CIDER
+model and its D4 behavior remain unchanged.</p>
 </section>
 <section id="open-shell-systems">
 <h2>Open-shell systems<a class="headerlink" href="#open-shell-systems" title="Link to this heading"></a></h2>
 <p>Use <code class="docutils literal notranslate"><span class="pre">UKS</span></code> and set <code class="docutils literal notranslate"><span class="pre">mol.spin</span></code> to <span class="math notranslate nohighlight">\(N_\alpha-N_\beta\)</span>.  Supply a
 physically motivated initial state and verify the converged occupations,
-orbital character, and <code class="docutils literal notranslate"><span class="pre">spin_square()</span></code> result.  A converged total energy can
-belong to an unintended electronic basin.</p>
+orbital character, and <code class="docutils literal notranslate"><span class="pre">spin_square()</span></code> result.  Multiple stationary
+solutions can satisfy the SCF thresholds.</p>
 <p>For a difficult system, first converge a conventional functional with the
 same molecule, basis, grid, charge, and spin, then provide its density to the
 CIDER calculation:</p>
@@ -271,8 +272,8 @@ CIDER calculation:</p>
 <span class="linenos">44</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
 <span class="linenos">45</span>                <span class="k">continue</span>
 <span class="linenos">46</span>
-<span class="linenos">47</span>            <span class="c1"># A relaxed rung supplies a preconditioned density.  Tighten the</span>
-<span class="linenos">48</span>            <span class="c1"># final calculation and remove level shifting/damping before use.</span>
+<span class="linenos">47</span>            <span class="c1"># A relaxed rung supplies a preconditioned density.  This example</span>
+<span class="linenos">48</span>            <span class="c1"># follows it with the standard CDIIS control set.</span>
 <span class="linenos">49</span>            <span class="k">if</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">:</span>
 <span class="linenos">50</span>                <span class="n">tight_density</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
 <span class="linenos">51</span>                <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">LADDER</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -318,9 +319,9 @@ CIDER calculation:</p>
 <span class="linenos">91</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The fallback ladder changes one control family at a time.  A relaxed or
-level-shifted rung supplies a new starting density; the example reruns that
-density with the intended tight controls before returning a result.</p>
+<p>The fallback ladder records each control set separately.  A relaxed or
+level-shifted rung supplies a new starting density, followed in this example
+by a calculation with the listed standard CDIIS controls.</p>
 </section>
 <section id="checkpoints-and-interrupted-calculations">
 <h2>Checkpoints and interrupted calculations<a class="headerlink" href="#checkpoints-and-interrupted-calculations" title="Link to this heading"></a></h2>
@@ -336,28 +337,23 @@ density after interruption:</p>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">dm0</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Recreate the CIDER calculation before loading the checkpoint orbitals; a PySCF
-checkpoint does not recreate the selected CIDER model automatically.  Confirm
-that its molecule, basis, charge, spin, and orbital dimensions match the new
-calculation.</p>
+<p>Recreate the selected CIDER model, then load the orbitals and occupations from
+the PySCF checkpoint.  Confirm that its molecule, basis, charge, spin, and
+orbital dimensions match the new calculation.</p>
 </section>
 <section id="d4-corrected-energy">
 <h2>D4-corrected energy<a class="headerlink" href="#d4-corrected-energy" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the same SCF density path as its mapped full-XC model
-and evaluates D4 from the geometry afterward.  Inspect
-<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code>
-when combining wrappers or restarting an existing object.  The returned
-<code class="docutils literal notranslate"><span class="pre">kernel()</span></code> value and <code class="docutils literal notranslate"><span class="pre">e_tot</span></code> include the final adjustment exactly once.</p>
-<p>This dispersion accounting is active for every CIDER26XC model.  CiderPress
-disables a supported <code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper for
-<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, whose expected dispersion term is
-zero.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, it measures any attached wrapper contribution
-and reconciles it with the model’s expected D4 value.  The reported
-<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code> is the total before this final reconciliation; inspect
-<code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code> to see the complete
-accounting.</p>
-<p>D4 does not contribute to the current molecular gradient implementation.  See
-<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> before using derivative-based workflows.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> evaluates its electronic full-XC contribution during the
+SCF and D4 from the geometry afterward.  Every CIDER26XC calculation exposes
+<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code>.
+For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero
+and a supported <code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper is disabled.  For
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures an attached wrapper contribution and
+adjusts it to the model’s expected D4 value.  The returned <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> value
+and <code class="docutils literal notranslate"><span class="pre">e_tot</span></code> contain the final energy.  See <a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> for the
+attribute definitions and accounting formula.</p>
+<p>The current molecular gradient contains the electronic CIDER contribution.
+See <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for composite CIDER+D4 derivatives.</p>
 </section>
 <section id="cider24x">
 <h2>CIDER24X<a class="headerlink" href="#cider24x" title="Link to this heading"></a></h2>
@@ -365,17 +361,18 @@ accounting.</p>
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
 mixing CUDA and CPU PyTorch installations within one environment.  A minimal
-SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/594ad960a61d35ba63a1fd4167ea1101c7ca05c3/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/3badc003629b17f649b18ad12733b7e690537d34/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
 </section>
 <section id="gradients-and-other-methods">
 <h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>
 <p>Analytical restricted and unrestricted nuclear gradients are available for
 the molecular NLDF path, including density-fitted calculations.  Use
 <code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> as shown in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
-<p>Hessians, NMR, polarizability, coupled-cluster, multireference, and similar
-methods are not available from a CIDER mean-field object.  SDMX and
-nonlocal-orbital molecular gradients are also unavailable.  The complete list
-of currently supported properties is given in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
+<p>The CIDER mean-field object provides the energies and derivatives listed in
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  Hessians, NMR, polarizability, coupled-cluster,
+multireference, and similar response or post-SCF methods are outside that
+interface.  The documented analytical-gradient implementation covers the
+molecular NLDF path.</p>
 </section>
 <section id="scf-practice">
 <h2>SCF practice<a class="headerlink" href="#scf-practice" title="Link to this heading"></a></h2>
@@ -384,8 +381,8 @@ of currently supported properties is given in <a class="reference internal" href
 required by the final energy difference.</p></li>
 <li><p>Use a baseline density for open-shell, transition-metal, stretched-bond, or
 near-degenerate systems.</p></li>
-<li><p>Preserve a fresh-atomic-guess route; a baseline density can select the wrong
-basin.</p></li>
+<li><p>Compare baseline-seeded and atomic-guess solutions when multiple electronic
+states are plausible.</p></li>
 <li><p>Confirm that a converged solution has the intended occupations, spin state,
 and orbital character.</p></li>
 <li><p>Diagnose occupation switching before applying finite-temperature smearing.</p></li>

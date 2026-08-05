@@ -115,14 +115,14 @@
              
   <section id="choosing-a-cider-functional">
 <h1>Choosing a CIDER Functional<a class="headerlink" href="#choosing-a-cider-functional" title="Link to this heading"></a></h1>
-<p>CiderPress 0.5.0 packages the published CIDER23X, CIDER24X, and CIDER26XC
-model files.  A packaged model is selected by short name; no download path is
-needed.  The families learn different parts of the functional, so model
-selection and functional initialization must be considered together.</p>
+<p>CiderPress 0.5.0 packages CIDER23X, CIDER24X, and CIDER26XC model files. Pass
+the model’s short name to the PySCF or GPAW constructor. The families learn
+different parts of the functional, so model selection and functional
+initialization must be considered together.</p>
 <section id="family-selection">
 <h2>Family selection<a class="headerlink" href="#family-selection" title="Link to this heading"></a></h2>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Published functional families</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<caption><span class="caption-text">Packaged functional families</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 15.0%" />
 <col style="width: 23.0%" />
@@ -159,9 +159,6 @@ selection and functional initialization must be considered together.</p>
 </tr>
 </tbody>
 </table>
-<p>The CIDER22X work introduced the original CIDER representation, but version
-0.5.0 does not ship a CIDER22X inference model.  It remains an important part
-of the theoretical lineage described in <a class="reference internal" href="../theory/framework.html"><span class="doc">The CIDER Framework</span></a>.</p>
 </section>
 <section id="cider23x-exchange-models">
 <h2>CIDER23X exchange models<a class="headerlink" href="#cider23x-exchange-models" title="Link to this heading"></a></h2>
@@ -234,16 +231,15 @@ mapped neural evaluator.  Install their optional runtime before loading them:</p
 <p>For systems requiring a platform-specific CPU or CUDA build, install PyTorch
 using its platform instructions before installing CiderPress.</p>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">CIDER24Xne</span></code></dt><dd><p>Trained without eigenvalue labels.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">CIDER24Xne</span></code></dt><dd><p>Trained on energy labels.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code></dt><dd><p>Includes orbital-energy training information and was designed for improved
-eigenvalue differences in addition to energetics.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code></dt><dd><p>Trained on total-energy and orbital-energy labels.</p>
 </dd>
 </dl>
 <p>Both are exchange models.  Use the explicit PBE0/CIDER composition shown for
 CIDER23X.  They are supported through the molecular PySCF interface.  The
-periodic PySCF SDMX implementation is retained for reproducing the published
-work but is not the production periodic route.</p>
+periodic PySCF SDMX implementation supports methodological reproduction of
+the CIDER24X work.  Packaged periodic NLDF calculations use GPAW.</p>
 </section>
 <section id="cider26xc-full-xc-models">
 <h2>CIDER26XC full-XC models<a class="headerlink" href="#cider26xc-full-xc-models" title="Link to this heading"></a></h2>
@@ -265,7 +261,7 @@ work but is not the production periodic route.</p>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code></p></td>
 <td><p>Molecular chemistry</p></td>
-<td><p>No explicit correction</p></td>
+<td><p>Electronic model</p></td>
 <td><p>PySCF</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code></p></td>
@@ -275,7 +271,7 @@ work but is not the production periodic route.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code></p></td>
 <td><p>Molecules, solids, surfaces, and adsorption</p></td>
-<td><p>No separate D4 term</p></td>
+<td><p>Electronic model</p></td>
 <td><p>PySCF and classic GPAW</p></td>
 </tr>
 </tbody>
@@ -285,10 +281,10 @@ described in <a class="reference internal" href="../theory/full_xc.html"><span c
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>GPAW’s initializer also supports exchange-only models, so its historical
-defaults specify PBE composition kernels.  At the default <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code> the
-external exchange kernel is scaled to zero, but the default PBE correlation
-kernel is still added in full.  Override the defaults for CIDER26XC:</p>
+<p>GPAW’s initializer serves both exchange and full-XC models.  Its keyword
+defaults specify the PBE kernels used by exchange models; a nonzero
+<code class="docutils literal notranslate"><span class="pre">ckernel</span></code> would add that correlation term to the full XC already stored in
+CIDER26XC.  Supply the full-XC composition explicitly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
     <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
     <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -297,18 +293,18 @@ kernel is still added in full.  Override the defaults for CIDER26XC:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">get_cider_functional</span></code> validates this composition and raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
-instead of constructing a full-XC model with an additional semilocal term.
-Pass the three composition arguments explicitly for GPAW full-XC models.</p>
-<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> can be evaluated in an isolated GPAW PAW box, but PySCF is
-the intended molecular representation.  <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> is rejected by
-GPAW because the model’s D4 energy correction is implemented only in PySCF.</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_cider_functional</span></code> validates these arguments against the stored model
+composition.  Pass all three explicitly for GPAW full-XC models.</p>
+<p>PySCF is the intended molecular representation for <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code>; the
+electronic model can also be evaluated in an isolated GPAW PAW box.
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the PySCF D4 energy interface, and selecting it in
+GPAW raises an error.</p>
 </section>
 <section id="d4-energy-accounting">
 <h2>D4 energy accounting<a class="headerlink" href="#d4-energy-accounting" title="Link to this heading"></a></h2>
-<p>D4 is evaluated after the density SCF and therefore does not change the CIDER
-potential or density.  After <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> the following attributes describe
-the energy assembly:</p>
+<p>D4 is evaluated after the density SCF.  The potential and density are those of
+the electronic CIDER model.  After <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> the following attributes
+describe the energy assembly:</p>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span></code></dt><dd><p>Energy returned by the underlying SCF object before CiderPress makes the
 model-specific dispersion adjustment.</p>
@@ -321,27 +317,24 @@ supported dispersion wrapper was present.</p>
 <dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_delta</span></code></dt><dd><p>Adjustment <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span> <span class="pre">-</span> <span class="pre">e_vdw_present</span></code> added to <code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>.</p>
 </dd>
 </dl>
-<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code> and already
-contains the expected D4 contribution exactly once.  No additional D4 wrapper
-is needed.  The D4 contribution is not included in the current PySCF CIDER
-nuclear gradient.</p>
-<p>The same accounting contract applies to all CIDER26XC models.  For
-<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, a supported D3/D4 wrapper attached
-to the incoming SCF object is disabled because the expected dispersion term is
-zero.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, an attached wrapper is retained long enough to
-measure its contribution; CiderPress then adds only the difference between
-that contribution and the model’s expected D4 term.  Thus the final energy
-contains the expected term exactly once in either case.</p>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code>.  For
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero and
+CiderPress disables a supported D3/D4 wrapper attached to the incoming SCF
+object.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures any attached wrapper
+contribution and sets <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code> to the model’s expected D4 term minus
+that measured value.  These rules include the expected dispersion term once
+in the final energy.  The current PySCF CIDER nuclear gradient contains the
+electronic contribution; see <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for the D4 force limitation.</p>
 </section>
 <section id="loading-rules-and-model-trust">
 <h2>Loading rules and model trust<a class="headerlink" href="#loading-rules-and-model-trust" title="Link to this heading"></a></h2>
 <p>All packaged names accept an optional <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> suffix.  Explicit paths to
 other YAML or joblib models remain supported, and a real file at the supplied
 path takes precedence over a packaged name.</p>
-<p>Mapped CIDER YAML and joblib files reconstruct Python model objects.  Load
-only models obtained from a trusted source.  Packaged models have the fixed
-checksums listed below; treat an external model file like executable Python
-input and record its checksum with the calculation.</p>
+<p>Mapped CIDER YAML and joblib files reconstruct Python model objects and
+therefore require a trusted source.  Packaged models have the fixed checksums
+listed below.  Treat an external model file like executable Python input and
+record its checksum with the calculation.</p>
 </section>
 <section id="checksums">
 <h2>Checksums<a class="headerlink" href="#checksums" title="Link to this heading"></a></h2>
