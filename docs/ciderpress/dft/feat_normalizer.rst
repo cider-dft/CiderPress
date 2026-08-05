@@ -22,5 +22,7 @@ mode determines how density, reduced-gradient, and kinetic-energy-density
 inputs form the inhomogeneity variable.  The list and its cutoff are serialized
 with the feature settings.
 
+.. autoclass:: ciderpress.dft.feat_normalizer.FeatNormalizerList
+
 .. automodule:: ciderpress.dft.feat_normalizer
    :members:

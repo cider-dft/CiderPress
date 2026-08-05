@@ -30,7 +30,7 @@ Cite the CiderPress software by its repository,
 and the version used (for example, CiderPress 0.5.0).
 
 Also cite the host electronic-structure code and any separately evaluated
-method such as D4.  A reproducible methods section should state the exact
-model name and checksum in addition to its family citation.
+method such as D4.  Packaged model names and checksums are listed in
+:doc:`../usage/production_models`.
 
 .. footbibliography::

@@ -51,6 +51,7 @@ scale-invariant, meaning that
 an exchange functional trained with these features and
 a proper exchange functional baseline will obey the
 uniform scaling rule (see :ref:`Uniform Scaling Constraints <unif_scaling>`).
+
 The raw features :math:`n`, :math:`|\nabla n|^2`, and :math:`\tau` carry
 nonzero scaling powers.  During model construction, normalizers and feature
 maps supply the behavior required by the chosen functional form.

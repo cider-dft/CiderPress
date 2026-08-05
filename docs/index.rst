@@ -34,9 +34,8 @@ The calculation guides state which combinations of models, settings, and DFT
 backends are supported.  In brief, PySCF is the molecular all-electron backend,
 while classic GPAW provides the periodic plane-wave PAW implementation.
 The packaged functional families compute different parts of the XC energy.
-In particular, the CIDER23X and CIDER24X models compute only the exchange
-energy, and therefore they must not be initialized with the full-XC
-settings used for CIDER26XC models.
+CIDER23X and CIDER24X use an explicit surrogate-hybrid composition;
+CIDER26XC uses the full-XC initialization described in the model guide.
 
 .. toctree::
    :maxdepth: 2
@@ -54,7 +53,6 @@ settings used for CIDER26XC models.
    usage/gpaw
    usage/properties
    usage/convergence
-   usage/reproducibility
 
 .. toctree::
    :maxdepth: 2

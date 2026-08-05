@@ -142,10 +142,8 @@ target machine.  CiderPress and GPAW must resolve compatible versions of:
 * the OpenMP runtime; and
 * BLAS/LAPACK.
 
-Before a large parallel job, run a small CIDER plane-wave calculation with the
-same MPI launcher and rank layout.  This verifies that the MPI, FFT, BLAS, and
-OpenMP libraries work together in the intended execution environment.  An MPI
-GPAW calculation requires an MPI-enabled CiderPress build.
+An MPI GPAW calculation requires an MPI-enabled CiderPress build.  The
+periodic smoke-test calculation is :source:`examples/gpaw/production_calc.py`.
 
 The repository's GPAW site-configuration template
 (``.github/workflows/gpaw_siteconfig.py``) illustrates an MKL/MPI build.

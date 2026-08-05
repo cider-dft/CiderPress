@@ -26,9 +26,10 @@ particular density matrix are distinct operations because multiple density
 matrices can yield the same density.  Orbital relaxation under the scaled
 potential can therefore make the minimizing density matrix at
 :math:`n_\lambda` differ from :math:`n_1^\lambda`, the coordinate-scaled form
-of the original minimizing density matrix.  The distinction is important
-when a statement depends explicitly on orbitals or the one-particle density
-matrix; see :footcite:t:`Gorling1995`.  The density notation
+of the original minimizing density matrix.
+
+This distinction enters statements that depend explicitly on orbitals or the
+one-particle density matrix; see :footcite:t:`Gorling1995`.  The density notation
 :math:`n_\lambda` is used below for the density-functional scaling relations.
 
 The exact exchange functional :math:`E_\text{x}[n]` has a simple,
@@ -56,6 +57,7 @@ then obeys the exchange scaling rule
 The LDA exchange energy density :math:`e_\text{x}^\text{LDA}\propto n^{4/3}`
 supplies the required :math:`\lambda` scaling.  The learned enhancement factor
 :math:`F_\text{x}^\text{ML}` is scale invariant because its inputs are.
+
 With a correlation baseline, the multiplicative energy form inherits the
 baseline's scaling behavior.  Exact correlation has nonhomogeneous coordinate
 scaling, so a full-XC model may include explicit density dependence alongside

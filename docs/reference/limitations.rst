@@ -19,15 +19,14 @@ interfaces in this release.
   scope.
 * Newton/SOSCF is outside the CIDER26XC PySCF numerical
   integration path.
-* Nonlocal features add memory and communication overhead.  GPAW jobs should
-  use augmented-grid parallelization and a consistent MPI/FFT/OpenMP stack.
+* Nonlocal features add memory and communication overhead.  GPAW exposes
+  augmented-grid parallelization through
+  ``parallel={"augment_grids": True}``.
 * Mapped YAML and joblib files reconstruct Python objects and therefore
   require a trusted source.
 * The documented feature interfaces cover semilocal, NLDF, and SDMX models.
   Other feature classes in the source tree are experimental.  Release
   compatibility guarantees apply to the documented families.
 
-Numerical robustness is system dependent.  Difficult open-shell,
-near-degenerate, metallic, or magnetic systems may require the restart
-sequences in :doc:`../usage/convergence`.  Validate the electronic state and
-converge the numerical settings used for the reported property.
+Concrete restart controls for open-shell, near-degenerate, metallic, and
+magnetic calculations are listed in :doc:`../usage/convergence`.

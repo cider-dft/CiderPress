@@ -211,6 +211,7 @@ The PASDW transfer is linear, so the returned potential must be the exact
 adjoint of the discretized forward transfer. Forces additionally differentiate
 the localized functions and projectors with respect to atomic position;
 stress differentiates the reciprocal kernel and the cell-scaled transfer.
+
 Validation covers smooth-grid and PAW feature values, potentials, forces, and
 stress at the same interpolation and projection settings.  See
 :doc:`../../usage/convergence` for SCF controls,

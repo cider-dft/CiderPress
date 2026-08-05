@@ -41,55 +41,68 @@ Feature families
      - Approximate exchange-hole and orbital information
      - CIDER24X
 
-All models require a semilocal block, even when the learned correction is
-driven mainly by nonlocal descriptors.  The density and semilocal ingredients
-also define energy baselines, kernel length scales, normalization factors, and
-low-density regularization.
+Every packaged model begins with a semilocal block.  Its density ingredients
+also enter the energy baselines, kernel length scales, normalization factors,
+and low-density regularization.
 
-From raw quantities to model inputs
------------------------------------
+Representation in the code
+--------------------------
 
-The backend arrays pass through three layers before regression:
+For each grid point, CiderPress evaluates raw features :math:`\mathbf X_0`,
+applies the model's physical normalizers :math:`\mathcal N`, and then applies
+the bounded feature maps :math:`\mathcal T` used by the regression:
 
-1. A settings object declares the raw quantities and their parameters.
-2. Physical normalizers combine them into dimensionless or
-   controlled-scaling descriptors.
-3. Bounded transforms place the descriptors in coordinates suitable for the
-   mapped Gaussian-process evaluator.
+.. math::
 
-The complete ordered settings, normalizers, and transforms are serialized in
-the model and are loaded as one unit.  An explicitly constructed settings
-object represents the same descriptors when its feature order, spin
-convention, exponents, normalization, and transforms all match.
+   \mathbf X_0(\mathbf r)
+   \xrightarrow{\mathcal N}
+   \widetilde{\mathbf X}_0(\mathbf r)
+   \xrightarrow{\mathcal T}
+   \mathbf X_1(\mathbf r)
+   \xrightarrow{f_{\mathrm{ML}}}
+   e_{\mathrm{xc}}(\mathbf r).
 
-Family lineage
---------------
+The corresponding objects are:
 
-CIDER23X combines semilocal ingredients with efficient version-j NLDF
-descriptors.  CIDER24X uses SDMX and can train on orbital-occupation
-derivatives.  CIDER26XC uses version-j NLDF with separate transformed inputs
-for its learned exchange and correlation components.  The learned energy
-forms and CIDER26XC feature vectors are explained in
-:doc:`../theory/full_xc`; model/backend compatibility is listed in
-:doc:`../usage/production_models`.
+.. list-table:: Feature representation objects
+   :header-rows: 1
+   :widths: 24 36 40
 
-Numerical and physical constraints
-----------------------------------
+   * - Stage
+     - Class
+     - Role
+   * - Feature declaration
+     - :class:`~ciderpress.dft.settings.FeatureSettings`
+     - Stores the ordered semilocal, NLDF, or SDMX settings used by a model
+   * - Physical normalization
+     - :class:`~ciderpress.dft.feat_normalizer.FeatNormalizerList`
+     - Converts the raw feature powers to the representation expected by the
+       energy form
+   * - Bounded feature map
+     - :class:`~ciderpress.dft.transform_data.FeatureList`
+     - Maps normalized features to the coordinates of one regression kernel
+   * - Mapped evaluator
+     - :class:`~ciderpress.dft.xc_evaluator.MappedXC` or
+       :class:`~ciderpress.dft.xc_evaluator2.MappedXC2`
+     - Evaluates the mapped exchange or full-XC model and its derivatives
 
-Scale-invariant exchange descriptors allow the exact uniform-coordinate
-scaling of exchange to be built into the energy form.  Correlation has a
-different scaling structure and may retain explicit density dependence.
-Scalar contractions of vector or angular components provide rotational
-invariance.  The model's exchange or correlation energy form determines how
-spin channels are combined.
+:class:`~ciderpress.dft.settings.SemilocalSettings`,
+:class:`~ciderpress.dft.settings.NLDFSettingsVJ`, and
+:class:`~ciderpress.dft.settings.SDMXSettings` define the individual feature
+blocks.  Their numerical plans are implemented by
+:class:`~ciderpress.dft.plans.SemilocalPlan`,
+:class:`~ciderpress.dft.plans.NLDFSplinePlan`, and
+:class:`~ciderpress.dft.plans.SDMXPlan`.
 
-At very low density, near nuclei, and near interpolation boundaries, feature
-regularization and numerical evaluation must be considered together.  A
-regularization applied in the forward evaluation must have the corresponding
-adjoint derivative.  See
-:doc:`../theory/uniform_scaling`, :doc:`../theory/nldf_numerical`, and
-:doc:`../theory/numerical_evaluation` for these constraints, and
-:doc:`../workflows/extending` before changing a feature implementation.
+The settings, normalizers, and mapped kernels are serialized together in a
+CIDER model file.  The PySCF and GPAW interfaces reconstruct them when the
+functional is loaded.
+
+The equations and parameter conventions for each block are given below.
+Uniform-scaling constraints are derived in :doc:`../theory/uniform_scaling`,
+and the exchange and correlation energy forms used by CIDER26XC are defined
+in :doc:`../theory/full_xc`.  Backend support for the packaged families is
+listed in :doc:`../usage/production_models`.
 
 .. toctree::
    :maxdepth: 1

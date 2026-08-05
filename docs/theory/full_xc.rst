@@ -69,9 +69,11 @@ The correlation feature vector :math:`\mathbf{X}^{\mathrm{c}}_\sigma` appends
 one additional descriptor, the density itself, :math:`X_6 = n`.  The
 scale-invariant features enforce the exchange scaling constraint.  The
 density coordinate gives the correlation model the additional scaling
-dependence required by its energy form.  Before entering the Gaussian-process
-kernel, every feature is mapped onto a finite interval by the bounded
-transforms stored in the serialized model (implemented in
+dependence required by its energy form.
+
+Before entering the Gaussian-process kernel, every feature is mapped onto a
+finite interval by the bounded transforms stored in the serialized model
+(implemented in
 :mod:`ciderpress.dft.transform_data`; the :math:`t` indicator is handled by
 the ``SLTMap`` transform).
 

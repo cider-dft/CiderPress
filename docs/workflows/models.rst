@@ -98,14 +98,14 @@ correlation components in CIDER26XC.  See :doc:`../ciderpress/dft/baselines`
 for the baseline API and :doc:`../theory/full_xc` for the CIDER26XC energy
 form.
 
-Serialization and validation
-----------------------------
+Serialization and mapping tests
+-------------------------------
 
 Joblib files store trainable Python objects and their fitting state.  Mapped
 YAML stores the inference object used by the calculation interfaces.  Both
 formats reconstruct Python objects and should be loaded from trusted sources.
 
-Validate a mapped artifact against:
+Mapping validation covers:
 
 * pointwise predictions and feature derivatives against the trainable model;
 * fixed-density integrated energies on representative systems;

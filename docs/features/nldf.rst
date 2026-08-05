@@ -61,6 +61,7 @@ format also accepts nonzero gradient terms. In the serialized settings,
 the corresponding parameter array is named ``[a0, grad_mul, tau_mul]``;
 ``tau_mul`` is omitted or ignored for a GGA exponent.  These fields correspond
 to the constant, gradient, and kinetic-energy terms in the equations above.
+
 Using different :math:`A_i,B_i,C_i` for each :math:`i` produces several feature
 length scales in one auxiliary expansion. The source exponent
 :math:`A_0,B_0,C_0` is shared by all features. Both the GGA and meta-GGA
