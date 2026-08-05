@@ -79,6 +79,7 @@
 <li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Model Loading</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.get_builtin_model_name"><code class="docutils literal notranslate"><span class="pre">get_builtin_model_name()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.get_slxc_settings"><code class="docutils literal notranslate"><span class="pre">get_slxc_settings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.load_cider_model"><code class="docutils literal notranslate"><span class="pre">load_cider_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.model_utils.validate_cider_composition"><code class="docutils literal notranslate"><span class="pre">validate_cider_composition()</span></code></a></li>
@@ -134,6 +135,14 @@ the optional <code class="docutils literal notranslate"><span class="pre">.yaml<
 the release checksums in <a class="reference internal" href="../../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> when an exact
 artifact identity matters.</p>
 <dl class="py function" id="module-ciderpress.dft.model_utils">
+<dt class="sig sig-object py" id="ciderpress.dft.model_utils.get_builtin_model_name">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">get_builtin_model_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.get_builtin_model_name" title="Link to this definition"></a></dt>
+<dd><p>Return the packaged model selected by <em>value</em>, if any.</p>
+<p>Existing file paths return <code class="docutils literal notranslate"><span class="pre">None</span></code> because explicit files take precedence
+over packaged short names in <a class="reference internal" href="#ciderpress.dft.model_utils.load_cider_model" title="ciderpress.dft.model_utils.load_cider_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_cider_model()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ciderpress.dft.model_utils.get_slxc_settings">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">get_slxc_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xkernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ckernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.get_slxc_settings" title="Link to this definition"></a></dt>
 <dd></dd></dl>
