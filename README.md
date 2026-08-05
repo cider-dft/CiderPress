@@ -7,8 +7,8 @@ CiderPress: Machine Learned Exchange-Correlation Functionals
 ![Build Status](https://github.com/mir-group/CiderPress/actions/workflows/basic_tests.yml/badge.svg)
 
 CiderPress provides tools for training and evaluating CIDER functionals in
-density-functional theory calculations. Interfaces to PySCF and classic GPAW
-are included.
+density functional theory calculations. Interfaces to PySCF and classic GPAW
+are included to enable full DFT calculations with CIDER functionals.
 
 ## Installation
 
@@ -38,7 +38,7 @@ pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
 pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy (pyscf-dispersion + dftd4)
 ```
 
-See the rendered [installation guide](https://mir-group.github.io/CiderPress/installation/installation.html)
+See the [installation guide](https://mir-group.github.io/CiderPress/installation/installation.html)
 for compiler, MPI, FFT, MKL, GPAW, and source-build details.
 
 ## Documentation
@@ -57,10 +57,15 @@ CiderPress 0.5.0 includes the published mapped models from three generations:
 - CIDER23X: six semilocal/NLDF exchange models, for PySCF and classic GPAW.
 - CIDER24X: `CIDER24Xne` and `CIDER24Xe`, SDMX exchange models for PySCF.
 - CIDER26XC: `CIDER26XCCHEM`, `CIDER26XCCHEMD4`, and
-  `CIDER26XCSURFSCI`, full-XC models for molecular chemistry and combined
-  molecular/solid/surface-science applications.
+  `CIDER26XCSURFSCI`, full XC models for molecular chemistry and combined
+  molecular/solid/surface-science applications. `CIDER26XCSURFSCI` is supported
+  in both PySCF and GPAW. `CIDER26XCCHEM` is supported in both codes as well,
+  but only recommended for molecular calculations in PySCF. `CIDER26XCCHEMD4`
+  is only supported in PySCF currently, due to the need for the D4 dispersion
+  term.
 
-All are selected by short name anywhere an `mlfunc` path is accepted. The
+All of these functionals can be selected and loaded by their short name
+anywhere an `mlfunc` path is accepted. The
 [model guide](https://mir-group.github.io/CiderPress/usage/production_models.html)
 lists every name, feature representation, supported backend, functional
 composition, and release checksum.
@@ -113,8 +118,8 @@ its derivative is not part of the CIDER molecular gradient. GPAW rejects the
 D4 model rather than silently omitting the fitted correction. CiderPress
 0.5.0 supports classic GPAW with PAW setups, not `gpaw.new`.
 
-Complete examples and fallback ladders are linked in the documentation list
-above.
+Complete examples and fallback ladders to fix SCF convergence problems
+are linked in the documentation list above.
 
 ## Questions and Comments
 
