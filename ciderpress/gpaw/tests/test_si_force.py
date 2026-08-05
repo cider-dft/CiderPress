@@ -92,15 +92,15 @@ def run_cider_forces(functional, get_xc=None):
 
 class TestForce(unittest.TestCase):
     def test_sl_gga(self):
-        run_cider_forces(get_cider_functional("functionals/CIDER23X_SL_GGA.yaml"))
+        run_cider_forces(get_cider_functional("CIDER23X_SL_GGA"))
 
     def test_sl_mgga(self):
-        run_cider_forces(get_cider_functional("functionals/CIDER23X_SL_MGGA.yaml"))
+        run_cider_forces(get_cider_functional("CIDER23X_SL_MGGA"))
 
     def test_nl_gga(self):
         def get_xc():
             return get_cider_functional(
-                "functionals/CIDER23X_NL_GGA.yaml",
+                "CIDER23X_NL_GGA",
                 qmax=300,
                 lambd=1.8,
                 xmix=0.25,
@@ -113,7 +113,7 @@ class TestForce(unittest.TestCase):
     def test_nl_mgga(self):
         def get_xc():
             return get_cider_functional(
-                "functionals/CIDER23X_NL_MGGA_DTR.yaml",
+                "CIDER23X_NL_MGGA_DTR",
                 qmax=300,
                 lambd=1.8,
                 xmix=0.25,

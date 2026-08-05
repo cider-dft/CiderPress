@@ -110,8 +110,8 @@ def get_xc(fname, use_paw=True):
 class TestReadWrite(unittest.TestCase):
     def test_nl_ml(self):
         for fname in [
-            "functionals/CIDER23X_NL_GGA.yaml",
-            "functionals/CIDER23X_NL_MGGA.yaml",
+            "CIDER23X_NL_GGA",
+            "CIDER23X_NL_MGGA",
         ]:
             for use_paw in [False, True]:
                 xc = get_xc(fname, use_paw)
@@ -121,8 +121,8 @@ class TestReadWrite(unittest.TestCase):
 
     def test_sl_ml(self):
         for fname in [
-            "functionals/CIDER23X_SL_GGA.yaml",
-            "functionals/CIDER23X_SL_MGGA.yaml",
+            "CIDER23X_SL_GGA",
+            "CIDER23X_SL_MGGA",
         ]:
             xc = get_xc(fname)
             parprint("TEST", fname)

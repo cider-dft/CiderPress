@@ -21,9 +21,36 @@
 import unittest
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_allclose, assert_almost_equal
 
 from ciderpress.models import kernels
+
+
+def test_diff_antisym_rbf_constraints():
+    kernel = kernels.DiffAntisymRBF(length_scale=np.array([0.7, 1.1, 1.3]))
+    x = np.array(
+        [
+            [0.2, 0.8, -0.4, 0.5],
+            [0.1, 0.6, 0.7, -0.2],
+            [0.4, 0.4, 0.3, 0.9],
+        ]
+    )
+    y = np.array(
+        [
+            [0.3, 0.9, -0.1, 0.4],
+            [0.7, 0.2, 0.6, -0.5],
+        ]
+    )
+
+    reference = kernel(x, y)
+    x_swapped = x.copy()
+    x_swapped[:, [0, 1]] = x_swapped[:, [1, 0]]
+    y_swapped = y.copy()
+    y_swapped[:, [0, 1]] = y_swapped[:, [1, 0]]
+
+    assert_allclose(kernel(x_swapped, y), -reference)
+    assert_allclose(kernel(x, y_swapped), -reference)
+    assert_allclose(reference[2], 0.0, atol=1e-15)
 
 
 class EdgeCaseKernel(kernels.DiffRBF):

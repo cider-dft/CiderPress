@@ -689,7 +689,7 @@ class TestDescriptors(unittest.TestCase):
     def test_eigval(self):
         for use_pp in [True, False]:
             xc = get_xc(
-                "functionals/CIDER23X_NL_GGA.yaml", use_paw=not use_pp, force_nl=True
+                "CIDER23X_NL_GGA", use_paw=not use_pp, force_nl=True
             )
             run_nscf_eigval_test(
                 "PBE", xc, spinpol=False, use_pp=use_pp, safe=not use_pp
@@ -698,7 +698,7 @@ class TestDescriptors(unittest.TestCase):
                 "PBE", xc, spinpol=True, use_pp=use_pp, safe=not use_pp
             )
             xc = get_xc(
-                "functionals/CIDER23X_NL_MGGA_DTR.yaml",
+                "CIDER23X_NL_MGGA_DTR",
                 use_paw=not use_pp,
                 force_nl=True,
             )
@@ -711,11 +711,11 @@ class TestDescriptors(unittest.TestCase):
 
     def test_vxc(self):
         for use_pp in [True, False]:
-            xc = get_xc("functionals/CIDER23X_NL_GGA.yaml", use_paw=not use_pp)
+            xc = get_xc("CIDER23X_NL_GGA", use_paw=not use_pp)
             run_vxc_test("PBE", xc, spinpol=False, use_pp=use_pp, safe=not use_pp)
             run_vxc_test("PBE", xc, spinpol=True, use_pp=use_pp, safe=not use_pp)
             xc = get_xc(
-                "functionals/CIDER23X_NL_MGGA_DTR.yaml",
+                "CIDER23X_NL_MGGA_DTR",
                 use_paw=not use_pp,
             )
             run_vxc_test("PBE", xc, spinpol=False, use_pp=use_pp, safe=not use_pp)
@@ -723,7 +723,7 @@ class TestDescriptors(unittest.TestCase):
 
     def test_vxc_quick(self):
         xc = get_xc(
-            "functionals/CIDER23X_NL_MGGA_DTR.yaml",
+            "CIDER23X_NL_MGGA_DTR",
             use_paw=True,
             force_nl=True,
         )
@@ -744,23 +744,23 @@ class TestDescriptors(unittest.TestCase):
     def test_nl_features(self):
         for use_pp in [True, False]:
             parprint("use_pp?", use_pp, "  GGA, spinpol=False")
-            xc = get_xc("functionals/CIDER23X_NL_GGA.yaml", use_paw=not use_pp)
+            xc = get_xc("CIDER23X_NL_GGA", use_paw=not use_pp)
             baseline = "0.75_GGA_X_PBE+1.00_GGA_C_PBE"
             run_nl_feature_test(xc, use_pp=use_pp, spinpol=False, baseline=baseline)
 
             parprint("use_pp?", use_pp, "  GGA, spinpol=True")
-            xc = get_xc("functionals/CIDER23X_NL_GGA.yaml", use_paw=not use_pp)
+            xc = get_xc("CIDER23X_NL_GGA", use_paw=not use_pp)
             baseline = "0.75_GGA_X_PBE+1.00_GGA_C_PBE"
             run_nl_feature_test(xc, use_pp=use_pp, spinpol=True, baseline=baseline)
 
             parprint("use_pp?", use_pp, "  MGGA, spinpol=False")
             baseline = "0.75_GGA_X_PBE+1.00_GGA_C_PBE"
-            xc = get_xc("functionals/CIDER23X_NL_MGGA_DTR.yaml", use_paw=not use_pp)
+            xc = get_xc("CIDER23X_NL_MGGA_DTR", use_paw=not use_pp)
             run_nl_feature_test(xc, spinpol=False, use_pp=use_pp, baseline=baseline)
 
             parprint("use_pp?", use_pp, "  MGGA, spinpol=True")
             baseline = "0.75_GGA_X_PBE+1.00_GGA_C_PBE"
-            xc = get_xc("functionals/CIDER23X_NL_MGGA_DTR.yaml", use_paw=not use_pp)
+            xc = get_xc("CIDER23X_NL_MGGA_DTR", use_paw=not use_pp)
             run_nl_feature_test(xc, spinpol=True, use_pp=use_pp, baseline=baseline)
 
     def test_eigval_vs_fd(self):
@@ -768,25 +768,25 @@ class TestDescriptors(unittest.TestCase):
 
         run_fd_deriv_test("MGGA_X_R2SCAN+MGGA_C_R2SCAN")
 
-        xc = get_xc("functionals/CIDER23X_NL_GGA.yaml")
+        xc = get_xc("CIDER23X_NL_GGA")
         run_fd_deriv_test(xc)
 
-        xc = get_xc("functionals/CIDER23X_NL_MGGA_DTR.yaml")
+        xc = get_xc("CIDER23X_NL_MGGA_DTR")
         run_fd_deriv_test(xc, modify_cell=True)
 
-        xc = get_xc("functionals/CIDER23X_NL_MGGA_DTR.yaml")
+        xc = get_xc("CIDER23X_NL_MGGA_DTR")
         run_fd_deriv_test(xc, spinpol=True, modify_cell=True)
 
-        xc = get_xc("functionals/CIDER23X_SL_GGA.yaml")
+        xc = get_xc("CIDER23X_SL_GGA")
         run_fd_deriv_test(xc)
 
-        xc = get_xc("functionals/CIDER23X_SL_MGGA.yaml")
+        xc = get_xc("CIDER23X_SL_MGGA")
         run_fd_deriv_test(xc)
 
-        xc = get_xc("functionals/CIDER23X_NL_GGA.yaml", use_paw=False)
+        xc = get_xc("CIDER23X_NL_GGA", use_paw=False)
         run_fd_deriv_test(xc, use_pp=True)
 
-        xc = get_xc("functionals/CIDER23X_NL_MGGA.yaml", use_paw=False)
+        xc = get_xc("CIDER23X_NL_MGGA", use_paw=False)
         run_fd_deriv_test(xc, use_pp=True)
 
 

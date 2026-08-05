@@ -85,7 +85,7 @@ class TestForce(unittest.TestCase):
     def test_nl_mgga(self):
         def get_xc():
             return get_cider_functional(
-                "functionals/CIDER23X_NL_MGGA_DTR.yaml",
+                "CIDER23X_NL_MGGA_DTR",
                 qmax=300,
                 lambd=1.8,
                 xmix=0.25,

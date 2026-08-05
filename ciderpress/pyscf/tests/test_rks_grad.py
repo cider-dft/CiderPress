@@ -20,10 +20,10 @@
 
 import unittest
 
-import yaml
 from numpy.testing import assert_almost_equal
 from pyscf import dft, gto, lib
 
+from ciderpress.dft.model_utils import load_cider_model
 from ciderpress.pyscf.dft import make_cider_calc
 from ciderpress.pyscf.nldf_convolutions import PySCFNLDFInitializer
 
@@ -63,8 +63,7 @@ def build_ks_calc(mol, mlfunc, df=False, alt_settings=None):
     else:
         settings = alt_settings
     assert mol.spin == 0
-    with open(mlfunc, "r") as f:
-        mlfunc = yaml.load(f, Loader=yaml.CLoader)
+    mlfunc = load_cider_model(mlfunc)
     nldf_init = PySCFNLDFInitializer(mlfunc.settings.nldf_settings, **NLDF_SETTINGS)
     ks = dft.RKS(mol)
     ks.xc = "PBE"
@@ -79,13 +78,10 @@ def build_ks_calc(mol, mlfunc, df=False, alt_settings=None):
 def setUpModule():
     global mol, mlfuncs, mf1, mf2, mf3, mf4, mf5, mf6, mf7
     mlfuncs = [
-        "functionals/{}.yaml".format(fname)
-        for fname in [
-            "CIDER23X_SL_GGA",
-            "CIDER23X_SL_MGGA",
-            "CIDER23X_NL_GGA",
-            "CIDER23X_NL_MGGA_DTR",
-        ]
+        "CIDER23X_SL_GGA",
+        "CIDER23X_SL_MGGA",
+        "CIDER23X_NL_GGA",
+        "CIDER23X_NL_MGGA_DTR",
     ]
     mol = gto.Mole()
     mol.verbose = 4

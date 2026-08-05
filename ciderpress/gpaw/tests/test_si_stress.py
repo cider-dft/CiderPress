@@ -84,7 +84,7 @@ def get_xc(fname, use_paw=True):
 
 class TestStress(unittest.TestCase):
     def test_nl_gga(self):
-        xc = get_xc("functionals/CIDER23X_NL_GGA.yaml")
+        xc = get_xc("CIDER23X_NL_GGA")
         if USE_STORED_REF:
             s_numerical = np.array(
                 [
@@ -101,7 +101,7 @@ class TestStress(unittest.TestCase):
             run_pw_si_stress(xc, s_numerical=None)
 
     def test_nl_mgga(self):
-        xc = get_xc("functionals/CIDER23X_NL_MGGA_DTR.yaml")
+        xc = get_xc("CIDER23X_NL_MGGA_DTR")
         if USE_STORED_REF:
             s_numerical = np.array(
                 [
@@ -118,7 +118,7 @@ class TestStress(unittest.TestCase):
             run_pw_si_stress(xc, s_numerical=None)
 
     def test_sl_gga(self):
-        xc = get_xc("functionals/CIDER23X_SL_GGA.yaml")
+        xc = get_xc("CIDER23X_SL_GGA")
         if USE_STORED_REF:
             s_numerical = np.array(
                 [
@@ -135,7 +135,7 @@ class TestStress(unittest.TestCase):
             run_pw_si_stress(xc, s_numerical=None)
 
     def test_sl_mgga(self):
-        xc = get_xc("functionals/CIDER23X_SL_MGGA.yaml")
+        xc = get_xc("CIDER23X_SL_MGGA")
         if USE_STORED_REF:
             s_numerical = np.array(
                 [
@@ -152,7 +152,7 @@ class TestStress(unittest.TestCase):
             run_pw_si_stress(xc, s_numerical=None)
 
     def test_nl_gga_pp(self):
-        xc = get_xc("functionals/CIDER23X_NL_GGA.yaml", use_paw=False)
+        xc = get_xc("CIDER23X_NL_GGA", use_paw=False)
         if USE_STORED_REF:
             s_numerical = np.array(
                 [
@@ -170,7 +170,7 @@ class TestStress(unittest.TestCase):
 
     def test_nl_mgga_pp(self):
         with self.assertRaises(NotImplementedError):
-            xc = get_xc("functionals/CIDER23X_NL_MGGA.yaml", use_paw=False)
+            xc = get_xc("CIDER23X_NL_MGGA", use_paw=False)
             run_pw_si_stress(xc, use_pp=True, s_numerical=None)
 
 

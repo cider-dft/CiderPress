@@ -419,11 +419,11 @@ void cider_coefs_spline_gq(double *p_ga, double *dp_ga, double *di_g,
                            double lambd) {
     /* Debug: Print first few spline coefficients and input values
     if (ngrids > 0) {
-        fprintf(stderr, "DEBUG cider_coefs_spline_gq: ngrids=%d, nalpha=%d, lambd=%f\n", 
+        fprintf(stderr, "DEBUG cider_coefs_spline_gq: ngrids=%d, nalpha=%d, lambd=%f\n",
                 ngrids, nalpha, lambd);
-        fprintf(stderr, "  -> di_g[0]=%f, di_g[1]=%f (input exponents)\n", 
+        fprintf(stderr, "  -> di_g[0]=%f, di_g[1]=%f (input exponents)\n",
                 di_g[0], ngrids > 1 ? di_g[1] : 0.0);
-        fprintf(stderr, "  -> w_iap[0]=%f, w_iap[1]=%f (spline coefs)\n", 
+        fprintf(stderr, "  -> w_iap[0]=%f, w_iap[1]=%f (spline coefs)\n",
                 w_iap[0], w_iap[1]);
     } */
 #pragma omp parallel

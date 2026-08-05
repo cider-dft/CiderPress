@@ -19,7 +19,6 @@
 #
 
 import ctypes
-import os
 
 import numpy as np
 import yaml
@@ -543,12 +542,12 @@ class MappedDFTKernel(KernelEvalBase, XCEvalSerializable):
         if self.mode == "SEP":
             f = f.reshape(X0T.shape[0], -1)
         dfdX0T = self.apply_descriptor_grad(X0T, df, force_polarize=True)
-        
+
         # Store raw ML output before baseline application if requested
         if return_raw_ml_output:
             f_raw = f.copy()
             df_raw = dfdX0T.copy()
-        
+
         res, dres = self.apply_baseline(X0T, f, dfdX0T)
         if rhocut > 0:
             if self.mode == "SEP":
@@ -666,7 +665,7 @@ class MappedXC:
         if return_raw_ml_output:
             f_raw_list = []
             df_raw_list = []
-            
+
         for kernel in self.kernels:
             if return_raw_ml_output:
                 tmp, dtmp, f_raw, df_raw = kernel(X0T, rhocut=rhocut, return_raw_ml_output=True)
@@ -676,13 +675,13 @@ class MappedXC:
                 tmp, dtmp = kernel(X0T, rhocut=rhocut)
             res += tmp
             dres += dtmp
-            
+
         if return_raw_ml_output:
             # Aggregate raw outputs from all kernels
             if len(f_raw_list) == 1:
                 f_raw_total = f_raw_list[0]
                 df_raw_total = df_raw_list[0]
-            else:                
+            else:
                 # Collect raw outputs from EXX kernels (assumption: only one EXX-containing kernel)
                 for i, kernel in enumerate(self.kernels):
                     if kernel._mul_basefunc.__name__ in {"exx_energy_baseline", "exx_pbe_diff_baseline"}:

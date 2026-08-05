@@ -40,7 +40,7 @@ USE_AUGMENT_GRIDS = True
 
 def run_calc(xc, spinpol, setups="paw"):
     atoms = bulk("Si")
-    mlfunc = "functionals/{}.yaml".format(xc)
+    mlfunc = xc
     xc = get_cider_functional(
         mlfunc,
         xmix=0.25,

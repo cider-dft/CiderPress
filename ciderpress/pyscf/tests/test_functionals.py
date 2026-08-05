@@ -60,7 +60,7 @@ def run_functional(xcname):
     ks.xc = "PBE"
     ks.grids.level = 3
 
-    xcfile = "functionals/{}.yaml".format(xcname)
+    xcfile = xcname
     ks = make_cider_calc(
         ks, xcfile, xmix=0.25, xkernel="GGA_X_PBE", ckernel="GGA_C_PBE"
     )

@@ -13,6 +13,8 @@ prune pyscf/lib/build
 # source code
 recursive-include ciderpress/lib *.c *.h *.h.in CMakeLists.txt
 recursive-exclude ciderpress/lib *.cl
+exclude ciderpress/lib/fft_wrapper/cider_fft_config.h
+exclude ciderpress/lib/pwutil/config.h
 prune ciderpress/lib/deps
 recursive-exclude ciderpress/lib *.so* *.dylib*
 
