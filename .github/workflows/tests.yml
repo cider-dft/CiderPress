@@ -78,7 +78,11 @@ jobs:
             openblas
             numpy=1.26.4
             scipy=1.14.1
+      - name: Install PyTorch
+        run: |
+          python -m pip install -c .github/workflows/test-constraints.txt torch
       - name: Build CiderPress
+        id: build_ciderpress
         env:
           CMAKE_CONFIGURE_ARGS: >-
             -DBUILD_WITH_MKL=OFF
@@ -87,12 +91,23 @@ jobs:
             -DBUILD_FFTW=OFF
             -DBUILD_MARCH_NATIVE=OFF
         run: |
+          set -o pipefail
           export CMAKE_PREFIX_PATH="$CONDA_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
           export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
           export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-          python -m pip install -c .github/workflows/test-constraints.txt torch
-          python -m pip install -c .github/workflows/test-constraints.txt '.[test,d4,cider24]'
+          python -m pip install -v -c .github/workflows/test-constraints.txt \
+            '.[test,d4,cider24]' 2>&1 | tee "$RUNNER_TEMP/ciderpress-build.log"
+      - name: Report CiderPress build failure
+        if: ${{ failure() && steps.build_ciderpress.outcome == 'failure' }}
+        run: |
+          details="$(tail -n 30 "$RUNNER_TEMP/ciderpress-build.log")"
+          details="${details//'%'/'%25'}"
+          details="${details//$'\r'/'%0D'}"
+          details="${details//$'\n'/'%0A'}"
+          printf '::error title=CiderPress macOS build failed::%s\n' "$details"
+      - name: Check Python environment
+        run: |
           python -m pip check
       - name: Run tests
         run: ./.github/workflows/run_tests.sh
@@ -140,6 +155,7 @@ jobs:
             numpy=2.5.1
             scipy=1.18.0
       - name: Build CiderPress
+        id: build_ciderpress
         env:
           CMAKE_CONFIGURE_ARGS: >-
             -DBUILD_WITH_MKL=OFF
@@ -148,13 +164,27 @@ jobs:
             -DBUILD_FFTW=OFF
             -DBUILD_MARCH_NATIVE=OFF
         run: |
+          set -o pipefail
           export CMAKE_PREFIX_PATH="$CONDA_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
           export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
           export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
           export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-          python -m pip install '.[test]'
+          python -m pip install -v '.[test]' \
+            2>&1 | tee "$RUNNER_TEMP/ciderpress-build.log"
+      - name: Report CiderPress build failure
+        if: ${{ failure() && steps.build_ciderpress.outcome == 'failure' }}
+        run: |
+          details="$(tail -n 30 "$RUNNER_TEMP/ciderpress-build.log")"
+          details="${details//'%'/'%25'}"
+          details="${details//$'\r'/'%0D'}"
+          details="${details//$'\n'/'%0A'}"
+          printf '::error title=CiderPress macOS build failed::%s\n' "$details"
+      - name: Check Python environment
+        run: |
           python -m pip check
           python -c "import _gpaw; assert hasattr(_gpaw, 'lxcXCFuncNum')"
+      - name: Install GPAW data
+        run: |
           ./.github/workflows/install_gpaw_data.sh
       - name: Run GPAW tests
         run: ./.github/workflows/run_gpaw_tests.sh
