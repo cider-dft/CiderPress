@@ -1587,11 +1587,11 @@ class SubsetRBF(_SubsetMixin, DiffRBF):
 
 
 class SubsetARBF(_SubsetMixin, DiffARBF):
-    """Anisotropic RBF kernel evaluated on a subset of input features."""
+    """Additive RBF kernel evaluated on a subset of input features."""
 
 
 class SubsetAddLLRBF(_SubsetMixin, DiffAddLLRBF):
-    """Additive log-linear RBF kernel evaluated on selected features."""
+    """Additive RBF kernel with multiplicative linear term, evaluated on selected features."""
 
 
 class SubsetAddRQ(_SubsetMixin, DiffAddRQ):
@@ -1607,7 +1607,7 @@ class SpinSymRBF(_SpinSymMixin, DiffRBF):
 
 
 class SpinSymARBF(_SpinSymMixin, DiffARBF):
-    """Anisotropic RBF kernel with alpha/beta spin symmetry."""
+    """Additive RBF kernel with alpha/beta spin symmetry."""
 
 
 class SpinSymPoly(_SpinSymMixin, DiffPolyKernel):
