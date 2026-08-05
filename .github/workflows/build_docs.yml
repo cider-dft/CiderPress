@@ -51,7 +51,8 @@ jobs:
           -DBUILD_FFTW=OFF
           -DBUILD_LIBXC=OFF
       run: |
-        pip install torch --index-url https://download.pytorch.org/whl/cpu
+        pip install -c .github/workflows/test-constraints.txt \
+          torch --index-url https://download.pytorch.org/whl/cpu
         # Release 0.5.0 is validated against the classic GPAW 25.7 API.
         pip install -c .github/workflows/test-constraints.txt 'gpaw==25.7.0'
         export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"

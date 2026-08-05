@@ -37,6 +37,7 @@ libraries = [
     "mkl_core",
     "iomp5",
     "pthread",
+    "atomic",
 ]
 library_dirs += [f"{omppath}/lib", f"{mklpath}/lib", f"{mklpath}/lib/intel64"]
 include_dirs += [f"{omppath}/include", f"{mklpath}/include"]

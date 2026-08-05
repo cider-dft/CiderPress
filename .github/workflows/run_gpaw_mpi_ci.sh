@@ -10,7 +10,8 @@ if [ "$RUNNER_OS" == "macOS" ]; then
 fi
 
 if [ "$RUNNER_OS" == "Linux" ]; then
-    python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+    python -m pip install -c .github/workflows/test-constraints.txt \
+        torch --index-url https://download.pytorch.org/whl/cpu
 fi
 CMAKE_CONFIGURE_ARGS="-DBUILD_LIBXC=ON -DBUILD_FFTW=ON -DBUILD_WITH_MKL=OFF -DBUILD_WITH_MPI=ON -DBUILD_MARCH_NATIVE=OFF" \
     python -m pip install -c .github/workflows/test-constraints.txt '.[test,cider24]'

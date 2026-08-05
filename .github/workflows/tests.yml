@@ -113,7 +113,8 @@ jobs:
           export MKLROOT="$CONDA_PREFIX"
           export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
           export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -c .github/workflows/test-constraints.txt \
+            torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -c .github/workflows/test-constraints.txt '.[test,d4,cider24]'
           ./.github/workflows/run_tests.sh
 
@@ -157,7 +158,8 @@ jobs:
           export MKLROOT="$CONDA_PREFIX"
           export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
           export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -c .github/workflows/test-constraints.txt \
+            torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -c .github/workflows/test-constraints.txt '.[test,cider24]'
           ./.github/workflows/setup_gpaw_nompi.sh
           ./.github/workflows/run_gpaw_tests.sh
@@ -219,7 +221,8 @@ jobs:
           export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
           export LD_LIBRARY_PATH="$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -c .github/workflows/test-constraints.txt \
+            torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -c .github/workflows/test-constraints.txt '.[test,cider24]'
           ./.github/workflows/setup_gpaw.sh
           ./.github/workflows/run_gpaw_tests.sh

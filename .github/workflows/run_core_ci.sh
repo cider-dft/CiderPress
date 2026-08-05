@@ -4,10 +4,11 @@ set -euo pipefail
 ./.github/workflows/apt_deps.sh
 if [ "$RUNNER_OS" == "Linux" ]
 then
-    python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+    python -m pip install -c .github/workflows/test-constraints.txt \
+        torch --index-url https://download.pytorch.org/whl/cpu
 elif [ "$RUNNER_OS" == "macOS" ]
 then
-    python -m pip install torch
+    python -m pip install -c .github/workflows/test-constraints.txt torch
 else
     echo "$RUNNER_OS not supported"
     exit 1
