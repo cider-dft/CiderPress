@@ -22,7 +22,12 @@ import yaml
 from gpaw.calculator import GPAW
 from gpaw.xc.libxc import LibXC
 
-from ciderpress.dft.model_utils import load_cider_model, validate_cider_composition
+from ciderpress.dft.model_utils import (
+    CIDER24X_MODELS,
+    get_builtin_model_name,
+    load_cider_model,
+    validate_cider_composition,
+)
 from ciderpress.gpaw.cider_fft import CiderGGA, CiderMGGA
 from ciderpress.gpaw.cider_kernel import CiderGGAHybridKernel, CiderMGGAHybridKernel
 from ciderpress.gpaw.cider_paw import CiderGGAPASDW, CiderMGGAPASDW
@@ -129,6 +134,12 @@ def get_cider_functional(
         whether the functional is GGA or MGGA form, and whether the
         functional is semi-local or nonlocal.)
     """
+
+    builtin_name = get_builtin_model_name(mlfunc)
+    if builtin_name in CIDER24X_MODELS and mlfunc_format in (None, "yaml"):
+        raise NotImplementedError(
+            "SDMX features in GPAW are not implemented; CIDER24X uses PySCF."
+        )
 
     mlfunc = load_cider_model(mlfunc, mlfunc_format)
     validate_cider_composition(

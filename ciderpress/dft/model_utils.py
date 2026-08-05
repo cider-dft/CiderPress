@@ -59,20 +59,32 @@ def _get_builtin_model_name(value):
     return None
 
 
+def get_builtin_model_name(value):
+    """Return the packaged model selected by *value*, if any.
+
+    Existing file paths return ``None`` because explicit files take precedence
+    over packaged short names in :func:`load_cider_model`.
+    """
+    if isinstance(value, os.PathLike):
+        value = os.fspath(value)
+    if not isinstance(value, str) or os.path.exists(value):
+        return None
+    return _get_builtin_model_name(value)
+
+
 def load_cider_model(mlfunc, mlfunc_format=None):
     if isinstance(mlfunc, os.PathLike):
         mlfunc = os.fspath(mlfunc)
     if isinstance(mlfunc, str):
         resource = None
-        if not os.path.exists(mlfunc):
-            builtin_name = _get_builtin_model_name(mlfunc)
-            if builtin_name is not None:
-                resource = files("ciderpress.data.functionals").joinpath(
-                    builtin_name + ".yaml"
-                )
-                if mlfunc_format not in (None, "yaml"):
-                    raise ValueError("Built-in CIDER models use YAML format")
-                mlfunc_format = "yaml"
+        builtin_name = get_builtin_model_name(mlfunc)
+        if builtin_name is not None:
+            resource = files("ciderpress.data.functionals").joinpath(
+                builtin_name + ".yaml"
+            )
+            if mlfunc_format not in (None, "yaml"):
+                raise ValueError("Built-in CIDER models use YAML format")
+            mlfunc_format = "yaml"
         if mlfunc_format is None:
             if mlfunc.endswith(".yaml"):
                 mlfunc_format = "yaml"

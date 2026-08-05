@@ -9,6 +9,7 @@ from ciderpress.data import functionals
 from ciderpress.dft.model_utils import (
     BUILTIN_MODELS,
     CIDER24X_MODELS,
+    get_builtin_model_name,
     load_cider_model,
     validate_cider_composition,
 )
@@ -101,6 +102,15 @@ def test_builtin_model_vdw_contracts_and_portability():
 def test_builtin_model_rejects_non_yaml_format():
     with pytest.raises(ValueError, match="Built-in CIDER models use YAML"):
         load_cider_model("CIDER26XCCHEM", "joblib")
+
+
+def test_builtin_model_name_resolution_respects_explicit_files(tmp_path):
+    assert get_builtin_model_name("CIDER24Xne") == "CIDER24Xne"
+    assert get_builtin_model_name("CIDER24Xne.yaml") == "CIDER24Xne"
+
+    explicit = tmp_path / "CIDER24Xne.yaml"
+    explicit.touch()
+    assert get_builtin_model_name(explicit) is None
 
 
 @pytest.mark.parametrize("name", CIDER24X_MODELS)

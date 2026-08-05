@@ -3,6 +3,7 @@
 import pytest
 
 from ciderpress.dft.model_utils import CIDER23X_MODELS, CIDER24X_MODELS
+from ciderpress.gpaw import calculator
 from ciderpress.gpaw.calculator import cider_functional_from_dict, get_cider_functional
 
 
@@ -39,8 +40,14 @@ def test_exchange_model_initializes_gpaw(name):
     )
 
 
-@pytest.mark.parametrize("name", CIDER24X_MODELS)
-def test_sdmx_model_is_rejected_by_gpaw(name):
+@pytest.mark.parametrize(
+    "name", CIDER24X_MODELS + tuple(name + ".yaml" for name in CIDER24X_MODELS)
+)
+def test_sdmx_model_is_rejected_by_gpaw_before_loading(name, monkeypatch):
+    def unexpected_load(*args, **kwargs):
+        pytest.fail("GPAW loaded a PyTorch-backed SDMX model before rejecting it")
+
+    monkeypatch.setattr(calculator, "load_cider_model", unexpected_load)
     with pytest.raises(NotImplementedError, match="SDMX features in GPAW"):
         get_cider_functional(name, use_paw=False)
 
