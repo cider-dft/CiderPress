@@ -867,7 +867,7 @@ evaluated.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.SpinSymARBF">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SpinSymARBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_ind</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SpinSymARBF" title="Link to this definition"></a></dt>
-<dd><p>Anisotropic RBF kernel with alpha/beta spin symmetry.</p>
+<dd><p>Additive RBF kernel with alpha/beta spin symmetry.</p>
 <p>Initialize a kernel with alpha/beta spin symmetry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -941,7 +941,7 @@ contained subobjects that are estimators.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetARBF">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetARBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetARBF" title="Link to this definition"></a></dt>
-<dd><p>Anisotropic RBF kernel evaluated on a subset of input features.</p>
+<dd><p>Additive RBF kernel evaluated on a subset of input features.</p>
 <p>Initialize a kernel that acts on a subset of features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -957,7 +957,7 @@ contained subobjects that are estimators.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.kernels.SubsetAddLLRBF">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.kernels.</span></span><span class="sig-name descname"><span class="pre">SubsetAddLLRBF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.kernels.SubsetAddLLRBF" title="Link to this definition"></a></dt>
-<dd><p>Additive log-linear RBF kernel evaluated on selected features.</p>
+<dd><p>Additive RBF kernel with multiplicative linear term, evaluated on selected features.</p>
 <p>Initialize a kernel that acts on a subset of features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
