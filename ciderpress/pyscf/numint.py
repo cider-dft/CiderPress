@@ -25,7 +25,7 @@ CIDER Numerical Integration Module - Architecture Overview
 
 This module implements numerical integration for CIDER functionals with support for:
 - Semi-local (SL) functionals
-- SDMX (Semi-local Density Matrix eXpansion)
+- SDMX (Smoothed Density Matrix eXchange)
 - Hybrid functionals with local mixing (Laqua et al. 2018)
 - NLDF (Non-Local Density Functionals)
 - All combinations of the above
@@ -61,8 +61,12 @@ The computation follows different strategies depending on features:
      c) Compute SDMX/hybrid features
      d) Evaluate XC functional
      e) Store weighted potentials
-   - After all blocks: Apply NLDF potential
+   - After all blocks: Apply NLDF potential -> wv_full
    - Contract to vmat with K matrix contributions
+
+   Third Pass:
+   - Loop through all grid blocks
+   - Contract a block of wv_full into vmat
 
 BLOCK LOOPS
 ===========
@@ -203,18 +207,23 @@ def nr_rks(
     - All combinations of the above
 
     Args:
-        ni (CiderNumInt):
-        mol (pyscf.gto.Mole):
-        grids (pyscf.dft.gen_grid.Grids):
-        xc_code:
-        dms:
-        relativity:
-        hermi:
-        max_memory:
-        verbose:
+        ni (CiderNumInt): Numerical integrator object, extended to handle CIDER
+        mol (pyscf.gto.Mole): PySCF Mole object for calculation
+        grids (pyscf.dft.gen_grid.Grids): contains the numerical quadrature
+        xc_code (str): Currently ignored, but checks that xc_code is not a
+           Laplacian functional are still performed. Should just be set to
+           PBE or something.
+        dms (np.ndarray): The density matrix for the calculation
+        relativity (int): Whether the calculation is relativistic. Should be 0 for
+           CIDER. Currently only nonrelativistic calculations are supported.
+        hermi (int): Level of Hermitian symmetry in DM
+        max_memory (int): Maximum memory in MB
+        verbose (int): Verbosity of logging information
 
     Returns:
-
+      nelec (nset,): Number of electrons by numerical integration
+      excsum (nset,): XC energy of each DM set by numerical integration
+      vmat (nset, nao, nao): XC potential matrix
     """
     if hasattr(ni, 'timer'):
         ni.timer.start("nr_rks")
