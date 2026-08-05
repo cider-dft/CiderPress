@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
 export OMP_NUM_THREADS=2
-export PYTHONPATH=$(pwd):$PYTHONPATH
+PYTHONPATH="$(pwd)${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH
 ulimit -s 20000
 
 # See https://github.com/pytest-dev/pytest/issues/1075
-version=$(python -c 'import sys; print("{0}.{1}".format(*sys.version_info[:2]))')
-PYTHONHASHSEED=0 pytest ciderpress/ -s -c pytest.ini ciderpress
+PYTHONHASHSEED=0 python -m pytest -s -c pytest.ini ciderpress

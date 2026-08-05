@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
 export OMP_NUM_THREADS=1
-export PYTHONPATH=$(pwd):$PYTHONPATH
+PYTHONPATH="$(pwd)${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH
 ulimit -s 20000
 
-version=$(python -c 'import sys; print("{0}.{1}".format(*sys.version_info[:2]))')
+export PYTHONHASHSEED=0
 mpirun -np 2 --oversubscribe gpaw python -m unittest ciderpress.gpaw.tests.test_basic_calc
 mpirun -np 2 --oversubscribe gpaw python -m unittest ciderpress.gpaw.tests.test_si_force
 mpirun -np 2 --oversubscribe gpaw python -m unittest ciderpress.gpaw.tests.test_si_stress

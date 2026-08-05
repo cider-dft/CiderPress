@@ -1,52 +1,226 @@
-name: Run PySCF Tests
+name: Tests
 
 on:
   push:
     branches:
-    - main
-
+      - main
   pull_request:
     branches:
-    - main
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  MKL_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
 
 jobs:
-  build:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Run flake8
+        run: |
+          python -m pip install flake8
+          python -m flake8 . --count --show-source --statistics
 
-    runs-on: ubuntu-latest
+  core-openblas:
+    name: Core / OpenBLAS / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.12']
+        os:
+          - ubuntu-24.04
+          - macos-15-intel
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and test
+        run: ./.github/workflows/run_core_ci.sh
+
+  gpaw-openblas:
+    name: GPAW / OpenBLAS / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-15-intel
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and test
+        run: ./.github/workflows/run_gpaw_ci.sh
+
+  core-mkl:
+    name: Core / MKL / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
     defaults:
       run:
         shell: bash -el {0}
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup conda environment
-      uses: mamba-org/setup-micromamba@v1
-      with:
-        micromamba-version: '1.5.6-0' # any version from https://github.com/mamba-org/micromamba-releases
-        environment-name: run_tests
-        init-shell: >-
-          bash
-          powershell
-        cache-environment: false
-        post-cleanup: 'all'
-        create-args: >-
-          python=${{ matrix.python-version }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Install dependencies and build
-      run: |
-        sudo apt-get -qq install gcc cmake
-    - name: Build things
-      run: |
-        source .github/workflows/load_conda.sh
-        source .github/workflows/mm_install_torch.sh
-        export CMAKE_CONFIGURE_ARGS="-DBUILD_WITH_MKL=ON -DBUILD_LIBXC=OFF"
-        ./.github/workflows/run_local_pip.sh
-        python scripts/download_functionals.py
-    - name: Test with unittest
-      run: |
-        source .github/workflows/load_conda.sh
-        ./.github/workflows/run_tests.sh
+      - uses: actions/checkout@v6
+      - name: Set up MKL environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.0.5-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            mkl
+            mkl-devel
+      - name: Build and test
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=ON
+            -DBUILD_WITH_MPI=OFF
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          export MKLROOT="$CONDA_PREFIX"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install '.[test,d4,cider24]'
+          ./.github/workflows/run_tests.sh
+
+  gpaw-mkl:
+    name: GPAW / MKL / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up MKL environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.0.5-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            mkl
+            mkl-devel
+      - name: Build and test
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=ON
+            -DBUILD_WITH_MPI=OFF
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          export MKLROOT="$CONDA_PREFIX"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install '.[test,cider24]'
+          ./.github/workflows/setup_gpaw_nompi.sh
+          ./.github/workflows/run_gpaw_tests.sh
+
+  mpi-openblas:
+    name: MPI / OpenBLAS / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and test
+        run: |
+          ./.github/workflows/run_gpaw_mpi_ci.sh
+          ./.github/workflows/run_mpi_tests.sh
+
+  mpi-mkl:
+    name: MPI / MKL / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up MKL and MPI environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.0.5-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            openmpi
+            openmpi-mpicc
+            mkl
+            mkl-devel
+      - name: Build and test
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=ON
+            -DBUILD_WITH_MPI=ON
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          export MKLROOT="$CONDA_PREFIX"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install '.[test,cider24]'
+          ./.github/workflows/setup_gpaw.sh
+          ./.github/workflows/run_gpaw_tests.sh
+          ./.github/workflows/run_mpi_tests.sh

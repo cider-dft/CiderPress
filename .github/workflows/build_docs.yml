@@ -38,7 +38,7 @@ jobs:
           cxx-compiler
           doxygen
           fftw
-          libxc
+          libxc=*=cpu_*
           make
           openblas
       env:

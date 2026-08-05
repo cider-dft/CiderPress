@@ -52,6 +52,21 @@ jobs:
                   "Locally generated dependency files found in source distribution: "
                   f"{vendored_deps}"
               )
+          generated_headers = [
+              n
+              for n in names
+              if n.endswith(
+                  (
+                      "/ciderpress/lib/fft_wrapper/cider_fft_config.h",
+                      "/ciderpress/lib/pwutil/config.h",
+                  )
+              )
+          ]
+          if generated_headers:
+              raise SystemExit(
+                  "Locally generated configuration headers found in source "
+                  f"distribution: {generated_headers}"
+              )
           for model in ("CIDER26XCCHEM", "CIDER26XCCHEMD4", "CIDER26XCSURFSCI"):
               suffix = f"ciderpress/data/functionals/{model}.yaml"
               if not any(name.endswith(suffix) for name in names):
