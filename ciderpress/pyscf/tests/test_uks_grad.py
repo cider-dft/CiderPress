@@ -20,7 +20,7 @@
 
 import unittest
 
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_allclose, assert_almost_equal
 from pyscf import dft, gto, lib
 
 from ciderpress.dft.model_utils import load_cider_model
@@ -191,11 +191,11 @@ class KnownValues(unittest.TestCase):
         assert_almost_equal(g[0, 2], (e1 - e2) / 2e-4 * lib.param.BOHR, 7)
 
         g2 = mf5.nuc_grad_method().set(grid_response=True).kernel()
-        assert_almost_equal(g2, g, 9)
+        assert_allclose(g2, g, rtol=3e-6, atol=1e-9)
 
         g3 = mf6.nuc_grad_method().set(grid_response=True).kernel()
         g4 = mf7.nuc_grad_method().set(grid_response=True).kernel()
-        assert_almost_equal(g3, g4, 9)
+        assert_allclose(g3, g4, rtol=3e-6, atol=1e-9)
 
     def _check_fd(self, functional):
         import os

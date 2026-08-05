@@ -726,9 +726,9 @@ class _TestNLDFBase:
                 )
                 de = np.sum(vrho1[spin] * occd_rho)
                 if "U" in my_orb.keys():
-                    delta = FD_DELTA
+                    delta = FD_DELTA2
                 else:
-                    delta = -1 * FD_DELTA
+                    delta = -1 * FD_DELTA2
                 dmtmp = analyzer.dm.copy()
                 if dmtmp.ndim == 3:
                     dmtmp[spin] += delta * occd_dm
