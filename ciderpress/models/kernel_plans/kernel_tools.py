@@ -59,7 +59,7 @@ def get_rbf_kernel(
 
 
 def get_antisym_rbf_kernel(length_scale, scale=1.0, opt_hparams=False, min_lscale=None):
-    """Construct a constant-scaled antisymmetric RBF covariance kernel.
+    r"""Construct a constant-scaled antisymmetric RBF covariance kernel.
 
     The returned kernel is antisymmetric to exchange of the first two feature inputs.
     So :math:`k(x_0, x_1, ...; x_0', x_1', ...) = -k(x_1, x_0, ...; x_0', x_1', ...)`
