@@ -1,87 +1,113 @@
 .. _sdmx_feat:
 
-Smoothed Density Matrix Exchange (SDMX)
-=======================================
+Smoothed Density-Matrix Exchange Features
+==========================================
 
-SDMX features\ :footcite:p:`CIDER24X` are nonlocal featurizations of the density matrix.
-The basic idea of SDMX is to "smooth" out the density matrix around a reference point
-:math:`\mathbf{r}` and also project it onto low-order spherical harmonics
-(i.e. angular-momentum quantum numbers :math:`\ell=0` and :math:`\ell=1`).
-As a result, one can obtain very simple (but nonlocal) proxies for the shape of
-the exchange hole :math:`|n_1(\mathbf{r},\mathbf{r}')|^2`, which can be used for fitting
-both the exchange and correlation energies. The formulas and details for the different
-SDMX versions are described below. These features take significant inspiration from the
-"Rung 3.5" functionals developed by Janesko *et al.*.\ :footcite:p:`Janesko2010,Janesko2013,Janesko2014,Janesko2018`
-The key distinction is that SDMX features are strictly quadratic functionals
-of the density matrix, whereas the original Rung 3.5 constructions are not.
-The packaged CIDER24X models use SDMX to learn exchange; no packaged
-release-0.5.0 model uses SDMX for correlation.
+Smoothed density-matrix exchange (SDMX) features describe the one-particle
+density matrix near a real-space point.  They are quadratic in the density
+matrix and provide rotationally invariant proxies for radial and angular
+structure in the exchange hole.  CIDER24X introduced the feature family and
+used it to learn exchange from total-energy and, for CIDER24Xe, orbital-energy
+data. :footcite:p:`CIDER24X`
 
-One key consideration in the design of the SDMX features is their behavior under
-:ref:`uniform scaling <unif_scaling>` of the density.
-In keeping with the design objective of enabling the incorporation of exact constraints
-into ML functionals, all SDMX features have power law behavior under uniform scaling, as discussed below.
+Smoothed density matrix
+-----------------------
 
-The construction of the most basic SDMX feature starts with a smoothed, spherically averaged density matrix
+The scalar component begins with a smoothed, spherically averaged density
+matrix
 
-.. math:: \rho^0(R; \mathbf{r}) = \int \text{d}^3 \mathbf{r}'\, h(|\mathbf{r}'-\mathbf{r}|; R) n_1(\mathbf{r}', \mathbf{r})
+.. math::
 
-where :math:`R` is a length-scale parameter, and :math:`h` is a smooth convolution kernel.
-Then, one can construct the set of features :math:`H_j^0(\mathbf{r})` as
+   \rho^0(R;\mathbf r)
+   = \int \mathrm d^3\mathbf r'\,
+     h(|\mathbf r'-\mathbf r|;R)n_1(\mathbf r',\mathbf r),
 
-.. math:: H_j^0(\mathbf{r}) = 4\pi \int \text{d} R\, R^{2-j} \left|\rho^0(R; \mathbf{r})\right|^2
+where :math:`R` is a smoothing length. CIDER24X uses
 
-where :math:`j` is real. Currently we use :math:`j\in\{0,1,2\}`, but other values of :math:`j`
-(including non-integers) are possible. However, :math:`j<0` and :math:`j>2` might cause
-numerical stability and normalization issues. Currently, :math:`h(u; R)` takes the form
+.. math::
 
-.. math:: h(u; R) = \left(\frac{2}{\pi}\right)^{3/2} \frac{4}{4-\sqrt{2}}\frac{e^{-2u^2/R^2}}{R^3} \left(1 - e^{-2u^2/R^2}\right)
+   h(u;R)
+   = \left(\frac{2}{\pi}\right)^{3/2}
+     \frac{4}{4-\sqrt{2}}\frac{e^{-2u^2/R^2}}{R^3}
+     \left(1-e^{-2u^2/R^2}\right).
 
-Different functions could be chosen, but the important aspect of the smoothing
-functions is that convolving the density matrix with it yields a smoothed
-approximation to the spherically averaged density matrix at distance :math:`R`,
-and that the level of smoothing increases as :math:`R` increases. These properties
-are necessary 1) to obey uniform scaling rules and 2) to ensure that :math:`\rho^0(R; \mathbf{r})`
-can be expanded efficiently using a Gaussian basis. To evaluate :math:`H_j^0(\mathbf{r})`,
-the smoothed density matrix :math:`\rho^0(R; \mathbf{r})` is evaluated at a discrete set
-of distances :math:`R_i` and then interpolated over :math:`R` using a Gaussian basis;
-:math:`H_j^0` can then be evaluated analytically within the Gaussian basis. Note that under
-:ref:`uniform scaling <unif_scaling>`, this feature scales as :math:`\lambda^{3+j}`, i.e.
+Integrating the squared smoothed quantity over :math:`R` gives the scalar
+features
 
-.. math:: H_j^0[n_\lambda](\mathbf{r})=\lambda^{3+j} H_j^0[n](\lambda\mathbf{r})
+.. math::
 
-The complexity of the SDMX features can be increased by also calculating expectation
-values of the gradients of the smoothed density matrix with respect to the length-scale
-:math:`R`, as follows:
+   H_j^0(\mathbf r)
+   = 4\pi\int \mathrm dR\,R^{2-j}|\rho^0(R;\mathbf r)|^2.
 
-.. math:: H_j^{0\mathrm d}(\mathbf{r}) = 4\pi \int \text{d} R\, R^{4-j} \left|\frac{\partial}{\partial R} \rho^0(R; \mathbf{r})\right|^2
+The radial derivative supplies a second scalar family,
 
-In practice, these features can be obtained at almost no computational overhead compared
-to the original :math:`H_j^0` features because the bottleneck computational operations
-are the same as those needed to compute :math:`H_j^0`.
-The uniform scaling behavior of :math:`H_j^{0\mathrm d}` is also :math:`\lambda^{3+j}`.
+.. math::
 
-The angular complexity of the SDMX features can be increased by computing
-(in addition to :math:`\rho^0`) the following higher-order quantity
+   H_j^{0\mathrm d}(\mathbf r)
+   = 4\pi\int \mathrm dR\,R^{4-j}
+     \left|\frac{\partial\rho^0(R;\mathbf r)}{\partial R}\right|^2.
 
-.. math:: \boldsymbol{\rho}^1(R; \mathbf{r}) = \int \text{d}^3\mathbf{r}' \left[ \nabla h(|\mathbf{r}'-\mathbf{r}|; R) \right]  n_1(\mathbf{r}', \mathbf{r})
+Angular information
+-------------------
 
-which involves the gradient of :math:`h(|\mathbf{r}'-\mathbf{r}|; R)` with
-respect to :math:`\mathbf{r}`. Then, one can compute new features
+The vector-smoothed density matrix is
 
-.. math:: H_j^1(\mathbf{r}) = 4\pi \int \text{d}R\, R^{4-j} \left|\boldsymbol{\rho}^1(R; \mathbf{r})\right|^2
+.. math::
 
-These are more costly to compute than :math:`H_j^0` or :math:`H_j^{0\mathrm d}`,
-but they provide significantly more information to the model because they
-contain :math:`\ell=1` angular information. The uniform scaling behavior of
-:math:`H_j^1` is also :math:`\lambda^{3+j}`.
+   \boldsymbol{\rho}^1(R;\mathbf r)
+   = \int \mathrm d^3\mathbf r'\,
+     [\nabla h(|\mathbf r'-\mathbf r|;R)]
+     n_1(\mathbf r',\mathbf r).
 
-Finally, one can combine the radial and Cartesian derivatives to construct one more type of feature
+Its rotationally invariant norm and radial derivative define
 
-.. math:: H_j^{1\mathrm d}(\mathbf{r}) = 4\pi \int \text{d}R\, R^{6-j} \left|\frac{\partial}{\partial R} \boldsymbol{\rho}^1(R; \mathbf{r})\right|^2
+.. math::
 
-which also scales as :math:`\lambda^{3+j}` under uniform scaling and comes at very little
-additional computational cost if :math:`\boldsymbol{\rho}^1(R; \mathbf{r})`
-was already computed to evaluate :math:`H_j^1(\mathbf{r})`.
+   H_j^1(\mathbf r)
+   &= 4\pi\int \mathrm dR\,R^{4-j}
+      |\boldsymbol{\rho}^1(R;\mathbf r)|^2, \\
+   H_j^{1\mathrm d}(\mathbf r)
+   &= 4\pi\int \mathrm dR\,R^{6-j}
+      \left|\frac{\partial\boldsymbol{\rho}^1(R;\mathbf r)}
+      {\partial R}\right|^2.
+
+All four families scale as
+
+.. math::
+
+   H_j[n_1^\lambda](\mathbf r)
+   = \lambda^{3+j}H_j[n_1](\lambda\mathbf r)
+
+under uniform coordinate scaling of the density matrix. The implemented
+uniform-electron-gas normalizations cover :math:`j\in\{0,1,2\}`. The
+normalizers stored with a model convert these raw powers into the coordinates
+used by its exchange regression.
+
+CIDER24X feature layout
+-----------------------
+
+Both packaged CIDER24X models contain the same 13 raw electronic features:
+three semilocal meta-GGA ingredients followed by ten SDMX features. The SDMX
+block is ordered as
+
+.. math::
+
+   \left(
+   H_1^0,H_2^0,
+   H_1^{0\mathrm d},H_2^{0\mathrm d},
+   H_1^1,H_2^1,H_0^1,
+   H_1^{1\mathrm d},H_2^{1\mathrm d},H_0^{1\mathrm d}
+   \right).
+
+This layout is represented by
+:class:`~ciderpress.dft.settings.SDMXFullSettings`. Feature order,
+normalization, bounded transformations, and mapped neural-network weights are
+stored in each model file and are applied automatically during evaluation.
+
+The optimized molecular implementation is available through PySCF.  The
+periodic PySCF implementation supports the CIDER24X methodology.  The GPAW
+interface evaluates NLDF models.  See
+:doc:`../usage/production_models` for the supported calculation path and
+:doc:`../ciderpress/pyscf/numerical` for the molecular contraction algorithm.
 
 .. footbibliography::

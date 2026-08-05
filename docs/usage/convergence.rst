@@ -1,73 +1,76 @@
 SCF Convergence Recommendations
 ===============================
 
-There is no single optimal SCF configuration for every system.  The settings
-below are conservative starting points and fallback sequences.  Change one
-class of setting at a time, save checkpoints for each rung, and verify that a
-converged calculation represents the intended charge, spin, occupations, and
-electronic basin.
+SCF behavior depends on the spectrum, occupations, spin state, and numerical
+representation of the system.  The settings on this page are starting points
+for diagnosing common convergence patterns.  Numerical thresholds and any
+stabilizing controls form part of the reported calculation and should be
+converged for the requested property.
 
-Choose the next control from the observed failure rather than applying every
-fallback at once:
+Match the first change to the observed behavior:
 
 .. list-table:: Failure pattern and first response
    :header-rows: 1
    :widths: 35 35 30
 
    * - Observed pattern
-     - First control to change
-     - State to verify
+     - Control to examine
+     - State to inspect
    * - Density residual decays, then stalls
-     - Reduce mixing or enlarge DIIS/Pulay history
-     - Same occupations and spin
+     - Mixing amplitude or DIIS/Pulay history
+     - Occupations and spin
    * - Energy and occupations alternate
-     - Add controlled smearing or change eigensolver
+     - Smearing or eigensolver
      - Frontier occupations
    * - Magnetic moment drifts or flips
-     - Mix charge and magnetization separately
+     - Separate charge and magnetization mixing
      - Local and total moments
-   * - Restart immediately moves far from its checkpoint
-     - Rebuild the baseline with matching numerical settings
+   * - Restart moves far from its checkpoint
+     - Baseline and restart representations
      - Cell, basis/setup, bands, spin, and charge
-   * - A loose rung converges but the tight rung does not
-     - Use the loose density only as a new initial condition
-     - Final result satisfies the requested criteria
+   * - A relaxed calculation converges and a tighter one oscillates
+     - Restart from the relaxed density and test the tighter controls
+     - Energy, density, and electronic state
+
+Save a checkpoint before changing the SCF method.  Comparing one control at a
+time makes the source of an improvement easier to identify.
 
 Molecular calculations in PySCF
 -------------------------------
 
-For a routine closed-shell molecule, begin with CDIIS, a DIIS space of 8, and
-the accuracy required by the final energy difference.  If the calculation is
-difficult, first create a baseline density with PBE or PBE0 using identical
-numerical settings.
+CDIIS with a history of about eight vectors is a useful initial method for a
+routine closed-shell molecule.  Open-shell, stretched-bond,
+transition-metal, and near-degenerate systems often benefit from an initial
+PBE or PBE0 density evaluated with the same molecule, basis, grid, charge, and
+spin.
 
-The following ladder is suggested for open-shell, stretched-bond,
-transition-metal, or near-degenerate molecular calculations:
+The following settings illustrate a progression from ordinary CDIIS to more
+conservative orbital updates:
 
-.. list-table:: Suggested PySCF fallback ladder
+.. list-table:: PySCF starting and fallback settings
    :header-rows: 1
    :widths: 18 22 15 15 15 15
 
-   * - Rung
+   * - Setting
      - DIIS method
      - Space
      - ``conv_tol``
      - Level shift
      - Damping
-   * - Tight default
+   * - Standard CDIIS
      - CDIIS
      - 8
      - ``1e-9``
      - 0
      - 0
-   * - Larger subspace
+   * - Larger history
      - CDIIS
      - 12
      - ``1e-8``
      - 0
      - 0
    * - Energy-based mixing
-     - ADIIS, then EDIIS
+     - ADIIS or EDIIS
      - 12
      - ``1e-7``
      - 0
@@ -78,43 +81,46 @@ transition-metal, or near-degenerate molecular calculations:
      - ``1e-7``
      - ``0.2 Ha``
      - 0
-   * - Conservative shifted
+   * - Stronger stabilization
      - CDIIS
      - 8
      - ``1e-6``
      - ``0.5 Ha``
      - ``0.3``
 
-Treat relaxed tolerances as a way to obtain a stable density.  Restart that
-density with the desired final tolerance and, where possible, reduce or remove
-the level shift and damping.  If all warm-start rungs fail, repeat the ladder
-from a fresh atomic guess; a baseline density can occasionally select the
-wrong electronic basin.
+A density from a relaxed, shifted, or damped calculation can initialize a
+tighter calculation.  Repeating the calculation with reduced stabilization
+measures the sensitivity of the energy and state to those controls.  A
+reported calculation may retain level shifting or damping when the method is
+stated and the target quantity is converged with respect to it.
 
-Small finite-temperature smearing, approximately ``0.01--0.05 Ha``, can help
-when frontier orbitals are genuinely near degenerate.  First check whether
-occupation switching is causing the difficulty.  If smearing is retained in
-the final calculation, distinguish the finite-temperature free energy from an
-extrapolated zero-temperature energy.  Inspect occupations, spin, orbital
-character, and SCF stability after convergence.
+Baseline-seeded and atomic-guess calculations can converge to different
+stationary solutions.  Comparing their energies, occupations, spin
+expectation values, and orbital character helps identify the state of
+interest.
 
-Newton/SOSCF is not available for the CIDER26XC numerical integration paths.
-If a non-Aufbau occupation is intentionally constrained, verify that it
-represents the electronic state of interest and record how it was selected.
+Finite-temperature smearing in the range ``0.01--0.05 Ha`` can stabilize
+genuinely near-degenerate frontier orbitals.  Report the occupation model and
+distinguish a finite-temperature free energy from an extrapolated
+zero-temperature energy when smearing is retained.
+
+The CIDER26XC PySCF integration path uses the conventional DIIS methods listed
+above; Newton/SOSCF is outside this path.  Deliberate non-Aufbau occupations
+should be recorded together with the procedure used to select them.
 
 Insulating and semiconducting GPAW calculations
 -----------------------------------------------
 
-Start from a converged PBE checkpoint with the intended PAW setups, cutoff,
-k-points, bands, symmetry, and spin.  A short attempt using inherited settings
-is reasonable.  If it fails, preconverge PBE with each new mixer before
-starting the corresponding CIDER rung.
+A converged PBE checkpoint provides a useful starting density when it uses
+the CIDER calculation's cell, PAW setups, cutoff, k-points, bands, symmetry,
+charge, spin, and occupations.  The baseline calculation can also be repeated
+with the mixer planned for a difficult CIDER restart.
 
-.. list-table:: Suggested GPAW periodic fallback ladder
+.. list-table:: GPAW periodic starting and fallback settings
    :header-rows: 1
    :widths: 20 35 20 25
 
-   * - Rung
+   * - Setting
      - Mixer
      - Fermi width
      - Eigensolver
@@ -126,17 +132,17 @@ starting the corresponding CIDER rung.
      - ``Mixer(0.02, 2, 100)``
      - ``0.1 eV``
      - Inherited/default
-   * - Near-linear
+   * - Near-linear mixing
      - ``Mixer(0.02, 1, 50)``
      - ``0.1 eV``
      - Inherited/default
-   * - RMM fallback
+   * - RMM-DIIS option
      - ``Mixer(0.02, 1, 50)``
      - ``0.1 eV``
      - ``rmm-diis``
 
-For persistent orbital-step oscillation, a bounded-step solver is a further
-fallback:
+Persistent orbital-step oscillation can be tested with bounded RMM-DIIS
+steps:
 
 .. code-block:: python
 
@@ -148,16 +154,16 @@ fallback:
        trial_step=0.01,
    )
 
-Pair it with ``Mixer(0.02, 1, 50)`` and consider a tighter density criterion
-such as ``1e-6``.  If no rung is stable, rebuild the starting point from a
-fresh PBE calculation rather than repeatedly recycling a poor CIDER density.
+This eigensolver can be paired with ``Mixer(0.02, 1, 50)``.  Density and
+eigenstate criteria should then be chosen for the requested energy, force, or
+stress accuracy.
 
 Metallic and magnetic GPAW calculations
 ---------------------------------------
 
-Metallic systems often need occupation smearing and smaller mixing steps.
-Magnetic systems can additionally benefit from mixing the total and spin
-densities separately:
+Metals commonly require occupation smearing and smaller mixing amplitudes.
+For a magnetic system whose charge and spin densities converge on different
+scales, GPAW provides separate mixing parameters:
 
 .. code-block:: python
 
@@ -170,28 +176,26 @@ densities separately:
        weight_m=100,
    )
 
-Use this as a conservative option when the total density and magnetization
-converge on different scales.  Monitor total and local magnetic moments.  If
-RMM-DIIS produces large orbital steps or occupation reordering, Davidson with
-a small number of inner iterations is a reasonable alternative.
+Track total and local magnetic moments throughout the restart sequence.
+Davidson with a small number of inner iterations is another useful choice
+when RMM-DIIS produces large orbital steps or repeated occupation changes.
 
-For occupation-driven limit cycles, anneal the Fermi width through a sequence
-such as ``0.10 -> 0.05 -> 0.02 eV``, writing a checkpoint at every stage.  A
-wider value such as ``0.2 eV`` is a last-resort diagnostic, not automatically
-an appropriate final electronic temperature.
+For an occupation-driven cycle, the Fermi width can be reduced in stages,
+for example ``0.10 -> 0.05 -> 0.02 eV``.  Each stage should start from the
+preceding checkpoint, and the final width should represent the intended
+electronic temperature or converged zero-temperature limit.
 
 Isolated atoms and molecules in GPAW
 ------------------------------------
 
-Use Gamma-point sampling, explicit spin polarization and magnetic moments,
-and a box large enough for the property of interest.  For a gapped closed-shell
-atom or molecule, the moderate ``Mixer(0.05, 5, 50)`` used in the isolated
-example is a reasonable starting point.  Davidson with a small number of inner
-iterations is often robust in finite boxes.
+Use Gamma-point sampling, an explicit charge and spin, and a cell converged
+for the property of interest.  For a gapped, closed-shell system, start from
+``Mixer(0.05, 5, 50)`` with Davidson.  An open-shell
+or diffuse system may benefit from ``Mixer(0.02, 2, 100)`` or the near-linear
+``Mixer(0.02, 1, 50)`` setting.
 
-For difficult open-shell references, first reduce the mixer to
-``Mixer(0.02, 2, 100)``.  If Pulay-history oscillations persist, use the
-near-linear fallback:
+Fixed total magnetization during a preconvergence stage can stabilize an
+intended open-shell state:
 
 .. code-block:: python
 
@@ -202,33 +206,15 @@ near-linear fallback:
        "fixmagmom": True,
    }
 
-For the PBE preconditioning stage, a density criterion around ``1e-2`` is
-often sufficient, but tighten it if the CIDER restart begins far from a stable
-density.  ``5e-4`` eV/electron for energy, ``1e-4`` for density, and ``5e-3``
-eV :sup:`2`/electron for eigenstates are reasonable general CIDER starting
-criteria.  Tighten and independently converge them for the property being
-calculated.
+The isolated-system example supplies illustrative energy, density, and
+eigenstate criteria.  Cell size, plane-wave cutoff, PAW setup, occupations,
+and all electronic criteria require convergence for the target property.
 
-Then try ``rmm-diis`` or the bounded-step ``RMMDIIS`` above.  Direct
-minimization with ``FDPWETDM`` is a GPAW-version-sensitive alternative that
-uses fixed occupations and the no-mixing backend.  An ordinary density mixer
-is not used in this mode.
+Checks after convergence
+------------------------
 
-Diagnosing the failure mode
----------------------------
-
-* A smoothly decaying density residual that stalls suggests smaller mixing or
-  a larger history.
-* Alternating energies and occupations suggest smearing or an eigensolver
-  change rather than still smaller density mixing.
-* Drifting or flipping magnetic moments suggest separate spin mixing, fixed
-  total moment during preconvergence, or a different initial magnetic state.
-* A stable energy with an oscillating orbital gradient requires inspection of
-  occupations and stability before any gradient tolerance is relaxed.
-* Large changes after a restart can indicate inconsistent numerical settings
-  or convergence into a different electronic basin.
-
-For every final result, confirm the requested energy and density criteria,
-physical state, numerical convergence, and consistency of all members of an
-energy difference.  A copied earlier checkpoint is a restart candidate, not a
-newly converged result.
+Record the functional and numerical representation together with the SCF
+controls that produced the result.  Inspect occupations and magnetic moments
+where relevant, and compare members of an energy difference using consistent
+functional composition and accuracy.  A restarted density is an initial
+condition; the resulting calculation supplies the energy and state to report.

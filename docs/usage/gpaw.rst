@@ -2,15 +2,15 @@ Periodic and Isolated Calculations with GPAW
 ============================================
 
 CiderPress integrates with the classic GPAW calculator in plane-wave mode.
-The production route uses PAW setups so the nonlocal descriptors include the
+The supported route uses PAW setups so the nonlocal descriptors include the
 all-electron core-region information described in
 :doc:`../theory/numerical_evaluation`.
 
 Functional construction
 -----------------------
 
-CIDER26XC is a full-XC model.  Disable the initializer's historical
-exchange-only baselines explicitly:
+CIDER26XC is a full-XC model.  Construct it with the composition stored in the
+model:
 
 .. code-block:: python
 
@@ -34,8 +34,8 @@ composition:
        ckernel="GGA_C_PBE",
    )
 
-CIDER24X/SDMX is not implemented in GPAW.  CIDER26XCCHEMD4 is available only
-through PySCF because GPAW does not apply the model's D4 energy correction.
+The GPAW interface evaluates NLDF models.  CIDER24X uses the PySCF SDMX path,
+and CIDER26XCCHEMD4 uses the PySCF D4 energy interface.
 
 PBE-seeded periodic workflow
 ----------------------------
@@ -48,9 +48,10 @@ bands, symmetry, charge, spin, and occupations.  Write wavefunctions with
    :language: python
    :linenos:
 
-Use :class:`~ciderpress.gpaw.calculator.CiderGPAW` for a calculation that will
-be saved or restarted.  A normal ``GPAW`` calculator can evaluate an in-memory
-CIDER object, but it does not save all CIDER-specific restart information.
+Use :class:`~ciderpress.gpaw.calculator.CiderGPAW` for checkpointed
+calculations; it saves the CIDER-specific restart information.  A normal
+``GPAW`` calculator can evaluate an in-memory CIDER object within the current
+process.
 
 Surfaces and adsorption systems
 -------------------------------
@@ -65,10 +66,10 @@ separate PBE and CIDER checkpoints:
    :linenos:
 
 Evaluate the slab, isolated adsorbate/reference, and combined system with a
-consistent functional composition.  Their numerical representations need not
-be identical when physically inappropriate—for example, a molecule may use an
-isolated box—but each representation must be independently converged so that
-the energy difference is meaningful.
+consistent functional composition.  Each system can use the representation
+appropriate to its boundary conditions; for example, a molecule may use an
+isolated box.  Converge each representation to the accuracy required by the
+energy difference.
 
 Isolated systems in periodic boxes
 ----------------------------------
@@ -81,10 +82,9 @@ enough vacuum for the property of interest:
    :linenos:
 
 A cubic box of approximately 12--15 Angstrom is a useful initial choice for a
-small neutral compact system, not a convergence guarantee.  Charged, diffuse,
-polar, or response-property calculations may require a larger cell and
-finite-size electrostatic treatment.  Preserve intended magnetic moments
-through both PBE and CIDER stages.
+small neutral compact system.  Charged, diffuse, polar, or response-property
+calculations may require a larger cell and finite-size electrostatic
+treatment.  Use the intended magnetic state in both PBE and CIDER stages.
 
 Restarting a CIDER checkpoint
 -----------------------------
@@ -99,28 +99,27 @@ calculator is recreated:
 
 The checkpoint stores the mapped model text and nonlocal interpolation
 parameters, including ``Nalpha``, ``lambd``, and the plane-wave cutoff
-``encut`` derived from the ``qmax`` argument.  When a checkpoint is opened
-without an explicit ``xc=`` override, :class:`~ciderpress.gpaw.calculator.CiderGPAW`
-reconstructs the saved CIDER functional automatically.  Passing ``xc=``
-explicitly requests an override instead.  In either case, verify the model
-name, composition, and requested numerical controls in the resumed output.
+``encut`` derived from the ``qmax`` argument.  Opening the checkpoint with its
+saved XC setting makes :class:`~ciderpress.gpaw.calculator.CiderGPAW`
+reconstruct the saved CIDER functional.  An explicit ``xc=`` argument selects
+a replacement functional.  Verify the model name, composition, and requested
+numerical controls in the resumed output.
 
 Forces and stress
 -----------------
 
 ASE's normal ``get_forces()`` and ``get_stress()`` calls include the CIDER FFT
 and PAW derivative contributions for the supported PAW path.  See
-:doc:`properties` and the complete force/stress template.  Meta-GGA
-force/stress calculations with norm-conserving pseudopotentials are not
-supported.
+:doc:`properties` and the complete force/stress template.  The supported
+meta-GGA force/stress implementation uses PAW setups.
 
 PASDW and interpolation controls
 --------------------------------
 
 ``pasdw_store_funcs=False`` is the memory-saving default.  Setting it to
 ``True`` caches atomic projector functions and can reduce repeated cost at
-substantial memory expense.  ``pasdw_ovlp_fit=True`` improves projection
-consistency and should remain fixed in sensitive comparisons.
+substantial memory expense.  ``pasdw_ovlp_fit=True`` selects overlap fitting
+for the projection.  Use the same value throughout a numerical comparison.
 
 ``qmax`` and ``lambd`` control the expansion of the nonlocal kernel.  Defaults
 are intended as general settings; smaller ``lambd`` gives denser interpolation
@@ -144,10 +143,9 @@ SCF strategy
 ------------
 
 Start from a converged PBE checkpoint.  If the direct CIDER restart fails,
-preconverge PBE with the mixer intended for the next CIDER attempt rather than
-changing several controls only on the CIDER side.  Metals and magnetic systems
-often need smaller density and magnetization mixing, occupation smearing, and
-explicit monitoring of local moments.
+preconverge PBE with the mixer intended for the next CIDER attempt.  Metals
+and magnetic systems often need smaller density and magnetization mixing,
+occupation smearing, and explicit monitoring of local moments.
 
 Use :doc:`convergence` for calculation-class ladders and
 :doc:`reproducibility` for the settings and checks to retain with a calculation.

@@ -1,15 +1,19 @@
-dft
-===
+PySCF Calculator Decoration
+===========================
 
-The :py:mod:`ciderpress.pyscf.dft` module provides the
-function :py:func:`~ciderpress.pyscf.dft.make_cider_calc`, which takes
-a PySCF Kohn--Sham DFT object and a CIDER
-functional object (:py:class:`~ciderpress.dft.xc_evaluator.MappedXC` or
-:py:class:`~ciderpress.dft.xc_evaluator2.MappedXC2`)
-and returns a decorated subclass that uses the CIDER functional. The function
-is similar to native PySCF routines such as ``density_fit``,
-in which the input SCF object is "decorated" with the
-necessary routines to evaluate the CIDER functional.
+:func:`~ciderpress.pyscf.dft.make_cider_calc` decorates a restricted or
+unrestricted PySCF Kohn--Sham object with a mapped CIDER functional.  The
+``mlfunc`` argument accepts a packaged name, trusted model path, or loaded
+:class:`~ciderpress.dft.xc_evaluator.MappedXC`/
+:class:`~ciderpress.dft.xc_evaluator2.MappedXC2` object.  The decorator selects
+its numerical integrator from the stored feature settings and supplies CIDER
+energy, potential, checkpoint, density-fitting, and supported gradient
+behavior.
+
+Exchange models use ``xmix``, ``xkernel``, and ``ckernel`` to define their
+surrogate-hybrid composition.  Full-XC models use their serialized energy
+composition.  D4 metadata is reconciled after the SCF energy as described in
+:doc:`../../usage/production_models`.
 
 The basic full-XC use case is:
 
@@ -25,8 +29,8 @@ The basic full-XC use case is:
     ks = make_cider_calc(ks, "CIDER26XCCHEM")
     etot = ks.kernel()
 
-For a complete example, please see :source:`examples/pyscf/production_calc.py`
-and :doc:`../../usage/pyscf`.
+See :source:`examples/pyscf/production_calc.py` and
+:doc:`../../usage/pyscf` for a complete example.
 
 .. automodule:: ciderpress.pyscf.dft
     :members:

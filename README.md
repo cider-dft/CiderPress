@@ -2,7 +2,7 @@
   <img src="docs/logos/cider_logo_and_name.svg" height="80px" alt="CiderPress"/>
 </div>
 
-CiderPress: Machine Learned Exchange-Correlation Functionals
+CiderPress: Machine-Learned Exchange-Correlation Functionals
 ------------------------------------------------------------
 ![Build Status](https://github.com/mir-group/CiderPress/actions/workflows/basic_tests.yml/badge.svg)
 
@@ -31,7 +31,7 @@ cd CiderPress
 pip install .
 ```
 
-Optional model runtimes are installed only when needed:
+Install the optional runtime required by the selected model:
 
 ```bash
 pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
@@ -52,7 +52,7 @@ for compiler, MPI, FFT, MKL, GPAW, and source-build details.
 
 ## Packaged Functional Families
 
-CiderPress 0.5.0 includes the published mapped models from three generations:
+CiderPress 0.5.0 includes mapped models from three CIDER generations:
 
 - CIDER23X: six semilocal/NLDF exchange models, for PySCF and classic GPAW.
 - CIDER24X: `CIDER24Xne` and `CIDER24Xe`, SDMX exchange models for PySCF.
@@ -71,8 +71,8 @@ lists every name, feature representation, supported backend, functional
 composition, and release checksum.
 
 CIDER23X and CIDER24X store exchange and normally use the explicit
-PBE0/CIDER surrogate-hybrid composition. CIDER26XC stores full XC and must not
-be combined with an additional semilocal XC baseline.
+PBE0/CIDER surrogate-hybrid composition. CIDER26XC stores full XC and uses the
+semilocal baseline contained in its model file.
 
 ## Quick starts
 
@@ -98,7 +98,7 @@ mf = make_cider_calc(
 )
 ```
 
-For a classic GPAW calculation, load the production model as a full XC
+For a classic GPAW calculation, load the periodic model as a full-XC
 functional:
 
 ```python
@@ -113,22 +113,24 @@ xc = get_cider_functional(
 )
 ```
 
-D4 evaluation is supported by PySCF and is added once after the density SCF;
-its derivative is not part of the CIDER molecular gradient. GPAW rejects the
-D4 model rather than silently omitting the fitted correction. CiderPress
-0.5.0 supports classic GPAW with PAW setups, not `gpaw.new`.
+D4 evaluation is supported by PySCF and is added once after the density SCF.
+The current CIDER molecular gradient contains the electronic contribution.
+The GPAW interface reports an error when a D4 model is selected. CiderPress
+0.5.0 supports classic GPAW with PAW setups; `gpaw.new` is outside this
+release interface.
 
 Complete examples and fallback ladders to fix SCF convergence problems
 are linked in the documentation list above.
 
-## Questions and Comments
+## Support
 
-Find a bug? Areas of code unclearly documented? Other questions? Feel free to contact
-Kyle Bystrom at kylebystrom@gmail.com AND/OR create an issue on the [Github page](https://github.com/mir-group/CiderPress/).
+Use the [GitHub issue tracker](https://github.com/mir-group/CiderPress/issues)
+for bug reports, documentation problems, and technical questions. Scientific
+inquiries may also be sent to Kyle Bystrom at kylebystrom@gmail.com.
 
 ## Citing
 
-If you find CiderPress or CIDER functionals useful in your research, please cite the following article
+For work using CiderPress or CIDER functionals, cite the following article:
 ```
 @article{PhysRevB.110.075130,
   title = {Nonlocal machine-learned exchange functional for molecules and solids},
@@ -145,7 +147,8 @@ If you find CiderPress or CIDER functionals useful in your research, please cite
   url = {https://link.aps.org/doi/10.1103/PhysRevB.110.075130}
 }
 ```
-The above article introduces the CIDER23X functionals and much of the algorithms in CiderPress. If you use the CIDER24X functionals, please also cite
+This article introduces the CIDER23X functionals and much of the numerical
+framework in CiderPress.  Work using CIDER24X should also cite:
 ```
 @article{doi:10.1021/acs.jctc.4c00999,
   author = {Bystrom, Kyle and Falletta, Stefano and Kozinsky, Boris},
@@ -160,3 +163,9 @@ The above article introduces the CIDER23X functionals and much of the algorithms
   URL = {https://doi.org/10.1021/acs.jctc.4c00999}
 }
 ```
+
+The CIDER26XC models accompany the forthcoming manuscript *Machine-Learned
+Exchange-Correlation Functionals in the CIDER Framework and Application to
+Chemistry and Surface Science*. See the
+[citation guide](https://mir-group.github.io/CiderPress/reference/citing.html)
+for the current citation record.

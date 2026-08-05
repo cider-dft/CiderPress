@@ -16,7 +16,7 @@ Requirements
 * FFTW or Intel MKL for FFT operations. By default the non-MKL build downloads
   and compiles FFTW and libxc, which requires network access. Set
   ``BUILD_FFTW=OFF`` and ``BUILD_LIBXC=OFF`` to use discoverable installations
-  supplied by the environment instead.
+  supplied by the environment.
 * MPI and ``mpicc`` for parallel GPAW calculations
 
 Install the core package
@@ -28,9 +28,9 @@ Install the released source distribution with:
 
    pip install ciderpress
 
-All published CIDER23X, CIDER24X, and CIDER26XC model files are included.
-CIDER24X needs PyTorch only when one of those models is loaded; CIDER26XC and
-CIDER23X do not.
+CIDER23X, CIDER24X, and CIDER26XC model files are included.  CIDER24X loads
+PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the core
+runtime.
 
 Optional model dependencies
 ---------------------------
@@ -76,10 +76,10 @@ The source distribution invokes CMake.  Pass configuration options through
      - Use MKL for BLAS/LAPACK and FFT operations
    * - ``BUILD_LIBXC``
      - ``ON``
-     - Download and build libxc instead of using a discoverable installation
+     - Download and build libxc; ``OFF`` selects a discoverable installation
    * - ``BUILD_FFTW``
      - ``ON``
-     - Build FFTW when MKL is not selected
+     - Build FFTW for a non-MKL configuration
    * - ``BUILD_MARCH_NATIVE``
      - ``OFF``
      - Compile for the instruction set of the build host
@@ -94,10 +94,9 @@ For example, to use MKL and build the MPI interface:
    export CMAKE_CONFIGURE_ARGS="-DBUILD_WITH_MKL=ON -DBUILD_WITH_MPI=ON"
    pip install ciderpress
 
-If CiderPress resolves BLAS through MKL, set ``BUILD_WITH_MKL=ON`` rather than
-also embedding a separate FFTW.  MKL exports FFTW-compatible symbols, and
-loading it beside a separately embedded FFTW can produce symbol collisions and
-runtime crashes.
+If CiderPress resolves BLAS through MKL, set ``BUILD_WITH_MKL=ON`` and omit a
+separately embedded FFTW.  MKL exports FFTW-compatible symbols; loading both
+FFT implementations can produce symbol collisions and runtime crashes.
 
 Install from a source checkout
 ------------------------------
@@ -114,16 +113,16 @@ For an editable development installation:
 
    pip install -e .
 
-The same ``CMAKE_CONFIGURE_ARGS`` options apply.  A direct CMake build is also
-possible under ``ciderpress/lib`` but does not install the Python package or
-model resources.
+The same ``CMAKE_CONFIGURE_ARGS`` options apply.  A direct CMake build under
+``ciderpress/lib`` builds the extension libraries.  Use ``pip install`` to
+install the Python package and model resources.
 
 PySCF environment
 -----------------
 
-PySCF is a core dependency.  A source or optimized PySCF build can improve
-performance, but the Python interface is the same.  Confirm the basic imports
-and a packaged model before running a calculation:
+PySCF is a core dependency.  Source and optimized PySCF builds use the same
+Python interface and can provide different performance.  Confirm the basic
+imports and a packaged model before running a calculation:
 
 .. code-block:: bash
 
@@ -145,13 +144,14 @@ target machine.  CiderPress and GPAW must resolve compatible versions of:
 
 Before a large parallel job, run a small CIDER plane-wave calculation with the
 same MPI launcher and rank layout.  This verifies that the MPI, FFT, BLAS, and
-OpenMP libraries work together in the intended execution environment.  A
-serial CiderPress build cannot be used inside an MPI GPAW calculation.
+OpenMP libraries work together in the intended execution environment.  An MPI
+GPAW calculation requires an MPI-enabled CiderPress build.
 
 The repository's GPAW site-configuration template
-(``.github/workflows/gpaw_siteconfig.py``) illustrates an MKL/MPI build, but
-cluster compiler and launcher settings must match the local environment.
-CiderPress 0.5.0 supports the classic GPAW calculator, not ``gpaw.new``.
+(``.github/workflows/gpaw_siteconfig.py``) illustrates an MKL/MPI build.
+Adapt its compiler and launcher settings to the local environment.  CiderPress
+0.5.0 supports the classic GPAW calculator; ``gpaw.new`` is outside this
+release interface.
 
-Continue with :doc:`../usage/gpaw`.  The central limitations are collected in
-:doc:`../reference/limitations`.
+Continue with :doc:`../usage/gpaw`.  See :doc:`../reference/limitations` for
+the supported calculation and property scope.

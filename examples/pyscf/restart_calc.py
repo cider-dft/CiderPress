@@ -44,8 +44,8 @@ def run_ladder(mf, warm_density):
             if not mf.converged:
                 continue
 
-            # A relaxed rung supplies a preconditioned density.  Tighten the
-            # final calculation and remove level shifting/damping before use.
+            # A relaxed rung supplies a preconditioned density.  This example
+            # follows it with the standard CDIIS control set.
             if rung["label"] != "cdiis8":
                 tight_density = mf.make_rdm1()
                 configure(mf, LADDER[0])

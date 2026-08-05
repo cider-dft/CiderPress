@@ -2,8 +2,8 @@ GPAW Interface and PAW Implementation
 =====================================
 
 The GPAW interface evaluates supported CIDER models in classic GPAW
-plane-wave mode.  The production path uses PAW setups: FFTs evaluate smooth
-nonlocal features over the cell, while PAW/PASDW reconstructs the missing
+plane-wave mode.  The supported path uses PAW setups: FFTs evaluate smooth
+nonlocal features over the cell, and PAW/PASDW reconstructs the missing
 all-electron contribution inside augmentation spheres.
 
 This documentation assumes that you are familiar with the GPAW code and
@@ -24,13 +24,13 @@ The modules separate the host-code interface from the numerical layers:
 * :mod:`ciderpress.gpaw.descriptors` exposes descriptor evaluation from a
   live GPAW calculation.
 
-For production model selection, complete examples, and suggested fallback
+For packaged model selection, complete examples, and suggested fallback
 settings, see :doc:`../../usage/production_models`,
 :doc:`../../usage/gpaw`, and :doc:`../../usage/convergence`.
 
-Norm-conserving pseudopotentials do not contain the all-electron information
-required by the documented NLDF path.  CiderPress does not support
-``gpaw.new`` in version 0.5.0.
+The documented periodic NLDF path uses PAW setups for its all-electron
+information.  Version 0.5.0 supports the classic GPAW calculator;
+``gpaw.new`` is outside its interface.
 
 .. toctree::
    :maxdepth: 1

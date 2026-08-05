@@ -1,9 +1,8 @@
 Recording and Checking a Calculation
 ====================================
 
-A converged SCF flag is necessary but does not by itself identify the
-functional, numerical representation, or electronic state.  Preserve enough
-information to reconstruct all three.
+Record the functional, numerical representation, and electronic state
+alongside the converged SCF flag.  Together these identify the calculation.
 
 Functional identity
 -------------------
@@ -30,21 +29,19 @@ calculation began from PBE or a CIDER checkpoint.
 Recommended checks for a final calculation
 ------------------------------------------
 
-* Confirm energy, density, and orbital/eigenstate criteria rather than relying
-  on the final energy alone.
+* Confirm the energy, density, and orbital/eigenstate criteria.
 * Inspect occupations, gaps, spin expectation values, and total/local magnetic
   moments where relevant.
 * Verify that a restarted calculation retains the intended model and numerical
   controls.
-* Repeat a final calculation without temporary level shifting, damping, or
-  deliberately relaxed tolerances unless those settings define the reported
-  method.
+* Record level shifting, damping, smearing, and relaxed tolerances when they
+  are used.  Test the sensitivity of the requested property to these controls.
 * Converge the numerical parameters that affect the requested difference,
   force, or stress.
 * Preserve the input, text output, checkpoint, environment/package versions,
   and model hash together.
 
 When a calculation follows a geometry or parameter series, compare adjacent
-states for discontinuous occupation or magnetic changes.  A previous density
-is a useful starting point only while the intended electronic state remains
+states for discontinuous occupation or magnetic changes.  Use a previous
+density as the starting point when the intended electronic state remains
 continuous.

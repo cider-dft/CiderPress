@@ -23,8 +23,8 @@ def main():
         "eigenstates": 5e-3,
         "bands": "occupied",
     }
-    # The baseline is a density preconditioner, so a looser density target is
-    # sufficient here; the CIDER stage below applies the final target.
+    # This example uses a relaxed baseline density criterion before the CIDER
+    # restart.  Converge both stages for the target property.
     pbe_convergence = dict(convergence)
     pbe_convergence["density"] = 1e-2
     atoms.calc = GPAW(

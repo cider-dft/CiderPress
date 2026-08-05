@@ -1,12 +1,11 @@
 PySCF Numerical and Derivative Implementation
 =============================================
 
-This page is an implementation reference for the molecular backend. The
-objects documented here support the public calculation and descriptor
-interfaces, but are not themselves compatibility-stable user APIs. Code that
-only runs calculations should use
-:func:`~ciderpress.pyscf.dft.make_cider_calc`; code that extracts fixed-density
-data should use :func:`~ciderpress.pyscf.descriptors.get_descriptors`.
+This page is an implementation reference for the molecular backend.  Construct
+a calculation with :func:`~ciderpress.pyscf.dft.make_cider_calc` and extract
+fixed-density data with
+:func:`~ciderpress.pyscf.descriptors.get_descriptors`.  The objects below
+implement those public interfaces.
 
 Blockwise XC integration
 ------------------------
@@ -18,14 +17,14 @@ the feature settings stored in a mapped model. For each grid block it:
 
 1. evaluates the density, gradient, and, for meta-GGA models,
    kinetic-energy density from the density matrix;
-2. evaluates semilocal, NLDF, SDMX, and any enabled hybrid feature blocks in
-   their serialized order;
+2. evaluates semilocal, NLDF, and SDMX feature blocks in their serialized
+   order;
 3. applies the mapped model to obtain an energy density and feature
    derivatives; and
 4. applies the adjoint of every feature operation to assemble the matrix XC
    potential returned to PySCF.
 
-The restricted and unrestricted routes use the same feature plans, while the
+The restricted and unrestricted routes use the same feature plans.  The
 unrestricted route retains separate alpha- and beta-spin arrays until the
 model's spin-combination rule is applied.
 
@@ -42,9 +41,9 @@ model's spin-combination rule is applied.
 .. py:class:: CiderNumInt
 
    PySCF ``NumInt`` implementation that owns the mapped evaluator and the
-   feature generators selected from its settings. Specialized subclasses add
-   NLDF or fractional-Laplacian behavior; callers should let
-   :func:`~ciderpress.pyscf.dft.make_cider_calc` select the appropriate class.
+   feature generators selected from its settings.  The constructor
+   :func:`~ciderpress.pyscf.dft.make_cider_calc` selects the appropriate NLDF
+   or SDMX path.
 
 NLDF grid and convolution
 -------------------------
@@ -88,9 +87,8 @@ SDMX feature evaluation
 .. py:module:: ciderpress.pyscf.sdmx
 
 :mod:`ciderpress.pyscf.sdmx` evaluates the optimized smoothed density-matrix
-features used by CIDER24X. Rather than depending only on local density
-ingredients, these features contract the one-particle density matrix with
-smoothed atom-centered orbital quantities.
+features used by CIDER24X.  These features contract the one-particle density
+matrix with smoothed atom-centered orbital quantities.
 
 .. py:class:: PySCFSDMXInitializer
 
@@ -104,10 +102,11 @@ smoothed atom-centered orbital quantities.
 
 .. py:module:: ciderpress.pyscf.sdmx_slow
 
-:mod:`ciderpress.pyscf.sdmx_slow` is the slower reference formulation used to
-check the optimized contractions. It is useful for implementation validation,
-not production calculation setup. Analytical SDMX nuclear gradients are not a
-supported release-0.5.0 property.
+:mod:`ciderpress.pyscf.sdmx_slow` is the reference formulation used to check
+the optimized contractions.  Calculation setup uses the optimized
+:mod:`ciderpress.pyscf.sdmx` path.  The current SDMX interface provides
+energies and potentials; its property scope is listed in
+:doc:`../../usage/properties`.
 
 Nuclear-gradient response
 -------------------------
@@ -149,10 +148,9 @@ Consistency requirements
 
 Finite-difference comparisons must use the same basis, atom-centered and
 CIDER grids, feature settings, density-fitting treatment, occupations, and
-electronic state as the analytical calculation. Agreement of total energies
-alone does not validate a new feature: its raw values, mapped derivatives,
-matrix potential, and nuclear response must agree through the complete
-forward/adjoint path.
+electronic state as the analytical calculation.  Validation of a new feature
+covers its raw values, mapped derivatives, matrix potential, and nuclear
+response through the complete forward/adjoint path.
 
 See :doc:`../../theory/nldf_numerical` for the molecular NLDF algorithm,
 :doc:`../../theory/numerical_evaluation` for the backend comparison, and

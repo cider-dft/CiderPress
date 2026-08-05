@@ -15,13 +15,13 @@ machine-learned density functionals.  The code serves several purposes:
   and perform full self-consistent field calculations with CIDER functionals.
 
 CIDER stands for *Compressed scale-Invariant DEnsity Representation*.  The
-name originally described the scale-invariant nonlocal density features used
-to learn exchange.  The framework now also includes semilocal and smoothed
+name originally described the scale-invariant density features used
+to learn exchange.  The framework now also includes smoothed
 density-matrix features, full exchange-correlation models, and molecular and
 periodic numerical implementations.
 
-Choose a path
--------------
+Getting started
+---------------
 
 * To run a calculation, begin with :doc:`installation/installation`, then use
   :doc:`usage/production_models` and :doc:`usage/quickstart`.
