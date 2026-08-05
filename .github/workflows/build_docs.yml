@@ -53,10 +53,10 @@ jobs:
       run: |
         pip install torch --index-url https://download.pytorch.org/whl/cpu
         # Release 0.5.0 is validated against the classic GPAW 25.7 API.
-        pip install 'gpaw==25.7.0'
+        pip install -c .github/workflows/test-constraints.txt 'gpaw==25.7.0'
         export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
         export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
-        pip install '.[d4]'
+        pip install -c .github/workflows/test-constraints.txt '.[d4]'
     - name: Build documentation
       env:
         CIDERPRESS_SOURCE_REF: ${{ github.sha }}

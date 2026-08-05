@@ -21,5 +21,5 @@ if [ "$RUNNER_OS" == "macOS" ]; then
     export LD_LIBRARY_PATH="$brew_prefix/lib"
 fi
 export CMAKE_CONFIGURE_ARGS="-DBUILD_LIBXC=1 -DBUILD_FFTW=1 -DBUILD_WITH_MKL=0 -DBUILD_WITH_MPI=0 -DBUILD_MARCH_NATIVE=0"
-python -m pip install '.[test,d4,cider24]'
+python -m pip install -c .github/workflows/test-constraints.txt '.[test,d4,cider24]'
 ./.github/workflows/run_tests.sh

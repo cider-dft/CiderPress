@@ -1,0 +1,4 @@
+# Reference dependency stack for the 0.5.0 test matrix.
+numpy==2.0.2
+pyscf==2.7.0
+scipy==1.14.1

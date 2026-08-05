@@ -5,8 +5,10 @@ data_root="${RUNNER_TEMP:-$PWD/.gpaw-data}"
 archive_root="$data_root/archives"
 mkdir -p "$archive_root"
 
-paw_archive="$archive_root/gpaw-setups-24.1.0.tar.gz"
-sg15_archive="$archive_root/sg15_oncv_upf_2020-02-06.tar.gz"
+paw_archive_name="gpaw-setups-24.1.0.tar.gz"
+sg15_archive_name="sg15_oncv_upf_2020-02-06.tar.gz"
+paw_archive="$archive_root/$paw_archive_name"
+sg15_archive="$archive_root/$sg15_archive_name"
 
 curl --fail --location --retry 3 \
     https://wiki.fysik.dtu.dk/gpaw-files/gpaw-setups-24.1.0.tar.gz \
@@ -29,5 +31,6 @@ for filename, expected in zip(sys.argv[1::2], sys.argv[2::2]):
         raise SystemExit(f"Checksum mismatch for {filename}: {digest}")
 PY
 
-gpaw install-data --tarball "$paw_archive" --register "$data_root"
-gpaw install-data --tarball "$sg15_archive" --register "$data_root"
+cd "$archive_root"
+gpaw install-data --tarball "$paw_archive_name" --register "$data_root"
+gpaw install-data --tarball "$sg15_archive_name" --register "$data_root"
