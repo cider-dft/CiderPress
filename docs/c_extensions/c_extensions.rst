@@ -1,8 +1,8 @@
 C Extension Libraries
 =====================
 
-CiderPress moves the repeated convolution, interpolation, and spline-adjoint
-operations used by nonlocal descriptors into compiled libraries.  Python owns
+CiderPress moves the convolution, interpolation, and spline/spline-adjoint
+operations used by nonlocal descriptors into compiled C libraries.  Python owns
 the model settings, backend orchestration, and array layout.  The extension
 layer consumes arrays with the shapes and memory conventions established by
 that interface.
