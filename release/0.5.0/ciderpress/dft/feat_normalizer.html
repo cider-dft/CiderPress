@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physical Feature Normalization &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Feature Normalization &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
@@ -75,7 +75,7 @@
 <li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
 <li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Physical Feature Normalization</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Feature Normalization</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.FeatNormalizerList"><code class="docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.ConstantNormalizer"><code class="docutils literal notranslate"><span class="pre">ConstantNormalizer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.feat_normalizer.DensityNormalizer"><code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code></a></li>
@@ -118,7 +118,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
-      <li class="breadcrumb-item active">Physical Feature Normalization</li>
+      <li class="breadcrumb-item active">Feature Normalization</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/dft/feat_normalizer.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -128,24 +128,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="physical-feature-normalization">
-<h1>Physical Feature Normalization<a class="headerlink" href="#physical-feature-normalization" title="Link to this heading"></a></h1>
-<p>Raw NLDF and SDMX quantities carry density and length-scale powers.  Feature
+  <section id="feature-normalization">
+<h1>Feature Normalization<a class="headerlink" href="#feature-normalization" title="Link to this heading"></a></h1>
+<p>As explained in the <a class="reference internal" href="../../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a> section, it is often useful
+for model inputs to be invariant under uniform scaling. However, many semilocal
+and nonlocal descriptors are not scale-invariant from the outset. To
+create scale-invariant features, “raw” features must be multiplied by
+an appropriate power of the density, and they can optionally be multiplied
+by other scale-invariant factors to improve their numerical behavior.</p>
+<p>This is the role of the feature normalizers module.  Feature
 normalizers combine a raw quantity <span class="math notranslate nohighlight">\(x\)</span> with the spin density and a
-dimensionless inhomogeneity variable to produce the coordinates expected by a
-model.  <code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code>, <code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer</span></code>, and
+dimensionless inhomogeneity variable to produce the uniform scaling behavior
+expected by a model.  <code class="docutils literal notranslate"><span class="pre">DensityNormalizer</span></code>, <code class="docutils literal notranslate"><span class="pre">InhomogeneityNormalizer</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">GeneralNormalizer</span></code> implement factors of the form</p>
 <div class="math notranslate nohighlight">
 \[x_\mathrm n
 = c_1 x\,n^p(1+c_2 I)^q.\]</div>
-<p>Their backward operations propagate a mapped-model derivative to
-<span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(I\)</span>.  <code class="docutils literal notranslate"><span class="pre">get_usp</span></code> reports the uniform-scaling
-power of the normalized quantity, and <code class="docutils literal notranslate"><span class="pre">get_ueg</span></code> evaluates its
-uniform-electron-gas value.</p>
+<p>These objects’ backward operations propagate the model derivatives to
+<span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(I\)</span>.  <code class="docutils literal notranslate"><span class="pre">get_usp</span></code> reports the uniform scaling
+power of the normalizer term, and <code class="docutils literal notranslate"><span class="pre">get_ueg</span></code> returns its
+value for the uniform electron gas.</p>
 <p><code class="docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code> applies one normalizer per raw feature.  Its semilocal
-mode determines how density, reduced-gradient, and kinetic-energy-density
+mode (<code class="docutils literal notranslate"><span class="pre">slmode</span></code>) determines how density, reduced-gradient, and kinetic-energy-density
 inputs form the inhomogeneity variable.  The list and its cutoff are serialized
-with the feature settings.</p>
+with the feature settings when the model is stored.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.feat_normalizer.FeatNormalizerList">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.feat_normalizer.</span></span><span class="sig-name descname"><span class="pre">FeatNormalizerList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalizers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slmode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.feat_normalizer.FeatNormalizerList" title="Link to this definition"></a></dt>
