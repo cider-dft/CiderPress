@@ -8,11 +8,12 @@ functionals and maps them to compact inference evaluators.  The training
 objects operate on integrated system and reaction observations.
 
 :mod:`ciderpress.models.train` provides ``MOLGP`` and ``MOLGP2`` containers.
-The original representation maps to
-:class:`~ciderpress.dft.xc_evaluator.MappedXC`; the multi-component
-representation maps to :class:`~ciderpress.dft.xc_evaluator2.MappedXC2` and
-supports the separate exchange and correlation kernels used by full-XC
-models.  Covariance kernels build on
+The original ``MOLGP`` representation maps to
+:class:`~ciderpress.dft.xc_evaluator.MappedXC`; the newer ``MOLGP2``
+representation maps to :class:`~ciderpress.dft.xc_evaluator2.MappedXC2`. The
+primary difference is that ``MOLGP2`` and ``MappedXC2`` use libxc as a backend
+for baseline functionals, making it easier to construct full-XC functionals.
+Covariance kernels build on
 scikit-learn primitives.  DFT kernels combine those covariance functions with
 feature transforms, energy-density baselines, and sparse control points.
 
