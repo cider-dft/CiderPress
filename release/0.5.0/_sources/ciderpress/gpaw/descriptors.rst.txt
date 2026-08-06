@@ -20,10 +20,11 @@ by the calculator.
 
    With ``p_i=None``, the return value is ``(features, weights)``. ``features``
    has shape ``(nspin, nfeature, npoint)`` and ``weights`` has shape
-   ``(npoint,)``. With selected orbitals, the return value is
+   ``(npoint,)``. When ``p_i`` is provided, the return value is
    ``(features, feature_derivatives, weights)``;
    ``feature_derivatives`` has shape ``(norbital, nfeature, npoint)``.
-   Each orbital selector is a zero-based ``(spin, kpoint, band)`` tuple.
+   When provided, ``p_i`` is a list of orbital/band indexes,
+   where each index is a zero-based ``(spin, kpoint, band)`` tuple.
 
    ``use_paw=True`` includes the atomic all-electron correction used by the
    supported PAW calculation path.

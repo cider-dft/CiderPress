@@ -131,10 +131,11 @@ string <code class="docutils literal notranslate"><span class="pre">&quot;l&quot
 The documented GPAW descriptor settings are semilocal and version-J NLDF.</p>
 <p>With <code class="docutils literal notranslate"><span class="pre">p_i=None</span></code>, the return value is <code class="docutils literal notranslate"><span class="pre">(features,</span> <span class="pre">weights)</span></code>. <code class="docutils literal notranslate"><span class="pre">features</span></code>
 has shape <code class="docutils literal notranslate"><span class="pre">(nspin,</span> <span class="pre">nfeature,</span> <span class="pre">npoint)</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> has shape
-<code class="docutils literal notranslate"><span class="pre">(npoint,)</span></code>. With selected orbitals, the return value is
+<code class="docutils literal notranslate"><span class="pre">(npoint,)</span></code>. When <code class="docutils literal notranslate"><span class="pre">p_i</span></code> is provided, the return value is
 <code class="docutils literal notranslate"><span class="pre">(features,</span> <span class="pre">feature_derivatives,</span> <span class="pre">weights)</span></code>;
 <code class="docutils literal notranslate"><span class="pre">feature_derivatives</span></code> has shape <code class="docutils literal notranslate"><span class="pre">(norbital,</span> <span class="pre">nfeature,</span> <span class="pre">npoint)</span></code>.
-Each orbital selector is a zero-based <code class="docutils literal notranslate"><span class="pre">(spin,</span> <span class="pre">kpoint,</span> <span class="pre">band)</span></code> tuple.</p>
+When provided, <code class="docutils literal notranslate"><span class="pre">p_i</span></code> is a list of orbital/band indexes,
+where each index is a zero-based <code class="docutils literal notranslate"><span class="pre">(spin,</span> <span class="pre">kpoint,</span> <span class="pre">band)</span></code> tuple.</p>
 <p><code class="docutils literal notranslate"><span class="pre">use_paw=True</span></code> includes the atomic all-electron correction used by the
 supported PAW calculation path.
 <code class="docutils literal notranslate"><span class="pre">screen_dens=True</span></code> removes very-low-density uniform-grid points before
