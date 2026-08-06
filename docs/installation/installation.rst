@@ -114,8 +114,15 @@ For an editable development installation:
    pip install -e .
 
 The same ``CMAKE_CONFIGURE_ARGS`` options apply.  A direct CMake build under
-``ciderpress/lib`` builds the extension libraries.  Use ``pip install`` to
-install the Python package and model resources.
+``ciderpress/lib`` builds the extension libraries. For example: ::
+
+    cd ciderpress/lib
+    mkdir build
+    cd build
+    cmake <CMAKE_ARGS> ..
+    make
+
+Use ``pip install`` to install the Python package and model resources.
 
 PySCF environment
 -----------------
