@@ -115,11 +115,12 @@
 functionals and maps them to compact inference evaluators.  The training
 objects operate on integrated system and reaction observations.</p>
 <p><a class="reference internal" href="train.html#module-ciderpress.models.train" title="ciderpress.models.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.train</span></code></a> provides <code class="docutils literal notranslate"><span class="pre">MOLGP</span></code> and <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code> containers.
-The original representation maps to
-<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a>; the multi-component
-representation maps to <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a> and
-supports the separate exchange and correlation kernels used by full-XC
-models.  Covariance kernels build on
+The original <code class="docutils literal notranslate"><span class="pre">MOLGP</span></code> representation maps to
+<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a>; the newer <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code>
+representation maps to <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>. The
+primary difference is that <code class="docutils literal notranslate"><span class="pre">MOLGP2</span></code> and <code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> use libxc as a backend
+for baseline functionals, making it easier to construct full-XC functionals.
+Covariance kernels build on
 scikit-learn primitives.  DFT kernels combine those covariance functions with
 feature transforms, energy-density baselines, and sparse control points.</p>
 <p>Mapping plans under <code class="docutils literal notranslate"><span class="pre">ciderpress.models.kernel_plans</span></code> select an inference
