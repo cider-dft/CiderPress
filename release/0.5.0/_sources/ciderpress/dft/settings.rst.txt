@@ -5,9 +5,9 @@ Feature Settings
 
 Settings objects are the serialized declarations of a model's raw electronic
 features.  Their parameter order, spin convention, scaling powers, and
-uniform-electron-gas limits define the inputs expected by the normalizers and
+uniform electron gas limits define the inputs expected by the normalizers and
 mapped evaluator.  Calculation interfaces read these objects from the model;
-model-construction and descriptor workflows can create them explicitly.
+model construction and descriptor workflows can create them explicitly.
 
 Composite settings
 ------------------
