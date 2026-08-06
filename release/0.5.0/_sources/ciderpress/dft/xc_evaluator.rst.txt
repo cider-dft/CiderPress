@@ -3,8 +3,8 @@
 Mapped XC Evaluators
 ====================
 
-Function evaluators operate on transformed descriptor coordinates and return
-both a value and its descriptor derivative.  Mapped DFT kernels apply the
+Function evaluators operate on transformed descriptors and return
+both a value and its derivatives with respect to the descriptors.  Mapped DFT kernels apply the
 stored feature transforms and energy baselines.  The top-level mapped XC
 object combines all kernel components with their shared feature settings.
 
