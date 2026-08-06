@@ -126,9 +126,12 @@ GGA or meta-GGA smooth-grid/PAW object.  Exchange models receive their
 <code class="docutils literal notranslate"><span class="pre">xmix</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel</span></code> composition.  Full-XC models receive the
 composition stored in the model.</p>
 <p><a class="reference internal" href="#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.gpaw.calculator.CiderGPAW</span></code></a> extends the classic <code class="docutils literal notranslate"><span class="pre">GPAW</span></code>
-calculator with CIDER checkpoint state.  Its dictionary stores the mapped
-model text, XC composition, NLDF interpolation parameters, and PASDW options
-needed to reconstruct the functional during restart.</p>
+calculator with the ability to save a CIDER checkpoint state.
+The dictionary of the checkpoint state stores the mapped model text, XC composition,
+NLDF interpolation parameters, and PASDW (PAW corrections to nonlocal features)
+options needed to reconstruct the functional during restart. This allows
+CIDER calculations to be saved to disk and then restarted just like
+calculations with other functionals.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
 
 <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
@@ -137,7 +140,7 @@ needed to reconstruct the functional during restart.</p>
 <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For a full example, see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/4ef9a9fd4cf871a0de7b419a9f94e563cfca98d0/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>
+<p>For a full example, see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/408f61e2adfa98a27e213d7cf6b43bb4cde90154/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>
 and <a class="reference internal" href="../../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.</p>
 <dl class="py class" id="module-ciderpress.gpaw.calculator">
 <dt class="sig sig-object py" id="ciderpress.gpaw.calculator.CiderGPAW">
