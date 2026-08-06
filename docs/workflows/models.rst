@@ -23,8 +23,8 @@ Mapped kernels and baselines
    derivatives with respect to every raw input.
 
 Evaluation representation
-   A mapped kernel can evaluate control-point RBFs directly or use a fitted
-   spline or neural representation.  The evaluator type is stored in the
+   A mapped kernel can evaluate the Gaussian process predictive mean directly or use a fitted
+   spline or neural network representation.  The evaluator type is stored in the
    model file.
 
 Functional metadata
@@ -110,8 +110,8 @@ work are installed with the package, so no download step is needed.  They
 live in ``ciderpress/data/functionals`` and are shipped as package data
 through ``MANIFEST.in``; :mod:`ciderpress.dft.model_utils` resolves their
 short names, and :doc:`../usage/production_models` lists every name with its
-checksum.  The older functional set from the CIDER23X work is also archived
-on Zenodo and can be fetched with ``scripts/download_functionals.py``.
+checksum.  The older functional sets from the CIDER23X and CIDER24X works are
+also archived on Zenodo and can be fetched with ``scripts/download_functionals.py``.
 
 See :doc:`training` for the expected training-data boundary and
 :doc:`../ciderpress/models/models` for the regression APIs.
