@@ -14,7 +14,7 @@ dictionary, and the selected orbital energies.  Selectors can count from the
 bottom, highest occupied orbital, or lowest unoccupied orbital as documented
 by the function.
 
-See :doc:`../../workflows/descriptors` for a worked example and the returned
+See :doc:`../../workflows/descriptors` for an example and the returned
 array layout.
 
 .. automodule:: ciderpress.pyscf.descriptors
