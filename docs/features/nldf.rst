@@ -12,8 +12,8 @@ each integration point.  A fixed-kernel convolution has the form
    k(\mathbf{r}-\mathbf{r}') n(\mathbf{r}')
 
 An exponentially decaying fixed kernel introduces a dimensional length scale
-that conflicts with uniform coordinate scaling.  CIDER uses density-dependent
-kernel exponents.  For a scaled
+that conflicts with uniform coordinate scaling.  CIDER resolves this
+problem uses density-dependent kernel exponents.  For a scaled
 density :math:`n_\lambda(\mathbf{r})=\lambda^3 n(\lambda\mathbf{r})`,
 if :math:`k[n_\lambda](\mathbf{r}-\mathbf{r}')=\lambda^j k[n](\lambda(\mathbf{r}-\mathbf{r}'))`,
 then
@@ -21,7 +21,9 @@ then
 .. math:: G[n_\lambda](\mathbf{r}) = \lambda^j G[n](\lambda\mathbf{r})
 
 The resulting power law can be combined with a normalizer to produce the
-scaling behavior required by the functional.
+scaling behavior required by the functional. Typically, this means
+constructing the normalized feature to be scale-invariant, as explained
+in :doc:`uniform_scaling`.
 
 Three NLDF versions are implemented in the molecular feature framework:
 ``i``, ``j``, and ``k``.  Version ``i`` and ``j`` features can be evaluated
@@ -83,7 +85,9 @@ This exponent scaling makes :math:`G_i[n](\mathbf{r})` scale invariant:
 
 The settings format can multiply the source density by another semilocal
 quantity :math:`b(\mathbf{r}')`. The multiplier contributes its uniform
-scaling power to the raw feature.
+scaling power to the raw feature. Note the the introduction of this
+additional multiplier is currently experimental and not used in any
+packaged production functionals.
 
 The settings layer defines the squared-exponential specification ``se`` and
 the ``se_ar2``, ``se_a2r4``, and
@@ -125,7 +129,10 @@ The :math:`*` symbol stands for the kernel specification. With
      - :math:`(4a^2R^2-2a)\exp(-aR^2)`
 
 The historical name ``se_lapl`` refers to the explicit expression shown in
-the table.
+the table. It does not actually compute the Laplacian of the ``se``
+feature as originally intended, but the implementation is subject to
+change in future releases to fix this issue. No current packaged production
+functionals use Version I or the ``se_lapl`` feature.
 
 Version I also provides vector features of the form
 
@@ -153,11 +160,21 @@ Version-I variants are model-construction options.  A custom combination
 defines a distinct descriptor and requires independent forward/adjoint,
 scaling, and low-density validation.
 
+NOTE: While all the above Version I variants are supported in the code (in any combination),
+most of them either have numerical precision issues (i.e. they are difficult to compute with high
+precision using the fast NLDF algorithms) or are physically unrealistic (being too large in the core
+region or similar issues). The two most physically and numerically sensible seem to be ``se_ap``
+and ``se_grad`` dotted with itself. Version I features are subject to change
+in future releases pending improved numerical implementations.
+
 Version K
 ---------
 
-Version K places the source-coordinate dependence in a damping factor that
-suppresses contributions when
+Version K is a modification of Version J meant to remove the need for the squared-exponential kernel
+to depend on the density at :math:`\mathbf{r}'`. However, without the dependence on :math:`a_0[n](\mathbf{r}')`,
+the NLDFs can have large contributions from the core electrons in the valence region, which 
+is physically unrealistic. To fix this, we multiply the density by a function that
+decays when :math:`a_i(\mathbf{r})<<a_0(\mathbf{r}')`:
 :math:`a_i(\mathbf{r})\ll a_0(\mathbf{r}')`:
 
 .. math::
