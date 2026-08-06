@@ -66,7 +66,7 @@ nonlocal meta-GGA variants are the main application models from that work.
      - Uses a PBE exchange baseline in the learned exchange model
    * - ``CIDER23X_NL_MGGA_DTR``
      - Nonlocal meta-GGA
-     - Diverse-training retraining of the PBE-baseline model for improved numerical robustness
+     - The PBE-baseline model retrained on the diverse-training (DTR) partition of GMTKN55 for improved numerical stability
 
 Initialize one of these models with the exchange fraction and external
 semilocal terms stated explicitly:
@@ -140,10 +140,11 @@ described in :doc:`../theory/full_xc`.  PySCF's defaults are correct:
 
    mf = make_cider_calc(dft.RKS(mol), "CIDER26XCCHEM")
 
-GPAW's initializer serves both exchange and full-XC models.  Its keyword
-defaults specify the PBE kernels used by exchange models; a nonzero
-``ckernel`` would add that correlation term to the full XC already stored in
-CIDER26XC.  Supply the full-XC composition explicitly:
+GPAW's initializer serves both exchange and full-XC models.  Its defaults
+are ``xmix=1.0`` with the PBE kernel strings ``"GGA_X_PBE"`` and
+``"GGA_C_PBE"``; leaving ``ckernel`` set would add a second PBE correlation
+term to the full XC already stored in CIDER26XC.  Supply the full-XC
+composition explicitly:
 
 .. code-block:: python
 
@@ -162,37 +163,17 @@ electronic model can also be evaluated in an isolated GPAW PAW box.
 ``CIDER26XCCHEMD4`` uses the PySCF D4 energy interface, and selecting it in
 GPAW raises an error.
 
-D4 energy accounting
---------------------
+D4 with ``CIDER26XCCHEMD4``
+--------------------------
 
-D4 is evaluated after the density SCF.  The potential and density are those of
-the electronic CIDER model.  After ``kernel()`` the following attributes
-describe the energy assembly:
+D4 is evaluated from the geometry after the density SCF, so it changes the
+total energy but not the CIDER potential or density.  CiderPress adds the
+term the model was trained with exactly once, whether or not a dispersion
+wrapper is already attached to the SCF object.  The runtime attributes that
+record this are documented in :doc:`pyscf`.
 
-``mf.e_tot_base``
-   Energy returned by the underlying SCF object before CiderPress makes the
-   model-specific dispersion adjustment.
-
-``mf.e_vdw_present``
-   Dispersion contribution already contained in that underlying energy, if a
-   supported dispersion wrapper was present.
-
-``mf.e_vdw_expected``
-   D4 contribution specified by the selected CIDER model.
-
-``mf.e_vdw_delta``
-   Adjustment ``e_vdw_expected - e_vdw_present`` added to ``e_tot_base``.
-
-The returned ``mf.e_tot`` is ``mf.e_tot_base + mf.e_vdw_delta``.
-For ``CIDER26XCCHEM`` and ``CIDER26XCSURFSCI``, the expected dispersion is zero
-and CiderPress disables a supported D3/D4 wrapper attached to the incoming
-SCF object.  For ``CIDER26XCCHEMD4``, CiderPress measures any attached wrapper
-contribution and sets ``e_vdw_delta`` to the model's expected D4 term minus
-that measured value.
-
-These rules include the expected dispersion term once in the final energy.
-The current PySCF CIDER nuclear gradient contains the electronic contribution;
-see :doc:`properties` for the D4 force limitation.
+The D4 term is absent from the current nuclear gradient; see
+:doc:`properties` before using derivative-based workflows.
 
 Loading rules and model trust
 -----------------------------

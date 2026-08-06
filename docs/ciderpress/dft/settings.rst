@@ -14,13 +14,8 @@ Composite settings
 
 .. py:module:: ciderpress.dft.settings
 
-.. py:class:: FeatureSettings
-
-   Composite feature declaration stored by a trainable or mapped model.  The
-   documented model families use ``sl_settings`` together with an optional
-   ``nldf_settings`` or ``sdmx_settings`` component.  ``normalizers`` records
-   the transformation of the concatenated raw blocks, and ``nfeat`` gives the
-   resulting raw feature count.
+.. autoclass:: FeatureSettings
+   :members:
 
 Semilocal settings
 ------------------

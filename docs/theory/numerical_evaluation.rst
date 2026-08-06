@@ -53,10 +53,8 @@ augmentation representation.  ``pasdw_ovlp_fit=True`` selects overlap fitting;
 The PAW interpolation code reconstructs all-electron and pseudo partial-wave
 quantities on radial grids, including kinetic-energy-density terms required by
 meta-GGA models.  Core kinetic-energy contributions are constrained to their
-physical lower bound to control finite-grid violations, and heavier elements
-use a denser all-electron radial treatment.  These choices define the
-functional's numerical representation and must be consistent across
-quantities being compared.
+von Weizsäcker lower bound to control finite-grid violations, and elements
+above argon use the setup's denser all-electron radial grid.
 
 Forces and stress require derivatives of both the FFT contribution and the
 PAW/PASDW projection terms.  The supported meta-GGA force and stress path uses

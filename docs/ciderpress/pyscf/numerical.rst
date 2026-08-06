@@ -66,9 +66,9 @@ mapping.
 
 :mod:`ciderpress.pyscf.nldf_convolutions` builds the auxiliary Gaussian
 representation of the density-dependent kernel and evaluates its forward and
-backward contractions. The exponent grid, angular cutoff, interpolation
-scheme, and low-density cutoffs are numerical approximations to the feature
-definition and must remain identical between energy and potential paths.
+backward contractions. Its exponent grid, angular cutoff, interpolation
+scheme, and low-density cutoffs are the numerical approximations to the
+feature definition.
 
 .. py:class:: PySCFNLDFInitializer
 
@@ -103,7 +103,9 @@ matrix with smoothed atom-centered orbital quantities.
 .. py:module:: ciderpress.pyscf.sdmx_slow
 
 :mod:`ciderpress.pyscf.sdmx_slow` is the reference formulation used to check
-the optimized contractions.  Calculation setup uses the optimized
+the optimized contractions, and it also supplies the base class for the
+periodic SDMX generator in :mod:`ciderpress.pyscf.pbc.sdmx_fft` and for
+descriptor extraction.  Molecular calculation setup uses the optimized
 :mod:`ciderpress.pyscf.sdmx` path.  The current SDMX interface provides
 energies and potentials; its property scope is listed in
 :doc:`../../usage/properties`.
@@ -142,15 +144,6 @@ alpha and beta densities.
    :no-index:
 
    Unrestricted density-fitted CIDER gradient implementation.
-
-Consistency requirements
-------------------------
-
-Finite-difference comparisons must use the same basis, atom-centered and
-CIDER grids, feature settings, density-fitting treatment, occupations, and
-electronic state as the analytical calculation.  Validation of a new feature
-covers its raw values, mapped derivatives, matrix potential, and nuclear
-response through the complete forward/adjoint path.
 
 See :doc:`../../theory/nldf_numerical` for the molecular NLDF algorithm,
 :doc:`../../theory/numerical_evaluation` for the backend comparison, and

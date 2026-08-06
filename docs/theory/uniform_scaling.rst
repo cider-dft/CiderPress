@@ -37,12 +37,17 @@ exact behavior under uniform scaling:\ :footcite:p:`Levy1985`
 
 .. math:: E_\text{x}[n_\lambda] = \lambda E_\text{x}[n]
 
-The correlation functional :math:`E_\text{c}[n]` obeys the limits\ :footcite:p:`Kaplan2023`
+The correlation functional :math:`E_\text{c}[n]` obeys the low- and
+high-density limits\ :footcite:p:`Kaplan2023`
 
 .. math::
 
-   \lim_{\lambda\rightarrow 0} E_\text{c}[n_\lambda] &= \lambda C_0[n] \\
+   E_\text{c}[n_\lambda] &\rightarrow \lambda\,\mathcal{C}_0[n]
+   \quad (\lambda\rightarrow 0) \\
    \lim_{\lambda\rightarrow \infty} E_\text{c}[n_\lambda] &> -\infty
+
+where :math:`\mathcal{C}_0[n]` is a density functional that does not depend
+on :math:`\lambda`.
 
 A scale-invariant feature vector satisfies
 
