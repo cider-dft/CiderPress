@@ -14,7 +14,7 @@ Settings and numerical plans
 
 :mod:`ciderpress.dft.settings` declares the semilocal, NLDF, and SDMX
 features and their parameters.  An instance of the :class:`~ciderpress.dft.settings.FeatureSettings`
-obect defines the set of descriptors to compute for a given ML model.
+object defines the set of descriptors to compute for a given ML model.
 :mod:`ciderpress.dft.plans` implements the backend-independent parts
 of the forward (feature evaluation) and adjoint (XC potential evaluation) operations.
 For example, :class:`~ciderpress.dft.settings.NLDFSettingsVJ` defines version-j NLDF
@@ -27,9 +27,9 @@ Normalization and Transformation of Features
 
 :mod:`ciderpress.dft.feat_normalizer` converts raw features into
 descriptors with the uniform scaling behavior chosen for the functional.
-The most common use of the feature normalizers is to transform “raw” features
-(which might not be scale-invariant) into scale-invariant “normalized features,”
-though it is not necessary to make every feature scale-invariant unless
+The most common use of the feature normalizers is to transform ``raw`` features
+(which might not be scale-invariant) into scale-invariant ``normalized``
+features, though it is not necessary to make every feature scale-invariant unless
 you want to enforce the uniform scaling rule for exchange. See
 :doc:`../../theory/uniform_scaling` for details. Models for the correlation
 energy typically retain at least one feature that is not scale-invariant,

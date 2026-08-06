@@ -121,16 +121,15 @@ energy; molecular gradients contain the electronic CIDER contribution.</p></li>
 <a class="reference internal" href="../usage/properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  Hessians, NMR, polarizability,
 post-Hartree–Fock methods, and related response interfaces are outside its
 scope.</p></li>
-<li><p>Newton/SOSCF is outside the CIDER26XC PySCF numerical
-integration path.</p></li>
+<li><p>Newton/SOSCF is outside the CIDER PySCF numerical integration path for all
+packaged families: the CIDER <code class="docutils literal notranslate"><span class="pre">NumInt</span></code> leaves the <code class="docutils literal notranslate"><span class="pre">fxc</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cache_xc_kernel</span></code> entry points that second-order SCF requires
+unimplemented.  Use the DIIS methods in <a class="reference internal" href="../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a>.</p></li>
 <li><p>Nonlocal features add memory and communication overhead.  GPAW exposes
 augmented-grid parallelization through
 <code class="docutils literal notranslate"><span class="pre">parallel={&quot;augment_grids&quot;:</span> <span class="pre">True}</span></code>.</p></li>
-<li><p>Mapped YAML and joblib files reconstruct Python objects and therefore
-require a trusted source.</p></li>
 <li><p>The documented feature interfaces cover semilocal, NLDF, and SDMX models.
-Other feature classes in the source tree are experimental.  Release
-compatibility guarantees apply to the documented families.</p></li>
+Other feature classes in the source tree are experimental.</p></li>
 </ul>
 <p>Concrete restart controls for open-shell, near-degenerate, metallic, and
 magnetic calculations are listed in <a class="reference internal" href="../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a>.</p>

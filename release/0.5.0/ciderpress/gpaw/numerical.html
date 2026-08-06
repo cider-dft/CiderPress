@@ -258,10 +258,10 @@ and atom/grid contraction kernels.</p>
 <p id="module-ciderpress.gpaw.atom_descriptor_utils"><a class="reference internal" href="#module-ciderpress.gpaw.atom_descriptor_utils" title="ciderpress.gpaw.atom_descriptor_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.atom_descriptor_utils</span></code></a> applies the corresponding atomic
 corrections when extracting fixed-density descriptor arrays and occupation
 derivatives.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit</span></code> selects overlap fitting for the transfer; use the same
-value throughout a numerical comparison.  <code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs</span></code> controls
-caching of atom-centered projector values.  Caching uses more memory to reduce
-repeated cost and preserves the evaluated functional.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit</span></code> selects overlap fitting for the transfer and changes the
+evaluated numbers.  <code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs</span></code> caches atom-centered projector
+values: it trades memory for repeated cost and leaves the evaluated
+functional unchanged.</p>
 </section>
 <section id="module-ciderpress.gpaw.interp_paw">
 <span id="radial-reconstruction-and-on-site-correction"></span><h2>Radial reconstruction and on-site correction<a class="headerlink" href="#module-ciderpress.gpaw.interp_paw" title="Link to this heading"></a></h2>

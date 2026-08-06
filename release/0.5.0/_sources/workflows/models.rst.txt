@@ -98,21 +98,20 @@ correlation components in CIDER26XC.  See :doc:`../ciderpress/dft/baselines`
 for the baseline API and :doc:`../theory/full_xc` for the CIDER26XC energy
 form.
 
-Serialization and mapping tests
--------------------------------
+Serialization and packaged models
+---------------------------------
 
 Joblib files store trainable Python objects and their fitting state.  Mapped
 YAML stores the inference object used by the calculation interfaces.  Both
 formats reconstruct Python objects and should be loaded from trusted sources.
 
-Mapping validation covers:
-
-* pointwise predictions and feature derivatives against the trainable model;
-* fixed-density integrated energies on representative systems;
-* self-consistent energy composition in each supported backend;
-* analytical derivatives against finite differences at matched numerical
-  settings; and
-* YAML round trips, correction metadata, short name, and checksum.
+The mapped YAML models published with the CIDER23X, CIDER24X, and CIDER26XC
+work are installed with the package, so no download step is needed.  They
+live in ``ciderpress/data/functionals`` and are shipped as package data
+through ``MANIFEST.in``; :mod:`ciderpress.dft.model_utils` resolves their
+short names, and :doc:`../usage/production_models` lists every name with its
+checksum.  The older functional set from the CIDER23X work is also archived
+on Zenodo and can be fetched with ``scripts/download_functionals.py``.
 
 See :doc:`training` for the expected training-data boundary and
 :doc:`../ciderpress/models/models` for the regression APIs.

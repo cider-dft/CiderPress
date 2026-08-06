@@ -72,7 +72,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#backend-data-flow">Backend data flow</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#paw-and-interpolation-invariants">PAW and interpolation invariants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#model-and-checkpoint-compatibility">Model and checkpoint compatibility</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#building-the-documentation">Building the documentation</a></li>
 </ul>
 </li>
 </ul>
@@ -119,35 +118,43 @@
              
   <section id="extending-ciderpress">
 <h1>Extending CiderPress<a class="headerlink" href="#extending-ciderpress" title="Link to this heading"></a></h1>
-<p>A complete density-functional feature includes its settings, numerical
-forward operation, adjoint derivative, backend connections, serialization,
-and validation.  These parts share one feature order and mathematical
-definition across every supported backend.</p>
+<p>A new feature touches five layers: a settings class in
+<a class="reference internal" href="../ciderpress/dft/settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a>, a numerical plan in
+<a class="reference internal" href="../ciderpress/dft/plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a>, a normalizer in
+<a class="reference internal" href="../ciderpress/dft/feat_normalizer.html#module-ciderpress.dft.feat_normalizer" title="ciderpress.dft.feat_normalizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.feat_normalizer</span></code></a>, a bounded map in
+<a class="reference internal" href="../ciderpress/dft/transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a>, and a backend adapter under
+<code class="docutils literal notranslate"><span class="pre">ciderpress.pyscf</span></code> or <code class="docutils literal notranslate"><span class="pre">ciderpress.gpaw</span></code>.  All five must agree on one raw
+feature order, because that order is serialized with the model and replayed
+whenever it is loaded.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>We strongly recommend opening a
+<p>Open a
 <a class="reference external" href="https://github.com/mir-group/CiderPress/issues/new">CiderPress GitHub issue</a>
-and collaborating with the MIR developers before implementing or changing
-a feature family, numerical backend, PAW/PASDW route, mapped-model format,
-or checkpoint schema. Substantial feature work should receive joint design
-and code review: settings, feature order, forward and adjoint evaluation,
-analytical derivatives, serialization, and regression tests must evolve
-together for a functional to remain scientifically well defined.</p>
+before changing a feature family, numerical backend, PAW/PASDW route,
+mapped-model format, or checkpoint schema.  These are cross-backend
+interfaces, and a model file written by one version must remain
+interpretable by the code that loads it.</p>
 </div>
 <section id="adding-or-modifying-a-feature">
 <h2>Adding or modifying a feature<a class="headerlink" href="#adding-or-modifying-a-feature" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p>Define the feature and its parameters in the settings layer, including its
-feature count, spin behavior, uniform-scaling behavior, and uniform-electron
-gas limit where applicable.</p></li>
-<li><p>Implement a numerical plan that evaluates the raw feature and its adjoint
-derivative with respect to its electronic inputs.</p></li>
-<li><p>Define normalization and bounded transforms with the same feature order in
-training and evaluation.</p></li>
-<li><p>Connect the plan to each intended backend and give unsupported backends a
-clear error at construction time.</p></li>
-<li><p>Test feature values, finite differences, spin exchange symmetry, low-density
-behavior, and serialization before fitting a model with it.</p></li>
+<li><p>Subclass <a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings" title="ciderpress.dft.settings.BaseSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSettings</span></code></a> and implement
+<code class="docutils literal notranslate"><span class="pre">nfeat</span></code>, <code class="docutils literal notranslate"><span class="pre">get_feat_usps</span></code> (the uniform scaling power of each raw
+feature), and <code class="docutils literal notranslate"><span class="pre">ueg_vector</span></code> (its uniform electron gas value).
+<code class="docutils literal notranslate"><span class="pre">get_reasonable_normalizer</span></code> supplies the default normalization.</p></li>
+<li><p>Implement a plan in <a class="reference internal" href="../ciderpress/dft/plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> that evaluates the raw
+feature and its adjoint derivative with respect to the electronic inputs.
+The adjoint is what becomes the XC potential, so it must be the exact
+transpose of the forward operation rather than an approximation to it.</p></li>
+<li><p>Add the matching normalizer and bounded transform, keeping the same
+feature order used during training.</p></li>
+<li><p>Connect the plan to each intended backend, and raise at construction time
+in the backends that cannot evaluate it.  <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.get_cider_functional" title="ciderpress.gpaw.calculator.get_cider_functional"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cider_functional()</span></code></a>
+shows the pattern: it rejects SDMX and non-version-j NLDF models rather
+than failing later in the SCF.</p></li>
+<li><p>Check feature values, finite differences, spin exchange symmetry,
+low-density behavior, and a serialization round trip before fitting a
+model.</p></li>
 </ol>
 </section>
 <section id="backend-data-flow">
@@ -175,31 +182,20 @@ convention as their derivatives.</p></li>
 <li><p>Kinetic-energy-density terms remain finite at the origin and obey their
 physical core lower bound.</p></li>
 <li><p>Energy, potential, force, and stress paths use the same discretized feature.</p></li>
-<li><p>A reference-value update records the finite-difference and independent
-numerical-setting comparisons that justify the change.</p></li>
+<li><p>Changing a stored reference value means the functional itself changed;
+establish which numerical difference caused it before updating the value.</p></li>
 </ul>
 </section>
 <section id="model-and-checkpoint-compatibility">
 <h2>Model and checkpoint compatibility<a class="headerlink" href="#model-and-checkpoint-compatibility" title="Link to this heading"></a></h2>
 <p>Settings, mapped evaluators, and checkpoint dictionaries are persistent
-interfaces.  A new field needs a default that preserves the established
-composition of older objects and coverage in round-trip tests.  A changed
-functional composition requires explicit serialized metadata and a
-compatibility decision.</p>
-<p>Before release, exercise serial and MPI layouts, restricted and unrestricted
-molecular cases, PAW elements spanning light and transition-metal regimes,
-and a full checkpoint restart.  See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a> before
-advertising a new feature/property combination.</p>
-</section>
-<section id="building-the-documentation">
-<h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h2>
-<p>From the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory, build the strict HTML target and check the
-generated internal links and mathematics with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>-E<span class="w"> </span>-n<span class="w"> </span>-W<span class="w"> </span>--keep-going<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>.<span class="w"> </span>_build/html
-python<span class="w"> </span>tools/check_html_links.py<span class="w"> </span>_build/html
-python<span class="w"> </span>tools/check_mathjax.py<span class="w"> </span>_build/html
-</pre></div>
-</div>
+interfaces: a model file or checkpoint written today must still load after
+the code changes.  A new field therefore needs a default that reproduces the
+behavior of objects serialized before it existed, and a changed functional
+composition needs explicit serialized metadata so that the difference is
+visible to whatever loads it.</p>
+<p>See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a> for the feature and property
+combinations the release currently supports.</p>
 </section>
 </section>
 

@@ -169,16 +169,20 @@ the iso-orbital information with the bounded indicator</p>
 <div class="math notranslate nohighlight">
 \[t = \frac{\tau-\tau_0}{\tau+\tau_0},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the kinetic-energy density and <span class="math notranslate nohighlight">\(\tau_0\)</span> its
-uniform-electron-gas value as defined in <a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a>.  The
-CIDER23X models use the SCAN-style indicator <span class="math notranslate nohighlight">\(\alpha\)</span> for this role.
-Both choices are scale invariant and carry the same iso-orbital information
-when combined with the reduced-gradient descriptor; <span class="math notranslate nohighlight">\(t\)</span> has a finite
-range.</p>
-<p>The correlation feature vector <span class="math notranslate nohighlight">\(\mathbf{X}^{\mathrm{c}}_\sigma\)</span> appends
-one additional descriptor, the density itself, <span class="math notranslate nohighlight">\(X_6 = n\)</span>.  The
-scale-invariant features enforce the exchange scaling constraint.  The
-density coordinate gives the correlation model the additional scaling
-dependence required by its energy form.</p>
+uniform electron gas value as defined in <a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a>.  The
+CIDER23X models use the iso-orbital indicator <span class="math notranslate nohighlight">\(\alpha\)</span> of
+Sun <em>et al.</em><a class="footnote-reference brackets" href="#footcite-sun2013" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> for this role.  <span class="math notranslate nohighlight">\(\alpha\)</span> vanishes for
+single-orbital densities, which is convenient for nonempirical functional
+design, but <span class="math notranslate nohighlight">\(t\)</span> proved better behaved numerically within the CIDER26XC
+models and is bounded to <span class="math notranslate nohighlight">\([-1,1]\)</span>.  Combined with the reduced-gradient
+descriptor, the two carry the same iso-orbital information.</p>
+<p>The correlation feature vector <span class="math notranslate nohighlight">\(\mathbf{X}^{\mathrm{c}}_\sigma\)</span> carries
+one additional descriptor, the density itself, written <span class="math notranslate nohighlight">\(X_6 = n\)</span> in the
+CIDER26XC work.  In the serialized correlation feature list it follows the
+semilocal descriptors and precedes the nonlocal density features.  The
+scale-invariant features enforce the exchange scaling constraint, while
+correlation obeys no such rule, so the correlation model receives the density
+explicitly.</p>
 <p>Before entering the Gaussian-process kernel, every feature is mapped onto a
 finite interval by the bounded transforms stored in the serialized model
 (implemented in
@@ -197,7 +201,7 @@ iteration <span class="math notranslate nohighlight">\(k\)</span>, descriptors a
 current densities, the model is refit, and self-consistent calculations with
 that model generate the next densities.  The process is converged when
 fixed-density and self-consistent errors agree at the required resolution.
-Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
 <p>CiderPress provides the descriptor, model, kernel, and mapping primitives used
 by this process.  Dataset construction and orchestration are supplied by the
 surrounding training workflow; <a class="reference internal" href="../workflows/training.html"><span class="doc">Training and Mapping Workflow</span></a> describes the
@@ -215,7 +219,7 @@ once.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> uses its learned electronic XC contribution.
 <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> combines that learned contribution with the D4 term
 described above, which supplies an explicit long-range asymptote.</p>
-<div class="docutils container" id="id4">
+<div class="docutils container" id="id5">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
@@ -225,8 +229,12 @@ described above, which supplies an explicit long-range asymptote.</p>
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
 </aside>
-<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<aside class="footnote brackets" id="footcite-sun2013" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Jianwei Sun, Bing Xiao, Yuan Fang, Robin Haunschild, Pan Hao, Adrienn Ruzsinszky, Gábor I. Csonka, Gustavo E. Scuseria, and John P. Perdew. Density functionals that recognize covalent, metallic, and weak bonds. <em>Phys. Rev. Lett.</em>, 111(10):106401, 2013. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.111.106401">doi:10.1103/PhysRevLett.111.106401</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
 <p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
 </aside>
 </aside>

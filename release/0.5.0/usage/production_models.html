@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#cider23x-exchange-models">CIDER23X exchange models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cider24x-sdmx-exchange-models">CIDER24X SDMX exchange models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cider26xc-full-xc-models">CIDER26XC full-XC models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#d4-energy-accounting">D4 energy accounting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d4-with-cider26xcchemd4">D4 with <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loading-rules-and-model-trust">Loading rules and model trust</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#checksums">Checksums</a></li>
 </ul>
@@ -201,7 +201,7 @@ nonlocal meta-GGA variants are the main application models from that work.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CIDER23X_NL_MGGA_DTR</span></code></p></td>
 <td><p>Nonlocal meta-GGA</p></td>
-<td><p>Diverse-training retraining of the PBE-baseline model for improved numerical robustness</p></td>
+<td><p>The PBE-baseline model retrained on the diverse-training (DTR) partition of GMTKN55 for improved numerical stability</p></td>
 </tr>
 </tbody>
 </table>
@@ -280,10 +280,11 @@ described in <a class="reference internal" href="../theory/full_xc.html"><span c
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>GPAW’s initializer serves both exchange and full-XC models.  Its keyword
-defaults specify the PBE kernels used by exchange models; a nonzero
-<code class="docutils literal notranslate"><span class="pre">ckernel</span></code> would add that correlation term to the full XC already stored in
-CIDER26XC.  Supply the full-XC composition explicitly:</p>
+<p>GPAW’s initializer serves both exchange and full-XC models.  Its defaults
+are <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code> with the PBE kernel strings <code class="docutils literal notranslate"><span class="pre">&quot;GGA_X_PBE&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&quot;GGA_C_PBE&quot;</span></code>; leaving <code class="docutils literal notranslate"><span class="pre">ckernel</span></code> set would add a second PBE correlation
+term to the full XC already stored in CIDER26XC.  Supply the full-XC
+composition explicitly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
     <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
     <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -299,32 +300,15 @@ electronic model can also be evaluated in an isolated GPAW PAW box.
 <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the PySCF D4 energy interface, and selecting it in
 GPAW raises an error.</p>
 </section>
-<section id="d4-energy-accounting">
-<h2>D4 energy accounting<a class="headerlink" href="#d4-energy-accounting" title="Link to this heading"></a></h2>
-<p>D4 is evaluated after the density SCF.  The potential and density are those of
-the electronic CIDER model.  After <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> the following attributes
-describe the energy assembly:</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span></code></dt><dd><p>Energy returned by the underlying SCF object before CiderPress makes the
-model-specific dispersion adjustment.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_present</span></code></dt><dd><p>Dispersion contribution already contained in that underlying energy, if a
-supported dispersion wrapper was present.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_expected</span></code></dt><dd><p>D4 contribution specified by the selected CIDER model.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_delta</span></code></dt><dd><p>Adjustment <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span> <span class="pre">-</span> <span class="pre">e_vdw_present</span></code> added to <code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>.</p>
-</dd>
-</dl>
-<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code>.
-For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero
-and CiderPress disables a supported D3/D4 wrapper attached to the incoming
-SCF object.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures any attached wrapper
-contribution and sets <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code> to the model’s expected D4 term minus
-that measured value.</p>
-<p>These rules include the expected dispersion term once in the final energy.
-The current PySCF CIDER nuclear gradient contains the electronic contribution;
-see <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for the D4 force limitation.</p>
+<section id="d4-with-cider26xcchemd4">
+<h2>D4 with <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code><a class="headerlink" href="#d4-with-cider26xcchemd4" title="Link to this heading"></a></h2>
+<p>D4 is evaluated from the geometry after the density SCF, so it changes the
+total energy but not the CIDER potential or density.  CiderPress adds the
+term the model was trained with exactly once, whether or not a dispersion
+wrapper is already attached to the SCF object.  The runtime attributes that
+record this are documented in <a class="reference internal" href="pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a>.</p>
+<p>The D4 term is absent from the current nuclear gradient; see
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> before using derivative-based workflows.</p>
 </section>
 <section id="loading-rules-and-model-trust">
 <h2>Loading rules and model trust<a class="headerlink" href="#loading-rules-and-model-trust" title="Link to this heading"></a></h2>

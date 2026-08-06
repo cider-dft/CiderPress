@@ -37,7 +37,7 @@ Version J
 Version J is the NLDF implemented in :footcite:t:`CIDER23X`. In the raw form
 computed by the settings layer, it reads
 
-.. math:: G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_i[n](\mathbf{r})+a_0[n](\mathbf{r}'))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')
+.. math:: G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_0[n](\mathbf{r}')+a_i[n](\mathbf{r}))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')
 
 Equation 18 of :footcite:t:`CIDER23X` includes a constant prefactor determined
 by the two exponent parameters. CiderPress represents the convolution and its
@@ -45,26 +45,34 @@ normalization in separate serialized objects: ``NLDFSettingsVJ`` defines the
 raw feature, and the model's normalizer defines its uniform-electron-gas
 value.
 
-For a functional with GGA semilocal features, :math:`a_i[n](\mathbf{r})` (and :math:`a_0[n](\mathbf{r})`) take the form
+Equations 20 and 22 of :footcite:t:`CIDER23X` write the exponent with a
+constant term :math:`B_i` and one modulation term :math:`C_i`, using the
+reduced gradient for a GGA functional and the kinetic-energy density for a
+meta-GGA functional:
 
-.. math:: a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right)\right]
+.. math:: a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + C_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right)\right]
 
-For a functional with meta-GGA semilocal features, :math:`a_i[n](\mathbf{r})` takes the form
-
-.. math:: a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]
+.. math:: a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]
 
 Here :math:`\tau` is the kinetic-energy density and :math:`\tau_0` its
-uniform-electron-gas value, both defined in :doc:`sl`.
-:math:`A_i,B_i,C_i` are tunable parameters. The CIDER23X and CIDER26XC
-meta-GGA exponents use :math:`B_i=0` with finite :math:`C_i`; the settings
-format also accepts nonzero gradient terms. In the serialized settings,
-the corresponding parameter array is named ``[a0, grad_mul, tau_mul]``;
-``tau_mul`` is omitted or ignored for a GGA exponent.  These fields correspond
-to the constant, gradient, and kinetic-energy terms in the equations above.
+uniform electron gas value, both defined in :doc:`sl`. The settings layer
+generalizes these to a single expression that carries both modulations,
 
-Using different :math:`A_i,B_i,C_i` for each :math:`i` produces several feature
+.. math:: a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + D_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]
+
+with :math:`D_i` the gradient coefficient. The packaged CIDER23X and
+CIDER26XC meta-GGA models set :math:`D_i=0`, recovering Equation 22.
+
+In the serialized settings the parameter array is ``[a0, grad_mul,
+tau_mul]``, and ``tau_mul`` is ignored for a GGA exponent. Only the constant
+term maps directly: :math:`B_i` is ``a0``, while :math:`D_i` and :math:`C_i`
+are ``grad_mul`` and ``tau_mul`` multiplied by
+:math:`1.2\,(6\pi^2)^{2/3}/\pi \approx 5.803`, the conversion applied in
+:func:`~ciderpress.dft.settings.get_cider_exponent`.
+
+Using different parameters for each :math:`i` produces several feature
 length scales in one auxiliary expansion. The source exponent
-:math:`A_0,B_0,C_0` is shared by all features. Both the GGA and meta-GGA
+:math:`a_0` is shared by all features. Both the GGA and meta-GGA
 constructions obey
 
 .. math:: a_i[n_\lambda](\mathbf{r}) = \lambda^2 a_i[n](\lambda \mathbf{r})

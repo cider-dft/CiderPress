@@ -131,7 +131,7 @@ data flow; the pages below document the corresponding objects.</p>
 <h2>Settings and numerical plans<a class="headerlink" href="#settings-and-numerical-plans" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a> declares the semilocal, NLDF, and SDMX
 features and their parameters.  An instance of the <a class="reference internal" href="settings.html#ciderpress.dft.settings.FeatureSettings" title="ciderpress.dft.settings.FeatureSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSettings</span></code></a>
-obect defines the set of descriptors to compute for a given ML model.
+object defines the set of descriptors to compute for a given ML model.
 <a class="reference internal" href="plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> implements the backend-independent parts
 of the forward (feature evaluation) and adjoint (XC potential evaluation) operations.
 For example, <a class="reference internal" href="settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a> defines version-j NLDF
@@ -143,9 +143,9 @@ in <a class="reference internal" href="../../theory/nldf_numerical.html#nldf-num
 <h2>Normalization and Transformation of Features<a class="headerlink" href="#normalization-and-transformation-of-features" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="feat_normalizer.html#module-ciderpress.dft.feat_normalizer" title="ciderpress.dft.feat_normalizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.feat_normalizer</span></code></a> converts raw features into
 descriptors with the uniform scaling behavior chosen for the functional.
-The most common use of the feature normalizers is to transform “raw” features
-(which might not be scale-invariant) into scale-invariant “normalized features,”
-though it is not necessary to make every feature scale-invariant unless
+The most common use of the feature normalizers is to transform <code class="docutils literal notranslate"><span class="pre">raw</span></code> features
+(which might not be scale-invariant) into scale-invariant <code class="docutils literal notranslate"><span class="pre">normalized</span></code>
+features, though it is not necessary to make every feature scale-invariant unless
 you want to enforce the uniform scaling rule for exchange. See
 <a class="reference internal" href="../../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a> for details. Models for the correlation
 energy typically retain at least one feature that is not scale-invariant,

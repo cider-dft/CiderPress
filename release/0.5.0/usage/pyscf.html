@@ -120,6 +120,11 @@
 Kohn–Sham object.  Molecular geometry, charge, spin, basis, grids, density
 fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
 replaces the numerical XC evaluation and adds any model-specific energy terms.</p>
+<p>NOTE: the decorated object sets <code class="docutils literal notranslate"><span class="pre">ks.xc</span></code> to a placeholder semilocal name
+(<code class="docutils literal notranslate"><span class="pre">&quot;PBE&quot;</span></code> for GGA-level models, <code class="docutils literal notranslate"><span class="pre">&quot;R2SCAN&quot;</span></code> for meta-GGA) so that PySCF
+routes the calculation through its semilocal machinery instead of treating it
+as a hybrid.  The functional actually evaluated is the CIDER model, so
+<code class="docutils literal notranslate"><span class="pre">ks.xc</span></code> should not be read as the functional in use.</p>
 <section id="choose-the-functional-composition-first">
 <h2>Choose the functional composition first<a class="headerlink" href="#choose-the-functional-composition-first" title="Link to this heading"></a></h2>
 <p>CIDER26XC models contain full exchange and correlation.  Their PySCF
@@ -196,9 +201,9 @@ composition explicitly:</p>
 <span class="linenos">50</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The example uses the <code class="docutils literal notranslate"><span class="pre">def2-svp</span></code> basis and PySCF grid level 3.  For a small
+<p>The example uses the <code class="docutils literal notranslate"><span class="pre">def2-tzvp</span></code> basis and PySCF grid level 3.  For a small
 end-to-end energetics workflow,
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/b50291b9e0da994908fcf2bd90ca091d5d2b36dd/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
 with a chosen libxc or packaged CIDER functional.</p>
 </section>
 <section id="density-fitting">
@@ -339,16 +344,29 @@ object; the stored orbital dimensions must match the new mean-field object.</p>
 <section id="d4-corrected-energy">
 <h2>D4-corrected energy<a class="headerlink" href="#d4-corrected-energy" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> evaluates its electronic full-XC contribution during the
-SCF and D4 from the geometry afterward.  Every CIDER26XC calculation exposes
-<code class="docutils literal notranslate"><span class="pre">e_tot_base</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_present</span></code>, <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span></code>, and <code class="docutils literal notranslate"><span class="pre">e_vdw_delta</span></code>.</p>
-<p>For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code>, the expected dispersion is zero
-and a supported <code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper is disabled.  For
-<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, CiderPress measures an attached wrapper contribution and
-adjusts it to the model’s expected D4 value.  The returned <code class="docutils literal notranslate"><span class="pre">kernel()</span></code> value
-and <code class="docutils literal notranslate"><span class="pre">e_tot</span></code> contain the final energy.  See <a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> for the
-attribute definitions and accounting formula.</p>
-<p>The current molecular gradient contains the electronic CIDER contribution.
-See <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for composite CIDER+D4 derivatives.</p>
+SCF and D4 from the geometry afterward, so the dispersion term changes the
+total energy but not the density or the CIDER potential.</p>
+<p>Because a user may already have attached a dispersion wrapper, CiderPress
+reconciles what is present with what the model expects rather than simply
+adding a term.  After <code class="docutils literal notranslate"><span class="pre">kernel()</span></code>, every CIDER26XC calculation exposes:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span></code></dt><dd><p>Energy returned by the underlying SCF object, before the dispersion
+adjustment.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_present</span></code></dt><dd><p>Dispersion already contained in that energy, if a supported
+<code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper was attached.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_expected</span></code></dt><dd><p>Dispersion the selected model was trained with.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_delta</span></code></dt><dd><p>The correction <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span> <span class="pre">-</span> <span class="pre">e_vdw_present</span></code>.</p>
+</dd>
+</dl>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code>, which
+contains the expected term exactly once.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code> the expected dispersion is zero, so an attached wrapper
+is disabled and does not contribute to the returned energy.</p>
+<p>The current molecular gradient contains the electronic CIDER contribution
+only.  See <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for composite CIDER+D4 derivatives.</p>
 </section>
 <section id="cider24x">
 <h2>CIDER24X<a class="headerlink" href="#cider24x" title="Link to this heading"></a></h2>
@@ -356,13 +374,15 @@ See <a class="reference internal" href="properties.html"><span class="doc">Energ
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
 mixing CUDA and CPU PyTorch installations within one environment.  A minimal
-SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/b50291b9e0da994908fcf2bd90ca091d5d2b36dd/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
 </section>
 <section id="gradients-and-other-methods">
 <h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>
 <p>Analytical restricted and unrestricted nuclear gradients are available for
 the molecular NLDF path, including density-fitted calculations.  Use
-<code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> as shown in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> as shown in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  The gradient code
+raises <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> for models carrying SDMX features, so CIDER24X
+calculations give energies but not forces.</p>
 <p>The CIDER mean-field object provides the energies and derivatives listed in
 <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  Hessians, NMR, polarizability, coupled-cluster,
 multireference, and similar response or post-SCF methods are outside that

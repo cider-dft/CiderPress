@@ -156,21 +156,26 @@ the local predictive function.</p>
 <section id="fitting-total-energy-data">
 <h2>Fitting Total Energy Data<a class="headerlink" href="#fitting-total-energy-data" title="Link to this heading"></a></h2>
 <p>Let <span class="math notranslate nohighlight">\(F\)</span> be an exchange, correlation, or exchange-correlation
-contribution to the total electronic energy.  CIDER represents it as the
-real-space integral of a learned energy density:</p>
+contribution to the total electronic energy.  CIDER represents it as a
+baseline energy density multiplied by a learned enhancement factor:</p>
 <div class="math notranslate nohighlight">
-\[F = \int \mathrm{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right)\]</div>
-<p>Here <span class="math notranslate nohighlight">\(f\left(\mathbf{x}(\mathbf{r})\right)\)</span> is the learned energy-density
-contribution. For a chemical system indexed by <span class="math notranslate nohighlight">\(m\)</span>, numerical quadrature
-gives</p>
+\[F = \int \mathrm{d}^3\mathbf{r}\,
+e^{\mathrm{base}}(\mathbf{r})\,f\left(\mathbf{x}(\mathbf{r})\right)\]</div>
+<p>Here <span class="math notranslate nohighlight">\(f\left(\mathbf{x}(\mathbf{r})\right)\)</span> is the dimensionless
+enhancement factor learned by the regression, and <span class="math notranslate nohighlight">\(e^{\mathrm{base}}\)</span>
+is the multiplicative baseline energy density: the LDA exchange energy
+density for an exchange kernel, and the PBE correlation energy density for a
+correlation kernel.  For a chemical system indexed by <span class="math notranslate nohighlight">\(m\)</span>, numerical
+quadrature gives</p>
 <div class="math notranslate nohighlight">
-\[F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right)\]</div>
+\[F^m = \sum_{g\in m} w_g^m e_g^{\mathrm{base}}
+f\left(\mathbf{x}_g^m\right)\]</div>
 <p>where <span class="math notranslate nohighlight">\(g\)</span> indexes quadrature points and <span class="math notranslate nohighlight">\(w_g^m\)</span> are the
 quadrature weights.
 The covariances between the numerical integrals <span class="math notranslate nohighlight">\(F^m\)</span> and <span class="math notranslate nohighlight">\(F^n\)</span>
 can be written as</p>
 <div class="math notranslate nohighlight">
-\[\text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n k(\mathbf{x}_g^m, \mathbf{x}_h^n)\]</div>
+\[\text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n e_g^{\mathrm{base}} e_h^{\mathrm{base}} k(\mathbf{x}_g^m, \mathbf{x}_h^n)\]</div>
 <p>where <span class="math notranslate nohighlight">\(k(\mathbf{x}, \mathbf{x}')\)</span> is the covariance kernel for
 <span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span>. CIDER avoids the direct double sum by introducing a
 set of control points <span class="math notranslate nohighlight">\(\tilde{\mathbf{x}}_a\)</span> and applying a
@@ -182,7 +187,7 @@ Nyström/resolution-of-the-identity approximation:</p>
 \left(\tilde{\mathbf{K}}\right)_{ab}
 &amp;= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b), \\
 \left(\tilde{\mathbf{k}}_m\right)_a
-&amp;= \sum_{g\in m} w_g^m
+&amp;= \sum_{g\in m} w_g^m e_g^{\mathrm{base}}
 k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a).\end{split}\]</div>
 <p>Let <span class="math notranslate nohighlight">\(\mathbf{K}_\mathrm{sys}\)</span> be the resulting covariance matrix between
 the integrated system observations. The predictive mean follows from</p>

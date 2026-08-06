@@ -1,36 +1,44 @@
 Extending CiderPress
 ====================
 
-A complete density-functional feature includes its settings, numerical
-forward operation, adjoint derivative, backend connections, serialization,
-and validation.  These parts share one feature order and mathematical
-definition across every supported backend.
+A new feature touches five layers: a settings class in
+:mod:`ciderpress.dft.settings`, a numerical plan in
+:mod:`ciderpress.dft.plans`, a normalizer in
+:mod:`ciderpress.dft.feat_normalizer`, a bounded map in
+:mod:`ciderpress.dft.transform_data`, and a backend adapter under
+``ciderpress.pyscf`` or ``ciderpress.gpaw``.  All five must agree on one raw
+feature order, because that order is serialized with the model and replayed
+whenever it is loaded.
 
 .. important::
 
-   We strongly recommend opening a
+   Open a
    `CiderPress GitHub issue <https://github.com/mir-group/CiderPress/issues/new>`_
-   and collaborating with the MIR developers before implementing or changing
-   a feature family, numerical backend, PAW/PASDW route, mapped-model format,
-   or checkpoint schema. Substantial feature work should receive joint design
-   and code review: settings, feature order, forward and adjoint evaluation,
-   analytical derivatives, serialization, and regression tests must evolve
-   together for a functional to remain scientifically well defined.
+   before changing a feature family, numerical backend, PAW/PASDW route,
+   mapped-model format, or checkpoint schema.  These are cross-backend
+   interfaces, and a model file written by one version must remain
+   interpretable by the code that loads it.
 
 Adding or modifying a feature
 -----------------------------
 
-1. Define the feature and its parameters in the settings layer, including its
-   feature count, spin behavior, uniform-scaling behavior, and uniform-electron
-   gas limit where applicable.
-2. Implement a numerical plan that evaluates the raw feature and its adjoint
-   derivative with respect to its electronic inputs.
-3. Define normalization and bounded transforms with the same feature order in
-   training and evaluation.
-4. Connect the plan to each intended backend and give unsupported backends a
-   clear error at construction time.
-5. Test feature values, finite differences, spin exchange symmetry, low-density
-   behavior, and serialization before fitting a model with it.
+1. Subclass :class:`~ciderpress.dft.settings.BaseSettings` and implement
+   ``nfeat``, ``get_feat_usps`` (the uniform scaling power of each raw
+   feature), and ``ueg_vector`` (its uniform electron gas value).
+   ``get_reasonable_normalizer`` supplies the default normalization.
+2. Implement a plan in :mod:`ciderpress.dft.plans` that evaluates the raw
+   feature and its adjoint derivative with respect to the electronic inputs.
+   The adjoint is what becomes the XC potential, so it must be the exact
+   transpose of the forward operation rather than an approximation to it.
+3. Add the matching normalizer and bounded transform, keeping the same
+   feature order used during training.
+4. Connect the plan to each intended backend, and raise at construction time
+   in the backends that cannot evaluate it.  :func:`~ciderpress.gpaw.calculator.get_cider_functional`
+   shows the pattern: it rejects SDMX and non-version-j NLDF models rather
+   than failing later in the SCF.
+5. Check feature values, finite differences, spin exchange symmetry,
+   low-density behavior, and a serialization round trip before fitting a
+   model.
 
 Backend data flow
 -----------------
@@ -60,31 +68,18 @@ invariants:
 * Kinetic-energy-density terms remain finite at the origin and obey their
   physical core lower bound.
 * Energy, potential, force, and stress paths use the same discretized feature.
-* A reference-value update records the finite-difference and independent
-  numerical-setting comparisons that justify the change.
+* Changing a stored reference value means the functional itself changed;
+  establish which numerical difference caused it before updating the value.
 
 Model and checkpoint compatibility
 ----------------------------------
 
 Settings, mapped evaluators, and checkpoint dictionaries are persistent
-interfaces.  A new field needs a default that preserves the established
-composition of older objects and coverage in round-trip tests.  A changed
-functional composition requires explicit serialized metadata and a
-compatibility decision.
+interfaces: a model file or checkpoint written today must still load after
+the code changes.  A new field therefore needs a default that reproduces the
+behavior of objects serialized before it existed, and a changed functional
+composition needs explicit serialized metadata so that the difference is
+visible to whatever loads it.
 
-Before release, exercise serial and MPI layouts, restricted and unrestricted
-molecular cases, PAW elements spanning light and transition-metal regimes,
-and a full checkpoint restart.  See :doc:`../reference/limitations` before
-advertising a new feature/property combination.
-
-Building the documentation
---------------------------
-
-From the ``docs`` directory, build the strict HTML target and check the
-generated internal links and mathematics with:
-
-.. code-block:: bash
-
-   sphinx-build -E -n -W --keep-going -b html . _build/html
-   python tools/check_html_links.py _build/html
-   python tools/check_mathjax.py _build/html
+See :doc:`../reference/limitations` for the feature and property
+combinations the release currently supports.

@@ -70,7 +70,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#loading-and-inspection">Loading and inspection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#trainable-and-mapped-representations">Trainable and mapped representations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#baselines-and-functional-composition">Baselines and functional composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#serialization-and-mapping-tests">Serialization and mapping tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serialization-and-packaged-models">Serialization and packaged models</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html">Inspecting Densities and Descriptors</a></li>
@@ -204,20 +204,18 @@ correlation components in CIDER26XC.  See <a class="reference internal" href="..
 for the baseline API and <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a> for the CIDER26XC energy
 form.</p>
 </section>
-<section id="serialization-and-mapping-tests">
-<h2>Serialization and mapping tests<a class="headerlink" href="#serialization-and-mapping-tests" title="Link to this heading"></a></h2>
+<section id="serialization-and-packaged-models">
+<h2>Serialization and packaged models<a class="headerlink" href="#serialization-and-packaged-models" title="Link to this heading"></a></h2>
 <p>Joblib files store trainable Python objects and their fitting state.  Mapped
 YAML stores the inference object used by the calculation interfaces.  Both
 formats reconstruct Python objects and should be loaded from trusted sources.</p>
-<p>Mapping validation covers:</p>
-<ul class="simple">
-<li><p>pointwise predictions and feature derivatives against the trainable model;</p></li>
-<li><p>fixed-density integrated energies on representative systems;</p></li>
-<li><p>self-consistent energy composition in each supported backend;</p></li>
-<li><p>analytical derivatives against finite differences at matched numerical
-settings; and</p></li>
-<li><p>YAML round trips, correction metadata, short name, and checksum.</p></li>
-</ul>
+<p>The mapped YAML models published with the CIDER23X, CIDER24X, and CIDER26XC
+work are installed with the package, so no download step is needed.  They
+live in <code class="docutils literal notranslate"><span class="pre">ciderpress/data/functionals</span></code> and are shipped as package data
+through <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code>; <a class="reference internal" href="../ciderpress/dft/model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves their
+short names, and <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> lists every name with its
+checksum.  The older functional set from the CIDER23X work is also archived
+on Zenodo and can be fetched with <code class="docutils literal notranslate"><span class="pre">scripts/download_functionals.py</span></code>.</p>
 <p>See <a class="reference internal" href="training.html"><span class="doc">Training and Mapping Workflow</span></a> for the expected training-data boundary and
 <a class="reference internal" href="../ciderpress/models/models.html"><span class="doc">Regression, Training, and Mapping APIs</span></a> for the regression APIs.</p>
 </section>

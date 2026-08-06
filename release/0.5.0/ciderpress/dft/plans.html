@@ -74,11 +74,14 @@
 <li class="toctree-l2 current"><a class="reference internal" href="dft.html#model-baselines-and-model-evaluation">Model Baselines and Model Evaluation</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Feature Evaluation Plans</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SemilocalPlan"><code class="docutils literal notranslate"><span class="pre">SemilocalPlan</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SDMXPlan"><code class="docutils literal notranslate"><span class="pre">SDMXPlan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan"><code class="docutils literal notranslate"><span class="pre">NLDFAuxiliaryPlan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFGaussianPlan"><code class="docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.NLDFSplinePlan"><code class="docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SDMXFullPlan"><code class="docutils literal notranslate"><span class="pre">SDMXFullPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SDMXIntPlan"><code class="docutils literal notranslate"><span class="pre">SDMXIntPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SDMXPlan"><code class="docutils literal notranslate"><span class="pre">SDMXPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SemilocalPlan"><code class="docutils literal notranslate"><span class="pre">SemilocalPlan</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.dft.plans.SemilocalPlan2"><code class="docutils literal notranslate"><span class="pre">SemilocalPlan2</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
@@ -133,41 +136,6 @@
 with settings objects.  Backend adapters extract the data needed
 to compute the features from the density and orbitals and pass it to the plans.
 Each plan preserves raw feature order and spin conventions.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SemilocalPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>settings</strong> (<em>SemilocalSettings</em>) – Settings for SL features</p></li>
-<li><p><strong>nspin</strong> (<em>int</em>) – Number of spin channels.
-1 for non-spin-polarized and 2 for spin-polarized</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXPlan">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SDMXPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ovlp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXPlan" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>settings</strong> (<em>SDMXSettings</em>) – Settings for the descriptor.</p></li>
-<li><p><strong>nspin</strong> (<em>int</em>) – Number of spins, 2 for spin-polarized and 1 for
-non-spin-polarized</p></li>
-<li><p><strong>alpha0</strong> (<em>float</em>) – Minimum exponent. <span class="math notranslate nohighlight">\(1/\sqrt{\alpha_0}\)</span> should be at least
-the width of the system, or altneratively the maximum distance
-at which the exchange hole is expected to have significant density.</p></li>
-<li><p><strong>lambd</strong> (<em>float</em>) – ETB lambda parameter</p></li>
-<li><p><strong>nalpha</strong> (<em>int</em>) – Number of ETB basis functions</p></li>
-<li><p><strong>fit_metric</strong> (<em>str</em>) – ‘ovlp’ or ‘coul’, the metric for expanding the
-density matrix in the auxiliary basis.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py class" id="module-ciderpress.dft.plans">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">NLDFAuxiliaryPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nldf_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gq'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'etb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhocut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_large_expnt_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_smooth_expnt_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan" title="Link to this definition"></a></dt>
@@ -211,6 +179,11 @@ insignificantly except near and beyond <code class="docutils literal notranslate
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.empty_coefs">
+<span class="sig-name descname"><span class="pre">empty_coefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ngrids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.empty_coefs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_feat_exp">
 <span class="sig-name descname"><span class="pre">eval_feat_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_feat_exp" title="Link to this definition"></a></dt>
 <dd><p>Evaluate the exponents that determine the length-scale
@@ -231,6 +204,11 @@ features minus 1.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_occd_full">
+<span class="sig-name descname"><span class="pre">eval_occd_full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occd_f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occd_rho_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coeff_multipliers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_occd_full" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_full">
@@ -272,6 +250,16 @@ the feat_params exponent.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vi_">
+<span class="sig-name descname"><span class="pre">eval_rho_vi_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f_qg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vi_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vj_">
+<span class="sig-name descname"><span class="pre">eval_rho_vj_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f_qg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_i_qg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vj_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_full">
 <span class="sig-name descname"><span class="pre">eval_vxc_full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vfeat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrho_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dfeat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_i_qg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_full" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
@@ -305,6 +293,21 @@ density integrals.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vi_">
+<span class="sig-name descname"><span class="pre">eval_vxc_vi_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vfeat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdrho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_qg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vi_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vj_">
+<span class="sig-name descname"><span class="pre">eval_vxc_vj_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vfeat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_i_qg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vf_qg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vj_" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_drhodf_tuple">
+<span class="sig-name descname"><span class="pre">get_drhodf_tuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drhodf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_drhodf_tuple" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_function_to_convolve">
 <span class="sig-name descname"><span class="pre">get_function_to_convolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_tuple</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_function_to_convolve" title="Link to this definition"></a></dt>
 <dd><p>Returns the function that gets convolved to make the nonlocal
@@ -331,16 +334,56 @@ tuple of four arrays.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_arguments">
+<span class="sig-name descname"><span class="pre">get_interpolation_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_arguments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_coefficients">
+<span class="sig-name descname"><span class="pre">get_interpolation_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg_g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbuf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbuf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_coefficients" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_q2a">
 <span class="sig-name descname"><span class="pre">get_q2a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_q2a" title="Link to this definition"></a></dt>
 <dd><p>Convert (float) q index to exponent alpha.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_rho_tuple">
+<span class="sig-name descname"><span class="pre">get_rho_tuple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_rho_tuple" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.get_transformed_interpolation_terms">
+<span class="sig-name descname"><span class="pre">get_transformed_interpolation_terms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_xx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_transformed_interpolation_terms" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.new">
+<span class="sig-name descname"><span class="pre">new</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.new" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vi_ints">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_vi_ints</span></span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vi_ints" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vj">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_vj</span></span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vj" title="Link to this definition"></a></dt>
 <dd><p>Number of vj or vk features</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs">
+<span class="sig-name descname"><span class="pre">zero_coefs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ngrids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs_full">
+<span class="sig-name descname"><span class="pre">zero_coefs_full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ngrids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs_full" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -429,6 +472,163 @@ insignificantly except near and beyond <code class="docutils literal notranslate
 also has a local option to get the q values just
 for the local alphas.</p>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXFullPlan">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SDMXFullPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXFullPlan" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SDMXFullSettings</em>)</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>)</p></li>
+<li><p><strong>alpha0</strong> (<em>float</em>)</p></li>
+<li><p><strong>lambd</strong> (<em>float</em>)</p></li>
+<li><p><strong>nalpha</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXFullPlan.fit_metric">
+<span class="sig-name descname"><span class="pre">fit_metric</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ovlp'</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXFullPlan.fit_metric" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXFullPlan.num_l0_feat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_l0_feat</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXFullPlan.num_l0_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXFullPlan.num_l1_feat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_l1_feat</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXFullPlan.num_l1_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXFullPlan.settings">
+<span class="sig-name descname"><span class="pre">settings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="settings.html#ciderpress.dft.settings.SDMXFullSettings" title="ciderpress.dft.settings.SDMXFullSettings"><span class="pre">SDMXFullSettings</span></a></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXFullPlan.settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXIntPlan">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SDMXIntPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXIntPlan" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SDMXFullSettings</em>)</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>)</p></li>
+<li><p><strong>alpha0</strong> (<em>float</em>)</p></li>
+<li><p><strong>lambd</strong> (<em>float</em>)</p></li>
+<li><p><strong>nalpha</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXIntPlan.get_features">
+<span class="sig-name descname"><span class="pre">get_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_vag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0tmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1tmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXIntPlan.get_features" title="Link to this definition"></a></dt>
+<dd><p>Should pass out[idm], l0tmp[idm], etc. to this function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXIntPlan.get_vxc">
+<span class="sig-name descname"><span class="pre">get_vxc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vxc_ig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l0tmp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1tmp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXIntPlan.get_vxc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXIntPlan.num_l0_feat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_l0_feat</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXIntPlan.num_l0_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXIntPlan.num_l1_feat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_l1_feat</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXIntPlan.num_l1_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXPlan">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SDMXPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nalpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ovlp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SDMXPlan" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SDMXSettings</em>) – Settings for the descriptor.</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>) – Number of spins, 2 for spin-polarized and 1 for
+non-spin-polarized</p></li>
+<li><p><strong>alpha0</strong> (<em>float</em>) – Minimum exponent. <span class="math notranslate nohighlight">\(1/\sqrt{\alpha_0}\)</span> should be at least
+the width of the system, or altneratively the maximum distance
+at which the exchange hole is expected to have significant density.</p></li>
+<li><p><strong>lambd</strong> (<em>float</em>) – ETB lambda parameter</p></li>
+<li><p><strong>nalpha</strong> (<em>int</em>) – Number of ETB basis functions</p></li>
+<li><p><strong>fit_metric</strong> (<em>str</em>) – ‘ovlp’ or ‘coul’, the metric for expanding the
+density matrix in the auxiliary basis.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXPlan.has_coul_list">
+<span class="sig-name descname"><span class="pre">has_coul_list</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXPlan.has_coul_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXPlan.num_l0_feat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_l0_feat</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXPlan.num_l0_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SDMXPlan.num_l1_feat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">num_l1_feat</span></span><a class="headerlink" href="#ciderpress.dft.plans.SDMXPlan.num_l1_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SemilocalPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SemilocalSettings</em>) – Settings for SL features</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>) – Number of spin channels.
+1 for non-spin-polarized and 2 for spin-polarized</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan.get_feat">
+<span class="sig-name descname"><span class="pre">get_feat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan.get_feat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan.get_occd">
+<span class="sig-name descname"><span class="pre">get_occd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drho</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan.get_occd" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan.get_vxc">
+<span class="sig-name descname"><span class="pre">get_vxc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vfeat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vxc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan.get_vxc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan2">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SemilocalPlan2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan2" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>settings</strong> (<em>SemilocalSettings</em>) – Settings for SL features</p></li>
+<li><p><strong>nspin</strong> (<em>int</em>) – Number of spin channels.
+1 for non-spin-polarized and 2 for spin-polarized</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan2.get_vxc">
+<span class="sig-name descname"><span class="pre">get_vxc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vfeat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vtau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan2.get_vxc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

@@ -150,6 +150,8 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings">BaseSettings (class in ciderpress.dft.settings)</a>
+</li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.bounds">bounds (ciderpress.models.kernels.DiffTransform property)</a>
 </li>
   </ul></td>
@@ -551,6 +553,8 @@
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.kz_G">ciderpw_data_obj.kz_G (C var)</a>
 </li>
+      <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.mpi_comm">ciderpw_data_obj.mpi_comm (C var)</a>
+</li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.mpi_rank">ciderpw_data_obj.mpi_rank (C var)</a>
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.mpi_size">ciderpw_data_obj.mpi_size (C var)</a>
@@ -563,9 +567,7 @@
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.nspin">ciderpw_data_obj.nspin (C var)</a>
 </li>
-      <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.plan_g2k">ciderpw_data_obj.plan_g2k (C var)</a>
-</li>
-      <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.plan_k2g">ciderpw_data_obj.plan_k2g (C var)</a>
+      <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.plan">ciderpw_data_obj.plan (C var)</a>
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.work_array_size">ciderpw_data_obj.work_array_size (C var)</a>
 </li>
@@ -737,15 +739,27 @@
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.EMap">EMap (class in ciderpress.dft.transform_data)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.empty_coefs">empty_coefs() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings">EmptySettings (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_feat_exp">eval_feat_exp() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_occd_full">eval_occd_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_full">eval_rho_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vi_">eval_rho_vi_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vj_">eval_rho_vj_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_full">eval_vxc_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vi_">eval_vxc_vi_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vj_">eval_vxc_vj_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ExponentialDensityNoise">ExponentialDensityNoise (class in ciderpress.models.kernels)</a>
 </li>
@@ -813,6 +827,8 @@
       </ul></li>
       <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.fit">fit() (ciderpress.models.train.MOLGP method)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.fit_metric">fit_metric (ciderpress.dft.plans.SDMXFullPlan attribute)</a>
+</li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.FittedDensityNoise">FittedDensityNoise (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer.from_calc">from_calc() (ciderpress.pyscf.analyzers.ElectronAnalyzer static method)</a>
@@ -857,11 +873,19 @@
         <li><a href="ciderpress/pyscf/descriptors.html#ciderpress.pyscf.descriptors.get_descriptors">(in module ciderpress.pyscf.descriptors)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_drhodf_tuple">get_drhodf_tuple() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_ee_energy_density">get_ee_energy_density() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.get_feat_usps">get_feat_usps() (ciderpress.dft.settings.EmptySettings method)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan.get_feat">get_feat() (ciderpress.dft.plans.SemilocalPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.get_feat_usps">get_feat_usps() (ciderpress.dft.settings.BaseSettings method)</a>
 
       <ul>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.get_feat_usps">(ciderpress.dft.settings.EmptySettings method)</a>
+</li>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.get_feat_usps">(ciderpress.dft.settings.FeatureSettings method)</a>
+</li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.get_feat_usps">(ciderpress.dft.settings.NLDFSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI.get_feat_usps">(ciderpress.dft.settings.NLDFSettingsVI method)</a>
@@ -885,15 +909,23 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings.get_feat_usps">(ciderpress.dft.settings.SemilocalSettings method)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.get_features">get_features() (ciderpress.dft.plans.SDMXIntPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_function_to_convolve">get_function_to_convolve() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_arguments">get_interpolation_arguments() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_coefficients">get_interpolation_coefficients() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_k">get_k() (ciderpress.models.dft_kernel.DFTKernel method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_k_and_deriv">get_k_and_deriv() (ciderpress.models.dft_kernel.DFTKernel method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_kctrl">get_kctrl() (ciderpress.models.dft_kernel.DFTKernel method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan.get_occd">get_occd() (ciderpress.dft.plans.SemilocalPlan method)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.get_params">get_params() (ciderpress.models.kernels.DiffTransform method)</a>
 </li>
@@ -901,9 +933,13 @@
 </li>
       <li><a href="ciderpress/models/kernel_tools.html#ciderpress.models.kernel_plans.kernel_tools.get_rbf_kernel">get_rbf_kernel() (in module ciderpress.models.kernel_plans.kernel_tools)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.get_reasonable_normalizer">get_reasonable_normalizer() (ciderpress.dft.settings.EmptySettings method)</a>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer">get_reasonable_normalizer() (ciderpress.dft.settings.BaseSettings method)</a>
 
       <ul>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.get_reasonable_normalizer">(ciderpress.dft.settings.EmptySettings method)</a>
+</li>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer">(ciderpress.dft.settings.FeatureSettings method)</a>
+</li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.get_reasonable_normalizer">(ciderpress.dft.settings.NLDFSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI.get_reasonable_normalizer">(ciderpress.dft.settings.NLDFSettingsVI method)</a>
@@ -927,6 +963,8 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer">(ciderpress.dft.settings.SemilocalSettings method)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_rho_tuple">get_rho_tuple() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_rs">get_rs() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_s2">get_s2() (in module ciderpress.dft.settings)</a>
@@ -935,8 +973,18 @@
 </li>
       <li><a href="ciderpress/dft/model_utils.html#ciderpress.dft.model_utils.get_slxc_settings">get_slxc_settings() (in module ciderpress.dft.model_utils)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_transformed_interpolation_terms">get_transformed_interpolation_terms() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_uniform_tau">get_uniform_tau() (in module ciderpress.dft.settings)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.get_vxc">get_vxc() (ciderpress.dft.plans.SDMXIntPlan method)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan.get_vxc">(ciderpress.dft.plans.SemilocalPlan method)</a>
+</li>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan2.get_vxc">(ciderpress.dft.plans.SemilocalPlan2 method)</a>
+</li>
+      </ul></li>
       <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.ModelWithNormalizer.get_x0_usps">get_x0_usps() (ciderpress.dft.xc_evaluator.ModelWithNormalizer method)</a>
 </li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_xc">get_xc() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
@@ -953,6 +1001,10 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan.has_coul_list">has_coul_list (ciderpress.dft.plans.SDMXPlan attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.hyperparameters">hyperparameters (ciderpress.models.kernels.DiffTransform property)</a>
 </li>
   </ul></td>
@@ -964,6 +1016,8 @@
       <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.InhomogeneityNormalizer">InhomogeneityNormalizer (class in ciderpress.dft.feat_normalizer)</a>
 </li>
       <li><a href="ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW.initialize">initialize() (ciderpress.gpaw.calculator.CiderGPAW method)</a>
+</li>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.is_empty">is_empty (ciderpress.dft.settings.BaseSettings property)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAddLLRBF.is_stationary">is_stationary() (ciderpress.models.kernels.DiffAddLLRBF method)</a>
 
@@ -1166,9 +1220,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedDFTKernel.N1">N1 (ciderpress.dft.xc_evaluator.MappedDFTKernel property)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.nfeat">nfeat (ciderpress.dft.settings.EmptySettings property)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.new">new() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.nfeat">nfeat (ciderpress.dft.settings.BaseSettings property)</a>
 
       <ul>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.nfeat">(ciderpress.dft.settings.EmptySettings property)</a>
+</li>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.nfeat">(ciderpress.dft.settings.FeatureSettings property)</a>
+</li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.nfeat">(ciderpress.dft.settings.NLDFSettings property)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings.nfeat">(ciderpress.dft.settings.SDMX1Settings property)</a>
@@ -1202,12 +1262,12 @@
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ">NLDFSettingsVJ (class in ciderpress.dft.settings)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK">NLDFSettingsVK (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan">NLDFSplinePlan (class in ciderpress.dft.plans)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.NNEvaluator">NNEvaluator (class in ciderpress.dft.xc_evaluator)</a>
 </li>
       <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC.normalizer">normalizer (ciderpress.dft.xc_evaluator.MappedXC property)</a>
@@ -1230,6 +1290,22 @@
       </ul></li>
       <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.num_kernels">num_kernels (ciderpress.models.train.MOLGP property)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.num_l0_feat">num_l0_feat (ciderpress.dft.plans.SDMXFullPlan property)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.num_l0_feat">(ciderpress.dft.plans.SDMXIntPlan property)</a>
+</li>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan.num_l0_feat">(ciderpress.dft.plans.SDMXPlan property)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.num_l1_feat">num_l1_feat (ciderpress.dft.plans.SDMXFullPlan property)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.num_l1_feat">(ciderpress.dft.plans.SDMXIntPlan property)</a>
+</li>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan.num_l1_feat">(ciderpress.dft.plans.SDMXPlan property)</a>
+</li>
+      </ul></li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.num_vi_feats">num_vi_feats (ciderpress.dft.settings.NLDFSettings property)</a>
 
       <ul>
@@ -1242,6 +1318,8 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK.num_vi_feats">(ciderpress.dft.settings.NLDFSettingsVK property)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vi_ints">num_vi_ints (ciderpress.dft.plans.NLDFAuxiliaryPlan property)</a>
+</li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vj">num_vj (ciderpress.dft.plans.NLDFAuxiliaryPlan property)</a>
 </li>
   </ul></td>
@@ -1300,11 +1378,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings">SDMX1Settings (class in ciderpress.dft.settings)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan">SDMXFullPlan (class in ciderpress.dft.plans)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXFullSettings">SDMXFullSettings (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXG1Settings">SDMXG1Settings (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXGSettings">SDMXGSettings (class in ciderpress.dft.settings)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan">SDMXIntPlan (class in ciderpress.dft.plans)</a>
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan">SDMXPlan (class in ciderpress.dft.plans)</a>
 </li>
@@ -1312,20 +1394,24 @@
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan">SemilocalPlan (class in ciderpress.dft.plans)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan2">SemilocalPlan2 (class in ciderpress.dft.plans)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings">SemilocalSettings (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.set_control_points">set_control_points() (ciderpress.models.train.MOLGP method)</a>
 </li>
       <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.NNEvaluator.set_device">set_device() (ciderpress.dft.xc_evaluator.NNEvaluator method)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.settings">settings (ciderpress.dft.plans.SDMXFullPlan attribute)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SignedUMap">SignedUMap (class in ciderpress.dft.transform_data)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLBMap">SLBMap (class in ciderpress.dft.transform_data)</a>
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLDMap">SLDMap (class in ciderpress.dft.transform_data)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLNMap">SLNMap (class in ciderpress.dft.transform_data)</a>
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLR2Map">SLR2Map (class in ciderpress.dft.transform_data)</a>
@@ -1378,9 +1464,13 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.ueg_vector">ueg_vector() (ciderpress.dft.settings.EmptySettings method)</a>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.ueg_vector">ueg_vector() (ciderpress.dft.settings.BaseSettings method)</a>
 
       <ul>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.ueg_vector">(ciderpress.dft.settings.EmptySettings method)</a>
+</li>
+        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.ueg_vector">(ciderpress.dft.settings.FeatureSettings method)</a>
+</li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI.ueg_vector">(ciderpress.dft.settings.NLDFSettingsVI method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVIJ.ueg_vector">(ciderpress.dft.settings.NLDFSettingsVIJ method)</a>
@@ -1468,6 +1558,12 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs">zero_coefs() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs_full">zero_coefs_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.ZMap">ZMap (class in ciderpress.dft.transform_data)</a>
 </li>
   </ul></td>

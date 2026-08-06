@@ -137,13 +137,134 @@ model construction and descriptor workflows can create them explicitly.</p>
 <section id="module-ciderpress.dft.settings">
 <span id="composite-settings"></span><h2>Composite settings<a class="headerlink" href="#module-ciderpress.dft.settings" title="Link to this heading"></a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">BaseSettings</span></span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings" title="Link to this definition"></a></dt>
+<dd><p>This is a base class for storing the settings for different
+types of density/density matrix feature in CiderPress.
+Settings objects indicate which features must be evaluated,
+and with which hyperparameters, to use as input to an ML functional.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.get_feat_usps">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.get_feat_usps" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of normalizers for these features</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.is_empty">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_empty</span></span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.is_empty" title="Link to this definition"></a></dt>
+<dd><p>Return true of this settings object specifies zero features.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.nfeat">
+<span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.nfeat" title="Link to this definition"></a></dt>
+<dd><p>Returns:
+Number of features in this feature set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.BaseSettings.ueg_vector">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.BaseSettings.ueg_vector" title="Link to this definition"></a></dt>
+<dd><p>Return the feature vector for the uniform electron gas
+as a function of the density rho</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>UEG feature vector</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">FeatureSettings</span></span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings" title="Link to this definition"></a></dt>
-<dd><p>Composite feature declaration stored by a trainable or mapped model.  The
-documented model families use <code class="docutils literal notranslate"><span class="pre">sl_settings</span></code> together with an optional
-<code class="docutils literal notranslate"><span class="pre">nldf_settings</span></code> or <code class="docutils literal notranslate"><span class="pre">sdmx_settings</span></code> component.  <code class="docutils literal notranslate"><span class="pre">normalizers</span></code> records
-the transformation of the concatenated raw blocks, and <code class="docutils literal notranslate"><span class="pre">nfeat</span></code> gives the
-resulting raw feature count.</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.settings.</span></span><span class="sig-name descname"><span class="pre">FeatureSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sl_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nldf_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlof_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sdmx_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyb_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalizers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings" title="Link to this definition"></a></dt>
+<dd><p>The FeatureSettings object is a container for the settings of each
+type of feature in the model.</p>
+<p>Initialize FeatureSettings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sl_settings</strong> (<em>SemilocalSettings or EmptySettings</em>) – Semilocal feature settings</p></li>
+<li><p><strong>nldf_settings</strong> (<em>NLDFSettings or EmptySettings</em>) – Nonlocal density feature settings</p></li>
+<li><p><strong>nlof_settings</strong> (<em>FracLaplSettings or EmptySettings</em>) – Nonlocal orbital feature settings</p></li>
+<li><p><strong>sdmx_settings</strong> (<em>SDMXBaseSettings or EmptySettings</em>) – Spherically averaged EXX settings</p></li>
+<li><p><strong>hyb_settings</strong> (<em>HybridSettings or EmptySettings</em>) – (Local) hybrid DFT settings</p></li>
+<li><p><strong>normalizers</strong> (<em>FeatNormalizerList</em>) – List of normalizers for features</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.get_feat_usps">
+<span class="sig-name descname"><span class="pre">get_feat_usps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_normalizers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.get_feat_usps" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of floats with the uniform scaling power for each feature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer">
+<span class="sig-name descname"><span class="pre">get_reasonable_normalizer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of normalizers for these features</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>norms (list[<a class="reference internal" href="feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer" title="ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer</a>])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.nfeat">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfeat</span></span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.nfeat" title="Link to this definition"></a></dt>
+<dd><p>Returns:
+Number of features in this feature set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ciderpress.dft.settings.FeatureSettings.ueg_vector">
+<span class="sig-name descname"><span class="pre">ueg_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_normalizers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.settings.FeatureSettings.ueg_vector" title="Link to this definition"></a></dt>
+<dd><p>Return the feature vector for the uniform electron gas
+as a function of the density rho</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rho</strong> (<em>float</em>) – Value of the density</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>UEG feature vector</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

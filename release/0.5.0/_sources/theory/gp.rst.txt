@@ -44,27 +44,32 @@ Fitting Total Energy Data
 -------------------------
 
 Let :math:`F` be an exchange, correlation, or exchange-correlation
-contribution to the total electronic energy.  CIDER represents it as the
-real-space integral of a learned energy density:
+contribution to the total electronic energy.  CIDER represents it as a
+baseline energy density multiplied by a learned enhancement factor:
 
 .. math::
 
-   F = \int \mathrm{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right)
+   F = \int \mathrm{d}^3\mathbf{r}\,
+   e^{\mathrm{base}}(\mathbf{r})\,f\left(\mathbf{x}(\mathbf{r})\right)
 
-Here :math:`f\left(\mathbf{x}(\mathbf{r})\right)` is the learned energy-density
-contribution. For a chemical system indexed by :math:`m`, numerical quadrature
-gives
+Here :math:`f\left(\mathbf{x}(\mathbf{r})\right)` is the dimensionless
+enhancement factor learned by the regression, and :math:`e^{\mathrm{base}}`
+is the multiplicative baseline energy density: the LDA exchange energy
+density for an exchange kernel, and the PBE correlation energy density for a
+correlation kernel.  For a chemical system indexed by :math:`m`, numerical
+quadrature gives
 
 .. math::
 
-   F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right)
+   F^m = \sum_{g\in m} w_g^m e_g^{\mathrm{base}}
+   f\left(\mathbf{x}_g^m\right)
 
 where :math:`g` indexes quadrature points and :math:`w_g^m` are the
 quadrature weights.
 The covariances between the numerical integrals :math:`F^m` and :math:`F^n`
 can be written as
 
-.. math:: \text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n k(\mathbf{x}_g^m, \mathbf{x}_h^n)
+.. math:: \text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n e_g^{\mathrm{base}} e_h^{\mathrm{base}} k(\mathbf{x}_g^m, \mathbf{x}_h^n)
 
 where :math:`k(\mathbf{x}, \mathbf{x}')` is the covariance kernel for
 :math:`f(\mathbf{x})`. CIDER avoids the direct double sum by introducing a
@@ -79,7 +84,7 @@ Nyström/resolution-of-the-identity approximation:
    \left(\tilde{\mathbf{K}}\right)_{ab}
    &= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b), \\
    \left(\tilde{\mathbf{k}}_m\right)_a
-   &= \sum_{g\in m} w_g^m
+   &= \sum_{g\in m} w_g^m e_g^{\mathrm{base}}
    k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a).
 
 Let :math:`\mathbf{K}_\mathrm{sys}` be the resulting covariance matrix between

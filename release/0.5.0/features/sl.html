@@ -116,15 +116,9 @@
              
   <section id="semilocal-features-sl">
 <span id="sl-feat"></span><h1>Semilocal Features (SL)<a class="headerlink" href="#semilocal-features-sl" title="Link to this heading"></a></h1>
-<p>Semilocal DFT uses quantities evaluated at each integration point.  The
-electron density is</p>
-<div class="math notranslate nohighlight">
-\[n(\mathbf{r}) = \sum_i f_i |\phi_i(\mathbf{r})|^2\]</div>
-<p>where <span class="math notranslate nohighlight">\(\phi_i(\mathbf{r})\)</span> are Kohn–Sham orbitals and <span class="math notranslate nohighlight">\(f_i\)</span> are
-their occupations.  A local-density approximation (LDA) depends on
-<span class="math notranslate nohighlight">\(n(\mathbf r)\)</span>.  A generalized-gradient approximation (GGA) also depends
-on <span class="math notranslate nohighlight">\(\nabla n(\mathbf r)\)</span>.  A meta-GGA can additionally use the
-kinetic-energy density</p>
+<p>Every packaged CIDER model begins with a semilocal block built from the
+density <span class="math notranslate nohighlight">\(n(\mathbf r)=\sum_i f_i|\phi_i(\mathbf r)|^2\)</span>, its gradient,
+and for meta-GGA models the kinetic-energy density</p>
 <div class="math notranslate nohighlight">
 \[\tau(\mathbf{r}) = \frac{1}{2} \sum_i f_i |\nabla\phi_i(\mathbf{r})|^2\]</div>
 <p>Regularized combinations of these ingredients can encode physical constraints

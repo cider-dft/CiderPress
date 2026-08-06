@@ -17,16 +17,15 @@ interfaces in this release.
   :doc:`../usage/properties`.  Hessians, NMR, polarizability,
   post-Hartree--Fock methods, and related response interfaces are outside its
   scope.
-* Newton/SOSCF is outside the CIDER26XC PySCF numerical
-  integration path.
+* Newton/SOSCF is outside the CIDER PySCF numerical integration path for all
+  packaged families: the CIDER ``NumInt`` leaves the ``fxc`` and
+  ``cache_xc_kernel`` entry points that second-order SCF requires
+  unimplemented.  Use the DIIS methods in :doc:`../usage/convergence`.
 * Nonlocal features add memory and communication overhead.  GPAW exposes
   augmented-grid parallelization through
   ``parallel={"augment_grids": True}``.
-* Mapped YAML and joblib files reconstruct Python objects and therefore
-  require a trusted source.
 * The documented feature interfaces cover semilocal, NLDF, and SDMX models.
-  Other feature classes in the source tree are experimental.  Release
-  compatibility guarantees apply to the documented families.
+  Other feature classes in the source tree are experimental.
 
 Concrete restart controls for open-shell, near-degenerate, metallic, and
 magnetic calculations are listed in :doc:`../usage/convergence`.

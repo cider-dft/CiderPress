@@ -151,10 +151,10 @@ and atom/grid contraction kernels.
 corrections when extracting fixed-density descriptor arrays and occupation
 derivatives.
 
-``pasdw_ovlp_fit`` selects overlap fitting for the transfer; use the same
-value throughout a numerical comparison.  ``pasdw_store_funcs`` controls
-caching of atom-centered projector values.  Caching uses more memory to reduce
-repeated cost and preserves the evaluated functional.
+``pasdw_ovlp_fit`` selects overlap fitting for the transfer and changes the
+evaluated numbers.  ``pasdw_store_funcs`` caches atom-centered projector
+values: it trades memory for repeated cost and leaves the evaluated
+functional unchanged.
 
 Radial reconstruction and on-site correction
 ---------------------------------------------

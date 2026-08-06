@@ -99,8 +99,8 @@ Forces and stress
 
 ASE's normal ``get_forces()`` and ``get_stress()`` calls include the CIDER FFT
 and PAW derivative contributions for the supported PAW path.  See
-:doc:`properties` and the complete force/stress template.  The supported
-meta-GGA force/stress implementation uses PAW setups.
+:doc:`properties`, which includes the complete
+:source:`examples/gpaw/forces_stress.py` template.
 
 PASDW and interpolation controls
 --------------------------------

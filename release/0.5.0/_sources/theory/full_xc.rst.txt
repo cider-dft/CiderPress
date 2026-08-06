@@ -59,17 +59,21 @@ the iso-orbital information with the bounded indicator
 .. math:: t = \frac{\tau-\tau_0}{\tau+\tau_0},
 
 where :math:`\tau` is the kinetic-energy density and :math:`\tau_0` its
-uniform-electron-gas value as defined in :doc:`../features/sl`.  The
-CIDER23X models use the SCAN-style indicator :math:`\alpha` for this role.
-Both choices are scale invariant and carry the same iso-orbital information
-when combined with the reduced-gradient descriptor; :math:`t` has a finite
-range.
+uniform electron gas value as defined in :doc:`../features/sl`.  The
+CIDER23X models use the iso-orbital indicator :math:`\alpha` of
+:footcite:t:`Sun2013` for this role.  :math:`\alpha` vanishes for
+single-orbital densities, which is convenient for nonempirical functional
+design, but :math:`t` proved better behaved numerically within the CIDER26XC
+models and is bounded to :math:`[-1,1]`.  Combined with the reduced-gradient
+descriptor, the two carry the same iso-orbital information.
 
-The correlation feature vector :math:`\mathbf{X}^{\mathrm{c}}_\sigma` appends
-one additional descriptor, the density itself, :math:`X_6 = n`.  The
-scale-invariant features enforce the exchange scaling constraint.  The
-density coordinate gives the correlation model the additional scaling
-dependence required by its energy form.
+The correlation feature vector :math:`\mathbf{X}^{\mathrm{c}}_\sigma` carries
+one additional descriptor, the density itself, written :math:`X_6 = n` in the
+CIDER26XC work.  In the serialized correlation feature list it follows the
+semilocal descriptors and precedes the nonlocal density features.  The
+scale-invariant features enforce the exchange scaling constraint, while
+correlation obeys no such rule, so the correlation model receives the density
+explicitly.
 
 Before entering the Gaussian-process kernel, every feature is mapped onto a
 finite interval by the bounded transforms stored in the serialized model

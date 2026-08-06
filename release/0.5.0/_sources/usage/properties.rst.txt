@@ -62,7 +62,7 @@ SCF has converged:
    :linenos:
 
 The analytical contribution includes the FFT feature response and PAW/PASDW
-terms.  The supported meta-GGA force and stress route uses PAW setups.
+terms.
 
 Energy composition
 ------------------
@@ -74,6 +74,4 @@ The selected model determines how CIDER enters the total energy:
 * CIDER26XC contains the complete exchange-correlation model and uses the
   full-XC initialization shown in :doc:`production_models`.
 * ``CIDER26XCCHEMD4`` adds its expected D4 contribution once through the
-  ``e_vdw_delta`` accounting described in :doc:`production_models`.
-
-The same model construction applies to every term in an energy difference.
+  ``e_vdw_delta`` accounting described in :doc:`pyscf`.

@@ -147,29 +147,36 @@ model-development interfaces.</p>
 <p>Version J is the NLDF implemented in Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. In the raw form
 computed by the settings layer, it reads</p>
 <div class="math notranslate nohighlight">
-\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_i[n](\mathbf{r})+a_0[n](\mathbf{r}'))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')\]</div>
+\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_0[n](\mathbf{r}')+a_i[n](\mathbf{r}))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')\]</div>
 <p>Equation 18 of Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> includes a constant prefactor determined
 by the two exponent parameters. CiderPress represents the convolution and its
 normalization in separate serialized objects: <code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code> defines the
 raw feature, and the model’s normalizer defines its uniform-electron-gas
 value.</p>
-<p>For a functional with GGA semilocal features, <span class="math notranslate nohighlight">\(a_i[n](\mathbf{r})\)</span> (and <span class="math notranslate nohighlight">\(a_0[n](\mathbf{r})\)</span>) take the form</p>
+<p>Equations 20 and 22 of Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> write the exponent with a
+constant term <span class="math notranslate nohighlight">\(B_i\)</span> and one modulation term <span class="math notranslate nohighlight">\(C_i\)</span>, using the
+reduced gradient for a GGA functional and the kinetic-energy density for a
+meta-GGA functional:</p>
 <div class="math notranslate nohighlight">
-\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right)\right]\]</div>
-<p>For a functional with meta-GGA semilocal features, <span class="math notranslate nohighlight">\(a_i[n](\mathbf{r})\)</span> takes the form</p>
+\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + C_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right)\right]\]</div>
 <div class="math notranslate nohighlight">
-\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]\]</div>
+\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]\]</div>
 <p>Here <span class="math notranslate nohighlight">\(\tau\)</span> is the kinetic-energy density and <span class="math notranslate nohighlight">\(\tau_0\)</span> its
-uniform-electron-gas value, both defined in <a class="reference internal" href="sl.html"><span class="doc">Semilocal Features (SL)</span></a>.
-<span class="math notranslate nohighlight">\(A_i,B_i,C_i\)</span> are tunable parameters. The CIDER23X and CIDER26XC
-meta-GGA exponents use <span class="math notranslate nohighlight">\(B_i=0\)</span> with finite <span class="math notranslate nohighlight">\(C_i\)</span>; the settings
-format also accepts nonzero gradient terms. In the serialized settings,
-the corresponding parameter array is named <code class="docutils literal notranslate"><span class="pre">[a0,</span> <span class="pre">grad_mul,</span> <span class="pre">tau_mul]</span></code>;
-<code class="docutils literal notranslate"><span class="pre">tau_mul</span></code> is omitted or ignored for a GGA exponent.  These fields correspond
-to the constant, gradient, and kinetic-energy terms in the equations above.</p>
-<p>Using different <span class="math notranslate nohighlight">\(A_i,B_i,C_i\)</span> for each <span class="math notranslate nohighlight">\(i\)</span> produces several feature
+uniform electron gas value, both defined in <a class="reference internal" href="sl.html"><span class="doc">Semilocal Features (SL)</span></a>. The settings layer
+generalizes these to a single expression that carries both modulations,</p>
+<div class="math notranslate nohighlight">
+\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + D_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]\]</div>
+<p>with <span class="math notranslate nohighlight">\(D_i\)</span> the gradient coefficient. The packaged CIDER23X and
+CIDER26XC meta-GGA models set <span class="math notranslate nohighlight">\(D_i=0\)</span>, recovering Equation 22.</p>
+<p>In the serialized settings the parameter array is <code class="docutils literal notranslate"><span class="pre">[a0,</span> <span class="pre">grad_mul,</span>
+<span class="pre">tau_mul]</span></code>, and <code class="docutils literal notranslate"><span class="pre">tau_mul</span></code> is ignored for a GGA exponent. Only the constant
+term maps directly: <span class="math notranslate nohighlight">\(B_i\)</span> is <code class="docutils literal notranslate"><span class="pre">a0</span></code>, while <span class="math notranslate nohighlight">\(D_i\)</span> and <span class="math notranslate nohighlight">\(C_i\)</span>
+are <code class="docutils literal notranslate"><span class="pre">grad_mul</span></code> and <code class="docutils literal notranslate"><span class="pre">tau_mul</span></code> multiplied by
+<span class="math notranslate nohighlight">\(1.2\,(6\pi^2)^{2/3}/\pi \approx 5.803\)</span>, the conversion applied in
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.get_cider_exponent" title="ciderpress.dft.settings.get_cider_exponent"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cider_exponent()</span></code></a>.</p>
+<p>Using different parameters for each <span class="math notranslate nohighlight">\(i\)</span> produces several feature
 length scales in one auxiliary expansion. The source exponent
-<span class="math notranslate nohighlight">\(A_0,B_0,C_0\)</span> is shared by all features. Both the GGA and meta-GGA
+<span class="math notranslate nohighlight">\(a_0\)</span> is shared by all features. Both the GGA and meta-GGA
 constructions obey</p>
 <div class="math notranslate nohighlight">
 \[a_i[n_\lambda](\mathbf{r}) = \lambda^2 a_i[n](\lambda \mathbf{r})\]</div>
@@ -196,8 +203,8 @@ available, giving the general form</p>
 <p>The <span class="math notranslate nohighlight">\(*\)</span> symbol stands for the kernel specification. With
 <span class="math notranslate nohighlight">\(R=|\mathbf r-\mathbf r'|\)</span>, the scalar kernels implemented by
 <a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI" title="ciderpress.dft.settings.NLDFSettingsVI"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVI</span></code></a> are:</p>
-<table class="docutils align-default" id="id4">
-<caption><span class="caption-text">Version-I scalar kernels</span><a class="headerlink" href="#id4" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Version-I scalar kernels</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 25.0%" />
 <col style="width: 75.0%" />
@@ -261,11 +268,11 @@ suppresses contributions when
 \exp\!\left(-a_i[n](\mathbf{r})|\mathbf{r}-\mathbf{r}'|^2\right)
 \exp\!\left(-\frac{3a_0[n](\mathbf{r}')}{2a_i[n](\mathbf{r})}\right)
 n(\mathbf{r}')\]</div>
-<div class="docutils container" id="id3">
+<div class="docutils container" id="id4">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>)</span>
 <p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
 </aside>
 </aside>

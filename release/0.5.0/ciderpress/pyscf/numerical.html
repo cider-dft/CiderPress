@@ -97,7 +97,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.pyscf.rks_grad.DFGradients"><code class="docutils literal notranslate"><span class="pre">DFGradients</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#consistency-requirements">Consistency requirements</a></li>
 </ul>
 </li>
 </ul>
@@ -201,9 +200,9 @@ NLDFs.</p>
 
 <p id="module-ciderpress.pyscf.nldf_convolutions"><a class="reference internal" href="#module-ciderpress.pyscf.nldf_convolutions" title="ciderpress.pyscf.nldf_convolutions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.nldf_convolutions</span></code></a> builds the auxiliary Gaussian
 representation of the density-dependent kernel and evaluates its forward and
-backward contractions. The exponent grid, angular cutoff, interpolation
-scheme, and low-density cutoffs are numerical approximations to the feature
-definition and must remain identical between energy and potential paths.</p>
+backward contractions. Its exponent grid, angular cutoff, interpolation
+scheme, and low-density cutoffs are the numerical approximations to the
+feature definition.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.pyscf.nldf_convolutions.PySCFNLDFInitializer">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.pyscf.nldf_convolutions.</span></span><span class="sig-name descname"><span class="pre">PySCFNLDFInitializer</span></span><a class="headerlink" href="#ciderpress.pyscf.nldf_convolutions.PySCFNLDFInitializer" title="Link to this definition"></a></dt>
@@ -240,7 +239,9 @@ density-matrix potential.</p>
 </dd></dl>
 
 <p id="module-ciderpress.pyscf.sdmx_slow"><a class="reference internal" href="#module-ciderpress.pyscf.sdmx_slow" title="ciderpress.pyscf.sdmx_slow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx_slow</span></code></a> is the reference formulation used to check
-the optimized contractions.  Calculation setup uses the optimized
+the optimized contractions, and it also supplies the base class for the
+periodic SDMX generator in <a class="reference internal" href="pbc/dft.html#module-ciderpress.pyscf.pbc.sdmx_fft" title="ciderpress.pyscf.pbc.sdmx_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.pbc.sdmx_fft</span></code></a> and for
+descriptor extraction.  Molecular calculation setup uses the optimized
 <a class="reference internal" href="#module-ciderpress.pyscf.sdmx" title="ciderpress.pyscf.sdmx"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.sdmx</span></code></a> path.  The current SDMX interface provides
 energies and potentials; its property scope is listed in
 <a class="reference internal" href="../../usage/properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
@@ -279,14 +280,6 @@ alpha and beta densities.</p>
 <dd><p>Unrestricted density-fitted CIDER gradient implementation.</p>
 </dd></dl>
 
-</section>
-<section id="consistency-requirements">
-<h2>Consistency requirements<a class="headerlink" href="#consistency-requirements" title="Link to this heading"></a></h2>
-<p>Finite-difference comparisons must use the same basis, atom-centered and
-CIDER grids, feature settings, density-fitting treatment, occupations, and
-electronic state as the analytical calculation.  Validation of a new feature
-covers its raw values, mapped derivatives, matrix potential, and nuclear
-response through the complete forward/adjoint path.</p>
 <p>See <a class="reference internal" href="../../theory/nldf_numerical.html"><span class="doc">Numerical Evaluation of NLDF Features</span></a> for the molecular NLDF algorithm,
 <a class="reference internal" href="../../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for the backend comparison, and
 <a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for guidance on extending the implementation.</p>

@@ -140,6 +140,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.icell"><code class="docutils literal notranslate"><span class="pre">icell</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.kernel"><code class="docutils literal notranslate"><span class="pre">kernel</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.fft_type"><code class="docutils literal notranslate"><span class="pre">fft_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.mpi_comm"><code class="docutils literal notranslate"><span class="pre">mpi_comm</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.mpi_rank"><code class="docutils literal notranslate"><span class="pre">mpi_rank</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.mpi_size"><code class="docutils literal notranslate"><span class="pre">mpi_size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.Ng"><code class="docutils literal notranslate"><span class="pre">Ng</span></code></a></li>
@@ -147,8 +148,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.kLDA"><code class="docutils literal notranslate"><span class="pre">kLDA</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.gLDA"><code class="docutils literal notranslate"><span class="pre">gLDA</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.work_ska"><code class="docutils literal notranslate"><span class="pre">work_ska</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.plan_g2k"><code class="docutils literal notranslate"><span class="pre">plan_g2k</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.plan_k2g"><code class="docutils literal notranslate"><span class="pre">plan_k2g</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.plan"><code class="docutils literal notranslate"><span class="pre">plan</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.nk"><code class="docutils literal notranslate"><span class="pre">nk</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.k2_G"><code class="docutils literal notranslate"><span class="pre">k2_G</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#c.ciderpw_data_obj.kx_G"><code class="docutils literal notranslate"><span class="pre">kx_G</span></code></a></li>
@@ -538,6 +538,11 @@ finite-difference force, and stress tests.</p>
 <dd></dd></dl>
 
 <dl class="c var">
+<dt class="sig sig-object c" id="c.ciderpw_data_obj.mpi_comm">
+<span class="target" id="structciderpw__data__obj_1afdf289eb06ba543f2d62e4879ec2f167"></span><span class="n"><span class="pre">MPI_Comm</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mpi_comm</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.mpi_comm" title="Link to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="c var">
 <dt class="sig sig-object c" id="c.ciderpw_data_obj.mpi_rank">
 <span class="target" id="structciderpw__data__obj_1a28b82e729598c86f9488053815635c7b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mpi_rank</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.mpi_rank" title="Link to this definition"></a><br /></dt>
 <dd></dd></dl>
@@ -573,13 +578,8 @@ finite-difference force, and stress tests.</p>
 <dd></dd></dl>
 
 <dl class="c var">
-<dt class="sig sig-object c" id="c.ciderpw_data_obj.plan_g2k">
-<span class="target" id="structciderpw__data__obj_1a448d62636897b6946c445bb15838cb3d"></span><a class="reference internal" href="#c.fft_plan_t" title="fft_plan_t"><span class="n"><span class="pre">fft_plan_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plan_g2k</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.plan_g2k" title="Link to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="c var">
-<dt class="sig sig-object c" id="c.ciderpw_data_obj.plan_k2g">
-<span class="target" id="structciderpw__data__obj_1a1c87bf9c6e0d620597d14d53c4aa78ae"></span><a class="reference internal" href="#c.fft_plan_t" title="fft_plan_t"><span class="n"><span class="pre">fft_plan_t</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plan_k2g</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.plan_k2g" title="Link to this definition"></a><br /></dt>
+<dt class="sig sig-object c" id="c.ciderpw_data_obj.plan">
+<span class="target" id="structciderpw__data__obj_1aa7b9e89fdf113c5de34dbc3bc0ad6517"></span><span class="n"><span class="pre">mpi_fft3d_plan_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plan</span></span></span><a class="headerlink" href="#c.ciderpw_data_obj.plan" title="Link to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="c var">
