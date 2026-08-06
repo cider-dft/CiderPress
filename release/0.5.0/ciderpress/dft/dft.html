@@ -69,8 +69,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Core DFT Representation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#settings-and-numerical-plans">Settings and numerical plans</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#regression-coordinates">Regression coordinates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#energy-composition-and-evaluation">Energy composition and evaluation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#normalization-and-transformation-of-features">Normalization and Transformation of Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-baselines-and-model-evaluation">Model Baselines and Model Evaluation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
 <li class="toctree-l3"><a class="reference internal" href="lcao_numerical.html">Common LCAO NLDF Infrastructure</a></li>
@@ -129,34 +129,63 @@ derivatives into the Kohn-Sham effective potential.
 data flow; the pages below document the corresponding objects.</p>
 <section id="settings-and-numerical-plans">
 <h2>Settings and numerical plans<a class="headerlink" href="#settings-and-numerical-plans" title="Link to this heading"></a></h2>
-<p><a class="reference internal" href="settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a> declares the ordered semilocal, NLDF, and SDMX
-features and their parameters.  <a class="reference internal" href="plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> implements their
-backend-neutral forward and adjoint operations.  For example,
-<a class="reference internal" href="settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a> defines version-j NLDF
+<p><a class="reference internal" href="settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a> declares the semilocal, NLDF, and SDMX
+features and their parameters.  An instance of the <a class="reference internal" href="settings.html#ciderpress.dft.settings.FeatureSettings" title="ciderpress.dft.settings.FeatureSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSettings</span></code></a>
+obect defines the set of descriptors to compute for a given ML model.
+<a class="reference internal" href="plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> implements the backend-independent parts
+of the forward (feature evaluation) and adjoint (XC potential evaluation) operations.
+For example, <a class="reference internal" href="settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a> defines version-j NLDF
 features, and <a class="reference internal" href="plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a> defines one
 interpolation representation for them.  The numerical algorithm is described
 in <a class="reference internal" href="../../theory/nldf_numerical.html#nldf-numerical"><span class="std std-ref">Numerical Evaluation of NLDF Features</span></a>.</p>
 </section>
-<section id="regression-coordinates">
-<h2>Regression coordinates<a class="headerlink" href="#regression-coordinates" title="Link to this heading"></a></h2>
-<p><a class="reference internal" href="feat_normalizer.html#module-ciderpress.dft.feat_normalizer" title="ciderpress.dft.feat_normalizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.feat_normalizer</span></code></a> converts raw electronic quantities into
-descriptors with the scaling behavior chosen for the functional.
-<a class="reference internal" href="transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a> applies the bounded maps used by the
-regression.  Scale-invariant coordinates support the exchange scaling
-construction in <a class="reference internal" href="../../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>; full-XC correlation
-models can retain explicit density dependence.</p>
+<section id="normalization-and-transformation-of-features">
+<h2>Normalization and Transformation of Features<a class="headerlink" href="#normalization-and-transformation-of-features" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="feat_normalizer.html#module-ciderpress.dft.feat_normalizer" title="ciderpress.dft.feat_normalizer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.feat_normalizer</span></code></a> converts raw features into
+descriptors with the uniform scaling behavior chosen for the functional.
+The most common use of the feature normalizers is to transform “raw” features
+(which might not be scale-invariant) into scale-invariant “normalized features,”
+though it is not necessary to make every feature scale-invariant unless
+you want to enforce the uniform scaling rule for exchange. See
+<a class="reference internal" href="../../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a> for details. Models for the correlation
+energy typically retain at least one feature that is not scale-invariant,
+usually the density.</p>
+<p>Even after normalization, features might remain unbounded, i.e. they can take
+arbitrarily large values. <a class="reference internal" href="transform_data.html#module-ciderpress.dft.transform_data" title="ciderpress.dft.transform_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.transform_data</span></code></a> applies bounded
+maps to the input features before passing them to the Gaussian process regression
+model, thereby guaranteeing that the final features used in regression fall
+inside finite intervals that are convenient for machine learning.</p>
 </section>
-<section id="energy-composition-and-evaluation">
-<h2>Energy composition and evaluation<a class="headerlink" href="#energy-composition-and-evaluation" title="Link to this heading"></a></h2>
+<section id="model-baselines-and-model-evaluation">
+<h2>Model Baselines and Model Evaluation<a class="headerlink" href="#model-baselines-and-model-evaluation" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="baselines.html#module-ciderpress.dft.baselines" title="ciderpress.dft.baselines"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.baselines</span></code></a> provides additive and multiplicative
-energy-density factors for model construction.  The
-<a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator" title="ciderpress.dft.xc_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator</span></code></a> and
-<a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator2" title="ciderpress.dft.xc_evaluator2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator2</span></code></a> modules combine those factors with mapped
-spline, neural, or direct RBF predictions and return feature derivatives.
+energy density baselines for model construction.  Baselines are used
+because it is typically easier for a model to learn the difference
+between the training data and an existing functional than to learn
+the full functional from scratch. Details on how the baselines
+are used can be found in <a class="reference internal" href="../../workflows/training.html"><span class="doc">Training and Mapping Workflow</span></a>.</p>
+<p>The <a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator" title="ciderpress.dft.xc_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator</span></code></a> and <a class="reference internal" href="xc_evaluator.html#module-ciderpress.dft.xc_evaluator2" title="ciderpress.dft.xc_evaluator2"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.xc_evaluator2</span></code></a>
+modules evaluate the model baselines and the trained ML model,
+and they return the predicted XC energy density
+along with the derivatives with respect to input features.
 The role of both XC evaluator modules is to wrap trained models into
 computationally efficient, black-box interfaces for evaluating the
-functionals within self-consistent DFT calculations.
-<a class="reference internal" href="model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves packaged model names and trusted
+functionals within self-consistent DFT calculations. Depending on how
+the model was mapped after training, the ML part is evaluated one of
+three ways by the XC evaluator:</p>
+<ul class="simple">
+<li><p>Via a cubic spline interpolation over the possible values of the features,
+with spline coefficients calculated after training and stored in the model.</p></li>
+<li><p>Via a neural network trained to reproduce the Gaussian process and stored
+in the model.</p></li>
+<li><p>Directly via the Gaussian process predictive mean formula, with
+kernel weights precomputed for efficiency and parallelized within the C backend.
+All CIDER models use a set of sparse control points to accelerate training
+and model evaluation, making this direct approach performant.</p></li>
+</ul>
+<p>CIDER23X models use the cubic spline approach, CIDER24X models use the neural
+network approach, and CIDER26XC models use the direct evaluation approach.</p>
+<p>Finally, <a class="reference internal" href="model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves packaged model names and trusted
 YAML/joblib paths.</p>
 <p>Settings, feature order, normalization, spin treatment, energy baselines, and
 evaluator type form part of the functional definition.  Preserve them together
