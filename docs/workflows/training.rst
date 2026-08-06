@@ -2,8 +2,9 @@ Training and Mapping Workflow
 =============================
 
 CiderPress supplies feature, covariance, fitting, and mapping primitives for
-constructing CIDER models.  Reference calculations, dataset assembly, and job
-scheduling are external to the model layer.
+constructing CIDER models with Gaussian process regression.
+Reference calculations, dataset assembly, and job scheduling
+are external to the model layer.
 
 Electronic data expected by the model layer
 --------------------------------------------
@@ -13,10 +14,10 @@ one consistent feature definition:
 
 * quadrature weights and spin-resolved semilocal density ingredients;
 * normalized descriptor blocks in their serialized order;
-* total-energy and XC baseline terms used to form the target;
-* exact-exchange values when exchange is an explicit target;
+* total-energy and XC baseline terms used to form the training target;
+* exact-exchange values when exchange is an explicit training target;
 * orbital-occupation derivatives when eigenvalue data are included; and
-* optional correction values and metadata associated with the reference.
+* optional correction values and metadata associated with the reference calculation.
 
 :class:`~ciderpress.pyscf.analyzers.ElectronAnalyzer` and the descriptor tools
 in :doc:`descriptors` provide these electronic arrays.  Their stored geometry,
@@ -26,11 +27,23 @@ orbital conventions define the metadata of a system record.
 Integrated observations
 -----------------------
 
-CIDER fits integrated energies and their linear combinations.  A reaction
+CIDER fits integrated energies and their linear combinations (as opposed to
+the energy densities directly predicted by the model).  This allows one to
+fit the total XC energies of chemical systems and relative energies of chemical
+systems, which can be applied to fitting reaction energies, barrier heights,
+interaction energies, equations of state, ionization potentials, and more.
+In CiderPress, all these properties are expressed as linear combinations
+of the energies of chemical systems and referred to as "reactions." A reaction
 record gives the member identifiers, stoichiometric coefficients, reference
 energy, unit conversion, and observation noise.  The model evaluates the
 explicit Kohn--Sham and additive baseline contributions on the same systems,
 then fits the residual assigned to the learned component.
+
+It is also possible to fit the derivative of a system's energy with respect
+the occupation number of a given Kohn-Sham orbital (along with linear
+combinations of these derivatives) within the same reaction framework
+described above. This approach enables
+direct fitting of orbital properties like band gaps. :footcite:p:`CIDER24X`
 
 A :class:`~ciderpress.models.dft_kernel.DFTKernel` couples transformed
 descriptors to a differentiable covariance kernel, an energy multiplier, an
