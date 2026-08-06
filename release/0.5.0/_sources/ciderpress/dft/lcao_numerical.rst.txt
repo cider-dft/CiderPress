@@ -61,5 +61,5 @@ collection, and LCAO interpolator.  The PySCF-specific
 :class:`~ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator` constructs
 these objects from a molecule and its CIDER grid.
 
-See :doc:`../../theory/nldf_numerical` for the mathematical decomposition and
+See :doc:`../../theory/nldf_numerical` for the mathematical description and
 :doc:`../pyscf/numerical` for the PySCF integration lifecycle.
