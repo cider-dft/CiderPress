@@ -128,14 +128,14 @@ respect to the occupation :math:`f_i^m` gives the corresponding eigenvalue
 .. math:: \epsilon_i^m = \frac{\partial E}{\partial f_i^m}
 
 The exact particle-number derivatives at an integer electron number
-:math:`N` are :math:`-I` from below and :math:`-A` from above, where
+:math:`N` are :math:`-I` from below and :math:`A` from above, where
 :math:`I` and :math:`A` are the ionization potential and electron affinity.
-Their derivative discontinuity enters the relation between a neutral-system
-LUMO and :math:`-A` in ordinary Kohn--Sham DFT.
+The DFT derivative discontinuity enters through the difference between
+a neutral system's lowest unoccupied orbital energy and
+its electron affinity :math:`A` in pure Kohn--Sham DFT.
 
-Occupation-derivative labels
-provide valence- and conduction-edge information with this distinction kept
-explicit.  CIDER24X fits derivatives of the target energy contribution,
+Occupation-derivative labels can provide both valence- and conduction-edge
+information.  CIDER24X fits derivatives of the target energy contribution,
 :math:`\partial F/\partial f_i^m`.
 
 For exact exchange :math:`E_\mathrm{x}^\mathrm{exact}`, the occupation
