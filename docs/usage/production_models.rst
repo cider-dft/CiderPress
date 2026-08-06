@@ -164,7 +164,7 @@ electronic model can also be evaluated in an isolated GPAW PAW box.
 GPAW raises an error.
 
 D4 with ``CIDER26XCCHEMD4``
---------------------------
+---------------------------
 
 D4 is evaluated from the geometry after the density SCF, so it changes the
 total energy but not the CIDER potential or density.  CiderPress adds the

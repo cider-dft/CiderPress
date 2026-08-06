@@ -14,6 +14,9 @@ Composite settings
 
 .. py:module:: ciderpress.dft.settings
 
+.. autoclass:: BaseSettings
+   :members:
+
 .. autoclass:: FeatureSettings
    :members:
 
