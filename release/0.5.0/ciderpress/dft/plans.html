@@ -130,8 +130,9 @@
   <section id="feature-evaluation-plans">
 <span id="plans-module"></span><h1>Feature Evaluation Plans<a class="headerlink" href="#feature-evaluation-plans" title="Link to this heading"></a></h1>
 <p>Plans implement the forward evaluation and adjoint derivatives associated
-with settings objects.  Backend adapters supply their grid and electronic
-arrays, and the plan preserves raw feature order and spin conventions.</p>
+with settings objects.  Backend adapters extract the data needed
+to compute the features from the density and orbitals and pass it to the plans.
+Each plan preserves raw feature order and spin conventions.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.plans.SemilocalPlan">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.plans.</span></span><span class="sig-name descname"><span class="pre">SemilocalPlan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nspin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.plans.SemilocalPlan" title="Link to this definition"></a></dt>
