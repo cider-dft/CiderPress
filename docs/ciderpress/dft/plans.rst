@@ -4,8 +4,9 @@ Feature Evaluation Plans
 ========================
 
 Plans implement the forward evaluation and adjoint derivatives associated
-with settings objects.  Backend adapters supply their grid and electronic
-arrays, and the plan preserves raw feature order and spin conventions.
+with settings objects.  Backend adapters extract the data needed
+to compute the features from the density and orbitals and pass it to the plans.
+Each plan preserves raw feature order and spin conventions.
 
 .. autoclass:: ciderpress.dft.plans.SemilocalPlan
 
