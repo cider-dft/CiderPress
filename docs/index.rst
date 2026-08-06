@@ -10,7 +10,9 @@ machine-learned density functionals.  The code serves several purposes:
 * Train, evaluate, store, and load Gaussian process regression models
   representing CIDER functionals. Tools are also included to map
   Gaussian processes to more efficient inference-time models.
-* Through interfaces to existing DFT backends (PySCF and GPAW), compute
+* Through interfaces to existing DFT backends
+  (PySCF :footcite:p:`sunRecentDevelopmentsPySCF2020a`
+  and GPAW :footcite:p:`mortensenGPAWOpenPython2024`), compute
   the electronic input descriptors, evaluate the XC energy and potential,
   and perform full self-consistent field calculations with CIDER functionals.
 

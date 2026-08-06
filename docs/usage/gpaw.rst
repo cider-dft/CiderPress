@@ -1,7 +1,8 @@
 Periodic and Isolated Calculations with GPAW
 ============================================
 
-CiderPress integrates with the classic GPAW calculator in plane-wave mode.
+CiderPress integrates with the classic GPAW :footcite:p:`mortensenGPAWOpenPython2024`
+calculator in plane-wave mode.
 The supported route uses PAW setups so the nonlocal descriptors include the
 all-electron core-region information described in
 :doc:`../theory/numerical_evaluation`.

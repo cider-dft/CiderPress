@@ -1,7 +1,8 @@
 Molecular Calculations with PySCF
 =================================
 
-The PySCF interface decorates an existing restricted or unrestricted
+The PySCF :footcite:p:`sunRecentDevelopmentsPySCF2020a`
+interface decorates an existing restricted or unrestricted
 Kohn--Sham object.  Molecular geometry, charge, spin, basis, grids, density
 fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
 replaces the numerical XC evaluation and adds any model-specific energy terms.
