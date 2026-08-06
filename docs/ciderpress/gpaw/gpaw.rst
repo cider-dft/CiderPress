@@ -19,8 +19,8 @@ The modules separate the host-code interface from the numerical layers:
   and adjoint paths.
 * :mod:`ciderpress.gpaw.cider_paw` and :mod:`ciderpress.gpaw.atom_utils`
   assemble atom-centered PAW/PASDW corrections and their derivatives.
-* :mod:`ciderpress.gpaw.interp_paw` reconstructs differentiable all-electron
-  and pseudo partial-wave XC quantities on radial grids.
+* :mod:`ciderpress.gpaw.interp_paw` extends the PAW potential code
+  used in GPAW to support the nonlocal features in CIDER models.
 * :mod:`ciderpress.gpaw.descriptors` exposes descriptor evaluation from a
   live GPAW calculation.
 
