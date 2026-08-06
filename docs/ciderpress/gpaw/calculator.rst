@@ -10,9 +10,12 @@ GGA or meta-GGA smooth-grid/PAW object.  Exchange models receive their
 composition stored in the model.
 
 :class:`ciderpress.gpaw.calculator.CiderGPAW` extends the classic ``GPAW``
-calculator with CIDER checkpoint state.  Its dictionary stores the mapped
-model text, XC composition, NLDF interpolation parameters, and PASDW options
-needed to reconstruct the functional during restart.
+calculator with the ability to save a CIDER checkpoint state.
+The dictionary of the checkpoint state stores the mapped model text, XC composition,
+NLDF interpolation parameters, and PASDW (PAW corrections to nonlocal features)
+options needed to reconstruct the functional during restart. This allows
+CIDER calculations to be saved to disk and then restarted just like
+calculations with other functionals.
 
 .. code-block:: python
 
