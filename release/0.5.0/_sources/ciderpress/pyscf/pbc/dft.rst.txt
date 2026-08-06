@@ -8,13 +8,17 @@ semilocal and SDMX features used for methodological reproduction of the
 CIDER24X work. :footcite:p:`CIDER24X`  Packaged periodic NLDF calculations use
 the classic GPAW/PAW interface.
 
+NOTE: Periodic PySCF calculations must use pseudopotentials and uniform
+integration grids. All-electron calculations and atom-centered grids
+are not supported.
+
 Numerical implementation
 ------------------------
 
 .. py:module:: ciderpress.pyscf.pbc.numint
 
 :mod:`ciderpress.pyscf.pbc.numint` connects the mapped evaluator to PySCF's
-periodic atom-centered and uniform-grid integration paths.  It evaluates the
+periodic boundary condition implementation.  It evaluates the
 semilocal and SDMX blocks, applies their adjoint matrix contributions, and
 supports the k-point layouts accepted by the periodic Kohn--Sham object.
 

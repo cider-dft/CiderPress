@@ -125,10 +125,13 @@ objects from <code class="docutils literal notranslate"><span class="pre">pyscf.
 semilocal and SDMX features used for methodological reproduction of the
 CIDER24X work. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>  Packaged periodic NLDF calculations use
 the classic GPAW/PAW interface.</p>
+<p>NOTE: Periodic PySCF calculations must use pseudopotentials and uniform
+integration grids. All-electron calculations and atom-centered grids
+are not supported.</p>
 <section id="module-ciderpress.pyscf.pbc.numint">
 <span id="numerical-implementation"></span><h2>Numerical implementation<a class="headerlink" href="#module-ciderpress.pyscf.pbc.numint" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="#module-ciderpress.pyscf.pbc.numint" title="ciderpress.pyscf.pbc.numint"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.pbc.numint</span></code></a> connects the mapped evaluator to PySCF’s
-periodic atom-centered and uniform-grid integration paths.  It evaluates the
+periodic boundary condition implementation.  It evaluates the
 semilocal and SDMX blocks, applies their adjoint matrix contributions, and
 supports the k-point layouts accepted by the periodic Kohn–Sham object.</p>
 <p id="module-ciderpress.pyscf.pbc.sdmx_fft"><a class="reference internal" href="#module-ciderpress.pyscf.pbc.sdmx_fft" title="ciderpress.pyscf.pbc.sdmx_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.pbc.sdmx_fft</span></code></a> constructs periodic SDMX quantities from
