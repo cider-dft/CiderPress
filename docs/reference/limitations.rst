@@ -1,7 +1,7 @@
-Supported Paths and Limitations
-===============================
+Supported Use and Limitations
+=============================
 
-The following boundaries define the documented backend, feature, and property
+The following conditions apply to the documented backend, feature, and property
 interfaces in this release.
 
 * CiderPress 0.5.0 supports the classic GPAW calculator.  ``gpaw.new`` is
@@ -10,14 +10,17 @@ interfaces in this release.
   PAW supplies the all-electron information needed by its nonlocal features.
 * GPAW implements version-j NLDF models.  CIDER24X SDMX models use PySCF.
 * CIDER24X requires PyTorch and is evaluated through PySCF.  Periodic PySCF
-  SDMX support covers methodological reproduction of the CIDER24X work.
+  SDMX support is intended primarily for methodological reproduction
+  of the CIDER24X work. :footcite:p:`CIDER24X` Periodic PySCF calculations
+  with SDMX must use pseudopotentials and uniform grids, as opposed to all-electron
+  calculations and atom-centered grids.
 * ``CIDER26XCCHEMD4`` uses the PySCF interface.  Its D4 contribution enters the
   energy; molecular gradients contain the electronic CIDER contribution.
 * The PySCF CIDER decorator provides SCF energies and the gradients listed in
   :doc:`../usage/properties`.  Hessians, NMR, polarizability,
-  post-Hartree--Fock methods, and related response interfaces are outside its
-  scope.
-* Newton/SOSCF is outside the CIDER PySCF numerical integration path for all
+  post-Hartree--Fock methods, and related response interfaces are not
+  implemented currently.
+* Newton/SOSCF is not implemented for CIDER PySCF calculations for all
   packaged families: the CIDER ``NumInt`` leaves the ``fxc`` and
   ``cache_xc_kernel`` entry points that second-order SCF requires
   unimplemented.  Use the DIIS methods in :doc:`../usage/convergence`.
@@ -28,4 +31,6 @@ interfaces in this release.
   Other feature classes in the source tree are experimental.
 
 Concrete restart controls for open-shell, near-degenerate, metallic, and
-magnetic calculations are listed in :doc:`../usage/convergence`.
+magnetic calculations are listed in :doc:`../usage/convergence`. This
+guidance can be useful when the user encounters convergence issues
+in SCF calculations.
