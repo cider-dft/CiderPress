@@ -151,7 +151,7 @@ kinetic-energy-density, and NLDF potentials.  The GGA/MGGA kernel classes also
 assemble the explicit exchange and correlation terms selected by
 <code class="docutils literal notranslate"><span class="pre">get_cider_functional</span></code>.</p>
 <p id="module-ciderpress.gpaw.cider_sl"><a class="reference internal" href="#module-ciderpress.gpaw.cider_sl" title="ciderpress.gpaw.cider_sl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_sl</span></code></a> connects packaged semilocal CIDER23X models to
-the same GGA/MGGA and PAW lifecycle.</p>
+the same GGA/MGGA and PAW framework.</p>
 <p id="module-ciderpress.gpaw.nldf_interface"><a class="reference internal" href="#module-ciderpress.gpaw.nldf_interface" title="ciderpress.gpaw.nldf_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.nldf_interface</span></code></a> wraps the compiled periodic NLDF
 library. It distributes the real and reciprocal arrays, evaluates the kernel
 interpolation and FFT convolutions, and provides the reverse contractions
@@ -318,7 +318,7 @@ the localized functions and projectors with respect to atomic position;
 stress differentiates the reciprocal kernel and the cell-scaled transfer.</p>
 <p>Validation covers smooth-grid and PAW feature values, potentials, forces, and
 stress at the same interpolation and projection settings.  See
-<a class="reference internal" href="../../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a> for SCF controls,
+<a class="reference internal" href="../../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a> for SCF controls when encountering convergence issues,
 <a class="reference internal" href="../../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for the complete backend path, and
 <a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for implementation invariants.</p>
 <div class="docutils container" id="id2">

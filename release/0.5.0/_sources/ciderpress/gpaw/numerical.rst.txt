@@ -24,7 +24,7 @@ assemble the explicit exchange and correlation terms selected by
 .. py:module:: ciderpress.gpaw.cider_sl
 
 :mod:`ciderpress.gpaw.cider_sl` connects packaged semilocal CIDER23X models to
-the same GGA/MGGA and PAW lifecycle.
+the same GGA/MGGA and PAW framework.
 
 .. py:module:: ciderpress.gpaw.nldf_interface
 
@@ -214,7 +214,7 @@ stress differentiates the reciprocal kernel and the cell-scaled transfer.
 
 Validation covers smooth-grid and PAW feature values, potentials, forces, and
 stress at the same interpolation and projection settings.  See
-:doc:`../../usage/convergence` for SCF controls,
+:doc:`../../usage/convergence` for SCF controls when encountering convergence issues,
 :doc:`../../theory/numerical_evaluation` for the complete backend path, and
 :doc:`../../workflows/extending` for implementation invariants.
 
