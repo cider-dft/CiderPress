@@ -47,9 +47,10 @@ converged mean-field object:
 Use ``grid_response=True`` to include the response of the atom-centered
 integration grid.
 
-``CIDER26XCCHEMD4`` adds D4 to the final energy.  ``nuc_grad_method()`` returns
-the electronic CIDER gradient.  A geometry optimization of the composite
-CIDER+D4 energy requires a separate implementation of the D4 force.
+``CIDER26XCCHEMD4`` adds D4 to the final energy.  Its
+``nuc_grad_method()`` result includes the electronic CIDER derivative, the
+nuclear-repulsion derivative, and the analytical D4 derivative.  Atom subsets
+selected through ``atmlst`` are applied consistently to all three terms.
 
 Periodic forces and stress
 --------------------------

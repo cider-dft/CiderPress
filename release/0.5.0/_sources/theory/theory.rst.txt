@@ -8,8 +8,8 @@ single analytic density functional:
 * Which exact constraints are built into that representation and energy form?
 * How is the remaining functional dependence learned and evaluated?
 
-The pages in this section follow those questions from the CIDER functional
-form through Gaussian-process fitting and numerical evaluation.  The feature
+The pages in this section answer those questions, covering the CIDER functional
+form, Gaussian-process fitting, and numerical evaluation of features.  The feature
 definitions themselves are collected in :doc:`../features/features`.
 
 .. toctree::

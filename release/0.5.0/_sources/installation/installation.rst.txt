@@ -9,7 +9,7 @@ parallel plane-wave calculations.
 Requirements
 ------------
 
-* Python 3.12
+* Python 3.10--3.12
 * A C and C++ compiler with OpenMP support
 * BLAS and LAPACK
 * CMake
@@ -29,13 +29,13 @@ Install the released source distribution with:
    pip install ciderpress
 
 CIDER23X, CIDER24X, and CIDER26XC model files are included.  CIDER24X loads
-PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the core
-runtime.
+PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the
+dependencies installed with the core package.
 
 Optional model dependencies
 ---------------------------
 
-Install the D4 runtime for ``CIDER26XCCHEMD4`` with:
+Install the D4 dependencies for ``CIDER26XCCHEMD4`` with:
 
 .. code-block:: bash
 
@@ -114,8 +114,15 @@ For an editable development installation:
    pip install -e .
 
 The same ``CMAKE_CONFIGURE_ARGS`` options apply.  A direct CMake build under
-``ciderpress/lib`` builds the extension libraries.  Use ``pip install`` to
-install the Python package and model resources.
+``ciderpress/lib`` builds the extension libraries. For example: ::
+
+    cd ciderpress/lib
+    mkdir build
+    cd build
+    cmake <CMAKE_ARGS> ..
+    make
+
+Use ``pip install`` to install the Python package and model resources.
 
 PySCF environment
 -----------------

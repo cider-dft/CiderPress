@@ -62,4 +62,4 @@ collection, and LCAO interpolator.  The PySCF-specific
 these objects from a molecule and its CIDER grid.
 
 See :doc:`../../theory/nldf_numerical` for the mathematical description and
-:doc:`../pyscf/numerical` for the PySCF integration lifecycle.
+:doc:`../pyscf/numerical` for the PySCF numerical implementation details.

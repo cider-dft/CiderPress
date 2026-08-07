@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -87,7 +87,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -148,11 +148,11 @@ The adjoint is what becomes the XC potential, so it must be the exact
 transpose of the forward operation rather than an approximation to it.</p></li>
 <li><p>Add the matching normalizer and bounded transform, keeping the same
 feature order used during training.</p></li>
-<li><p>Connect the plan to each intended backend, and raise at construction time
+<li><p>Connect the plan to each intended backend, and raise an error at construction time
 in the backends that cannot evaluate it.  <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.get_cider_functional" title="ciderpress.gpaw.calculator.get_cider_functional"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cider_functional()</span></code></a>
 shows the pattern: it rejects SDMX and non-version-j NLDF models rather
 than failing later in the SCF.</p></li>
-<li><p>Check feature values, finite differences, spin exchange symmetry,
+<li><p>Check feature values, finite difference derivatives, spin exchange symmetry,
 low-density behavior, and a serialization round trip before fitting a
 model.</p></li>
 </ol>
@@ -163,11 +163,12 @@ model.</p></li>
 model.  A new molecular feature must work for restricted and unrestricted
 density layouts and, if gradients are claimed, through the grid and orbital
 response path.</p>
-<p>GPAW separates smooth-grid evaluation from atom-centered PAW corrections.  A
-new nonlocal PAW feature requires matching all-electron and pseudo forward
+<p>In GPAW, which uses the PAW formalism, nonlocal features contain contributions
+from the smooth pseudo-density, handled on a uniform grid, and the compact atomic
+core density, handled on radial support grids around the atoms. Therefore, introducing a
+new nonlocal feature requires matching all-electron and pseudo forward
 terms, PASDW transfer, potential back-propagation, and any claimed force or
-stress derivative.  Separate smooth-grid and PAW tests localize a disagreement
-to the relevant layer.</p>
+stress derivative.  See <a class="reference internal" href="../ciderpress/gpaw/numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a> for details.</p>
 </section>
 <section id="paw-and-interpolation-invariants">
 <h2>PAW and interpolation invariants<a class="headerlink" href="#paw-and-interpolation-invariants" title="Link to this heading"></a></h2>
@@ -194,7 +195,7 @@ the code changes.  A new field therefore needs a default that reproduces the
 behavior of objects serialized before it existed, and a changed functional
 composition needs explicit serialized metadata so that the difference is
 visible to whatever loads it.</p>
-<p>See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a> for the feature and property
+<p>See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Use and Limitations</span></a> for the feature and property
 combinations the release currently supports.</p>
 </section>
 </section>

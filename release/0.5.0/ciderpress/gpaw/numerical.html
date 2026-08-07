@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -104,7 +104,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -171,7 +171,7 @@ CIDER FFT interface.</p>
 </dd></dl>
 
 <p id="module-ciderpress.gpaw.cider_fft"><a class="reference internal" href="#module-ciderpress.gpaw.cider_fft" title="ciderpress.gpaw.cider_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code></a> connects those operations to GPAW’s GGA and
-meta-GGA XC lifecycle. It gathers the smooth density ingredients, evaluates
+meta-GGA XC framework. It gathers the smooth density ingredients, evaluates
 the mapped energy density, adds the backward feature potential, and supplies
 the smooth-grid force and stress terms.</p>
 <dl class="py class">
@@ -203,7 +203,9 @@ smooth cell term and atom-centered all-electron-minus-pseudo corrections,</p>
 final on-site energy correction leaves the convolution source outside the
 augmentation sphere unchanged.  CiderPress transports that all-electron
 source with the PAW/PASDW construction introduced with
-CIDER23X. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+CIDER23X. (PASDW stands for Projector Augmented/Smoothed Density Wave,
+and the concept is introduced in more detail in
+the CIDER23X paper. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>)</p>
 <p>The transfer has two coupled stages. First, localized source functions
 <span class="math notranslate nohighlight">\(g_i^A\)</span> augment the smooth kernel source,</p>
 <div class="math notranslate nohighlight">
@@ -318,7 +320,7 @@ the localized functions and projectors with respect to atomic position;
 stress differentiates the reciprocal kernel and the cell-scaled transfer.</p>
 <p>Validation covers smooth-grid and PAW feature values, potentials, forces, and
 stress at the same interpolation and projection settings.  See
-<a class="reference internal" href="../../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a> for SCF controls when encountering convergence issues,
+<a class="reference internal" href="../../usage/convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a> for SCF controls when encountering convergence issues,
 <a class="reference internal" href="../../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for the complete backend path, and
 <a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for implementation invariants.</p>
 <div class="docutils container" id="id2">

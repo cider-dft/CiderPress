@@ -16,7 +16,7 @@ use is a surrogate-hybrid construction
 with :math:`a=0.25` for the PBE0-surrogate form used in the corresponding
 work.  The mixing fraction and external semilocal terms are part of the
 functional definition.  They must be supplied explicitly when an
-exchange-only model is initialized. :footcite:t:`CIDER23X,CIDER24X`
+exchange-only model is initialized. :footcite:p:`CIDER23X,CIDER24X`
 
 CIDER26XC functional form
 -------------------------
@@ -38,8 +38,9 @@ PBE baseline and learned exchange and correlation corrections,
 
 Exchange is evaluated separately for the two spin channels.  Correlation uses
 a spin-coupled PBE multiplier and the spin-averaged CIDER feature vector.  The
-exchange descriptors are scale invariant; correlation additionally receives
-density information to represent correlation's nonhomogeneous scaling.
+exchange descriptors are scale invariant.  Correlation additionally receives
+density information to learn its nontrivial behavior under uniform coordinate
+scaling; see :doc:`uniform_scaling`.
 
 The YAML model contains its additive PBE contributions.  The corresponding
 GPAW construction uses ``xmix=1.0``, ``xkernel=None``, and ``ckernel=None``.
@@ -54,7 +55,7 @@ The exchange feature vector :math:`\mathbf{X}^{\mathrm{x}}_\sigma` contains
 the scale-invariant semilocal descriptors and the three version-j nonlocal
 density features used by the CIDER23X nonlocal meta-GGA models
 (:doc:`../features/sl` and :doc:`../features/nldf`).  CIDER26XC represents
-the iso-orbital information with the bounded indicator
+the kinetic-energy information with the bounded indicator
 
 .. math:: t = \frac{\tau-\tau_0}{\tau+\tau_0},
 
@@ -71,9 +72,9 @@ The correlation feature vector :math:`\mathbf{X}^{\mathrm{c}}_\sigma` carries
 one additional descriptor, the density itself, written :math:`X_6 = n` in the
 CIDER26XC work.  In the serialized correlation feature list it follows the
 semilocal descriptors and precedes the nonlocal density features.  The
-scale-invariant features enforce the exchange scaling constraint, while
-correlation obeys no such rule, so the correlation model receives the density
-explicitly.
+scale-invariant features enforce the exchange uniform-coordinate-scaling
+constraint.  The density descriptor lets the correlation model represent its
+different uniform-coordinate-scaling behavior.
 
 Before entering the Gaussian-process kernel, every feature is mapped onto a
 finite interval by the bounded transforms stored in the serialized model
@@ -106,12 +107,10 @@ Optional long-range correction
 ------------------------------
 
 ``CIDER26XCCHEMD4`` was trained with a D4 term removed from each target and
-therefore adds the same term back when the model is evaluated.  D4 is evaluated
-from nuclear geometry after the density SCF.  The potential and density are
-those of the electronic CIDER model.  The PySCF interface records the base
-energy, expected D4 energy, any correction already present on the incoming
-object, and the final adjustment so that the correction is included exactly
-once.
+adds the same term when the model is evaluated.  D4 depends on the nuclear
+geometry and does not enter the electronic SCF potential.  The PySCF interface
+includes the correction exactly once in the total energy and adds its
+analytical nuclear derivative to molecular gradients.
 
 ``CIDER26XCCHEM`` uses its learned electronic XC contribution.
 ``CIDER26XCCHEMD4`` combines that learned contribution with the D4 term

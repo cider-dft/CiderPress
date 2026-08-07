@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="SCF Fallback Settings" href="convergence.html" />
+    <link rel="next" title="Handling SCF Convergence Issues" href="convergence.html" />
     <link rel="prev" title="Periodic and Isolated Calculations with GPAW" href="gpaw.html" /> 
 </head>
 
@@ -59,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#energy-composition">Energy composition</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -80,7 +80,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -202,9 +202,10 @@ converged mean-field object:</p>
 </div>
 <p>Use <code class="docutils literal notranslate"><span class="pre">grid_response=True</span></code> to include the response of the atom-centered
 integration grid.</p>
-<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 to the final energy.  <code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code> returns
-the electronic CIDER gradient.  A geometry optimization of the composite
-CIDER+D4 energy requires a separate implementation of the D4 force.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> adds D4 to the final energy.  Its
+<code class="docutils literal notranslate"><span class="pre">nuc_grad_method()</span></code> result includes the electronic CIDER derivative, the
+nuclear-repulsion derivative, and the analytical D4 derivative.  Atom subsets
+selected through <code class="docutils literal notranslate"><span class="pre">atmlst</span></code> are applied consistently to all three terms.</p>
 </section>
 <section id="periodic-forces-and-stress">
 <h2>Periodic forces and stress<a class="headerlink" href="#periodic-forces-and-stress" title="Link to this heading"></a></h2>
@@ -269,7 +270,7 @@ full-XC initialization shown in <a class="reference internal" href="production_m
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="gpaw.html" class="btn btn-neutral float-left" title="Periodic and Isolated Calculations with GPAW" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="convergence.html" class="btn btn-neutral float-right" title="SCF Fallback Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="convergence.html" class="btn btn-neutral float-right" title="Handling SCF Convergence Issues" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

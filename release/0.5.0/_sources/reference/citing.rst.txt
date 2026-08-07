@@ -2,7 +2,12 @@ Citing CIDER and CiderPress
 ===========================
 
 Choose citations according to the functional family and feature methodology
-used in the calculation.
+used in the calculation. Also make sure to cite
+`PySCF <https://pyscf.org/about.html>`_ :footcite:p:`sunRecentDevelopmentsPySCF2020a`,
+since it is integral to the code, and make sure to cite
+`GPAW <https://gpaw.readthedocs.io/faq.html>`_ :footcite:p:`mortensenGPAWOpenPython2024`
+if you use the GPAW calculation interface. See the respective codes'
+websites for how to cite them.
 
 CIDER23X and molecular/periodic NLDF evaluation
 -----------------------------------------------

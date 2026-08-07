@@ -65,7 +65,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -86,7 +86,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -116,7 +116,8 @@
              
   <section id="molecular-calculations-with-pyscf">
 <h1>Molecular Calculations with PySCF<a class="headerlink" href="#molecular-calculations-with-pyscf" title="Link to this heading"></a></h1>
-<p>The PySCF interface decorates an existing restricted or unrestricted
+<p>The PySCF <a class="footnote-reference brackets" href="#footcite-sunrecentdevelopmentspyscf2020a" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+interface decorates an existing restricted or unrestricted
 Kohn–Sham object.  Molecular geometry, charge, spin, basis, grids, density
 fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
 replaces the numerical XC evaluation and adds any model-specific energy terms.</p>
@@ -203,7 +204,7 @@ composition explicitly:</p>
 </div>
 <p>The example uses the <code class="docutils literal notranslate"><span class="pre">def2-tzvp</span></code> basis and PySCF grid level 3.  For a small
 end-to-end energetics workflow,
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
 with a chosen libxc or packaged CIDER functional.</p>
 </section>
 <section id="density-fitting">
@@ -227,96 +228,101 @@ multiplicity for the converged unrestricted solution.</p>
 same molecule, basis, grid, charge, and spin, then provide its density to the
 CIDER calculation:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
-<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Warm-start an open-shell CIDER calculation and try conservative fallbacks.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Demonstrate a reusable restart ladder on a compact open-shell molecule.</span>
 <span class="linenos"> 3</span>
-<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="linenos"> 5</span>
-<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
-<span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.scf</span><span class="w"> </span><span class="kn">import</span> <span class="n">diis</span> <span class="k">as</span> <span class="n">pyscf_diis</span>
+<span class="linenos"> 4</span><span class="sd">O2 keeps the example inexpensive and normally converges on an early rung. The</span>
+<span class="linenos"> 5</span><span class="sd">same sequence can be applied when a larger open-shell calculation needs a PBE</span>
+<span class="linenos"> 6</span><span class="sd">warm start or more conservative SCF controls.</span>
+<span class="linenos"> 7</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="linenos"> 8</span>
-<span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_cider_calc</span>
+<span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="linenos">10</span>
-<span class="linenos">11</span>
-<span class="linenos">12</span><span class="n">LADDER</span> <span class="o">=</span> <span class="p">(</span>
-<span class="linenos">13</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-<span class="linenos">14</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-<span class="linenos">15</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis12&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-<span class="linenos">16</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-<span class="linenos">17</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;adiis&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">ADIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-<span class="linenos">18</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-<span class="linenos">19</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;ediis&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">EDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-<span class="linenos">20</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-<span class="linenos">21</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis_shift02&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-<span class="linenos">22</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
-<span class="linenos">23</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis_shift05&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-<span class="linenos">24</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
-<span class="linenos">25</span><span class="p">)</span>
-<span class="linenos">26</span>
-<span class="linenos">27</span>
-<span class="linenos">28</span><span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">rung</span><span class="p">):</span>
-<span class="linenos">29</span>    <span class="n">mf</span><span class="o">.</span><span class="n">DIIS</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;DIIS&quot;</span><span class="p">]</span>
-<span class="linenos">30</span>    <span class="n">mf</span><span class="o">.</span><span class="n">diis_space</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;diis_space&quot;</span><span class="p">]</span>
-<span class="linenos">31</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;conv_tol&quot;</span><span class="p">]</span>
-<span class="linenos">32</span>    <span class="n">mf</span><span class="o">.</span><span class="n">level_shift</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;level_shift&quot;</span><span class="p">]</span>
-<span class="linenos">33</span>    <span class="n">mf</span><span class="o">.</span><span class="n">damp</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;damp&quot;</span><span class="p">]</span>
-<span class="linenos">34</span>    <span class="n">mf</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">500</span>
-<span class="linenos">35</span>
-<span class="linenos">36</span>
-<span class="linenos">37</span><span class="k">def</span><span class="w"> </span><span class="nf">run_ladder</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">):</span>
-<span class="linenos">38</span>    <span class="n">guesses</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;warm&quot;</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;atom&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="o">.</span><span class="n">get_init_guess</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;atom&quot;</span><span class="p">)))</span>
-<span class="linenos">39</span>    <span class="k">for</span> <span class="n">guess_name</span><span class="p">,</span> <span class="n">density</span> <span class="ow">in</span> <span class="n">guesses</span><span class="p">:</span>
-<span class="linenos">40</span>        <span class="k">for</span> <span class="n">rung</span> <span class="ow">in</span> <span class="n">LADDER</span><span class="p">:</span>
-<span class="linenos">41</span>            <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">rung</span><span class="p">)</span>
-<span class="linenos">42</span>            <span class="n">mf</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;o2_cider_</span><span class="si">{</span><span class="n">rung</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">guess_name</span><span class="si">}</span><span class="s2">.chk&quot;</span><span class="p">))</span>
-<span class="linenos">43</span>            <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
-<span class="linenos">44</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
-<span class="linenos">45</span>                <span class="k">continue</span>
-<span class="linenos">46</span>
-<span class="linenos">47</span>            <span class="c1"># A relaxed rung supplies a preconditioned density.  This example</span>
-<span class="linenos">48</span>            <span class="c1"># follows it with the standard CDIIS control set.</span>
-<span class="linenos">49</span>            <span class="k">if</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">:</span>
-<span class="linenos">50</span>                <span class="n">tight_density</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
-<span class="linenos">51</span>                <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">LADDER</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="linenos">52</span>                <span class="n">mf</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="s2">&quot;o2_cider_final.chk&quot;</span>
-<span class="linenos">53</span>                <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">tight_density</span><span class="p">)</span>
-<span class="linenos">54</span>                <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
-<span class="linenos">55</span>                    <span class="k">continue</span>
-<span class="linenos">56</span>            <span class="k">return</span> <span class="n">energy</span><span class="p">,</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">guess_name</span>
-<span class="linenos">57</span>    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CIDER SCF did not converge with the suggested ladder&quot;</span><span class="p">)</span>
-<span class="linenos">58</span>
-<span class="linenos">59</span>
-<span class="linenos">60</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="linenos">61</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span>
-<span class="linenos">62</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;O 0 0 0; O 0 0 1.21&quot;</span><span class="p">,</span>
-<span class="linenos">63</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">,</span>
-<span class="linenos">64</span>        <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="linenos">65</span>        <span class="n">spin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-<span class="linenos">66</span>    <span class="p">)</span>
-<span class="linenos">67</span>
-<span class="linenos">68</span>    <span class="n">baseline</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">UKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="linenos">69</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="s2">&quot;PBE&quot;</span>
-<span class="linenos">70</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="linenos">71</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-9</span>
-<span class="linenos">72</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">200</span>
-<span class="linenos">73</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="s2">&quot;o2_pbe.chk&quot;</span>
-<span class="linenos">74</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
-<span class="linenos">75</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
-<span class="linenos">76</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Baseline PBE calculation did not converge&quot;</span><span class="p">)</span>
-<span class="linenos">77</span>    <span class="n">warm_density</span> <span class="o">=</span> <span class="n">baseline</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
-<span class="linenos">78</span>
-<span class="linenos">79</span>    <span class="n">base</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">UKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="linenos">80</span>    <span class="n">base</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="linenos">81</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
-<span class="linenos">82</span>    <span class="n">energy</span><span class="p">,</span> <span class="n">rung</span><span class="p">,</span> <span class="n">guess</span> <span class="o">=</span> <span class="n">run_ladder</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">)</span>
+<span class="linenos">11</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
+<span class="linenos">12</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.scf</span><span class="w"> </span><span class="kn">import</span> <span class="n">diis</span> <span class="k">as</span> <span class="n">pyscf_diis</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_cider_calc</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="n">LADDER</span> <span class="o">=</span> <span class="p">(</span>
+<span class="linenos">18</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="linenos">19</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+<span class="linenos">20</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis12&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="linenos">21</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+<span class="linenos">22</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;adiis&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">ADIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="linenos">23</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+<span class="linenos">24</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;ediis&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">EDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="linenos">25</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+<span class="linenos">26</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis_shift02&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="linenos">27</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+<span class="linenos">28</span>    <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis_shift05&quot;</span><span class="p">,</span> <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span> <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="linenos">29</span>     <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
+<span class="linenos">30</span><span class="p">)</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span><span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">rung</span><span class="p">):</span>
+<span class="linenos">34</span>    <span class="n">mf</span><span class="o">.</span><span class="n">DIIS</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;DIIS&quot;</span><span class="p">]</span>
+<span class="linenos">35</span>    <span class="n">mf</span><span class="o">.</span><span class="n">diis_space</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;diis_space&quot;</span><span class="p">]</span>
+<span class="linenos">36</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;conv_tol&quot;</span><span class="p">]</span>
+<span class="linenos">37</span>    <span class="n">mf</span><span class="o">.</span><span class="n">level_shift</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;level_shift&quot;</span><span class="p">]</span>
+<span class="linenos">38</span>    <span class="n">mf</span><span class="o">.</span><span class="n">damp</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;damp&quot;</span><span class="p">]</span>
+<span class="linenos">39</span>    <span class="n">mf</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="linenos">40</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span><span class="k">def</span><span class="w"> </span><span class="nf">run_ladder</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">):</span>
+<span class="linenos">43</span>    <span class="n">guesses</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;warm&quot;</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;atom&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="o">.</span><span class="n">get_init_guess</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;atom&quot;</span><span class="p">)))</span>
+<span class="linenos">44</span>    <span class="k">for</span> <span class="n">guess_name</span><span class="p">,</span> <span class="n">density</span> <span class="ow">in</span> <span class="n">guesses</span><span class="p">:</span>
+<span class="linenos">45</span>        <span class="k">for</span> <span class="n">rung</span> <span class="ow">in</span> <span class="n">LADDER</span><span class="p">:</span>
+<span class="linenos">46</span>            <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">rung</span><span class="p">)</span>
+<span class="linenos">47</span>            <span class="n">mf</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;o2_cider_</span><span class="si">{</span><span class="n">rung</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">guess_name</span><span class="si">}</span><span class="s2">.chk&quot;</span><span class="p">))</span>
+<span class="linenos">48</span>            <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
+<span class="linenos">49</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">50</span>                <span class="k">continue</span>
+<span class="linenos">51</span>
+<span class="linenos">52</span>            <span class="c1"># A relaxed rung supplies a preconditioned density.  This example</span>
+<span class="linenos">53</span>            <span class="c1"># follows it with the standard CDIIS control set.</span>
+<span class="linenos">54</span>            <span class="k">if</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">:</span>
+<span class="linenos">55</span>                <span class="n">tight_density</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
+<span class="linenos">56</span>                <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">LADDER</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="linenos">57</span>                <span class="n">mf</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="s2">&quot;o2_cider_final.chk&quot;</span>
+<span class="linenos">58</span>                <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">tight_density</span><span class="p">)</span>
+<span class="linenos">59</span>                <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">60</span>                    <span class="k">continue</span>
+<span class="linenos">61</span>            <span class="k">return</span> <span class="n">energy</span><span class="p">,</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">guess_name</span>
+<span class="linenos">62</span>    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CIDER SCF did not converge with the suggested ladder&quot;</span><span class="p">)</span>
+<span class="linenos">63</span>
+<span class="linenos">64</span>
+<span class="linenos">65</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">66</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span>
+<span class="linenos">67</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;O 0 0 0; O 0 0 1.21&quot;</span><span class="p">,</span>
+<span class="linenos">68</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">,</span>
+<span class="linenos">69</span>        <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">70</span>        <span class="n">spin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="linenos">71</span>    <span class="p">)</span>
+<span class="linenos">72</span>
+<span class="linenos">73</span>    <span class="n">baseline</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">UKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">74</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="s2">&quot;PBE&quot;</span>
+<span class="linenos">75</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">76</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="linenos">77</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="linenos">78</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="s2">&quot;o2_pbe.chk&quot;</span>
+<span class="linenos">79</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+<span class="linenos">80</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">81</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Baseline PBE calculation did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">82</span>    <span class="n">warm_density</span> <span class="o">=</span> <span class="n">baseline</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
 <span class="linenos">83</span>
-<span class="linenos">84</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
-<span class="linenos">85</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initial density = </span><span class="si">{</span><span class="n">guess</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">86</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;successful preconditioning rung = </span><span class="si">{</span><span class="n">rung</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">87</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;S^2&gt;, multiplicity = </span><span class="si">{</span><span class="n">mf</span><span class="o">.</span><span class="n">spin_square</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">84</span>    <span class="n">base</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">UKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">85</span>    <span class="n">base</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">86</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="linenos">87</span>    <span class="n">energy</span><span class="p">,</span> <span class="n">rung</span><span class="p">,</span> <span class="n">guess</span> <span class="o">=</span> <span class="n">run_ladder</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">)</span>
 <span class="linenos">88</span>
-<span class="linenos">89</span>
-<span class="linenos">90</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-<span class="linenos">91</span>    <span class="n">main</span><span class="p">()</span>
+<span class="linenos">89</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">90</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initial density = </span><span class="si">{</span><span class="n">guess</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">91</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;successful preconditioning rung = </span><span class="si">{</span><span class="n">rung</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">92</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;S^2&gt;, multiplicity = </span><span class="si">{</span><span class="n">mf</span><span class="o">.</span><span class="n">spin_square</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">93</span>
+<span class="linenos">94</span>
+<span class="linenos">95</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">96</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The fallback ladder records each control set separately.  A relaxed or
@@ -365,8 +371,9 @@ adjustment.</p>
 contains the expected term exactly once.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and
 <code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code> the expected dispersion is zero, so an attached wrapper
 is disabled and does not contribute to the returned energy.</p>
-<p>The current molecular gradient contains the electronic CIDER contribution
-only.  See <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for composite CIDER+D4 derivatives.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, <code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> adds the analytical D4
+derivative to the electronic CIDER and nuclear-repulsion terms.  See
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for the gradient interface.</p>
 </section>
 <section id="cider24x">
 <h2>CIDER24X<a class="headerlink" href="#cider24x" title="Link to this heading"></a></h2>
@@ -374,12 +381,13 @@ only.  See <a class="reference internal" href="properties.html"><span class="doc
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
 mixing CUDA and CPU PyTorch installations within one environment.  A minimal
-SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
 </section>
 <section id="gradients-and-other-methods">
 <h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>
 <p>Analytical restricted and unrestricted nuclear gradients are available for
-the molecular NLDF path, including density-fitted calculations.  Use
+the molecular NLDF path, including density-fitted calculations and the D4
+correction selected by <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>.  Use
 <code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> as shown in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  The gradient code
 raises <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> for models carrying SDMX features, so CIDER24X
 calculations give energies but not forces.</p>
@@ -389,7 +397,15 @@ multireference, and similar response or post-SCF methods are outside that
 interface.  The documented analytical-gradient implementation covers the
 molecular NLDF path.</p>
 <p>The PBE-seeded CDIIS, ADIIS, EDIIS, level-shift, and damping settings used by
-the restart example are listed in <a class="reference internal" href="convergence.html"><span class="doc">SCF Fallback Settings</span></a>.</p>
+the restart example are listed in <a class="reference internal" href="convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a>.</p>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-sunrecentdevelopmentspyscf2020a" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Qiming Sun, Xing Zhang, Samragni Banerjee, Peng Bao, Marc Barbry, Nick S. Blunt, Nikolay A. Bogdanov, George H. Booth, Jia Chen, Zhi-Hao Cui, Janus J. Eriksen, Yang Gao, Sheng Guo, Jan Hermann, Matthew R. Hermes, Kevin Koh, Peter Koval, Susi Lehtola, Zhendong Li, Junzi Liu, Narbe Mardirossian, James D. McClain, Mario Motta, Bastien Mussard, Hung Q. Pham, Artem Pulkin, Wirawan Purwanto, Paul J. Robinson, Enrico Ronca, Elvira R. Sayfutyarova, Maximilian Scheurer, Henry F. Schurkus, James E. T. Smith, Chong Sun, Shi-Ning Sun, Shiv Upadhyay, Lucas K. Wagner, Xiao Wang, Alec White, James Daniel Whitfield, Mark J. Williamson, Sebastian Wouters, Jun Yang, Jason M. Yu, Tianyu Zhu, Timothy C. Berkelbach, Sandeep Sharma, Alexander Yu. Sokolov, and Garnet Kin-Lic Chan. Recent developments in the PySCF program package. <em>The Journal of Chemical Physics</em>, 153(2):024109, July 2020. <a class="reference external" href="https://doi.org/10.1063/5.0006074">doi:10.1063/5.0006074</a>.</p>
+</aside>
+</aside>
+</div>
 </section>
 </section>
 

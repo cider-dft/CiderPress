@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -96,7 +96,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -156,10 +156,10 @@ over packaged short names in <a class="reference internal" href="#ciderpress.dft
 <dt class="sig sig-object py" id="ciderpress.dft.model_utils.validate_cider_composition">
 <span class="sig-prename descclassname"><span class="pre">ciderpress.dft.model_utils.</span></span><span class="sig-name descname"><span class="pre">validate_cider_composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlfunc</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xkernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ckernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CiderPress'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.model_utils.validate_cider_composition" title="Link to this definition"></a></dt>
 <dd><p>Reject additive semilocal terms for mapped full-XC models.</p>
-<p><code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> objects already contain their complete exchange-correlation
-baseline.  Mixing them with an external exchange or correlation kernel
-changes the functional and, in GPAW’s historical default configuration,
-silently double-counts PBE correlation.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> object may represent exchange alone or a complete
+exchange-correlation model. Mixing a full-XC model with an external
+exchange or correlation kernel changes the functional and, in GPAW’s
+historical default configuration, silently double-counts PBE correlation.</p>
 </dd></dl>
 
 </section>

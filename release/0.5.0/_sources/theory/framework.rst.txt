@@ -1,7 +1,8 @@
 The CIDER Framework
 ===================
 
-CIDER is a framework for learning a grid-resolved exchange or
+CIDER :footcite:p:`CIDER22X,CIDER23X,CIDER24X,CIDER26XC`
+is a framework for learning a model for the exchange or
 exchange-correlation energy density from electronic structure.  CiderPress is
 the software implementation of that framework.  It supplies feature
 definitions, regression and mapping tools, numerical algorithms, and the
@@ -36,13 +37,14 @@ Why nonlocal electronic features?
 
 A semilocal functional uses the density and a small set of derivatives at one
 point.  CIDER augments those quantities with descriptors constructed from the
-density or density matrix over a finite neighborhood.  The descriptors derive
-from the electronic state and are independent of atom types, bonds, or a
-structural graph.  The same functional can therefore be evaluated for
-molecules, solids, and surfaces.
+density or density matrix distribution in the neighborhood around that point.
+The descriptors derive from the electronic state and are independent of atom
+types, bonds, or a structural graph.  The same functional can therefore be
+evaluated for molecules, solids, surfaces, and even model systems like
+the uniform electron gas.
 
 The original CIDER representation was designed so that its exchange features
-obey simple uniform-coordinate-scaling rules.  This construction encodes the
+obey simple uniform coordinate scaling rules.  This construction encodes the
 exact exchange scaling constraint.  See
 :doc:`uniform_scaling` and :doc:`../features/features` for the corresponding
 feature definitions.
@@ -54,9 +56,10 @@ The packaged functional families differ in their descriptors, training
 labels, and learned energy contributions:
 
 ``CIDER23X``
-   Redesigned the nonlocal density features for efficient molecular and
+   Introduced nonlocal density features for efficient molecular and
    plane-wave evaluation, trained exchange from total-energy data, and added
-   analytical molecular and periodic derivatives.  Both semilocal reference
+   support for analytical force and stress calculations in molecular
+   and periodic systems.  Both semilocal reference
    models and nonlocal models are packaged. :footcite:t:`CIDER23X`
 
 ``CIDER24X``
@@ -80,7 +83,7 @@ backends for each family.
 Relationship to the code
 ------------------------
 
-The core modules mirror the scientific decomposition:
+The core modules mirror the scientific framework:
 
 * :mod:`ciderpress.dft.settings` declares which features a model needs.
 * :mod:`ciderpress.dft.plans` turns those declarations into numerical plans.

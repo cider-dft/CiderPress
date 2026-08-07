@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -89,7 +89,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -120,7 +120,8 @@
              
   <section id="the-cider-framework">
 <h1>The CIDER Framework<a class="headerlink" href="#the-cider-framework" title="Link to this heading"></a></h1>
-<p>CIDER is a framework for learning a grid-resolved exchange or
+<p>CIDER <a class="footnote-reference brackets" href="#footcite-cider22x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-cider24x" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>
+is a framework for learning a model for the exchange or
 exchange-correlation energy density from electronic structure.  CiderPress is
 the software implementation of that framework.  It supplies feature
 definitions, regression and mapping tools, numerical algorithms, and the
@@ -150,12 +151,13 @@ and derivatives needed for self-consistency.</p>
 <h2>Why nonlocal electronic features?<a class="headerlink" href="#why-nonlocal-electronic-features" title="Link to this heading"></a></h2>
 <p>A semilocal functional uses the density and a small set of derivatives at one
 point.  CIDER augments those quantities with descriptors constructed from the
-density or density matrix over a finite neighborhood.  The descriptors derive
-from the electronic state and are independent of atom types, bonds, or a
-structural graph.  The same functional can therefore be evaluated for
-molecules, solids, and surfaces.</p>
+density or density matrix distribution in the neighborhood around that point.
+The descriptors derive from the electronic state and are independent of atom
+types, bonds, or a structural graph.  The same functional can therefore be
+evaluated for molecules, solids, surfaces, and even model systems like
+the uniform electron gas.</p>
 <p>The original CIDER representation was designed so that its exchange features
-obey simple uniform-coordinate-scaling rules.  This construction encodes the
+obey simple uniform coordinate scaling rules.  This construction encodes the
 exact exchange scaling constraint.  See
 <a class="reference internal" href="uniform_scaling.html"><span class="doc">Uniform Scaling</span></a> and <a class="reference internal" href="../features/features.html"><span class="doc">Electronic Features in CiderPress</span></a> for the corresponding
 feature definitions.</p>
@@ -165,22 +167,23 @@ feature definitions.</p>
 <p>The packaged functional families differ in their descriptors, training
 labels, and learned energy contributions:</p>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">CIDER23X</span></code></dt><dd><p>Redesigned the nonlocal density features for efficient molecular and
+<dt><code class="docutils literal notranslate"><span class="pre">CIDER23X</span></code></dt><dd><p>Introduced nonlocal density features for efficient molecular and
 plane-wave evaluation, trained exchange from total-energy data, and added
-analytical molecular and periodic derivatives.  Both semilocal reference
-models and nonlocal models are packaged. Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+support for analytical force and stress calculations in molecular
+and periodic systems.  Both semilocal reference
+models and nonlocal models are packaged. Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">CIDER24X</span></code></dt><dd><p>Introduced smoothed density-matrix exchange (SDMX) descriptors and extended
 Gaussian-process training to orbital-energy labels.  <code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code> uses
 energy and eigenvalue information; <code class="docutils literal notranslate"><span class="pre">CIDER24Xne</span></code> uses energy information.
 These models require PyTorch and are evaluated through PySCF.
-Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">CIDER26XC</span></code></dt><dd><p>Extends the framework from exchange to the full XC energy.  Separate
 exchange and correlation corrections are learned, full-XC models are
 trained on self-consistent densities, and molecular and combined
 molecular–surface-science variants are provided.  See <a class="reference internal" href="full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.
-Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a></p>
 </dd>
 </dl>
 <p>The <a class="reference internal" href="../usage/production_models.html"><span class="doc">model guide</span></a> lists the feature
@@ -189,7 +192,7 @@ backends for each family.</p>
 </section>
 <section id="relationship-to-the-code">
 <h2>Relationship to the code<a class="headerlink" href="#relationship-to-the-code" title="Link to this heading"></a></h2>
-<p>The core modules mirror the scientific decomposition:</p>
+<p>The core modules mirror the scientific framework:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../ciderpress/dft/settings.html#module-ciderpress.dft.settings" title="ciderpress.dft.settings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.settings</span></code></a> declares which features a model needs.</p></li>
 <li><p><a class="reference internal" href="../ciderpress/dft/plans.html#module-ciderpress.dft.plans" title="ciderpress.dft.plans"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.plans</span></code></a> turns those declarations into numerical plans.</p></li>
@@ -204,18 +207,25 @@ propagate model derivatives into their host codes.</p></li>
 </ul>
 <p>The steps required to connect a new feature to these layers are described in
 <a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a>.</p>
-<div class="docutils container" id="id4">
+<div class="docutils container" id="id8">
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<aside class="footnote brackets" id="footcite-cider22x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom and Boris Kozinsky. CIDER: An Expressive, Nonlocal Feature Set for Machine Learning Density Functionals with Exact Constraints. <em>J. Chem. Theory Comput.</em>, 18(4):2180–2192, April 2022. <a class="reference external" href="https://doi.org/10.1021/acs.jctc.1c00904">doi:10.1021/acs.jctc.1c00904</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
 <p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
 <p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
 <p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
 </aside>
 </aside>

@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -89,7 +89,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -137,13 +137,14 @@ produce the coordinates used by the regression model.</p>
 energy-density baselines.  It returns the energy contribution and
 derivatives with respect to every raw input.</p>
 </dd>
-<dt>Evaluation representation</dt><dd><p>A mapped kernel can evaluate control-point RBFs directly or use a fitted
-spline or neural representation.  The evaluator type is stored in the
+<dt>Evaluation representation</dt><dd><p>A mapped kernel can evaluate the Gaussian process predictive mean directly or use a fitted
+spline or neural network representation.  The evaluator type is stored in the
 model file.</p>
 </dd>
-<dt>Functional metadata</dt><dd><p>The top-level object records feature settings, optional libxc composition,
-and fitted correction metadata such as the D4 term associated with
-<code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>.</p>
+<dt>Functional metadata</dt><dd><p>The top-level object records feature settings and fitted correction
+metadata such as the D4 term associated with <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>.
+Full-XC models also record the additive libxc baseline used to combine
+their exchange and correlation components.</p>
 </dd>
 </dl>
 </section>
@@ -187,8 +188,11 @@ serialization.</p></li>
 </ol>
 <p>The packaged families illustrate three evaluator choices.  CIDER23X uses
 mapped spline evaluators.  CIDER24X uses a neural evaluator trained to
-reproduce its GP.  CIDER26XC stores the sparse control-point prediction in an
-optimized RBF evaluator, preserving direct evaluation of that GP form.</p>
+reproduce its GP.  CIDER26XC stores the sparse control-point prediction in a
+radial-basis-function (RBF) evaluator.  Here RBF denotes the
+squared-exponential covariance kernel evaluated directly between each feature
+vector and the stored GP control points.  The implementation is
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.RBFEvaluator" title="ciderpress.dft.xc_evaluator.RBFEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">RBFEvaluator</span></code></a>.</p>
 </section>
 <section id="baselines-and-functional-composition">
 <h2>Baselines and functional composition<a class="headerlink" href="#baselines-and-functional-composition" title="Link to this heading"></a></h2>
@@ -209,13 +213,13 @@ form.</p>
 <p>Joblib files store trainable Python objects and their fitting state.  Mapped
 YAML stores the inference object used by the calculation interfaces.  Both
 formats reconstruct Python objects and should be loaded from trusted sources.</p>
-<p>The mapped YAML models published with the CIDER23X, CIDER24X, and CIDER26XC
-work are installed with the package, so no download step is needed.  They
-live in <code class="docutils literal notranslate"><span class="pre">ciderpress/data/functionals</span></code> and are shipped as package data
-through <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code>; <a class="reference internal" href="../ciderpress/dft/model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves their
-short names, and <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> lists every name with its
-checksum.  The older functional set from the CIDER23X work is also archived
-on Zenodo and can be fetched with <code class="docutils literal notranslate"><span class="pre">scripts/download_functionals.py</span></code>.</p>
+<p>The package installs the mapped YAML models published with the CIDER23X,
+CIDER24X, and CIDER26XC work under <code class="docutils literal notranslate"><span class="pre">ciderpress/data/functionals</span></code>.
+<code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code> includes these files as package data, and
+<a class="reference internal" href="../ciderpress/dft/model_utils.html#module-ciderpress.dft.model_utils" title="ciderpress.dft.model_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.model_utils</span></code></a> resolves their short names.
+<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> lists every name with its checksum.  The
+CIDER23X and CIDER24X functional sets are also archived on Zenodo and can be
+fetched with <code class="docutils literal notranslate"><span class="pre">scripts/download_functionals.py</span></code>.</p>
 <p>See <a class="reference internal" href="training.html"><span class="doc">Training and Mapping Workflow</span></a> for the expected training-data boundary and
 <a class="reference internal" href="../ciderpress/models/models.html"><span class="doc">Regression, Training, and Mapping APIs</span></a> for the regression APIs.</p>
 </section>

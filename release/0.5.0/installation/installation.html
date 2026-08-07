@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -84,7 +84,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -121,7 +121,7 @@ parallel plane-wave calculations.</p>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Python 3.12</p></li>
+<li><p>Python 3.10–3.12</p></li>
 <li><p>A C and C++ compiler with OpenMP support</p></li>
 <li><p>BLAS and LAPACK</p></li>
 <li><p>CMake</p></li>
@@ -139,12 +139,12 @@ supplied by the environment.</p></li>
 </pre></div>
 </div>
 <p>CIDER23X, CIDER24X, and CIDER26XC model files are included.  CIDER24X loads
-PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the core
-runtime.</p>
+PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the
+dependencies installed with the core package.</p>
 </section>
 <section id="optional-model-dependencies">
 <h2>Optional model dependencies<a class="headerlink" href="#optional-model-dependencies" title="Link to this heading"></a></h2>
-<p>Install the D4 runtime for <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> with:</p>
+<p>Install the D4 dependencies for <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;ciderpress[d4]&#39;</span>
 </pre></div>
 </div>
@@ -221,8 +221,15 @@ FFT implementations can produce symbol collisions and runtime crashes.</p>
 </pre></div>
 </div>
 <p>The same <code class="docutils literal notranslate"><span class="pre">CMAKE_CONFIGURE_ARGS</span></code> options apply.  A direct CMake build under
-<code class="docutils literal notranslate"><span class="pre">ciderpress/lib</span></code> builds the extension libraries.  Use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> to
-install the Python package and model resources.</p>
+<code class="docutils literal notranslate"><span class="pre">ciderpress/lib</span></code> builds the extension libraries. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">ciderpress</span><span class="o">/</span><span class="n">lib</span>
+<span class="n">mkdir</span> <span class="n">build</span>
+<span class="n">cd</span> <span class="n">build</span>
+<span class="n">cmake</span> <span class="o">&lt;</span><span class="n">CMAKE_ARGS</span><span class="o">&gt;</span> <span class="o">..</span>
+<span class="n">make</span>
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> to install the Python package and model resources.</p>
 </section>
 <section id="pyscf-environment">
 <h2>PySCF environment<a class="headerlink" href="#pyscf-environment" title="Link to this heading"></a></h2>
@@ -246,13 +253,13 @@ target machine.  CiderPress and GPAW must resolve compatible versions of:</p>
 <li><p>BLAS/LAPACK.</p></li>
 </ul>
 <p>An MPI GPAW calculation requires an MPI-enabled CiderPress build.  The
-periodic smoke-test calculation is <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>.</p>
+periodic smoke-test calculation is <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>.</p>
 <p>The repository’s GPAW site-configuration template
 (<code class="docutils literal notranslate"><span class="pre">.github/workflows/gpaw_siteconfig.py</span></code>) illustrates an MKL/MPI build.
 Adapt its compiler and launcher settings to the local environment.  CiderPress
 0.5.0 supports the classic GPAW calculator; <code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code> is outside this
 release interface.</p>
-<p>Continue with <a class="reference internal" href="../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.  See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Paths and Limitations</span></a> for
+<p>Continue with <a class="reference internal" href="../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.  See <a class="reference internal" href="../reference/limitations.html"><span class="doc">Supported Use and Limitations</span></a> for
 the supported calculation and property scope.</p>
 </section>
 </section>

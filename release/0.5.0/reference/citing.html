@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Supported Paths and Limitations" href="limitations.html" /> 
+    <link rel="prev" title="Supported Use and Limitations" href="limitations.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,7 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -74,7 +74,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Citing CIDER and CiderPress</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#cider23x-and-molecular-periodic-nldf-evaluation">CIDER23X and molecular/periodic NLDF evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cider24x-and-sdmx-eigenvalue-training">CIDER24X and SDMX/eigenvalue training</a></li>
@@ -111,21 +111,26 @@
   <section id="citing-cider-and-ciderpress">
 <h1>Citing CIDER and CiderPress<a class="headerlink" href="#citing-cider-and-ciderpress" title="Link to this heading"></a></h1>
 <p>Choose citations according to the functional family and feature methodology
-used in the calculation.</p>
+used in the calculation. Also make sure to cite
+<a class="reference external" href="https://pyscf.org/about.html">PySCF</a> <a class="footnote-reference brackets" href="#footcite-sunrecentdevelopmentspyscf2020a" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>,
+since it is integral to the code, and make sure to cite
+<a class="reference external" href="https://gpaw.readthedocs.io/faq.html">GPAW</a> <a class="footnote-reference brackets" href="#footcite-mortensengpawopenpython2024" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>
+if you use the GPAW calculation interface. See the respective codes’
+websites for how to cite them.</p>
 <section id="cider23x-and-molecular-periodic-nldf-evaluation">
 <h2>CIDER23X and molecular/periodic NLDF evaluation<a class="headerlink" href="#cider23x-and-molecular-periodic-nldf-evaluation" title="Link to this heading"></a></h2>
-<p>Cite Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> for CIDER23X models and for the molecular or
+<p>Cite Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> for CIDER23X models and for the molecular or
 PAW/FFT implementations of NLDF evaluation.</p>
 </section>
 <section id="cider24x-and-sdmx-eigenvalue-training">
 <h2>CIDER24X and SDMX/eigenvalue training<a class="headerlink" href="#cider24x-and-sdmx-eigenvalue-training" title="Link to this heading"></a></h2>
 <p>For CIDER24X models, SDMX descriptors, or the orbital-energy training
-framework, additionally cite Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+framework, additionally cite Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="cider26xc">
 <h2>CIDER26XC<a class="headerlink" href="#cider26xc" title="Link to this heading"></a></h2>
 <p>The CIDER26XC packaged models are described in the forthcoming manuscript
-Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+Abdallah <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
 </section>
 <section id="citing-the-software">
 <h2>Citing the software<a class="headerlink" href="#citing-the-software" title="Link to this heading"></a></h2>
@@ -135,18 +140,26 @@ and the version used (for example, CiderPress 0.5.0).</p>
 <p>Also cite the host electronic-structure code and any separately evaluated
 method such as D4.  Packaged model names and checksums are listed in
 <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
-<div class="docutils container" id="id4">
+<div class="docutils container" id="id6">
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<aside class="footnote brackets" id="footcite-sunrecentdevelopmentspyscf2020a" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Qiming Sun, Xing Zhang, Samragni Banerjee, Peng Bao, Marc Barbry, Nick S. Blunt, Nikolay A. Bogdanov, George H. Booth, Jia Chen, Zhi-Hao Cui, Janus J. Eriksen, Yang Gao, Sheng Guo, Jan Hermann, Matthew R. Hermes, Kevin Koh, Peter Koval, Susi Lehtola, Zhendong Li, Junzi Liu, Narbe Mardirossian, James D. McClain, Mario Motta, Bastien Mussard, Hung Q. Pham, Artem Pulkin, Wirawan Purwanto, Paul J. Robinson, Enrico Ronca, Elvira R. Sayfutyarova, Maximilian Scheurer, Henry F. Schurkus, James E. T. Smith, Chong Sun, Shi-Ning Sun, Shiv Upadhyay, Lucas K. Wagner, Xiao Wang, Alec White, James Daniel Whitfield, Mark J. Williamson, Sebastian Wouters, Jun Yang, Jason M. Yu, Tianyu Zhu, Timothy C. Berkelbach, Sandeep Sharma, Alexander Yu. Sokolov, and Garnet Kin-Lic Chan. Recent developments in the PySCF program package. <em>The Journal of Chemical Physics</em>, 153(2):024109, July 2020. <a class="reference external" href="https://doi.org/10.1063/5.0006074">doi:10.1063/5.0006074</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-mortensengpawopenpython2024" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Jens Jørgen Mortensen, Ask Hjorth Larsen, Mikael Kuisma, Aleksei V. Ivanov, Alireza Taghizadeh, Andrew Peterson, Anubhab Haldar, Asmus Ougaard Dohn, Christian Schäfer, Elvar Örn Jónsson, Eric D. Hermes, Fredrik Andreas Nilsson, Georg Kastlunger, Gianluca Levi, Hannes Jónsson, Hannu Häkkinen, Jakub Fojt, Jiban Kangsabanik, Joachim Sødequist, Jouko Lehtomäki, Julian Heske, Jussi Enkovaara, Kirsten Trøstrup Winther, Marcin Dulak, Marko M. Melander, Martin Ovesen, Martti Louhivuori, Michael Walter, Morten Gjerding, Olga Lopez-Acevedo, Paul Erhart, Robert Warmbier, Rolf Würdemann, Sami Kaappa, Simone Latini, Tara Maria Boland, Thomas Bligaard, Thorbjørn Skovhus, Toma Susi, Tristan Maxson, Tuomas Rossi, Xi Chen, Yorick Leonard A. Schmerwitz, Jakob Schiøtz, Thomas Olsen, Karsten Wedel Jacobsen, and Kristian Sommer Thygesen. GPAW: An open Python package for electronic structure calculations. <em>The Journal of Chemical Physics</em>, 160(9):092503, March 2024. <a class="reference external" href="https://doi.org/10.1063/5.0182685">doi:10.1063/5.0182685</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
 <p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
 </aside>
 <aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
 <p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
 </aside>
 </aside>
@@ -158,7 +171,7 @@ method such as D4.  Packaged model names and checksums are listed in
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="limitations.html" class="btn btn-neutral float-left" title="Supported Paths and Limitations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="limitations.html" class="btn btn-neutral float-left" title="Supported Use and Limitations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

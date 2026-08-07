@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -91,7 +91,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -133,7 +133,7 @@ use is a surrogate-hybrid construction</p>
 <p>with <span class="math notranslate nohighlight">\(a=0.25\)</span> for the PBE0-surrogate form used in the corresponding
 work.  The mixing fraction and external semilocal terms are part of the
 functional definition.  They must be supplied explicitly when an
-exchange-only model is initialized. Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+exchange-only model is initialized. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-cider24x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
 </section>
 <section id="cider26xc-functional-form">
 <h2>CIDER26XC functional form<a class="headerlink" href="#cider26xc-functional-form" title="Link to this heading"></a></h2>
@@ -151,8 +151,9 @@ PBE baseline and learned exchange and correlation corrections,</p>
   \mathbf{X}^{\mathrm{c}}_\sigma\right).\]</div>
 <p>Exchange is evaluated separately for the two spin channels.  Correlation uses
 a spin-coupled PBE multiplier and the spin-averaged CIDER feature vector.  The
-exchange descriptors are scale invariant; correlation additionally receives
-density information to represent correlation’s nonhomogeneous scaling.</p>
+exchange descriptors are scale invariant.  Correlation additionally receives
+density information to learn its nontrivial behavior under uniform coordinate
+scaling; see <a class="reference internal" href="uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>.</p>
 <p>The YAML model contains its additive PBE contributions.  The corresponding
 GPAW construction uses <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">xkernel=None</span></code>, and <code class="docutils literal notranslate"><span class="pre">ckernel=None</span></code>.
 CiderPress validates this composition so that the stored full-XC form is
@@ -165,7 +166,7 @@ call.</p>
 the scale-invariant semilocal descriptors and the three version-j nonlocal
 density features used by the CIDER23X nonlocal meta-GGA models
 (<a class="reference internal" href="../features/sl.html"><span class="doc">Semilocal Features (SL)</span></a> and <a class="reference internal" href="../features/nldf.html"><span class="doc">Nonlocal Density Features (NLDF)</span></a>).  CIDER26XC represents
-the iso-orbital information with the bounded indicator</p>
+the kinetic-energy information with the bounded indicator</p>
 <div class="math notranslate nohighlight">
 \[t = \frac{\tau-\tau_0}{\tau+\tau_0},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\tau\)</span> is the kinetic-energy density and <span class="math notranslate nohighlight">\(\tau_0\)</span> its
@@ -180,9 +181,9 @@ descriptor, the two carry the same iso-orbital information.</p>
 one additional descriptor, the density itself, written <span class="math notranslate nohighlight">\(X_6 = n\)</span> in the
 CIDER26XC work.  In the serialized correlation feature list it follows the
 semilocal descriptors and precedes the nonlocal density features.  The
-scale-invariant features enforce the exchange scaling constraint, while
-correlation obeys no such rule, so the correlation model receives the density
-explicitly.</p>
+scale-invariant features enforce the exchange uniform-coordinate-scaling
+constraint.  The density descriptor lets the correlation model represent its
+different uniform-coordinate-scaling behavior.</p>
 <p>Before entering the Gaussian-process kernel, every feature is mapped onto a
 finite interval by the bounded transforms stored in the serialized model
 (implemented in
@@ -210,12 +211,10 @@ data expected by CiderPress.</p>
 <section id="optional-long-range-correction">
 <h2>Optional long-range correction<a class="headerlink" href="#optional-long-range-correction" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> was trained with a D4 term removed from each target and
-therefore adds the same term back when the model is evaluated.  D4 is evaluated
-from nuclear geometry after the density SCF.  The potential and density are
-those of the electronic CIDER model.  The PySCF interface records the base
-energy, expected D4 energy, any correction already present on the incoming
-object, and the final adjustment so that the correction is included exactly
-once.</p>
+adds the same term when the model is evaluated.  D4 depends on the nuclear
+geometry and does not enter the electronic SCF potential.  The PySCF interface
+includes the correction exactly once in the total energy and adds its
+analytical nuclear derivative to molecular gradients.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> uses its learned electronic XC contribution.
 <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> combines that learned contribution with the D4 term
 described above, which supplies an explicit long-range asymptote.</p>

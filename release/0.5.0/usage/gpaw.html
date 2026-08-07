@@ -65,7 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -86,7 +86,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -116,7 +116,8 @@
              
   <section id="periodic-and-isolated-calculations-with-gpaw">
 <h1>Periodic and Isolated Calculations with GPAW<a class="headerlink" href="#periodic-and-isolated-calculations-with-gpaw" title="Link to this heading"></a></h1>
-<p>CiderPress integrates with the classic GPAW calculator in plane-wave mode.
+<p>CiderPress integrates with the classic GPAW <a class="footnote-reference brackets" href="#footcite-mortensengpawopenpython2024" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+calculator in plane-wave mode.
 The supported route uses PAW setups so the nonlocal descriptors include the
 all-electron core-region information described in
 <a class="reference internal" href="../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a>.</p>
@@ -145,6 +146,48 @@ composition:</p>
 </div>
 <p>The GPAW interface evaluates NLDF models.  CIDER24X uses the PySCF SDMX path,
 and CIDER26XCCHEMD4 uses the PySCF D4 energy interface.</p>
+<p>The CIDER23X pseudopotential route used in earlier band-gap work remains
+available for methodological reproduction:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;CIDER23X pseudopotential calculation for methodological reproduction.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">bulk</span>
+<span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">PW</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">12</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">)</span>
+<span class="linenos">13</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">14</span>        <span class="s2">&quot;CIDER23X_NL_MGGA_DTR&quot;</span><span class="p">,</span>
+<span class="linenos">15</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+<span class="linenos">16</span>        <span class="n">xkernel</span><span class="o">=</span><span class="s2">&quot;GGA_X_PBE&quot;</span><span class="p">,</span>
+<span class="linenos">17</span>        <span class="n">ckernel</span><span class="o">=</span><span class="s2">&quot;GGA_C_PBE&quot;</span><span class="p">,</span>
+<span class="linenos">18</span>        <span class="n">use_paw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">19</span>    <span class="p">)</span>
+<span class="linenos">20</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">21</span>        <span class="n">mode</span><span class="o">=</span><span class="n">PW</span><span class="p">(</span><span class="mi">520</span><span class="p">),</span>
+<span class="linenos">22</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">23</span>        <span class="n">setups</span><span class="o">=</span><span class="s2">&quot;sg15&quot;</span><span class="p">,</span>
+<span class="linenos">24</span>        <span class="n">h</span><span class="o">=</span><span class="mf">0.13</span><span class="p">,</span>
+<span class="linenos">25</span>        <span class="n">kpts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+<span class="linenos">26</span>        <span class="n">occupations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
+<span class="linenos">27</span>        <span class="n">convergence</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">},</span>
+<span class="linenos">28</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">29</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider23_pp.txt&quot;</span><span class="p">,</span>
+<span class="linenos">30</span>    <span class="p">)</span>
+<span class="linenos">31</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">32</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CIDER23X pseudopotential energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+<span class="linenos">33</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">36</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The production CIDER26XC route uses PAW so its nonlocal descriptors include
+the all-electron augmentation-region contribution.</p>
 </section>
 <section id="pbe-seeded-periodic-workflow">
 <h2>PBE-seeded periodic workflow<a class="headerlink" href="#pbe-seeded-periodic-workflow" title="Link to this heading"></a></h2>
@@ -418,7 +461,7 @@ the functional for the resumed calculation.</p>
 <p>ASE’s normal <code class="docutils literal notranslate"><span class="pre">get_forces()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_stress()</span></code> calls include the CIDER FFT
 and PAW derivative contributions for the supported PAW path.  See
 <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>, which includes the complete
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/gpaw/forces_stress.py">examples/gpaw/forces_stress.py</a> template.</p>
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/gpaw/forces_stress.py">examples/gpaw/forces_stress.py</a> template.</p>
 </section>
 <section id="pasdw-and-interpolation-controls">
 <h2>PASDW and interpolation controls<a class="headerlink" href="#pasdw-and-interpolation-controls" title="Link to this heading"></a></h2>
@@ -442,9 +485,17 @@ OpenMP runtimes.</p>
 </section>
 <section id="scf-strategy">
 <h2>SCF strategy<a class="headerlink" href="#scf-strategy" title="Link to this heading"></a></h2>
-<p><a class="reference internal" href="convergence.html"><span class="doc">SCF Fallback Settings</span></a> lists the mixer, eigensolver, occupation, and restart
+<p><a class="reference internal" href="convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a> lists the mixer, eigensolver, occupation, and restart
 settings used by the bulk, surface, isolated-system, and magnetic fallback
 examples.</p>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-mortensengpawopenpython2024" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Jens Jørgen Mortensen, Ask Hjorth Larsen, Mikael Kuisma, Aleksei V. Ivanov, Alireza Taghizadeh, Andrew Peterson, Anubhab Haldar, Asmus Ougaard Dohn, Christian Schäfer, Elvar Örn Jónsson, Eric D. Hermes, Fredrik Andreas Nilsson, Georg Kastlunger, Gianluca Levi, Hannes Jónsson, Hannu Häkkinen, Jakub Fojt, Jiban Kangsabanik, Joachim Sødequist, Jouko Lehtomäki, Julian Heske, Jussi Enkovaara, Kirsten Trøstrup Winther, Marcin Dulak, Marko M. Melander, Martin Ovesen, Martti Louhivuori, Michael Walter, Morten Gjerding, Olga Lopez-Acevedo, Paul Erhart, Robert Warmbier, Rolf Würdemann, Sami Kaappa, Simone Latini, Tara Maria Boland, Thomas Bligaard, Thorbjørn Skovhus, Toma Susi, Tristan Maxson, Tuomas Rossi, Xi Chen, Yorick Leonard A. Schmerwitz, Jakob Schiøtz, Thomas Olsen, Karsten Wedel Jacobsen, and Kristian Sommer Thygesen. GPAW: An open Python package for electronic structure calculations. <em>The Journal of Chemical Physics</em>, 160(9):092503, March 2024. <a class="reference external" href="https://doi.org/10.1063/5.0182685">doi:10.1063/5.0182685</a>.</p>
+</aside>
+</aside>
+</div>
 </section>
 </section>
 

@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -87,7 +87,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -153,7 +153,7 @@ high-density limits<a class="footnote-reference brackets" href="#footcite-kaplan
 \lim_{\lambda\rightarrow \infty} E_\text{c}[n_\lambda] &amp;&gt; -\infty\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathcal{C}_0[n]\)</span> is a density functional that does not depend
 on <span class="math notranslate nohighlight">\(\lambda\)</span>.</p>
-<p>A scale-invariant feature vector satisfies</p>
+<p>A <em>scale-invariant</em> feature vector satisfies</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{x}[n_\lambda](\mathbf{r}) = \mathbf{x}[n](\lambda \mathbf{r})\]</div>
 <p>An exchange functional of the form</p>

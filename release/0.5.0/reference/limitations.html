@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Supported Paths and Limitations &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Supported Use and Limitations &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -75,7 +75,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Paths and Limitations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -93,7 +93,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Supported Paths and Limitations</li>
+      <li class="breadcrumb-item active">Supported Use and Limitations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/reference/limitations.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -103,28 +103,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="supported-paths-and-limitations">
-<h1>Supported Paths and Limitations<a class="headerlink" href="#supported-paths-and-limitations" title="Link to this heading"></a></h1>
-<p>The following boundaries define the documented backend, feature, and property
+  <section id="supported-use-and-limitations">
+<h1>Supported Use and Limitations<a class="headerlink" href="#supported-use-and-limitations" title="Link to this heading"></a></h1>
+<p>The following conditions apply to the documented backend, feature, and property
 interfaces in this release.</p>
 <ul class="simple">
-<li><p>CiderPress 0.5.0 supports the classic GPAW calculator.  <code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code> is
-outside this release interface.</p></li>
+<li><p>CiderPress supports the classic GPAW calculator.  The <code class="docutils literal notranslate"><span class="pre">gpaw.new</span></code> interface
+is not implemented in this release.</p></li>
 <li><p>The supported periodic CIDER26XC route is plane-wave mode with PAW setups.
 PAW supplies the all-electron information needed by its nonlocal features.</p></li>
 <li><p>GPAW implements version-j NLDF models.  CIDER24X SDMX models use PySCF.</p></li>
 <li><p>CIDER24X requires PyTorch and is evaluated through PySCF.  Periodic PySCF
-SDMX support covers methodological reproduction of the CIDER24X work.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the PySCF interface.  Its D4 contribution enters the
-energy; molecular gradients contain the electronic CIDER contribution.</p></li>
+SDMX support is intended primarily for methodological reproduction
+of the CIDER24X work. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> Periodic PySCF calculations
+with SDMX use pseudopotentials and uniform grids.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the PySCF interface.  Its total energy and analytical
+molecular gradient both include the D4 correction.  CiderPress raises an
+error for gradients when a model requests the unsupported D3 or nonlocal-
+correlation post-density modes.</p></li>
 <li><p>The PySCF CIDER decorator provides SCF energies and the gradients listed in
 <a class="reference internal" href="../usage/properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  Hessians, NMR, polarizability,
-post-Hartree–Fock methods, and related response interfaces are outside its
-scope.</p></li>
-<li><p>Newton/SOSCF is outside the CIDER PySCF numerical integration path for all
+post-Hartree–Fock methods, and related response interfaces are not
+implemented currently.</p></li>
+<li><p>Newton/SOSCF is not implemented for CIDER PySCF calculations for all
 packaged families: the CIDER <code class="docutils literal notranslate"><span class="pre">NumInt</span></code> leaves the <code class="docutils literal notranslate"><span class="pre">fxc</span></code> and
 <code class="docutils literal notranslate"><span class="pre">cache_xc_kernel</span></code> entry points that second-order SCF requires
-unimplemented.  Use the DIIS methods in <a class="reference internal" href="../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a>.</p></li>
+unimplemented.  Use the DIIS methods in <a class="reference internal" href="../usage/convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a>.</p></li>
 <li><p>Nonlocal features add memory and communication overhead.  GPAW exposes
 augmented-grid parallelization through
 <code class="docutils literal notranslate"><span class="pre">parallel={&quot;augment_grids&quot;:</span> <span class="pre">True}</span></code>.</p></li>
@@ -132,7 +136,15 @@ augmented-grid parallelization through
 Other feature classes in the source tree are experimental.</p></li>
 </ul>
 <p>Concrete restart controls for open-shell, near-degenerate, metallic, and
-magnetic calculations are listed in <a class="reference internal" href="../usage/convergence.html"><span class="doc">SCF Fallback Settings</span></a>.</p>
+magnetic calculations are listed in <a class="reference internal" href="../usage/convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a>.</p>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+</aside>
+</aside>
+</div>
 </section>
 
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SCF Fallback Settings &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Handling SCF Convergence Issues &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">SCF Fallback Settings</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Handling SCF Convergence Issues</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#pyscf-restart-ladder">PySCF restart ladder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gpaw-reference-settings">GPAW reference settings</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#bounded-rmm-diis-steps">Bounded RMM-DIIS steps</a></li>
@@ -84,7 +84,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -102,7 +102,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">SCF Fallback Settings</li>
+      <li class="breadcrumb-item active">Handling SCF Convergence Issues</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/usage/convergence.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -112,14 +112,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="scf-fallback-settings">
-<h1>SCF Fallback Settings<a class="headerlink" href="#scf-fallback-settings" title="Link to this heading"></a></h1>
+  <section id="handling-scf-convergence-issues">
+<h1>Handling SCF Convergence Issues<a class="headerlink" href="#handling-scf-convergence-issues" title="Link to this heading"></a></h1>
 <p>The CIDER interfaces use the SCF algorithms supplied by PySCF and GPAW.  This
-page collects the fallback settings used by the runnable examples, with the
-selected CIDER model and feature representation held fixed.</p>
+page collects settings for calculations that do not converge with the usual
+SCF controls.  The runnable examples keep the selected CIDER model and feature
+representation fixed while changing the SCF algorithm and initial density.</p>
 <section id="pyscf-restart-ladder">
 <h2>PySCF restart ladder<a class="headerlink" href="#pyscf-restart-ladder" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/pyscf/restart_calc.py">examples/pyscf/restart_calc.py</a> implements a molecular restart
+<p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/pyscf/restart_calc.py">examples/pyscf/restart_calc.py</a> implements a molecular restart
 ladder for restricted or unrestricted calculations.  It first evaluates a
 PBE density for the same PySCF <code class="docutils literal notranslate"><span class="pre">Mole</span></code> object and then tries the following
 CIDER controls with both the PBE density and PySCF’s atomic initial guess:</p>
@@ -190,7 +191,7 @@ CIDER controls with both the PBE density and PySCF’s atomic initial guess:</p>
 <p>When a relaxed rung converges, the example starts one final <code class="docutils literal notranslate"><span class="pre">cdiis8</span></code>
 calculation from its density.  Each attempt writes a separate checkpoint.
 The PySCF CIDER26XC integration supports the conventional DIIS methods used
-here; Newton/SOSCF is outside this integration path.</p>
+here; Newton/SOSCF is not currently implemented for CIDER functionals.</p>
 </section>
 <section id="gpaw-reference-settings">
 <h2>GPAW reference settings<a class="headerlink" href="#gpaw-reference-settings" title="Link to this heading"></a></h2>
@@ -217,17 +218,17 @@ meta-GGA kinetic-energy density.</p>
 <tr class="row-even"><td><p>Bulk Si</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
-<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a></p></td>
+<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>CO/Pt(111)</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.03,</span> <span class="pre">5,</span> <span class="pre">100)</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.1</span> <span class="pre">eV</span></code></p></td>
-<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/gpaw/surface_calc.py">examples/gpaw/surface_calc.py</a></p></td>
+<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/gpaw/surface_calc.py">examples/gpaw/surface_calc.py</a></p></td>
 </tr>
 <tr class="row-even"><td><p>Isolated He</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Mixer(0.05,</span> <span class="pre">5,</span> <span class="pre">50)</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0.01</span> <span class="pre">eV</span></code></p></td>
-<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/main/examples/gpaw/isolated_calc.py">examples/gpaw/isolated_calc.py</a></p></td>
+<td><p><a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/gpaw/isolated_calc.py">examples/gpaw/isolated_calc.py</a></p></td>
 </tr>
 </tbody>
 </table>

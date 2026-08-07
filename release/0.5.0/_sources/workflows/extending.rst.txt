@@ -32,11 +32,11 @@ Adding or modifying a feature
    transpose of the forward operation rather than an approximation to it.
 3. Add the matching normalizer and bounded transform, keeping the same
    feature order used during training.
-4. Connect the plan to each intended backend, and raise at construction time
+4. Connect the plan to each intended backend, and raise an error at construction time
    in the backends that cannot evaluate it.  :func:`~ciderpress.gpaw.calculator.get_cider_functional`
    shows the pattern: it rejects SDMX and non-version-j NLDF models rather
    than failing later in the SCF.
-5. Check feature values, finite differences, spin exchange symmetry,
+5. Check feature values, finite difference derivatives, spin exchange symmetry,
    low-density behavior, and a serialization round trip before fitting a
    model.
 
@@ -48,11 +48,12 @@ model.  A new molecular feature must work for restricted and unrestricted
 density layouts and, if gradients are claimed, through the grid and orbital
 response path.
 
-GPAW separates smooth-grid evaluation from atom-centered PAW corrections.  A
-new nonlocal PAW feature requires matching all-electron and pseudo forward
+In GPAW, which uses the PAW formalism, nonlocal features contain contributions
+from the smooth pseudo-density, handled on a uniform grid, and the compact atomic
+core density, handled on radial support grids around the atoms. Therefore, introducing a
+new nonlocal feature requires matching all-electron and pseudo forward
 terms, PASDW transfer, potential back-propagation, and any claimed force or
-stress derivative.  Separate smooth-grid and PAW tests localize a disagreement
-to the relevant layer.
+stress derivative.  See :doc:`../ciderpress/gpaw/numerical` for details.
 
 PAW and interpolation invariants
 --------------------------------

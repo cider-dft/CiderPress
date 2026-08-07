@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -89,7 +89,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -121,8 +121,9 @@
   <section id="training-and-mapping-workflow">
 <h1>Training and Mapping Workflow<a class="headerlink" href="#training-and-mapping-workflow" title="Link to this heading"></a></h1>
 <p>CiderPress supplies feature, covariance, fitting, and mapping primitives for
-constructing CIDER models.  Reference calculations, dataset assembly, and job
-scheduling are external to the model layer.</p>
+constructing CIDER models with Gaussian process regression.
+Reference calculations, dataset assembly, and job scheduling
+are external to the model layer.</p>
 <section id="electronic-data-expected-by-the-model-layer">
 <h2>Electronic data expected by the model layer<a class="headerlink" href="#electronic-data-expected-by-the-model-layer" title="Link to this heading"></a></h2>
 <p>For each electronic system, the training layer consumes arrays generated with
@@ -130,10 +131,10 @@ one consistent feature definition:</p>
 <ul class="simple">
 <li><p>quadrature weights and spin-resolved semilocal density ingredients;</p></li>
 <li><p>normalized descriptor blocks in their serialized order;</p></li>
-<li><p>total-energy and XC baseline terms used to form the target;</p></li>
-<li><p>exact-exchange values when exchange is an explicit target;</p></li>
+<li><p>total-energy and XC baseline terms used to form the training target;</p></li>
+<li><p>exact-exchange values when exchange is an explicit training target;</p></li>
 <li><p>orbital-occupation derivatives when eigenvalue data are included; and</p></li>
-<li><p>optional correction values and metadata associated with the reference.</p></li>
+<li><p>optional correction values and metadata associated with the reference calculation.</p></li>
 </ul>
 <p><a class="reference internal" href="../ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer" title="ciderpress.pyscf.analyzers.ElectronAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronAnalyzer</span></code></a> and the descriptor tools
 in <a class="reference internal" href="descriptors.html"><span class="doc">Inspecting Densities and Descriptors</span></a> provide these electronic arrays.  Their stored geometry,
@@ -142,11 +143,22 @@ orbital conventions define the metadata of a system record.</p>
 </section>
 <section id="integrated-observations">
 <h2>Integrated observations<a class="headerlink" href="#integrated-observations" title="Link to this heading"></a></h2>
-<p>CIDER fits integrated energies and their linear combinations.  A reaction
+<p>CIDER fits integrated energies and their linear combinations (as opposed to
+the energy densities directly predicted by the model).  This allows one to
+fit the total XC energies of chemical systems and relative energies of chemical
+systems, which can be applied to fitting reaction energies, barrier heights,
+interaction energies, equations of state, ionization potentials, and more.
+In CiderPress, all these properties are expressed as linear combinations
+of the energies of chemical systems and referred to as “reactions.” A reaction
 record gives the member identifiers, stoichiometric coefficients, reference
 energy, unit conversion, and observation noise.  The model evaluates the
 explicit Kohn–Sham and additive baseline contributions on the same systems,
 then fits the residual assigned to the learned component.</p>
+<p>It is also possible to fit the derivative of a system’s energy with respect
+the occupation number of a given Kohn-Sham orbital (along with linear
+combinations of these derivatives) within the same reaction framework
+described above. This approach enables
+direct fitting of orbital properties like band gaps. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
 <p>A <a class="reference internal" href="../ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel" title="ciderpress.models.dft_kernel.DFTKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFTKernel</span></code></a> couples transformed
 descriptors to a differentiable covariance kernel, an energy multiplier, an
 additive baseline, and a control-point set.  <code class="docutils literal notranslate"><span class="pre">DFTKernel2</span></code> supplies the
@@ -188,7 +200,7 @@ workflow can regenerate those quantities on densities produced by the current
 model and refit the GP.  Comparisons between fixed-density and
 self-consistent predictions measure convergence of that outer procedure.</p>
 <p>The CIDER26XC work uses this approach together with reaction-specific noise
-and uniform-electron-gas constraints. <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>  Dataset
+and uniform-electron-gas constraints. <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>  Dataset
 selection, weighting policy, hyperparameter selection, and stopping criteria
 are inputs supplied by the surrounding training workflow.</p>
 </section>
@@ -203,10 +215,14 @@ adds a stable filename and checksum.</p>
 <a class="reference internal" href="../ciderpress/models/dft_kernel.html#module-ciderpress.models.dft_kernel" title="ciderpress.models.dft_kernel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.dft_kernel</span></code></a>,
 <a class="reference internal" href="../ciderpress/models/kernels.html#module-ciderpress.models.kernels" title="ciderpress.models.kernels"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.kernels</span></code></a>, and
 <a class="reference internal" href="../ciderpress/models/kernel_tools.html#module-ciderpress.models.kernel_plans.kernel_tools" title="ciderpress.models.kernel_plans.kernel_tools"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.kernel_plans.kernel_tools</span></code></a>.</p>
-<div class="docutils container" id="id2">
+<div class="docutils container" id="id3">
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
 </aside>
 </aside>

@@ -37,15 +37,18 @@ with weight vector
 
 .. math:: \boldsymbol{\alpha} = \left(\mathbf{K} + \boldsymbol{\Sigma}_\text{noise}\right)^{-1} \mathbf{y}
 
-For molecular and solid-state energies, each observation is an integral of
-the local predictive function.
+For molecular and solid-state training, the observations are extensive
+quantities obtained by integrating a local predictive function over real
+space.  This changes the covariance construction because each label couples
+all quadrature points in one chemical system.
 
 Fitting Total Energy Data
 -------------------------
 
-Let :math:`F` be an exchange, correlation, or exchange-correlation
-contribution to the total electronic energy.  CIDER represents it as a
-baseline energy density multiplied by a learned enhancement factor:
+Consider an extensive quantity :math:`F` that contributes to the electronic
+energy of a chemical system.  In CiderPress, :math:`F` can be an exchange,
+correlation, or exchange-correlation contribution.  The regression learns a
+dimensionless function that is integrated with a baseline energy density:
 
 .. math::
 
@@ -103,8 +106,9 @@ the integrated system observations. The predictive mean follows from
    f(\mathbf{x}_*)
    &= \sum_a k(\mathbf{x}_*,\tilde{\mathbf{x}}_a)\alpha_a.
 
-The vector :math:`\mathbf{y}` contains the integrated training labels. In
-:meth:`ciderpress.models.train.MOLGP.fit`, ``Kmm`` is
+The vector :math:`\mathbf{y}` contains the integrated training labels.  This
+construction is implemented by
+:meth:`ciderpress.models.train.MOLGP.fit`: ``Kmm`` is
 :math:`\tilde{\mathbf{K}}`, the columns of ``Kmn`` are
 :math:`\tilde{\mathbf{k}}_m`, ``alpha_new`` is
 :math:`\boldsymbol{\beta}`, and ``kernel.alpha`` contains
@@ -130,12 +134,12 @@ respect to the occupation :math:`f_i^m` gives the corresponding eigenvalue
 The exact particle-number derivatives at an integer electron number
 :math:`N` are :math:`-I` from below and :math:`-A` from above, where
 :math:`I` and :math:`A` are the ionization potential and electron affinity.
-Their derivative discontinuity enters the relation between a neutral-system
-LUMO and :math:`-A` in ordinary Kohn--Sham DFT.
+In pure Kohn--Sham DFT, the difference between the neutral system's lowest
+unoccupied orbital energy and :math:`-A` contains the XC derivative
+discontinuity.
 
-Occupation-derivative labels
-provide valence- and conduction-edge information with this distinction kept
-explicit.  CIDER24X fits derivatives of the target energy contribution,
+Occupation-derivative labels can provide both valence- and conduction-edge
+information.  CIDER24X fits derivatives of the target energy contribution,
 :math:`\partial F/\partial f_i^m`.
 
 For exact exchange :math:`E_\mathrm{x}^\mathrm{exact}`, the occupation
@@ -164,10 +168,14 @@ The density matrix, orbitals, reference derivative, and side of the integer
 particle number must all be defined consistently when constructing such a
 training label.
 
-The occupation derivative of :math:`F` is related to the model energy density
-:math:`f(\mathbf{x})` by
+The occupation derivative must include the response of both the feature
+vector and the multiplicative baseline:
 
-.. math:: \frac{\partial F^m}{\partial f_i^m} = \sum_{g \in m} w_g^m \frac{\partial f(\mathbf{x}_g^m)}{\partial\mathbf{x}_g^m} \cdot \frac{\partial \mathbf{x}_g^m}{\partial f_i^m}
+.. math::
+
+   \frac{\partial F^m}{\partial f_i^m}
+   = \sum_{g\in m}w_g^m\frac{\partial}{\partial f_i^m}
+     \left[e_g^{\mathrm{base}}f(\mathbf{x}_g^m)\right].
 
 Including this label requires its covariance with an integrated energy
 :math:`F^n` or another occupation derivative.  These covariances are
@@ -175,7 +183,10 @@ Including this label requires its covariance with an integrated energy
 .. math::
    \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
    \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
-   \left(\tilde{\mathbf{d}}_{mi}\right)_a &= \sum_{g\in m} w_g^m \frac{\partial \mathbf{x}_g^m}{\partial f_i^m} \cdot \frac{\partial}{\partial \mathbf{x}_g^m} k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)
+   \left(\tilde{\mathbf{d}}_{mi}\right)_a
+   &= \sum_{g\in m}w_g^m\frac{\partial}{\partial f_i^m}
+      \left[e_g^{\mathrm{base}}
+      k(\mathbf{x}_g^m,\tilde{\mathbf{x}}_a)\right]
 
 These covariance blocks place integrated energies and occupation derivatives
 in the same Gaussian-process fit.  The complete occupation-derivative

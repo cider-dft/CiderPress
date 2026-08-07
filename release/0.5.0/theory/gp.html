@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -89,7 +89,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -150,14 +150,17 @@ test point <span class="math notranslate nohighlight">\(\mathbf{x}_*\)</span> is
 <p>with weight vector</p>
 <div class="math notranslate nohighlight">
 \[\boldsymbol{\alpha} = \left(\mathbf{K} + \boldsymbol{\Sigma}_\text{noise}\right)^{-1} \mathbf{y}\]</div>
-<p>For molecular and solid-state energies, each observation is an integral of
-the local predictive function.</p>
+<p>For molecular and solid-state training, the observations are extensive
+quantities obtained by integrating a local predictive function over real
+space.  This changes the covariance construction because each label couples
+all quadrature points in one chemical system.</p>
 </section>
 <section id="fitting-total-energy-data">
 <h2>Fitting Total Energy Data<a class="headerlink" href="#fitting-total-energy-data" title="Link to this heading"></a></h2>
-<p>Let <span class="math notranslate nohighlight">\(F\)</span> be an exchange, correlation, or exchange-correlation
-contribution to the total electronic energy.  CIDER represents it as a
-baseline energy density multiplied by a learned enhancement factor:</p>
+<p>Consider an extensive quantity <span class="math notranslate nohighlight">\(F\)</span> that contributes to the electronic
+energy of a chemical system.  In CiderPress, <span class="math notranslate nohighlight">\(F\)</span> can be an exchange,
+correlation, or exchange-correlation contribution.  The regression learns a
+dimensionless function that is integrated with a baseline energy density:</p>
 <div class="math notranslate nohighlight">
 \[F = \int \mathrm{d}^3\mathbf{r}\,
 e^{\mathrm{base}}(\mathbf{r})\,f\left(\mathbf{x}(\mathbf{r})\right)\]</div>
@@ -202,8 +205,9 @@ the integrated system observations. The predictive mean follows from</p>
    \sum_m \tilde{\mathbf{k}}_m\,\beta_m, \\
 f(\mathbf{x}_*)
 &amp;= \sum_a k(\mathbf{x}_*,\tilde{\mathbf{x}}_a)\alpha_a.\end{split}\]</div>
-<p>The vector <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> contains the integrated training labels. In
-<a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP.fit" title="ciderpress.models.train.MOLGP.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ciderpress.models.train.MOLGP.fit()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">Kmm</span></code> is
+<p>The vector <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> contains the integrated training labels.  This
+construction is implemented by
+<a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP.fit" title="ciderpress.models.train.MOLGP.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ciderpress.models.train.MOLGP.fit()</span></code></a>: <code class="docutils literal notranslate"><span class="pre">Kmm</span></code> is
 <span class="math notranslate nohighlight">\(\tilde{\mathbf{K}}\)</span>, the columns of <code class="docutils literal notranslate"><span class="pre">Kmn</span></code> are
 <span class="math notranslate nohighlight">\(\tilde{\mathbf{k}}_m\)</span>, <code class="docutils literal notranslate"><span class="pre">alpha_new</span></code> is
 <span class="math notranslate nohighlight">\(\boldsymbol{\beta}\)</span>, and <code class="docutils literal notranslate"><span class="pre">kernel.alpha</span></code> contains
@@ -226,11 +230,11 @@ respect to the occupation <span class="math notranslate nohighlight">\(f_i^m\)</
 <p>The exact particle-number derivatives at an integer electron number
 <span class="math notranslate nohighlight">\(N\)</span> are <span class="math notranslate nohighlight">\(-I\)</span> from below and <span class="math notranslate nohighlight">\(-A\)</span> from above, where
 <span class="math notranslate nohighlight">\(I\)</span> and <span class="math notranslate nohighlight">\(A\)</span> are the ionization potential and electron affinity.
-Their derivative discontinuity enters the relation between a neutral-system
-LUMO and <span class="math notranslate nohighlight">\(-A\)</span> in ordinary Kohn–Sham DFT.</p>
-<p>Occupation-derivative labels
-provide valence- and conduction-edge information with this distinction kept
-explicit.  CIDER24X fits derivatives of the target energy contribution,
+In pure Kohn–Sham DFT, the difference between the neutral system’s lowest
+unoccupied orbital energy and <span class="math notranslate nohighlight">\(-A\)</span> contains the XC derivative
+discontinuity.</p>
+<p>Occupation-derivative labels can provide both valence- and conduction-edge
+information.  CIDER24X fits derivatives of the target energy contribution,
 <span class="math notranslate nohighlight">\(\partial F/\partial f_i^m\)</span>.</p>
 <p>For exact exchange <span class="math notranslate nohighlight">\(E_\mathrm{x}^\mathrm{exact}\)</span>, the occupation
 derivative can be evaluated explicitly for a given set of orbitals.  A full
@@ -252,16 +256,21 @@ derivative, the XC part follows by subtracting the explicit non-XC derivative:</
 <p>The density matrix, orbitals, reference derivative, and side of the integer
 particle number must all be defined consistently when constructing such a
 training label.</p>
-<p>The occupation derivative of <span class="math notranslate nohighlight">\(F\)</span> is related to the model energy density
-<span class="math notranslate nohighlight">\(f(\mathbf{x})\)</span> by</p>
+<p>The occupation derivative must include the response of both the feature
+vector and the multiplicative baseline:</p>
 <div class="math notranslate nohighlight">
-\[\frac{\partial F^m}{\partial f_i^m} = \sum_{g \in m} w_g^m \frac{\partial f(\mathbf{x}_g^m)}{\partial\mathbf{x}_g^m} \cdot \frac{\partial \mathbf{x}_g^m}{\partial f_i^m}\]</div>
+\[\frac{\partial F^m}{\partial f_i^m}
+= \sum_{g\in m}w_g^m\frac{\partial}{\partial f_i^m}
+  \left[e_g^{\mathrm{base}}f(\mathbf{x}_g^m)\right].\]</div>
 <p>Including this label requires its covariance with an integrated energy
 <span class="math notranslate nohighlight">\(F^n\)</span> or another occupation derivative.  These covariances are</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &amp;= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
 \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &amp;= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
-\left(\tilde{\mathbf{d}}_{mi}\right)_a &amp;= \sum_{g\in m} w_g^m \frac{\partial \mathbf{x}_g^m}{\partial f_i^m} \cdot \frac{\partial}{\partial \mathbf{x}_g^m} k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)\end{split}\]</div>
+\left(\tilde{\mathbf{d}}_{mi}\right)_a
+&amp;= \sum_{g\in m}w_g^m\frac{\partial}{\partial f_i^m}
+   \left[e_g^{\mathrm{base}}
+   k(\mathbf{x}_g^m,\tilde{\mathbf{x}}_a)\right]\end{split}\]</div>
 <p>These covariance blocks place integrated energies and occupation derivatives
 in the same Gaussian-process fit.  The complete occupation-derivative
 derivation is given in Bystrom <em>et al.</em><a class="footnote-reference brackets" href="#footcite-cider24x" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>

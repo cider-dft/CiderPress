@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -90,7 +90,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -155,7 +155,7 @@ calculation that returns the NLDF contribution to the XC potential.</p>
 \[k(a,b,R)=\exp[-(a+b)R^2]
 =\exp(-aR^2)\exp(-bR^2).\]</div>
 <p><a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFGaussianPlan" title="ciderpress.dft.plans.NLDFGaussianPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a> represents the exponent
-dependence in the auxiliary Gaussian basis.
+dependence in an auxiliary Gaussian basis.
 <a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a> uses spline interpolation on a
 dense exponent coordinate.  The packaged molecular models use the spline
 plan.  Both plans implement the same raw feature definitions and provide

@@ -63,7 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -84,7 +84,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -223,7 +223,8 @@ functional.</p>
 <section id="cider24x-sdmx-exchange-models">
 <h2>CIDER24X SDMX exchange models<a class="headerlink" href="#cider24x-sdmx-exchange-models" title="Link to this heading"></a></h2>
 <p>The CIDER24X models use smoothed density-matrix exchange descriptors and a
-mapped neural evaluator.  Install their optional runtime before loading them:</p>
+mapped neural evaluator.  Install their optional PyTorch dependency before
+loading them:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;ciderpress[cider24]&#39;</span>
 </pre></div>
 </div>
@@ -305,10 +306,10 @@ GPAW raises an error.</p>
 <p>D4 is evaluated from the geometry after the density SCF, so it changes the
 total energy but not the CIDER potential or density.  CiderPress adds the
 term the model was trained with exactly once, whether or not a dispersion
-wrapper is already attached to the SCF object.  The runtime attributes that
+wrapper is already attached to the SCF object.  The calculation attributes that
 record this are documented in <a class="reference internal" href="pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a>.</p>
-<p>The D4 term is absent from the current nuclear gradient; see
-<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> before using derivative-based workflows.</p>
+<p>The analytical molecular gradient includes the corresponding D4 derivative;
+the complete gradient interface is documented in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.</p>
 </section>
 <section id="loading-rules-and-model-trust">
 <h2>Loading rules and model trust<a class="headerlink" href="#loading-rules-and-model-trust" title="Link to this heading"></a></h2>

@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Smoothed Density-Matrix Exchange Features" href="sdmx.html" />
+    <link rel="next" title="Smoothed Density Matrix Exchange (SDMX)" href="sdmx.html" />
     <link rel="prev" title="Semilocal Features (SL)" href="sl.html" /> 
 </head>
 
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -70,7 +70,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#version-k">Version K</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density-Matrix Exchange Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 </ul>
 </li>
 </ul>
@@ -90,7 +90,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -127,20 +127,22 @@ each integration point.  A fixed-kernel convolution has the form</p>
 \[G[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
 k(\mathbf{r}-\mathbf{r}') n(\mathbf{r}')\]</div>
 <p>An exponentially decaying fixed kernel introduces a dimensional length scale
-that conflicts with uniform coordinate scaling.  CIDER uses density-dependent
-kernel exponents.  For a scaled
+that conflicts with uniform coordinate scaling.  CIDER instead uses
+density-dependent kernel exponents.  For a scaled
 density <span class="math notranslate nohighlight">\(n_\lambda(\mathbf{r})=\lambda^3 n(\lambda\mathbf{r})\)</span>,
 if <span class="math notranslate nohighlight">\(k[n_\lambda](\mathbf{r}-\mathbf{r}')=\lambda^j k[n](\lambda(\mathbf{r}-\mathbf{r}'))\)</span>,
 then</p>
 <div class="math notranslate nohighlight">
 \[G[n_\lambda](\mathbf{r}) = \lambda^j G[n](\lambda\mathbf{r})\]</div>
 <p>The resulting power law can be combined with a normalizer to produce the
-scaling behavior required by the functional.</p>
+scaling behavior required by the functional.  Typically, this means
+constructing a scale-invariant normalized feature, as explained in
+<a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>.</p>
 <p>Three NLDF versions are implemented in the molecular feature framework:
 <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">j</span></code>, and <code class="docutils literal notranslate"><span class="pre">k</span></code>.  Version <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code> features can be evaluated
 together through the combined <code class="docutils literal notranslate"><span class="pre">ij</span></code> setting.  The packaged CIDER23X and
-CIDER26XC models use version <code class="docutils literal notranslate"><span class="pre">j</span></code>.  In release 0.5.0, GPAW supports version
-<code class="docutils literal notranslate"><span class="pre">j</span></code>.  The other versions and alternative kernel specifications are
+CIDER26XC models use version <code class="docutils literal notranslate"><span class="pre">j</span></code>.  GPAW supports version <code class="docutils literal notranslate"><span class="pre">j</span></code>.  The other
+versions and alternative kernel specifications are
 model-development interfaces.</p>
 <section id="version-j">
 <h2>Version J<a class="headerlink" href="#version-j" title="Link to this heading"></a></h2>
@@ -184,8 +186,9 @@ constructions obey</p>
 <div class="math notranslate nohighlight">
 \[G_i[n_\lambda](\mathbf{r}) = G_i[n](\lambda\mathbf{r})\]</div>
 <p>The settings format can multiply the source density by another semilocal
-quantity <span class="math notranslate nohighlight">\(b(\mathbf{r}')\)</span>. The multiplier contributes its uniform
-scaling power to the raw feature.</p>
+quantity <span class="math notranslate nohighlight">\(b(\mathbf{r}')\)</span>.  The multiplier contributes its uniform
+scaling power to the raw feature.  This option is experimental and is not
+used by the packaged functionals.</p>
 <p>The settings layer defines the squared-exponential specification <code class="docutils literal notranslate"><span class="pre">se</span></code> and
 the <code class="docutils literal notranslate"><span class="pre">se_ar2</span></code>, <code class="docutils literal notranslate"><span class="pre">se_a2r4</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">se_erf_rinv</span></code> variants. Rational-kernel variants use the <code class="docutils literal notranslate"><span class="pre">vdw_param</span></code>
@@ -231,12 +234,15 @@ available, giving the general form</p>
 <td><p><span class="math notranslate nohighlight">\(a^2R^2\exp(-aR^2)\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">se_lapl</span></code></p></td>
-<td><p><span class="math notranslate nohighlight">\((4a^2R^2-2a)\exp(-aR^2)\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\((4a^2R^2-6a)\exp(-aR^2)\)</span></p></td>
 </tr>
 </tbody>
 </table>
-<p>The historical name <code class="docutils literal notranslate"><span class="pre">se_lapl</span></code> refers to the explicit expression shown in
-the table.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">se_lapl</span></code> kernel is the three-dimensional Laplacian of <code class="docutils literal notranslate"><span class="pre">se</span></code> with
+respect to the displacement vector.  Earlier development versions used the
+coefficient <code class="docutils literal notranslate"><span class="pre">-2a</span></code> for this experimental feature.  No packaged functional
+uses Version I or <code class="docutils literal notranslate"><span class="pre">se_lapl</span></code>; the Version-I specification may change in a
+future release.</p>
 <p>Version I also provides vector features of the form</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{g}_*[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
@@ -254,15 +260,17 @@ example, the <code class="docutils literal notranslate"><span class="pre">se_gra
 <span class="math notranslate nohighlight">\(G=\mathbf{g}_*\cdot\mathbf{g}_*\)</span>.</p>
 <p>Version I also accepts a semilocal source multiplier
 <span class="math notranslate nohighlight">\(b(\mathbf r')\)</span>.</p>
-<p>Version-I variants are model-construction options.  A custom combination
-defines a distinct descriptor and requires independent forward/adjoint,
-scaling, and low-density validation.</p>
+<p>Version-I variants are experimental model-construction options.  A custom
+combination defines a distinct descriptor and requires independent
+forward/adjoint, scaling, and low-density validation.</p>
 </section>
 <section id="version-k">
 <h2>Version K<a class="headerlink" href="#version-k" title="Link to this heading"></a></h2>
-<p>Version K places the source-coordinate dependence in a damping factor that
-suppresses contributions when
-<span class="math notranslate nohighlight">\(a_i(\mathbf{r})\ll a_0(\mathbf{r}')\)</span>:</p>
+<p>Version K is a modification of Version J meant to remove the need for the squared-exponential kernel
+to depend on the density at <span class="math notranslate nohighlight">\(\mathbf{r}'\)</span>. However, without the dependence on <span class="math notranslate nohighlight">\(a_0[n](\mathbf{r}')\)</span>,
+the NLDFs can have large contributions from the core electrons in the valence
+region.  Version K therefore multiplies the density by a function that decays
+when <span class="math notranslate nohighlight">\(a_i(\mathbf{r})\ll a_0(\mathbf{r}')\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
 \exp\!\left(-a_i[n](\mathbf{r})|\mathbf{r}-\mathbf{r}'|^2\right)
@@ -285,7 +293,7 @@ n(\mathbf{r}')\]</div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="sl.html" class="btn btn-neutral float-left" title="Semilocal Features (SL)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="sdmx.html" class="btn btn-neutral float-right" title="Smoothed Density-Matrix Exchange Features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sdmx.html" class="btn btn-neutral float-right" title="Smoothed Density Matrix Exchange (SDMX)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

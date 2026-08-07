@@ -52,7 +52,7 @@ Version-J squared-exponential kernels have the separable form
    =\exp(-aR^2)\exp(-bR^2).
 
 :class:`~ciderpress.dft.plans.NLDFGaussianPlan` represents the exponent
-dependence in the auxiliary Gaussian basis.
+dependence in an auxiliary Gaussian basis.
 :class:`~ciderpress.dft.plans.NLDFSplinePlan` uses spline interpolation on a
 dense exponent coordinate.  The packaged molecular models use the spline
 plan.  Both plans implement the same raw feature definitions and provide

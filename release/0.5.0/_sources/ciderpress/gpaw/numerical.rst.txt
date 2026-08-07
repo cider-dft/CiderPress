@@ -46,7 +46,7 @@ needed for the XC potential and stress.
 .. py:module:: ciderpress.gpaw.cider_fft
 
 :mod:`ciderpress.gpaw.cider_fft` connects those operations to GPAW's GGA and
-meta-GGA XC lifecycle. It gathers the smooth density ingredients, evaluates
+meta-GGA XC framework. It gathers the smooth density ingredients, evaluates
 the mapped energy density, adds the backward feature potential, and supplies
 the smooth-grid force and stress terms.
 
@@ -79,7 +79,9 @@ An NLDF at a point depends on density in a finite surrounding region.  A
 final on-site energy correction leaves the convolution source outside the
 augmentation sphere unchanged.  CiderPress transports that all-electron
 source with the PAW/PASDW construction introduced with
-CIDER23X. :footcite:p:`CIDER23X`
+CIDER23X. (PASDW stands for Projector Augmented/Smoothed Density Wave,
+and the concept is introduced in more detail in
+the CIDER23X paper. :footcite:p:`CIDER23X`)
 
 The transfer has two coupled stages. First, localized source functions
 :math:`g_i^A` augment the smooth kernel source,

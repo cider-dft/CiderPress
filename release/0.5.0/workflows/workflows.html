@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Model Objects and Mapping" href="models.html" />
-    <link rel="prev" title="Smoothed Density-Matrix Exchange Features" href="../features/sdmx.html" /> 
+    <link rel="prev" title="Smoothed Density Matrix Exchange (SDMX)" href="../features/sdmx.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -81,7 +81,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -115,7 +115,7 @@
 extended.  A trainable model and its mapped evaluator serve different stages
 of that workflow.</p>
 <p>A trainable <a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP" title="ciderpress.models.train.MOLGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MOLGP</span></code></a> or
-<a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP2" title="ciderpress.models.train.MOLGP2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MOLGP2</span></code></a> retains reaction observations,
+<a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP2" title="ciderpress.models.train.MOLGP2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MOLGP2</span></code></a> retains the reaction observations,
 covariances, noise models, and control-point fitting state.  Mapping converts
 that object into <a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
 <a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>, which contains the objects
@@ -135,7 +135,7 @@ required for efficient DFT evaluation.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../features/sdmx.html" class="btn btn-neutral float-left" title="Smoothed Density-Matrix Exchange Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../features/sdmx.html" class="btn btn-neutral float-left" title="Smoothed Density Matrix Exchange (SDMX)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="models.html" class="btn btn-neutral float-right" title="Model Objects and Mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

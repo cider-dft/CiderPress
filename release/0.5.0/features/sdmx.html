@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smoothed Density-Matrix Exchange Features &mdash; CiderPress 0.5.0 documentation</title>
+  <title>Smoothed Density Matrix Exchange (SDMX) &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
@@ -65,9 +65,11 @@
 <li class="toctree-l2 current"><a class="reference internal" href="features.html#representation-in-the-code">Representation in the code</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Smoothed Density-Matrix Exchange Features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#smoothed-density-matrix">Smoothed density matrix</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#angular-information">Angular information</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Smoothed Density Matrix Exchange (SDMX)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scalar-features">Scalar features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#angular-features">Angular features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uniform-coordinate-scaling">Uniform coordinate scaling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#numerical-representation">Numerical representation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cider24x-feature-layout">CIDER24X feature layout</a></li>
 </ul>
 </li>
@@ -90,7 +92,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -109,7 +111,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="features.html">Electronic Features in CiderPress</a></li>
-      <li class="breadcrumb-item active">Smoothed Density-Matrix Exchange Features</li>
+      <li class="breadcrumb-item active">Smoothed Density Matrix Exchange (SDMX)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/features/sdmx.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -119,30 +121,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="smoothed-density-matrix-exchange-features">
-<span id="sdmx-feat"></span><h1>Smoothed Density-Matrix Exchange Features<a class="headerlink" href="#smoothed-density-matrix-exchange-features" title="Link to this heading"></a></h1>
-<p>Smoothed density-matrix exchange (SDMX) features describe the one-particle
-density matrix near a real-space point.  They are quadratic in the density
-matrix and provide rotationally invariant proxies for radial and angular
-structure in the exchange hole.  CIDER24X introduced the feature family and
-used it to learn exchange from total-energy and, for CIDER24Xe, orbital-energy
-data. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
-<section id="smoothed-density-matrix">
-<h2>Smoothed density matrix<a class="headerlink" href="#smoothed-density-matrix" title="Link to this heading"></a></h2>
-<p>The scalar component begins with a smoothed, spherically averaged density
+  <section id="smoothed-density-matrix-exchange-sdmx">
+<span id="sdmx-feat"></span><h1>Smoothed Density Matrix Exchange (SDMX)<a class="headerlink" href="#smoothed-density-matrix-exchange-sdmx" title="Link to this heading"></a></h1>
+<p>Smoothed density matrix exchange (SDMX) features are nonlocal
+featurizations of the one-particle density matrix.  The density matrix is
+smoothed around a real-space point and projected onto the
+<span class="math notranslate nohighlight">\(\ell=0\)</span> and <span class="math notranslate nohighlight">\(\ell=1\)</span> angular channels.  Quadratic contractions
+of the projected quantities provide rotationally invariant proxies for the
+radial and angular structure of the exchange hole
+<span class="math notranslate nohighlight">\(|n_1(\mathbf r,\mathbf r')|^2\)</span>. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>The construction was inspired by the Rung 3.5 functionals of Janesko <em>et
+al.</em> <a class="footnote-reference brackets" href="#footcite-janesko2010" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-janesko2013" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-janesko2014" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-janesko2018" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. SDMX
+features are quadratic functionals of the density matrix.  The packaged
+CIDER24X models use them to learn exchange; <code class="docutils literal notranslate"><span class="pre">CIDER24Xe</span></code> also uses
+orbital-occupation derivative data during training.</p>
+<section id="scalar-features">
+<h2>Scalar features<a class="headerlink" href="#scalar-features" title="Link to this heading"></a></h2>
+<p>The scalar component starts from a smoothed, spherically averaged density
 matrix</p>
 <div class="math notranslate nohighlight">
 \[\rho^0(R;\mathbf r)
 = \int \mathrm d^3\mathbf r'\,
   h(|\mathbf r'-\mathbf r|;R)n_1(\mathbf r',\mathbf r),\]</div>
-<p>where <span class="math notranslate nohighlight">\(R\)</span> is a smoothing length. CIDER24X uses</p>
+<p>where <span class="math notranslate nohighlight">\(R\)</span> is a smoothing length.  CIDER24X uses</p>
 <div class="math notranslate nohighlight">
 \[h(u;R)
 = \left(\frac{2}{\pi}\right)^{3/2}
   \frac{4}{4-\sqrt{2}}\frac{e^{-2u^2/R^2}}{R^3}
   \left(1-e^{-2u^2/R^2}\right).\]</div>
-<p>Integrating the squared smoothed quantity over <span class="math notranslate nohighlight">\(R\)</span> gives the scalar
-features</p>
+<p>The kernel broadens with <span class="math notranslate nohighlight">\(R\)</span>, so
+<span class="math notranslate nohighlight">\(\rho^0(R;\mathbf r)\)</span> is a smoothed approximation to the spherical
+average of the density matrix at distance <span class="math notranslate nohighlight">\(R\)</span>.  Integrating its square
+over the smoothing length gives</p>
 <div class="math notranslate nohighlight">
 \[H_j^0(\mathbf r)
 = 4\pi\int \mathrm dR\,R^{2-j}|\rho^0(R;\mathbf r)|^2.\]</div>
@@ -152,15 +162,15 @@ features</p>
 = 4\pi\int \mathrm dR\,R^{4-j}
   \left|\frac{\partial\rho^0(R;\mathbf r)}{\partial R}\right|^2.\]</div>
 </section>
-<section id="angular-information">
-<h2>Angular information<a class="headerlink" href="#angular-information" title="Link to this heading"></a></h2>
-<p>The vector-smoothed density matrix is</p>
+<section id="angular-features">
+<h2>Angular features<a class="headerlink" href="#angular-features" title="Link to this heading"></a></h2>
+<p>The <span class="math notranslate nohighlight">\(\ell=1\)</span> projection is represented by the vector</p>
 <div class="math notranslate nohighlight">
 \[\boldsymbol{\rho}^1(R;\mathbf r)
 = \int \mathrm d^3\mathbf r'\,
   [\nabla h(|\mathbf r'-\mathbf r|;R)]
   n_1(\mathbf r',\mathbf r).\]</div>
-<p>Its rotationally invariant norm and radial derivative define</p>
+<p>Its norm and radial derivative define two more scalar feature families,</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}H_j^1(\mathbf r)
 &amp;= 4\pi\int \mathrm dR\,R^{4-j}
@@ -169,19 +179,36 @@ H_j^{1\mathrm d}(\mathbf r)
 &amp;= 4\pi\int \mathrm dR\,R^{6-j}
    \left|\frac{\partial\boldsymbol{\rho}^1(R;\mathbf r)}
    {\partial R}\right|^2.\end{split}\]</div>
-<p>All four families scale as</p>
+<p>The radial-derivative terms reuse the principal contractions required by the
+corresponding <span class="math notranslate nohighlight">\(H_j^0\)</span> and <span class="math notranslate nohighlight">\(H_j^1\)</span> features.  The vector channel
+adds the <span class="math notranslate nohighlight">\(\ell=1\)</span> angular information.</p>
+</section>
+<section id="uniform-coordinate-scaling">
+<h2>Uniform coordinate scaling<a class="headerlink" href="#uniform-coordinate-scaling" title="Link to this heading"></a></h2>
+<p>For the coordinate-scaled density matrix defined in
+<a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>, all four families obey</p>
 <div class="math notranslate nohighlight">
 \[H_j[n_1^\lambda](\mathbf r)
-= \lambda^{3+j}H_j[n_1](\lambda\mathbf r)\]</div>
-<p>under uniform coordinate scaling of the density matrix. The implemented
-uniform-electron-gas normalizations cover <span class="math notranslate nohighlight">\(j\in\{0,1,2\}\)</span>. The
-normalizers stored with a model convert these raw powers into the coordinates
-used by its exchange regression.</p>
+= \lambda^{3+j}H_j[n_1](\lambda\mathbf r).\]</div>
+<p>The implemented uniform-electron-gas normalizations cover
+<span class="math notranslate nohighlight">\(j\in\{0,1,2\}\)</span>.  Model-specific normalizers convert these raw powers
+into the scale-invariant coordinates used by the exchange regression.</p>
+</section>
+<section id="numerical-representation">
+<h2>Numerical representation<a class="headerlink" href="#numerical-representation" title="Link to this heading"></a></h2>
+<p>CiderPress evaluates the smoothed density matrix at a discrete set of
+lengths <span class="math notranslate nohighlight">\(R_i\)</span> using Gaussian convolutions.  It then represents the
+<span class="math notranslate nohighlight">\(R\)</span> dependence in a Gaussian basis, allowing the integrals that define
+the <span class="math notranslate nohighlight">\(H_j\)</span> features to be contracted analytically.  The settings and
+contraction plans are implemented by
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXFullSettings" title="ciderpress.dft.settings.SDMXFullSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXFullSettings</span></code></a> and
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan" title="ciderpress.dft.plans.SDMXFullPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXFullPlan</span></code></a>; the molecular contraction
+algorithm is described in <a class="reference internal" href="../ciderpress/pyscf/numerical.html"><span class="doc">PySCF Numerical and Derivative Implementation</span></a>.</p>
 </section>
 <section id="cider24x-feature-layout">
 <h2>CIDER24X feature layout<a class="headerlink" href="#cider24x-feature-layout" title="Link to this heading"></a></h2>
 <p>Both packaged CIDER24X models contain the same 13 raw electronic features:
-three semilocal meta-GGA ingredients followed by ten SDMX features. The SDMX
+three semilocal meta-GGA ingredients followed by ten SDMX features.  The SDMX
 block is ordered as</p>
 <div class="math notranslate nohighlight">
 \[\left(
@@ -190,20 +217,33 @@ H_1^{0\mathrm d},H_2^{0\mathrm d},
 H_1^1,H_2^1,H_0^1,
 H_1^{1\mathrm d},H_2^{1\mathrm d},H_0^{1\mathrm d}
 \right).\]</div>
-<p>This layout is represented by
-<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXFullSettings" title="ciderpress.dft.settings.SDMXFullSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXFullSettings</span></code></a>. Feature order,
-normalization, bounded transformations, and mapped neural-network weights are
-stored in each model file and are applied automatically during evaluation.</p>
-<p>The optimized molecular implementation is available through PySCF.  The
-periodic PySCF implementation supports the CIDER24X methodology.  The GPAW
-interface evaluates NLDF models.  See
-<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> for the supported calculation path and
-<a class="reference internal" href="../ciderpress/pyscf/numerical.html"><span class="doc">PySCF Numerical and Derivative Implementation</span></a> for the molecular contraction algorithm.</p>
-<div class="docutils container" id="id2">
+<p>Feature order, normalization, bounded transforms, and mapped neural-network
+weights are stored in each model file.  The optimized molecular
+implementation is available through PySCF.  The periodic PySCF interface
+supports the CIDER24X methodology with pseudopotentials and uniform grids;
+GPAW evaluates the NLDF model families.  Backend compatibility is listed in
+<a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
+<div class="docutils container" id="id6">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-janesko2010" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Benjamin G. Janesko. Rung 3.5 density functionals. <em>J. Chem. Phys.</em>, 133(10):104103, September 2010. <a class="reference external" href="https://doi.org/10.1063/1.3475563">doi:10.1063/1.3475563</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-janesko2013" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Benjamin G. Janesko. Rung 3.5 density functionals: Another step on Jacob’s ladder. <em>Int. J. Quantum Chem.</em>, 113(2):83–88, 2013. <a class="reference external" href="https://doi.org/10.1002/qua.24256">doi:10.1002/qua.24256</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-janesko2014" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Benjamin G. Janesko, Giovanni Scalmani, and Michael J. Frisch. Practical auxiliary basis implementation of Rung 3.5 functionals. <em>J. Chem. Phys.</em>, 141(3):034103, 07 2014. URL: <a class="reference external" href="https://doi.org/10.1063/1.4887085">https://doi.org/10.1063/1.4887085</a>, <a class="reference external" href="https://doi.org/10.1063/1.4887085">doi:10.1063/1.4887085</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-janesko2018" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p>Benjamin G. Janesko, Emil Proynov, Giovanni Scalmani, and Michael J. Frisch. Long-range-corrected Rung 3.5 density functional approximations. <em>J. Chem. Phys.</em>, 148(10):104112, 03 2018. URL: <a class="reference external" href="https://doi.org/10.1063/1.5017981">https://doi.org/10.1063/1.5017981</a>, <a class="reference external" href="https://doi.org/10.1063/1.5017981">doi:10.1063/1.5017981</a>.</p>
 </aside>
 </aside>
 </div>

@@ -53,7 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -74,7 +74,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -113,7 +113,9 @@ evaluating these features.</p></li>
 <li><p>Train, evaluate, store, and load Gaussian process regression models
 representing CIDER functionals. Tools are also included to map
 Gaussian processes to more efficient inference-time models.</p></li>
-<li><p>Through interfaces to existing DFT backends (PySCF and GPAW), compute
+<li><p>Through interfaces to existing DFT backends
+(PySCF <a class="footnote-reference brackets" href="#footcite-sunrecentdevelopmentspyscf2020a" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+and GPAW <a class="footnote-reference brackets" href="#footcite-mortensengpawopenpython2024" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>), compute
 the electronic input descriptors, evaluate the XC energy and potential,
 and perform full self-consistent field calculations with CIDER functionals.</p></li>
 </ul>
@@ -201,7 +203,7 @@ CIDER26XC uses the full-XC initialization described in the model guide.</p>
 <li class="toctree-l2"><a class="reference internal" href="usage/properties.html#energy-composition">Energy composition</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">SCF Fallback Settings</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">Handling SCF Convergence Issues</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#pyscf-restart-ladder">PySCF restart ladder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#gpaw-reference-settings">GPAW reference settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#restart-compatibility">Restart compatibility</a></li>
@@ -279,7 +281,7 @@ CIDER26XC uses the full-XC initialization described in the model guide.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider23x-and-molecular-periodic-nldf-evaluation">CIDER23X and molecular/periodic NLDF evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider24x-and-sdmx-eigenvalue-training">CIDER24X and SDMX/eigenvalue training</a></li>
@@ -288,6 +290,18 @@ CIDER26XC uses the full-XC initialization described in the model guide.</p>
 </ul>
 </li>
 </ul>
+</div>
+<div class="docutils container" id="id3">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-sunrecentdevelopmentspyscf2020a" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Qiming Sun, Xing Zhang, Samragni Banerjee, Peng Bao, Marc Barbry, Nick S. Blunt, Nikolay A. Bogdanov, George H. Booth, Jia Chen, Zhi-Hao Cui, Janus J. Eriksen, Yang Gao, Sheng Guo, Jan Hermann, Matthew R. Hermes, Kevin Koh, Peter Koval, Susi Lehtola, Zhendong Li, Junzi Liu, Narbe Mardirossian, James D. McClain, Mario Motta, Bastien Mussard, Hung Q. Pham, Artem Pulkin, Wirawan Purwanto, Paul J. Robinson, Enrico Ronca, Elvira R. Sayfutyarova, Maximilian Scheurer, Henry F. Schurkus, James E. T. Smith, Chong Sun, Shi-Ning Sun, Shiv Upadhyay, Lucas K. Wagner, Xiao Wang, Alec White, James Daniel Whitfield, Mark J. Williamson, Sebastian Wouters, Jun Yang, Jason M. Yu, Tianyu Zhu, Timothy C. Berkelbach, Sandeep Sharma, Alexander Yu. Sokolov, and Garnet Kin-Lic Chan. Recent developments in the PySCF program package. <em>The Journal of Chemical Physics</em>, 153(2):024109, July 2020. <a class="reference external" href="https://doi.org/10.1063/5.0006074">doi:10.1063/5.0006074</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-mortensengpawopenpython2024" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Jens Jørgen Mortensen, Ask Hjorth Larsen, Mikael Kuisma, Aleksei V. Ivanov, Alireza Taghizadeh, Andrew Peterson, Anubhab Haldar, Asmus Ougaard Dohn, Christian Schäfer, Elvar Örn Jónsson, Eric D. Hermes, Fredrik Andreas Nilsson, Georg Kastlunger, Gianluca Levi, Hannes Jónsson, Hannu Häkkinen, Jakub Fojt, Jiban Kangsabanik, Joachim Sødequist, Jouko Lehtomäki, Julian Heske, Jussi Enkovaara, Kirsten Trøstrup Winther, Marcin Dulak, Marko M. Melander, Martin Ovesen, Martti Louhivuori, Michael Walter, Morten Gjerding, Olga Lopez-Acevedo, Paul Erhart, Robert Warmbier, Rolf Würdemann, Sami Kaappa, Simone Latini, Tara Maria Boland, Thomas Bligaard, Thorbjørn Skovhus, Toma Susi, Tristan Maxson, Tuomas Rossi, Xi Chen, Yorick Leonard A. Schmerwitz, Jakob Schiøtz, Thomas Olsen, Karsten Wedel Jacobsen, and Kristian Sommer Thygesen. GPAW: An open Python package for electronic structure calculations. <em>The Journal of Chemical Physics</em>, 160(9):092503, March 2024. <a class="reference external" href="https://doi.org/10.1063/5.0182685">doi:10.1063/5.0182685</a>.</p>
+</aside>
+</aside>
 </div>
 </section>
 </section>

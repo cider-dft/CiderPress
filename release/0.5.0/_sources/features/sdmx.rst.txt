@@ -1,19 +1,26 @@
 .. _sdmx_feat:
 
-Smoothed Density-Matrix Exchange Features
-==========================================
+Smoothed Density Matrix Exchange (SDMX)
+=======================================
 
-Smoothed density-matrix exchange (SDMX) features describe the one-particle
-density matrix near a real-space point.  They are quadratic in the density
-matrix and provide rotationally invariant proxies for radial and angular
-structure in the exchange hole.  CIDER24X introduced the feature family and
-used it to learn exchange from total-energy and, for CIDER24Xe, orbital-energy
-data. :footcite:p:`CIDER24X`
+Smoothed density matrix exchange (SDMX) features are nonlocal
+featurizations of the one-particle density matrix.  The density matrix is
+smoothed around a real-space point and projected onto the
+:math:`\ell=0` and :math:`\ell=1` angular channels.  Quadratic contractions
+of the projected quantities provide rotationally invariant proxies for the
+radial and angular structure of the exchange hole
+:math:`|n_1(\mathbf r,\mathbf r')|^2`. :footcite:p:`CIDER24X`
 
-Smoothed density matrix
------------------------
+The construction was inspired by the Rung 3.5 functionals of Janesko *et
+al.* :footcite:p:`Janesko2010,Janesko2013,Janesko2014,Janesko2018`. SDMX
+features are quadratic functionals of the density matrix.  The packaged
+CIDER24X models use them to learn exchange; ``CIDER24Xe`` also uses
+orbital-occupation derivative data during training.
 
-The scalar component begins with a smoothed, spherically averaged density
+Scalar features
+---------------
+
+The scalar component starts from a smoothed, spherically averaged density
 matrix
 
 .. math::
@@ -22,7 +29,7 @@ matrix
    = \int \mathrm d^3\mathbf r'\,
      h(|\mathbf r'-\mathbf r|;R)n_1(\mathbf r',\mathbf r),
 
-where :math:`R` is a smoothing length. CIDER24X uses
+where :math:`R` is a smoothing length.  CIDER24X uses
 
 .. math::
 
@@ -31,8 +38,10 @@ where :math:`R` is a smoothing length. CIDER24X uses
      \frac{4}{4-\sqrt{2}}\frac{e^{-2u^2/R^2}}{R^3}
      \left(1-e^{-2u^2/R^2}\right).
 
-Integrating the squared smoothed quantity over :math:`R` gives the scalar
-features
+The kernel broadens with :math:`R`, so
+:math:`\rho^0(R;\mathbf r)` is a smoothed approximation to the spherical
+average of the density matrix at distance :math:`R`.  Integrating its square
+over the smoothing length gives
 
 .. math::
 
@@ -47,10 +56,10 @@ The radial derivative supplies a second scalar family,
    = 4\pi\int \mathrm dR\,R^{4-j}
      \left|\frac{\partial\rho^0(R;\mathbf r)}{\partial R}\right|^2.
 
-Angular information
--------------------
+Angular features
+----------------
 
-The vector-smoothed density matrix is
+The :math:`\ell=1` projection is represented by the vector
 
 .. math::
 
@@ -59,7 +68,7 @@ The vector-smoothed density matrix is
      [\nabla h(|\mathbf r'-\mathbf r|;R)]
      n_1(\mathbf r',\mathbf r).
 
-Its rotationally invariant norm and radial derivative define
+Its norm and radial derivative define two more scalar feature families,
 
 .. math::
 
@@ -71,23 +80,42 @@ Its rotationally invariant norm and radial derivative define
       \left|\frac{\partial\boldsymbol{\rho}^1(R;\mathbf r)}
       {\partial R}\right|^2.
 
-All four families scale as
+The radial-derivative terms reuse the principal contractions required by the
+corresponding :math:`H_j^0` and :math:`H_j^1` features.  The vector channel
+adds the :math:`\ell=1` angular information.
+
+Uniform coordinate scaling
+--------------------------
+
+For the coordinate-scaled density matrix defined in
+:doc:`../theory/uniform_scaling`, all four families obey
 
 .. math::
 
    H_j[n_1^\lambda](\mathbf r)
-   = \lambda^{3+j}H_j[n_1](\lambda\mathbf r)
+   = \lambda^{3+j}H_j[n_1](\lambda\mathbf r).
 
-under uniform coordinate scaling of the density matrix. The implemented
-uniform-electron-gas normalizations cover :math:`j\in\{0,1,2\}`. The
-normalizers stored with a model convert these raw powers into the coordinates
-used by its exchange regression.
+The implemented uniform-electron-gas normalizations cover
+:math:`j\in\{0,1,2\}`.  Model-specific normalizers convert these raw powers
+into the scale-invariant coordinates used by the exchange regression.
+
+Numerical representation
+------------------------
+
+CiderPress evaluates the smoothed density matrix at a discrete set of
+lengths :math:`R_i` using Gaussian convolutions.  It then represents the
+:math:`R` dependence in a Gaussian basis, allowing the integrals that define
+the :math:`H_j` features to be contracted analytically.  The settings and
+contraction plans are implemented by
+:class:`~ciderpress.dft.settings.SDMXFullSettings` and
+:class:`~ciderpress.dft.plans.SDMXFullPlan`; the molecular contraction
+algorithm is described in :doc:`../ciderpress/pyscf/numerical`.
 
 CIDER24X feature layout
 -----------------------
 
 Both packaged CIDER24X models contain the same 13 raw electronic features:
-three semilocal meta-GGA ingredients followed by ten SDMX features. The SDMX
+three semilocal meta-GGA ingredients followed by ten SDMX features.  The SDMX
 block is ordered as
 
 .. math::
@@ -99,15 +127,11 @@ block is ordered as
    H_1^{1\mathrm d},H_2^{1\mathrm d},H_0^{1\mathrm d}
    \right).
 
-This layout is represented by
-:class:`~ciderpress.dft.settings.SDMXFullSettings`. Feature order,
-normalization, bounded transformations, and mapped neural-network weights are
-stored in each model file and are applied automatically during evaluation.
-
-The optimized molecular implementation is available through PySCF.  The
-periodic PySCF implementation supports the CIDER24X methodology.  The GPAW
-interface evaluates NLDF models.  See
-:doc:`../usage/production_models` for the supported calculation path and
-:doc:`../ciderpress/pyscf/numerical` for the molecular contraction algorithm.
+Feature order, normalization, bounded transforms, and mapped neural-network
+weights are stored in each model file.  The optimized molecular
+implementation is available through PySCF.  The periodic PySCF interface
+supports the CIDER24X methodology with pseudopotentials and uniform grids;
+GPAW evaluates the NLDF model families.  Backend compatibility is listed in
+:doc:`../usage/production_models`.
 
 .. footbibliography::

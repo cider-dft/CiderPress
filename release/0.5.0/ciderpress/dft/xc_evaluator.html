@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">SCF Fallback Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul>
@@ -94,7 +94,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Paths and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
@@ -306,7 +306,7 @@ the features.</p></li>
 <span id="libxc-baseline-full-xc-interface"></span><h2>Libxc-baseline/full-XC interface<a class="headerlink" href="#module-ciderpress.dft.xc_evaluator2" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.xc_evaluator2.MappedDFTKernel2">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.xc_evaluator2.</span></span><span class="sig-name descname"><span class="pre">MappedDFTKernel2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fevals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicative_baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additive_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.xc_evaluator2.MappedDFTKernel2" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.xc_evaluator2.</span></span><span class="sig-name descname"><span class="pre">MappedDFTKernel2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fevals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicative_baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additive_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.xc_evaluator2.MappedDFTKernel2" title="Link to this definition"></a></dt>
 <dd><p>This class evaluates the XC term arising from a single DFTKernel
 object, using one or a list of FuncEvaluator objects.</p>
 <p>fevals: FuncEvaluator</p>
@@ -315,12 +315,12 @@ object, using one or a list of FuncEvaluator objects.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.dft.xc_evaluator2.MappedXC2">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.xc_evaluator2.</span></span><span class="sig-name descname"><span class="pre">MappedXC2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapped_kernels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">libxc_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.dft.xc_evaluator2.MappedXC2" title="Link to this definition"></a></dt>
-<dd><p>Inference-time evaluator for a mapped full-XC CIDER functional.</p>
+<dd><p>Inference-time evaluator for mapped density-dependent kernels.</p>
 <p><code class="docutils literal notranslate"><span class="pre">MappedXC2</span></code> extends the mapped-model concept of
 <a class="reference internal" href="#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> to kernels that take
-density arguments in addition to normalized features, as required by
-the CIDER26XC full exchange-correlation models. It is the object
-reconstructed from the packaged CIDER26XC model files.</p>
+density arguments in addition to normalized features. This representation
+is used by both range-separated exchange models and the CIDER26XC full
+exchange-correlation models.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
