@@ -230,7 +230,7 @@ NLDF feature block; its backward call returns contributions to the density
 and to the density-dependent exponents.  For an SDMX model,
 <a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.sdmx.EXXSphGenerator" title="ciderpress.pyscf.sdmx.EXXSphGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EXXSphGenerator</span></code></a> performs the corresponding
 density-matrix contractions.  The full blockwise sequence is implemented in
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/67951b269d8213606a97075a28de73a0b534cf6d/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a>.</p>
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/79075ca0c6287108b7bbc5cbbff66ec5ea251dfa/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a>.</p>
 <p>The final return from <a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_rks" title="ciderpress.pyscf.numint.nr_rks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_rks()</span></code></a> or
 <a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_uks" title="ciderpress.pyscf.numint.nr_uks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_uks()</span></code></a> contains the integrated XC energy and
 the AO-matrix potential.  Analytical NLDF nuclear gradients add the response
@@ -260,7 +260,7 @@ formed from products of the interpolated partial waves, alongside the
 kinetic-energy-density terms required by the meta-GGA correction.  With
 <code class="docutils literal notranslate"><span class="pre">build_kinetic=False</span></code>, the tabulated GPAW pair-density arrays and their
 derivatives are interpolated directly.  The implementation is in
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/67951b269d8213606a97075a28de73a0b534cf6d/ciderpress/gpaw/interp_paw.py">ciderpress/gpaw/interp_paw.py</a>.</p>
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/79075ca0c6287108b7bbc5cbbff66ec5ea251dfa/ciderpress/gpaw/interp_paw.py">ciderpress/gpaw/interp_paw.py</a>.</p>
 <p>The radial reconstruction also applies two finite-grid safeguards.  Mapping
 beyond a radial endpoint is accepted only within floating-point roundoff, and
 the all-electron and pseudo frozen-core kinetic-energy densities are bounded
