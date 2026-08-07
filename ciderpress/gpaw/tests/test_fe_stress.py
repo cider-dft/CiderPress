@@ -78,16 +78,19 @@ def get_xc(fname, use_paw=True):
 
 class TestStress(unittest.TestCase):
     def test_nl_mgga(self):
-        xc = get_xc("functionals/CIDER23X_NL_MGGA_DTR.yaml")
+        xc = get_xc("CIDER23X_NL_MGGA_DTR")
         if USE_STORED_REF:
+            # Finite-difference stress evaluated with a 1e-5 strain.  Larger
+            # strains can change the finite plane-wave basis, while smaller
+            # strains amplify SCF noise for this deliberately difficult case.
             s_numerical = np.array(
                 [
-                    -0.03445521,
-                    -0.1184332,
-                    -0.09615671,
-                    -0.03262395,
-                    0.2034452,
-                    0.01842121,
+                    -0.03557846,
+                    -0.11934893,
+                    -0.09735346,
+                    -0.03266179,
+                    0.20297628,
+                    0.01854821,
                 ]
             )
             run_pw_si_stress(xc, s_numerical=s_numerical)

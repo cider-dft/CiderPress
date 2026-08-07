@@ -30,7 +30,43 @@ from scipy.interpolate import interp1d
 from ciderpress.gpaw.gpaw_grids import GCRadialGridDescriptor
 
 
-def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
+def _enforce_fhc_core_tau(tau_g, n_g, dndr_g):
+    """Enforce the von Weizsaecker bound for a frozen spherical core.
+
+    GPAW stores the core kinetic-energy density as its spherical-harmonic
+    coefficient, which accounts for the ``sqrt(4*pi)`` factor below.  The
+    returned array is a copy; the PAW setup data are not mutated.
+    """
+    tauw_g = np.sqrt(4 * np.pi) * dndr_g**2 / (8 * n_g + 1e-10)
+    return np.maximum(tau_g, tauw_g)
+
+
+def _get_interpolation_coordinates(rgd, r_g, size):
+    """Map radii to a tabulated grid, tolerating endpoint roundoff only."""
+    g_g = np.asarray(rgd.r2g(r_g), dtype=float)
+    gmax = float(size - 1)
+    # r2g() can return an endpoint a few ulps outside the closed source
+    # interval (545.0000000000001 was observed for Co).  Scale the tolerance
+    # with the grid index, but preserve scipy's error for real extrapolation.
+    tol = 32 * np.finfo(float).eps * max(1.0, gmax)
+    if np.any(g_g < -tol) or np.any(g_g > gmax + tol):
+        raise ValueError(
+            "Target radial grid extends beyond the PAW source grid "
+            f"[0, {gmax}] (mapped range [{g_g.min()}, {g_g.max()}])"
+        )
+    return np.clip(g_g, 0.0, gmax)
+
+
+def create_kinetic_diffpaw(
+    xcc,
+    ny,
+    phi_jg,
+    tau_ypg,
+    _interpc,
+    r_g_new,
+    n_qg,
+    d_qg,
+):
     nj = len(phi_jg)
     dphidr_jg = np.zeros(np.shape(phi_jg))
     for j in range(nj):
@@ -39,6 +75,13 @@ def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
 
     phi_jg = _interpc(phi_jg)
     dphidr_jg = _interpc(dphidr_jg)
+
+    q = 0
+    for j1 in range(nj):
+        for j2 in range(j1, nj):
+            n_qg[q] = phi_jg[j1] * phi_jg[j2]
+            d_qg[q] = phi_jg[j1] * dphidr_jg[j2] + dphidr_jg[j1] * phi_jg[j2]
+            q += 1
 
     # second term
     for y in range(ny):
@@ -64,14 +107,12 @@ def create_kinetic_diffpaw(xcc, ny, phi_jg, tau_ypg, _interpc, r_g_new):
             for j2, l2, L2 in xcc.jlL[i1:]:
                 temp = Ax_L[L1] * Ax_L[L2] + Ay_L[L1] * Ay_L[L2] + Az_L[L1] * Az_L[L2]
                 temp *= phi_jg[j1] * phi_jg[j2]
-                # temp[1:] /= r_g_new[1:]**2
-                # temp[0] = temp[1]
-                temp /= r_g_new**2
-                if r_g_new[0] == 0:
-                    temp[0] = temp[1]
+                temp[1:] /= r_g_new[1:] ** 2
+                temp[0] = temp[1]
                 tau_ypg[y, p, :] += temp
                 p += 1
             i1 += 1
+    tau_ypg[:, :, 0] = tau_ypg[:, :, 1]
     tau_ypg *= 0.5
 
 
@@ -114,8 +155,8 @@ class DiffPAWXCCorrection:
         self.Lmax = Lmax
         self.tau_npg = tau_npg
         self.taut_npg = taut_npg
-        self.tauc_g = tauc_g
-        self.tauct_g = tauct_g
+        self.tauc_g = _enforce_fhc_core_tau(tauc_g, self.nc_g, self.dc_g)
+        self.tauct_g = _enforce_fhc_core_tau(tauct_g, self.nct_g, self.dct_g)
         self.Y_nL = Y_nL
         if self.tau_npg is not None:
             NP = self.tau_npg.shape[1]
@@ -145,10 +186,8 @@ class DiffPAWXCCorrection:
             setup.old_xc_correction = setup.xc_correction
             xcc = setup.xc_correction
 
-        tab = np.array((2, 10, 18, 36, 54, 86, 118))
-        (setup.Z > tab).sum()
         rcut = xcc.rgd.r_g[-1]
-        if setup.Z > 36 and hasattr(setup.rgd, "a") and hasattr(setup.rgd, "b"):
+        if setup.Z > 18 and hasattr(setup.rgd, "a") and hasattr(setup.rgd, "b"):
             rgd = AERadialGridDescriptor(setup.rgd.a, setup.rgd.b, setup.rgd.N)
             gcut = rgd.ceil(rcut)
             rgd = rgd.new(gcut)
@@ -158,26 +197,27 @@ class DiffPAWXCCorrection:
             rgd = rgd.make_cut(gcut)
 
         def _interpc(func):
+            g_new = _get_interpolation_coordinates(xcc.rgd, rgd.r_g, xcc.rgd.r_g.size)
             return interp1d(
                 np.arange(xcc.rgd.r_g.size),
                 func,
                 kind="cubic",
-            )(xcc.rgd.r2g(rgd.r_g))
+            )(g_new)
 
         core_dens = {}
-        names = ["nc_g", "nct_g", "nc_corehole_g"]
-        n_g_list = [xcc.nc_g, xcc.nct_g, xcc.nc_corehole_g]
-        if True:
-            names += ["tauc_g", "tauct_g"]
-            n_g_list += [xcc.tauc_g, xcc.tauct_g]
+        names = ["nc_g", "nct_g", "nc_corehole_g", "tauc_g", "tauct_g"]
+        n_g_list = [
+            xcc.nc_g,
+            xcc.nct_g,
+            xcc.nc_corehole_g,
+            xcc.tauc_g,
+            xcc.tauct_g,
+        ]
         for name, n_g in zip(names, n_g_list):
             if n_g is None:
                 continue
             core_dens[name] = n_g
             core_dens["d" + name] = xcc.rgd.derivative(n_g)
-
-        d_qg = [xcc.rgd.derivative(n_g) for n_g in xcc.n_qg]
-        dt_qg = [xcc.rgd.derivative(n_g) for n_g in xcc.nt_qg]
 
         if build_kinetic:
             nii = xcc.nii
@@ -185,9 +225,36 @@ class DiffPAWXCCorrection:
             ng = rgd.r_g.shape[0]
             tau_npg = np.zeros((nn, nii, ng))
             taut_npg = np.zeros((nn, nii, ng))
-            create_kinetic_diffpaw(xcc, nn, xcc.phi_jg, tau_npg, _interpc, rgd.r_g)
-            create_kinetic_diffpaw(xcc, nn, xcc.phit_jg, taut_npg, _interpc, rgd.r_g)
+            nq = len(xcc.n_qg)
+            n_qg = np.empty((nq, ng))
+            nt_qg = np.empty((nq, ng))
+            d_qg = np.empty((nq, ng))
+            dt_qg = np.empty((nq, ng))
+            create_kinetic_diffpaw(
+                xcc,
+                nn,
+                xcc.phi_jg,
+                tau_npg,
+                _interpc,
+                rgd.r_g,
+                n_qg,
+                d_qg,
+            )
+            create_kinetic_diffpaw(
+                xcc,
+                nn,
+                xcc.phit_jg,
+                taut_npg,
+                _interpc,
+                rgd.r_g,
+                nt_qg,
+                dt_qg,
+            )
         else:
+            n_qg = np.array([_interpc(n_g) for n_g in xcc.n_qg])
+            nt_qg = np.array([_interpc(n_g) for n_g in xcc.nt_qg])
+            d_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
+            dt_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
             tau_npg = None
             taut_npg = None
 
@@ -204,10 +271,10 @@ class DiffPAWXCCorrection:
             if xcc.nc_corehole_g is not None
             else None,
             xcc.B_pqL,
-            np.array([_interpc(n_g) for n_g in xcc.n_qg]),
-            np.array([_interpc(nt_g) for nt_g in xcc.nt_qg]),
-            np.array([_interpc(n_g) for n_g in d_qg]),
-            np.array([_interpc(nt_g) for nt_g in dt_qg]),
+            n_qg,
+            nt_qg,
+            d_qg,
+            dt_qg,
             xcc.e_xc0,
             xcc.Lmax,
             tau_npg,

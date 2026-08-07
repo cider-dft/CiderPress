@@ -70,9 +70,8 @@ def get_descriptors(
     **kwargs,
 ):
     """
-    Compute grid weights, feature vectors, and (optionally)
-    feature vector derivatives with respect to orbital
-    occupation.
+    Compute feature vectors, grid weights, and optionally feature-vector
+    derivatives with respect to orbital occupation.
 
     Args:
         calc: a converged GPAW calculation
@@ -89,10 +88,10 @@ def get_descriptors(
             to compute the functional.
 
     Returns:
-        if p_i is None:
-            weights, features
-        else:
-            weights, features, [list of feature derivatives]
+        If ``p_i`` is ``None``, return ``(features, weights)``. Otherwise,
+        return ``(features, feature_derivatives, weights)``. Feature arrays
+        have shape ``(nspin, nfeature, npoint)``; derivative arrays have shape
+        ``(norbital, nfeature, npoint)``.
     """
     if (
         hasattr(calc.hamiltonian.xc, "setups")
@@ -597,10 +596,13 @@ class _FeatureMixin:
         xshape = feat_xg.shape[:-3]
         gshape_out = tuple(self.gd.n_c)
         _feat_xg = np.zeros(xshape + gshape_out)
+        out_xg = self.gd.empty(np.prod(xshape), global_array=True)
         self._add_from_cider_grid(_feat_xg, feat_xg)
-        feat_xg = self.gd.collect(_feat_xg, broadcast=True)
-        feat_xg.shape = xshape + (-1,)
-        return feat_xg
+        _feat_xg.shape = (-1,) + gshape_out
+        for x in range(np.prod(xshape)):
+            out_xg[x] = self.gd.collect(_feat_xg[x], broadcast=True)
+        out_xg.shape = xshape + out_xg.shape[-3:]
+        return out_xg
 
     def _get_features_on_grid(self, rho_sxg):
         nspin = len(rho_sxg)
@@ -900,10 +902,13 @@ class _SLFeatMixin(_FeatureMixin):
         feat_xg = feat_xg.view()
         feat_xg.shape = xshape + gshape_in
         _feat_xg = np.zeros(xshape + gshape_out)
+        out_xg = self.gd.empty(np.prod(xshape), global_array=True)
         self._add_from_cider_grid(_feat_xg, feat_xg)
-        feat_xg = self.gd.collect(_feat_xg, broadcast=True)
-        feat_xg.shape = xshape + (-1,)
-        return feat_xg
+        _feat_xg.shape = (-1,) + gshape_out
+        for x in range(np.prod(xshape)):
+            out_xg[x] = self.gd.collect(_feat_xg[x], broadcast=True)
+        out_xg.shape = xshape + out_xg.shape[-3:]
+        return out_xg
 
     def _check_setups(self):
         if hasattr(self, "setups") and self.setups is not None:

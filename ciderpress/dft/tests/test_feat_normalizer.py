@@ -21,7 +21,7 @@
 import unittest
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_allclose, assert_almost_equal
 
 from ciderpress.dft.feat_normalizer import (
     CFC,
@@ -30,10 +30,34 @@ from ciderpress.dft.feat_normalizer import (
     FeatNormalizerList,
     get_normalizer_from_exponent_params,
 )
-from ciderpress.dft.settings import get_alpha, get_s2
+from ciderpress.dft.settings import HybridSettings, dalpha, get_alpha, get_s2
 from ciderpress.dft.tests import debug_normalizers as rho_normalizers
 
 DELTA = 1e-7
+
+
+def test_alpha_floor_and_derivative_are_consistent():
+    rho = np.array([1.0, 1.0])
+    sigma = np.array([0.8, 0.8])
+    tau = np.array([0.05, 0.15])
+    assert_allclose(get_alpha(rho, sigma, tau)[0], 0.0)
+
+    analytical = dalpha(rho, sigma, tau)
+    for values in analytical:
+        assert values[0] == 0.0
+    for index in range(3):
+        numerical = eval_fd(get_alpha, [rho, sigma, tau], index)
+        assert_allclose(analytical[index], numerical, rtol=2e-6, atol=1e-9)
+
+
+def test_hybrid_feature_uniform_scaling_metadata():
+    settings = HybridSettings()
+    raw_usp = settings.get_feat_usps()[0]
+    normalizer_usp = settings.get_reasonable_normalizer()[0].get_usp()
+
+    assert raw_usp == 4
+    assert normalizer_usp == -4
+    assert raw_usp + normalizer_usp == 0
 
 
 def eval_fd(func, inps, i):

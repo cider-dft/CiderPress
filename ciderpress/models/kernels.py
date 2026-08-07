@@ -234,11 +234,11 @@ class DiffRBF(DiffKernelMixin, RBF):
 
 
 class DiffAntisymRBF(DiffRBF):
-    """
-    This is like a regular RBF kernel, except it obeys a sort
-    of "antisymmetry" property where
-    k(x0, x1, x2, ....; x0', x1', x2' ....) = 0
-    if x0 == x1 or x0' == x1'.
+    r"""
+    This is like a regular RBF kernel, except it obeys an antisymmetry-like
+    constraint:
+    :math:`k(x_0,x_1,x_2,\ldots;x'_0,x'_1,x'_2,\ldots)=0` if
+    :math:`x_0=x_1` or :math:`x'_0=x'_1`.
     This property applies only to the first two features. It could
     be useful for enforcing exact constraints.
     """
@@ -472,11 +472,12 @@ class _SubsetMixin(_IndexMixin):
     """
 
     def __init__(self, indexes, *args, **kwargs):
-        """
-        Initialize SubsetKernel
+        """Initialize a kernel that acts on a subset of features.
+
         Args:
             indexes: list/tuple of indexes or slice
-            *args and **kwargs: arguments to parent kernel
+            *args: positional arguments to the parent kernel
+            **kwargs: keyword arguments to the parent kernel
         """
         self._locked = False
         self.indexes = indexes
@@ -552,11 +553,13 @@ class _SpinSymMixin(_IndexMixin):
     """
 
     def __init__(self, alpha_ind, beta_ind, *args, **kwargs):
-        """
+        """Initialize a kernel with alpha/beta spin symmetry.
+
         Args:
             alpha_ind: list/tuple of indexes or slice for alpha spin
             beta_ind: list/tuple of indexes or slice for beta spin
-            *args and **kwargs: arguments to parent kernel
+            *args: positional arguments to the parent kernel
+            **kwargs: keyword arguments to the parent kernel
         """
         self._locked = False
         self.alpha_ind = alpha_ind
@@ -1580,32 +1583,32 @@ class SpinSymKernel(ADKernel):
 
 
 class SubsetRBF(_SubsetMixin, DiffRBF):
-    pass
+    """RBF kernel evaluated on a subset of input features."""
 
 
 class SubsetARBF(_SubsetMixin, DiffARBF):
-    pass
+    """Additive RBF kernel evaluated on a subset of input features."""
 
 
 class SubsetAddLLRBF(_SubsetMixin, DiffAddLLRBF):
-    pass
+    """Additive RBF kernel with multiplicative linear term, evaluated on selected features."""
 
 
 class SubsetAddRQ(_SubsetMixin, DiffAddRQ):
-    pass
+    """Additive rational-quadratic kernel evaluated on selected features."""
 
 
 class SubsetPoly(_SubsetMixin, DiffPolyKernel):
-    pass
+    """Polynomial kernel evaluated on a subset of input features."""
 
 
 class SpinSymRBF(_SpinSymMixin, DiffRBF):
-    pass
+    """RBF kernel with symmetry between alpha and beta spin features."""
 
 
 class SpinSymARBF(_SpinSymMixin, DiffARBF):
-    pass
+    """Additive RBF kernel with alpha/beta spin symmetry."""
 
 
 class SpinSymPoly(_SpinSymMixin, DiffPolyKernel):
-    pass
+    """Polynomial kernel with symmetry between alpha and beta spin features."""

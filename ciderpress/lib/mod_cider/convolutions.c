@@ -89,7 +89,7 @@ double gauss_a2dida(int l, double alpha, double expi, double expj) {
 
 double gauss_lapli0(int l, double alpha, double expi, double expj) {
     return 4 * gauss_a2dida(l, alpha, expi, expj) -
-           2 * gauss_ai0(l, alpha, expi, expj);
+           6 * gauss_ai0(l, alpha, expi, expj);
 }
 
 /**

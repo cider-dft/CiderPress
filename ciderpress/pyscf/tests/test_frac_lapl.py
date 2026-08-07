@@ -100,6 +100,7 @@ def get_flapl2(grids, grids_cen, dm_rg, dm_r, s=0.5):
 
 
 DELTA = 1e-6
+DM_FD_DELTA = 5e-6
 FD_DELTA = 1e-4
 
 
@@ -285,7 +286,7 @@ class TestFracLapl(unittest.TestCase):
         dm_pert += dm_pert.T
         dm_pert /= np.linalg.norm(dm_pert)
         make_rho, nset, nao = numint._gen_rho_evaluator(
-            mol, dm + 0.5 * DELTA * dm_pert, hermi=1, with_lapl=False
+            mol, dm + 0.5 * DM_FD_DELTA * dm_pert, hermi=1, with_lapl=False
         )
         ep = 0
         for ao, mask, weight, coords in numint.block_loop(mol, grids, deriv=1):
@@ -294,7 +295,7 @@ class TestFracLapl(unittest.TestCase):
             edens = get_e_and_v(feat)[0]
             ep += np.dot(edens, weight).sum()
         make_rho, nset, nao = numint._gen_rho_evaluator(
-            mol, dm - 0.5 * DELTA * dm_pert, hermi=1, with_lapl=False
+            mol, dm - 0.5 * DM_FD_DELTA * dm_pert, hermi=1, with_lapl=False
         )
         em = 0
         for (ao, kao), mask, weight, coords in numint.block_loop(mol, grids, deriv=1):
@@ -303,7 +304,7 @@ class TestFracLapl(unittest.TestCase):
             edens = get_e_and_v(feat)[0]
             em += np.dot(edens, weight).sum()
         egrad_pred = (dm_pert * vmat).sum()
-        egrad_ref = (ep - em) / DELTA
+        egrad_ref = (ep - em) / DM_FD_DELTA
         assert_allclose(egrad_pred, egrad_ref, rtol=1e-7, atol=1e-10)
 
     def test_vxc(self):

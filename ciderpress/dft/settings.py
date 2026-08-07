@@ -21,6 +21,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from scipy.special import erfcx
 from scipy.special import gamma as gamma_func
 
 from ciderpress.dft.feat_normalizer import (
@@ -250,10 +251,11 @@ class FracLaplSettings(BaseSettings):
     def __init__(self, slist, nk0, nk1, l1_dots, nd1=0, ld_dots=None, ndd=0):
         """
         Initialize FracLaplSettings object. Note, in the documentation below
-        on the indexing of the features, fl_rho is the part of the density
+        on the indexing of the features, ``fl_rho`` is the part of the density
         ingredient vector AFTER the semilocal part.
 
-        Note on the l=1 feature indexing. If l1_dots[i] = (j, k), then::
+        Note on the :math:`\\ell=1` feature indexing. If
+        ``l1_dots[i] = (j, k)``, then::
 
             fl_feat[i+nk0] = einsum(
                 'xg,xg->g',
@@ -261,7 +263,7 @@ class FracLaplSettings(BaseSettings):
                 fl_rho[3*k+nk0 : 3*k+3+nk0],
             )
 
-        If ld_dots[i] = (j, k), then::
+        If ``ld_dots[i] = (j, k)``, then::
 
             nstart = nk0 + 3 * nk1
             fl_feat[i + nk0 + len(l1_dots)] = einsum(
@@ -276,24 +278,29 @@ class FracLaplSettings(BaseSettings):
             slist (list of float): s parameters for the fractional
                 Laplacian. For each s, :math:`(-\\Delta)^s \\phi_i` is computed
                 for each single-particle orbital.
-            nk0 (int): Number of scalar (l=0) features. Must be <= len(slist).
-                fl_feat[i] = fl_rho[i] = :math:`(-\\Delta')^s \\rho(r, r') |_{r'=r}`,
-                with s=slist[i].
-            nk1 (int): Number of vector (l=1) features F_s^1. Must be <= len(slist).
-                fl_rho[3*i+nk0 : 3*i+3+nk0] =
-                :math:`\\nabla'' (-\\Delta')^s \\rho(r'', r') |_{r'=r,r''=r}`,
-                with s=slist[i].
+            nk0 (int): Number of scalar (:math:`\\ell=0`) features. Must be
+                ``<= len(slist)``. For ``s = slist[i]``, ``fl_feat[i]`` and
+                ``fl_rho[i]`` contain
+                :math:`(-\\Delta')^s \\rho(r,r')|_{r'=r}`.
+            nk1 (int): Number of vector (:math:`\\ell=1`) features
+                :math:`F_s^1`. Must be ``<= len(slist)``. For
+                ``s = slist[i]``, the corresponding three entries in
+                ``fl_rho`` contain
+                :math:`\\nabla''(-\\Delta')^s\\rho(r'',r')|_{r'=r,r''=r}`.
             l1_dots (list of (int, int)): List of index tuples for contracting
-                the l=1 F_s^1 features. -1 indicates to use the semilocal
-                density gradient.
-            nd1 (int): Number of vector features F_s^d. Must be ``<= len(slist)``
+                the :math:`\\ell=1` features :math:`F_s^1`. ``-1`` indicates
+                the semilocal density gradient.
+            nd1 (int): Number of vector features :math:`F_s^d`. Must be
+                ``<= len(slist)``.
                 With ``nstart = nk0 + 3 * nk1``,
                 ``fl_rho[i * 3 + nstart : (i+1) * 3 + nstart] =``
                 :math:`\\nabla' (-\\Delta')^s \\rho(r, r') |_{r'=r}`,
-                with s=slist[i].
-            ld_dots (list of (int, int)): Same as l1_dots but for the F_s^d
-                features. -1 indicates to use the semilocal density gradient.
-            ndd (int): Numer of dot product features :math:`F_s^{dd}`. Must be <= nd1
+                with ``s = slist[i]``.
+            ld_dots (list of (int, int)): Same as ``l1_dots`` but for the
+                :math:`F_s^d` features. ``-1`` indicates the semilocal density
+                gradient.
+            ndd (int): Number of dot-product features :math:`F_s^{dd}`. Must
+                be ``<= nd1``.
         """
         self.slist = slist
         assert nk0 <= self.npow
@@ -524,13 +531,14 @@ class SADMSettings(SDMXBaseSettings):
 
 class SDMXSettings(SADMSettings):
     def __init__(self, pows):
-        """
+        r"""
         Initialize SDMX settings.
 
         Args:
-            pows (list of int): for each number n in pows,
-                int dR R^{2-n} rho_smooth(R) is computed. Technically,
-                n can be any float, but it should be 0, 1, or 2 for
+            pows (list of int): For each :math:`n` in ``pows``,
+                :math:`\int \mathrm{d}R\,R^{2-n}\rho_{\mathrm{smooth}}(R)`
+                is computed. Technically, :math:`n` can be any float, but it
+                should be 0, 1, or 2 for
                 normalizability and ability to compute UEG values.
                 If not 0, 1, or 2, UEG limit cannot be computed,
                 and features might be poorly defined/numerically inaccurate.
@@ -580,8 +588,9 @@ class SDMXGSettings(SDMXSettings):
 
         Args:
             pows (list of int): list of 0, 1, 2, see SDMXSettings docstring.
-            ndt (int): Number of gradient features H_n^d. Will compute features
-                for the first ndt values of n in pows.
+            ndt (int): Number of gradient features :math:`H_n^d`. Computes
+                features for the first ``ndt`` values of :math:`n` in
+                ``pows``.
         """
         super(SDMXGSettings, self).__init__(pows)
         assert ndt <= len(pows)
@@ -637,8 +646,9 @@ class SDMX1Settings(SDMXSettings):
 
         Args:
             pows (list of int): list of 0, 1, 2, see SDMXSettings docstring.
-            n1 (int): Number of gradient features H_n^1. Will compute features
-                for the first n1 values of n in pows.
+            n1 (int): Number of gradient features :math:`H_n^1`. Computes
+                features for the first ``n1`` values of :math:`n` in
+                ``pows``.
         """
         super(SDMX1Settings, self).__init__(pows)
         self.pows = pows
@@ -682,10 +692,12 @@ class SDMXG1Settings(SDMXGSettings):
 
         Args:
             pows (list of int): list of 0, 1, 2, see SDMXSettings docstring.
-            nd (int): Number of gradient features H_n^d. Will compute features
-                for the first nd values of n in pows.
-            n1 (int): Number of gradient features H_n^1. Will compute features
-                for the first n1 values of n in pows.
+            nd (int): Number of gradient features :math:`H_n^d`. Computes
+                features for the first ``nd`` values of :math:`n` in
+                ``pows``.
+            n1 (int): Number of gradient features :math:`H_n^1`. Computes
+                features for the first ``n1`` values of :math:`n` in
+                ``pows``.
         """
         super(SDMXG1Settings, self).__init__(pows, nd)
         self._n1 = n1
@@ -883,90 +895,108 @@ class SDMXFullSettings(SDMXBaseSettings):
 
 class HybridSettings(BaseSettings):
     """
-    TODO very rough draft of hybrid settings, to be fully implemented later.
+    Settings object for local (or global) hybrid functionals.  For the first
+    implementation we only support a single learned mixing fraction
+    α(r) (no range–separation).  The settings object therefore contains just
+    one feature placeholder so that the GP kernel can attach to it.
     """
 
-    def __init__(self, alpha, beta, local):
-        self.alpha = alpha
-        self.beta = beta
-        self.local = local
+    def __init__(self, surrogate=False, **kwargs):
+        """Create a HybridSettings instance.
 
-    @property
-    def size(self):
-        if not self.local:
-            return 0
-        elif self.beta:  # beta is screened component
-            return 2
-        else:
-            return 1
+        Args:
+            surrogate (bool): If False (default), the model uses actual seminumerical exchange, if True, the model uses a CIDER model (not implemented yet) for the exchange energy density.
+        """
+        self.surrogate = surrogate
 
-    @property
-    def nglob(self):
-        if self.local:
-            return 0
-        elif self.beta:
-            return 2
-        else:
-            return 1
-
+    # ---------------------------------------------------------------------
+    # Required interface for *BaseSettings
+    # ---------------------------------------------------------------------
     @property
     def nfeat(self):
-        # TODO
-        return 0
+        # One scalar feature: the exchange energy density ε_x^EXX.  The GP will
+        # output the mixing factor α(r).
+        return 1
 
-    @property
     def get_feat_usps(self):
-        raise NotImplementedError
+        # USP of exchange energy density is 4.
+        return [4]
 
-    @property
-    def ueg_vector(self, rho=1.0):
-        raise NotImplementedError
+    def ueg_vector(self, rho: float = 1.0):
+        # The uniform-electron-gas value of ε_x^EXX is the LDA exchange energy
+        # density.
+        return np.array([LDA_FACTOR * rho ** (4.0 / 3)], dtype=np.float64)
 
     def get_reasonable_normalizer(self):
-        raise NotImplementedError
+        # Normalise by LDA exchange energy density to make feature scale-invariant.
+        return [DensityNormalizer(1.0 / LDA_FACTOR, power=-4.0 / 3)]
 
 
 ALLOWED_I_SPECS_L0 = ["se", "se_r2", "se_apr2", "se_ap", "se_ap2r2", "se_lapl"]
-"""
-Allowed spec strings for version i l=0 features.
+r"""
+Allowed spec strings for version-I :math:`\ell=0` features.
 
-se: squared-exponential
+``se``: squared exponential, :math:`\exp(-aR^2)`
 
-se_r2: squared-exponential times r^2
+``se_r2``: :math:`R^2\exp(-aR^2)`
 
-se_apr2: squared-exponential times the exponent of the
-r' coordinate times r^2
+``se_apr2``: :math:`aR^2\exp(-aR^2)`, where :math:`a` is the exponent
+at the integrated coordinate :math:`\mathbf r'`
 
-se_ap: squared-exponential times the exponent of the
-r' coordinate.
+``se_ap``: :math:`a\exp(-aR^2)`
 
-se_ap2r2: squared-exponential times exponent^2 times r^2
+``se_ap2r2``: :math:`a^2R^2\exp(-aR^2)`
 
-se_lapl: laplacian of squared-exponential
+``se_lapl``: :math:`(4a^2R^2-6a)\exp(-aR^2)`, the three-dimensional
+Laplacian of the squared-exponential kernel
 """
 
 ALLOWED_I_SPECS_L1 = ["se_grad", "se_rvec"]
+r"""
+Allowed spec strings for version-I :math:`\ell=1` features.
+
+``se_grad``: :math:`a(\mathbf r'-\mathbf r)\exp(-aR^2)`
+
+``se_rvec``: :math:`(\mathbf r'-\mathbf r)\exp(-aR^2)`
 """
-Allowed spec strings for version i l=1 features
+STANDARD_J_SPECS = ["se", "se_ar2", "se_a2r4", "se_erf_rinv"]
+EXPERIMENTAL_VDW_J_SPECS = [
+    "se_rinv4",
+    "rinv2_rinv4",
+    "rinv4_rinv2",
+    "se_rinv2",
+]
+ALLOWED_J_SPECS = STANDARD_J_SPECS + EXPERIMENTAL_VDW_J_SPECS
+r"""
+Allowed spec strings for version-J features.
+Version-K features have the same allowed spec strings.
 
-se_grad: gradient of squared-exponential
+``se``: squared exponential, :math:`\exp(-aR^2)`
 
-se_rvec: squared-exponential times vector (r'-r)
-"""
+``se_ar2``: :math:`aR^2\exp(-aR^2)`
 
-ALLOWED_J_SPECS = ["se", "se_ar2", "se_a2r4", "se_erf_rinv"]
-"""
-Allowed spec strings for version j features.
-Version k features have the same allowed spec strings
+``se_a2r4``: :math:`a^2R^4\exp(-aR^2)`
 
-se: squared-exponential
+``se_erf_rinv``: squared exponential times :math:`1/R`, with short-range
+error-function damping
 
-se_ar2: squared-exponential * a * r^2
+The rational-kernel specs below are experimental and require
+``vdw_param=True`` when constructing ``NLDFSettingsVJ``.
 
-se_a2r4: squared-exponential * a^2 * r^4
+``se_rinv4``: :math:`\exp(-aR^2)/(aR^2+1)^2`
 
-se_erf_rinv: squared-exponential * 1/r with short-range
-erf damping
+``rinv2_rinv4``: :math:`1/(aR^2+1)` at one coordinate and
+:math:`1/(aR^2+1)^2` at the other
+
+``rinv2`` component: :math:`1/(aR^2+1)`
+
+``rinv4`` component: :math:`1/(aR^2+1)^2`
+
+``rinv4_rinv2``: :math:`1/(aR^2+1)^2` at one coordinate and
+:math:`1/(aR^2+1)` at the other
+
+``se_rinv2``: :math:`\exp(-aR^2)/(aR^2+1)`
+
 """
 ALLOWED_K_SPECS = ALLOWED_J_SPECS
 """
@@ -979,20 +1009,20 @@ These strings specify the allowed options for what value
 to multiply the density by before integrating it to construct
 NLDF features. The options are:
 
-one: Identity, i.e. multiply density by 1
+``one``: Identity, i.e. multiply the density by 1.
 
-expnt: Multiply the density by the NLDF exponent specified
-by the theta_params. (NOTE: Experimental, not thoroughly tested.)
+``expnt``: Multiply the density by the NLDF exponent specified by
+``theta_params``. This option is experimental and not thoroughly tested.
 """
 
 ALLOWED_RHO_DAMPS = ["exponential"]
 """
 These strings specify the allowed options for how to "damp"
 the density for the version k features. Currently the only allowed
-option is "exponential", which results in the integral
-:math:`\\int g[n](|r-r'|) n(r') exp(-3 a_0[n](r') / 2 a_i[n](r))`,
+option is ``exponential``, which results in the integral
+:math:`\\int g[n](|r-r'|) n(r') \\exp[-3 a_0[n](r')/(2 a_i[n](r))]`,
 where :math:`a_0` is the exponent given by ``theta_params``
-and :math:`a_i` is an exponet given by ``feat_params``.
+and :math:`a_i` is an exponent given by ``feat_params``.
 """
 
 SPEC_USPS = {
@@ -1008,12 +1038,16 @@ SPEC_USPS = {
     "se_grad": 1,
     "se_rvec": -1,
     "grad_rho": 4,
+    "se_rinv4": 0,
+    "rinv2_rinv4": 0,
+    "rinv4_rinv2": 0,
+    "se_rinv2": 0,
 }
-"""
-Uniform-scaling powers (USPs) descibe how features scale as the
-density is scaled by n_lambda(r) = lambda^3 n(lambda r). If the
-USP of a functional F is u, then
-F[n_lambda](r) = lambda^u F[n](lambda r)
+r"""
+Uniform-scaling powers (USPs) describe how features scale under
+:math:`n_\lambda(\mathbf r)=\lambda^3n(\lambda\mathbf r)`. If the USP of a
+functional :math:`F` is :math:`u`, then
+:math:`F[n_\lambda](\mathbf r)=\lambda^uF[n](\lambda\mathbf r)`.
 """
 RHO_MULT_USPS = {
     "one": 0,
@@ -1237,7 +1271,7 @@ class NLDFSettingsVI(NLDFSettings):
             elif spec == "se_ap2r2":
                 integral *= 1.5 * expnt
             elif spec == "se_lapl":
-                integral *= 4 * expnt
+                integral = 0.0
             else:
                 raise ValueError
             l0ueg.append(rho * rho_mult * integral)
@@ -1286,6 +1320,7 @@ class NLDFSettingsVJ(NLDFSettings):
         rho_mult,
         feat_specs,
         feat_params,
+        vdw_param=False,
     ):
         """
         Initialize NLDFSettingsVJ
@@ -1312,11 +1347,20 @@ class NLDFSettingsVJ(NLDFSettings):
                 has an additional parameter erf_mul for the ratio of the
                 erf / rinv exponent to the squared-exponential exponent.
                 tau_mul is ignored if sl_level="GGA" and may therefore be excluded.
+            vdw_param (bool): Enable the experimental rational-kernel feature
+                specs in ``EXPERIMENTAL_VDW_J_SPECS``.
         """
         super(NLDFSettingsVJ, self).__init__(sl_level, theta_params, rho_mult)
         self.feat_params = feat_params
         self.feat_specs = feat_specs
+        self.vdw_param = vdw_param
         self._check_specs(self.feat_specs, ALLOWED_J_SPECS)
+        if not self.vdw_param and any(
+            spec in EXPERIMENTAL_VDW_J_SPECS for spec in self.feat_specs
+        ):
+            raise ValueError(
+                "Experimental rational-kernel specs require vdw_param=True"
+            )
         if len(self.feat_params) != len(self.feat_specs):
             raise ValueError("specs and params must have same length")
         for s, p in zip(self.feat_specs, self.feat_params):
@@ -1369,6 +1413,48 @@ class NLDFSettingsVJ(NLDFSettings):
             elif spec == "se_erf_rinv":
                 expnt3 = expnt2 * params[-1]
                 integral *= np.sqrt(expnt / (expnt + expnt3))
+            elif spec == "rinv2_rinv4":
+                a_i = expnt2
+                a_0 = _get_ueg_expnt(a0t, t0t, rho)
+                if a_i < 1e-12 or a_0 < 1e-12:
+                    integral = 0.0
+                else:
+                    integral = np.pi**2 / ((np.sqrt(a_i / a_0) + 1) ** 2 * a_0**1.5)
+            elif spec == "se_rinv4":
+                a_i = expnt2
+                a_0 = _get_ueg_expnt(a0t, t0t, rho)
+                if a_i < 1e-12 or a_0 < 1e-12:
+                    integral = 0.0
+                else:
+                    ratio = a_i / a_0
+                    sqrt_ratio = np.sqrt(ratio)
+                    term1 = (2 * a_i + a_0) * erfcx(sqrt_ratio) / a_0**2.5
+                    term2 = 2.0 * np.sqrt(a_i) / (np.sqrt(np.pi) * a_0**2)
+                    integral = np.pi * np.pi * (term1 - term2)
+            elif spec == "rinv4_rinv2":
+                a_i = expnt2
+                a_0 = _get_ueg_expnt(a0t, t0t, rho)
+                if a_i < 1e-12 or a_0 < 1e-12:
+                    integral = 0.0
+                else:
+                    denominator = np.sqrt(a_i) * (np.sqrt(a_i) + np.sqrt(a_0)) ** 2
+                    integral = np.pi**2 / denominator
+            elif spec == "se_rinv2":
+                a_i = expnt2
+                a_0 = _get_ueg_expnt(a0t, t0t, rho)
+                if a_i < 1e-12 or a_0 < 1e-12:
+                    integral = 0.0
+                else:
+                    ratio = a_i / a_0
+                    integral = (
+                        2
+                        * np.pi
+                        / a_0
+                        * (
+                            np.sqrt(np.pi / a_i)
+                            - np.pi / np.sqrt(a_0) * erfcx(np.sqrt(ratio))
+                        )
+                    )
             else:
                 raise ValueError
             ueg_feats.append(rho * rho_mult * integral)
@@ -1719,8 +1805,7 @@ class FeatureSettings(BaseSettings):
             if normalizers is None
             else normalizers
         )
-        if self.hyb_settings.nfeat != 0:
-            raise NotImplementedError("Hybrid DFT")
+        # Hybrid features are now supported; no restriction here.
 
     @property
     def has_sl(self):
@@ -1737,6 +1822,10 @@ class FeatureSettings(BaseSettings):
     @property
     def has_sdmx(self):
         return not self.sdmx_settings.is_empty
+
+    @property
+    def has_hyb(self):
+        return not self.hyb_settings.is_empty
 
     @property
     def nfeat(self):
@@ -1854,14 +1943,10 @@ def get_alpha(rho, sigma, tau):
     cond = rho < ALPHA_TOL
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
-    tauw = get_single_orbital_tau(rho, np.sqrt(sigma))
-    # TODO this numerical stability trick is a bit of a hack.
-    # Should make spline support small negative alpha
-    # instead, for the sake of clean code and better stability.
-    alpha = np.maximum((tau - tauw), 0) / tau0
+    tauw = sigma / (8 * rho)
+    alpha = np.maximum(tau - tauw, 0.0) / tau0
     alpha[cond] = 0
     return alpha
-    # return np.maximum((tau - tauw), 0) / tau0
 
 
 def dalpha(rho, sigma, tau):
@@ -1869,12 +1954,16 @@ def dalpha(rho, sigma, tau):
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
     tauw = sigma / (8 * rho)
+    # Match the inactive branch of max(tau - tauw, 0).  At equality the
+    # clipped function is nondifferentiable; the zero derivative is retained
+    # for release compatibility, while the fractional-occupation convention
+    # requires separate validation.
+    inactive = np.logical_or(cond, tau <= tauw)
     dwdn, dwds = -sigma / (8 * rho * rho), 1 / (8 * rho)
     dadn = 5.0 * (tauw - tau) / (3 * tau0 * rho) - dwdn / tau0
     dadsigma = -dwds / tau0
     dadtau = 1 / tau0
-    # cond = (tau - tauw) / tau0 < -0.1
-    dadn[cond] = 0
-    dadsigma[cond] = 0
-    dadtau[cond] = 0
+    dadn[inactive] = 0
+    dadsigma[inactive] = 0
+    dadtau[inactive] = 0
     return dadn, dadsigma, dadtau

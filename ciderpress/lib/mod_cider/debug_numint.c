@@ -57,7 +57,7 @@ void debug_numint_vi(double *Fvec, double *vva, double *vvf, double *vvcoords,
                 F2 += vva[j] * R2 * tmp;
                 F3 += vva[j] * tmp;
                 F4 += vva[j] * vva[j] * R2 * tmp;
-                F5 += (4 * vva[j] * R2 - 2) * vva[j] * tmp;
+                F5 += (4 * vva[j] * R2 - 6) * vva[j] * tmp;
                 F6X += DX * tmp;
                 F6Y += DY * tmp;
                 F6Z += DZ * tmp;

@@ -449,7 +449,7 @@ class TestSDMXFFT(unittest.TestCase):
         )
         ks = pbcdft.KRKS(unitcell, kpts)
         ks.xc = "r2SCAN"
-        mlfunc = "functionals/CIDER24Xe.yaml"
+        mlfunc = "CIDER24Xe"
 
         cider_ks = dft.make_cider_calc(
             ks, mlfunc, xmix=0.25, xkernel="GGA_X_PBE", ckernel="GGA_C_PBE"
@@ -487,7 +487,7 @@ class TestSDMXFFT(unittest.TestCase):
             time_reversal_symmetry=True,
         )
         ks = pbcdft.KRKS(unitcell, kpts)
-        mlfunc = "functionals/CIDER24Xe.yaml"
+        mlfunc = "CIDER24Xe"
         cider_ks = dft.make_cider_calc(
             ks,
             mlfunc,
@@ -526,7 +526,7 @@ class TestSDMXFFT(unittest.TestCase):
         )
         ks = pbcdft.KUKS(unitcell, kpts)
         ks.xc = "r2SCAN"
-        mlfunc = "functionals/CIDER24Xe.yaml"
+        mlfunc = "CIDER24Xe"
 
         t0 = time.monotonic()
         ks.kernel()

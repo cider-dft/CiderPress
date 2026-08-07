@@ -31,6 +31,22 @@ from ciderpress.models.kernels import (
 def get_rbf_kernel(
     indexes, length_scale, scale=1.0, opt_hparams=False, min_lscale=None
 ):
+    """Construct a constant-scaled RBF covariance kernel over a feature subset.
+
+    Args:
+        indexes (array-like): Indexes of the features the kernel acts on.
+        length_scale (np.ndarray): Per-feature RBF length scales; the entries
+            selected by ``indexes`` are used.
+        scale (float): Constant covariance prefactor.
+        opt_hparams (bool): If True, leave the length scales and prefactor
+            open for hyperparameter optimization; otherwise fix them.
+        min_lscale (float or None): Lower length-scale optimization bound
+            (default 0.01).
+
+    Returns:
+        A product kernel ``DiffConstantKernel * SubsetRBF`` for Gaussian
+        process training.
+    """
     if min_lscale is None:
         min_lscale = 0.01
     length_scale_bounds = (min_lscale, 10) if opt_hparams else "fixed"
@@ -43,6 +59,26 @@ def get_rbf_kernel(
 
 
 def get_antisym_rbf_kernel(length_scale, scale=1.0, opt_hparams=False, min_lscale=None):
+    r"""Construct a constant-scaled antisymmetric RBF covariance kernel.
+
+    The returned kernel is antisymmetric to exchange of the first two feature inputs.
+    So :math:`k(x_0, x_1, ...; x_0', x_1', ...) = -k(x_1, x_0, ...; x_0', x_1', ...)`
+    and :math:`k(x_0, x_1, ...; x_0', x_1', ...) = -k(x_0, x_1, ...; x_1', x_0', ...)`.
+    This kernel can help with exact constraint enforcement because
+    :math:`k(x_0, x_0, ...; x_0', x_1', ...) = 0`.
+
+    Args:
+        length_scale (np.ndarray): Per-feature RBF length scales.
+        scale (float): Initial constant covariance prefactor.
+        opt_hparams (bool): If True, leave the length scales and prefactor
+            open for hyperparameter optimization; otherwise fix them.
+        min_lscale (float or None): Lower length-scale optimization bound
+            (default 0.01).
+
+    Returns:
+        A product kernel ``DiffConstantKernel * DiffAntisymRBF`` for Gaussian
+        process training.
+    """
     if min_lscale is None:
         min_lscale = 0.01
     length_scale_bounds = (min_lscale, 10) if opt_hparams else "fixed"
@@ -68,7 +104,31 @@ def get_agpr_kernel(
     opt_hparams=False,
     min_lscale=None,
 ):
-    print(sinds, ainds, length_scale[sinds], length_scale[ainds])
+    """Construct an additive-RBF (ARBF) covariance kernel.
+
+    The additive Gaussian process kernel expands the covariance in terms of
+    feature subsets up to size ``order``, optionally multiplied by a plain RBF
+    factor over the ``sinds`` features.
+
+    Args:
+        sinds (array-like): Feature indexes for the single (multiplicative)
+            RBF factor; ignored if ``nsingle`` is 0.
+        ainds (array-like): Feature indexes entering the additive kernel.
+        length_scale (np.ndarray): Per-feature RBF length scales.
+        scale (list or None): Covariance prefactors, one per additive
+            order (default all 1). Should be of length ``order + 1``.
+        order (int): Maximum interaction order of the additive kernel.
+        nsingle (int): Enable the multiplicative RBF factor when nonzero;
+            0 omits the factor. The selected features are given by ``sinds``.
+        opt_hparams (bool): If True, leave length scales and prefactors open
+            for hyperparameter optimization; otherwise fix them.
+        min_lscale (float or None): Lower length-scale optimization bound
+            (default 0.01).
+
+    Returns:
+        A ``SubsetARBF`` kernel, or ``SubsetRBF * SubsetARBF`` when a single
+        factor is requested.
+    """
     if min_lscale is None:
         min_lscale = 0.01
     length_scale_bounds = (min_lscale, 10) if opt_hparams else "fixed"

@@ -37,7 +37,9 @@ pyscf.dft.radi.ATOM_SPECIFIC_TREUTLER_GRIDS = False
 
 XCVALS = {
     "CIDER23X_SL_GGA": -199.442504774708,
-    "CIDER23X_NL_GGA": -199.410917905451,
+    # PySCF's default NLDF representation is spline.  The previous reference
+    # (-199.410917905451) was generated with the legacy Gaussian default.
+    "CIDER23X_NL_GGA": -199.4109382175,
     "CIDER23X_SL_MGGA": -199.41699396454,
     "CIDER23X_NL_MGGA": -199.422085280523,
     "CIDER23X_NL_MGGA_PBE": -199.421990307797,
@@ -58,7 +60,7 @@ def run_functional(xcname):
     ks.xc = "PBE"
     ks.grids.level = 3
 
-    xcfile = "functionals/{}.yaml".format(xcname)
+    xcfile = xcname
     ks = make_cider_calc(
         ks, xcfile, xmix=0.25, xkernel="GGA_X_PBE", ckernel="GGA_C_PBE"
     )

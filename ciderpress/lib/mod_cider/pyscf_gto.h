@@ -70,6 +70,6 @@ typedef void (*FPtr_eval_sdmx)(double *gto, double *ri, double *exps,
                                int mg_stride);
 typedef void (*FPtr_eval_sdmx_rad)(double *vbas, double *exps, int nc,
                                    size_t nao, size_t ngrids, size_t blksize,
-                                   int stride);
+                                   size_t stride);
 
 #endif

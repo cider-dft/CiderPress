@@ -50,6 +50,8 @@ VJ_ID_MAP = {
     "se_ar2": 1,
     "se_a2r4": 2,
     "se_erf_rinv": 3,
+    "rinv2": 4,  # Placeholder for H_i term (1 / (a_i r^2 + 1))
+    "rinv4": 5,  # Placeholder for G_i/H_i term (1 / (a_0 r^2 + 1))^2
 }
 VI_ID_MAP = {
     "se": 0,
@@ -64,7 +66,7 @@ VI_ID_MAP = {
 
 
 def _get_ovlp_fit_interpolation_coefficients(
-    plan, arg_g, i=-1, local=True, vbuf=None, dbuf=None
+    plan, arg_g, i=-1, local=True, vbuf=None, dbuf=None, force_se=False
 ):
     """
 
@@ -83,10 +85,40 @@ def _get_ovlp_fit_interpolation_coefficients(
     p = plan.empty_coefs(ngrids, local=local, buf=vbuf)
     dp = plan.empty_coefs(ngrids, local=local, buf=dbuf)
     if i == -1:
-        feat_id = VJ_ID_MAP["se"]
+        if force_se:
+            # Force SE kernel for overlap matrix computation
+            feat_id = VJ_ID_MAP["se"]
+        elif not hasattr(plan.nldf_settings, "vdw_param"):
+            feat_id = VJ_ID_MAP["se"]
+        elif not plan.nldf_settings.vdw_param:
+            feat_id = VJ_ID_MAP["se"]
+        else:
+            if (
+                plan.nldf_settings.feat_spec_list[i] == "rinv4_rinv2"
+                or plan.nldf_settings.feat_spec_list[i] == "se_rinv2"
+            ):
+                feat_id = VJ_ID_MAP["rinv2"]
+            else:
+                feat_id = VJ_ID_MAP["rinv4"]
+
     else:
         assert 0 <= i < plan.nldf_settings.num_feat_param_sets
-        feat_id = VJ_ID_MAP[plan.nldf_settings.feat_spec_list[i]]
+        if not hasattr(plan.nldf_settings, "vdw_param"):
+            feat_id = VJ_ID_MAP[plan.nldf_settings.feat_spec_list[i]]
+        elif not plan.nldf_settings.vdw_param:
+            feat_id = VJ_ID_MAP[plan.nldf_settings.feat_spec_list[i]]
+        else:
+            if plan.nldf_settings.feat_spec_list[i] == "rinv2_rinv4":
+                feat_id = VJ_ID_MAP["rinv2"]
+            elif (
+                plan.nldf_settings.feat_spec_list[i] == "se_rinv4"
+                or plan.nldf_settings.feat_spec_list[i] == "se_rinv2"
+            ):
+                feat_id = VJ_ID_MAP["se"]
+            elif plan.nldf_settings.feat_spec_list[i] == "rinv4_rinv2":
+                feat_id = VJ_ID_MAP["rinv4"]
+            else:
+                feat_id = VJ_ID_MAP[plan.nldf_settings.feat_spec_list[i]]
     if feat_id == VJ_ID_MAP["se_erf_rinv"]:
         extra_args = plan._get_extra_args(i)
         num_extra_args = len(extra_args)
@@ -659,7 +691,7 @@ class SADMPlan:
             settings (SADMSettings): Settings for the descriptor.
             nspin (int): Number of spins, 2 for spin-polarized and 1 for
                 non-spin-polarized
-            alpha0 (float): Minimum exponent. sqrt(1/alpha0) should be at least
+            alpha0 (float): Minimum exponent. :math:`1/\\sqrt{\\alpha_0}` should be at least
                 the width of the system, or altneratively the maximum distance
                 at which the exchange hole is expected to have significant density.
             lambd (float): ETB lambda parameter
@@ -871,7 +903,7 @@ class SDMXPlan(SDMXBasePlan):
             settings (SDMXSettings): Settings for the descriptor.
             nspin (int): Number of spins, 2 for spin-polarized and 1 for
                 non-spin-polarized
-            alpha0 (float): Minimum exponent. sqrt(1/alpha0) should be at least
+            alpha0 (float): Minimum exponent. :math:`1/\\sqrt{\\alpha_0}` should be at least
                 the width of the system, or altneratively the maximum distance
                 at which the exchange hole is expected to have significant density.
             lambd (float): ETB lambda parameter
@@ -1247,15 +1279,249 @@ class SDMXIntPlan(SDMXBasePlan):
 
 
 class HybridPlan:
-    """Plan for hybrid DFT. Not yet implemented"""
-
     def __init__(self, settings, nspin):
-        """
-        Args:
-            settings (HybridSettings)
-        """
+        """Create a HybridPlan."""
         self.settings = settings
+        if nspin not in (1, 2):
+            raise ValueError("nspin must be 1 or 2")
         self.nspin = nspin
+
+    @property
+    def level(self):
+        return "HYB"
+
+    def get_occd(self, *args, **kwargs):
+        # Orbital-occupation derivatives are not required in v1. TODO: implement derivatives
+        raise NotImplementedError("Orbital derivatives for HybridPlan postponed")
+
+    def compute_a_tensor_and_exx(
+        self,
+        mol,
+        grids,
+        dm,
+        settings,
+        sgx_cache=None,
+        return_a_tensor=True,
+        is_uks=False,
+    ):
+        """
+        Compute A tensor and exact exchange energy density.
+        Note: dm should already be scaled (2*dm for UKS) if needed.
+
+        Parameters:
+        - mol: Molecule object
+        - grids: Grid object
+        - dm: Density matrix (already scaled if needed)
+        - settings: Hybrid settings
+        - sgx_cache: Cache for SGX object
+        - return_a_tensor: Whether to return A tensor
+        - is_uks: Whether this is for UKS calculation (not used anymore, kept for compatibility)
+
+        Returns:
+        - eps_exx: Exchange energy density
+        - a_tensor: A tensor for K matrix (if return_a_tensor=True)
+        """
+        from ciderpress.pyscf.descriptors import _hyb_desc_getter
+
+        result = _hyb_desc_getter(
+            mol,
+            grids,
+            dm,
+            settings,
+            sgx_cache=sgx_cache,
+            return_a_tensor=return_a_tensor,
+        )
+        if return_a_tensor:
+            feat, a_tensor = result
+            return feat[0], a_tensor  # feat[0] to extract from (1, ngrids) shape
+        else:
+            return result[0], None  # result[0] to extract from (1, ngrids) shape
+
+    def build_k_matrix_block(self, ao, dm, a_tensor_block, dalpha_deps_block, weight):
+        """
+        Build K matrix contribution for a grid block.
+        Preserves exact factors from current implementation.
+
+        Parameters:
+        - ao: AO values (may have shape (4, ngrids, nao) with derivatives)
+        - dm: Density matrix (dms[i] for RKS, 2*dma[i] or 2*dmb[i] for UKS)
+        - a_tensor_block: A tensor for this block [ip0:ip1]
+        - dalpha_deps_block: dalpha_deps[i, ip0:ip1] or dalpha_deps[spin, i, ip0:ip1]
+        - weight: Integration weights
+
+        Returns:
+        - K contribution for this block (NOT symmetrized)
+        """
+        import numpy as np
+
+        # Extract ao values if derivatives present
+        if ao.shape[0] == 4:
+            ao_val = ao[0]
+        else:
+            ao_val = ao
+
+        # Equation (7): F_λg = Σ_σ P_λσ χ_σ(r_g)
+        F = np.dot(dm, ao_val.T)  # Shape: (nao, ngrids)
+
+        # Equation (8): G_νg = w_g (∂α/∂ε_x^ex)(r_g) Σ_λ A_νλg F_λg
+        gv_alpha = np.einsum("gij,jg->ig", a_tensor_block, F)
+        gv_alpha *= dalpha_deps_block[None, :]
+        gv_alpha *= weight[None, :]
+
+        # Equation (9): K_μν = Σ_g χ_μ(r_g) G_νg
+        # Apply the EXACT factor of -0.5 used in both RKS and UKS
+        K_contrib = -0.5 * np.dot(ao_val.T, gv_alpha.T)
+
+        return K_contrib
+
+    def estimate_memory_gb(self, ngrids, nao):
+        """
+        Estimate memory requirement for A tensor in GB.
+
+        Parameters:
+        - ngrids: Number of grid points
+        - nao: Number of atomic orbitals
+
+        Returns:
+        - Memory requirement in GB
+        """
+        return ngrids * nao * nao * 8 / 1e9
+
+    def compute_eps_exx_only(self, mol, grids, dm, settings, sgx_cache=None):
+        """
+        Compute only the exchange energy density without A tensor.
+
+        Parameters:
+        - mol: Molecule object
+        - grids: Grid object
+        - dm: Density matrix (already scaled if needed)
+        - settings: Hybrid settings
+        - sgx_cache: Cache for SGX object
+
+        Returns:
+        - eps_exx: Exchange energy density
+        """
+        from ciderpress.pyscf.descriptors import _hyb_desc_getter
+
+        result = _hyb_desc_getter(
+            mol, grids, dm, settings, sgx_cache=sgx_cache, return_a_tensor=False
+        )
+        return result[0] if isinstance(result, tuple) else result
+
+    def build_k_matrix_blockwise(
+        self, mol, grids, dm, dalpha_deps, max_memory=2000, sgx_cache=None
+    ):
+        """
+        Build K matrix contribution blockwise without storing full A tensor.
+
+        Parameters:
+        - mol: Molecule object
+        - grids: Grid object
+        - dm: Density matrix (already scaled: dm for RKS, 2*dm_spin for UKS)
+        - dalpha_deps: Derivative of alpha w.r.t. exchange energy density
+        - max_memory: Maximum memory in MB
+        - sgx_cache: Cache for SGX object
+
+        Returns:
+        - K_contrib: K matrix contribution (NOT symmetrized)
+        """
+        from pyscf.sgx import sgx
+
+        from ciderpress.external.sgx_tools import build_k_matrix_blockwise
+
+        # Get or create SGX object
+        if sgx_cache and "sgx" in sgx_cache:
+            sgx_obj = sgx_cache["sgx"]
+        else:
+            sgx_obj = sgx.SGX(mol)
+            sgx_obj.grids = grids
+            if sgx_cache is not None:
+                sgx_cache["sgx"] = sgx_obj
+
+        # Build K matrix blockwise
+        K_contrib = build_k_matrix_blockwise(
+            sgx_obj, dm, dalpha_deps, grids_weights=grids.weights, max_memory=max_memory
+        )
+
+        return K_contrib
+
+    def finalize_k_matrix(self, K_contrib, vmat, spin=None):
+        """
+        Finalize K matrix with proper symmetrization and factors.
+        Handles both RKS and UKS cases.
+
+        Parameters:
+        - K_contrib: K matrix contributions
+            - For RKS: list of shape (nset,) with each element (nao, nao)
+            - For UKS: shape (2, nset, nao, nao) or two lists for alpha/beta
+        - vmat: Fock matrix to update
+            - For RKS: shape (nset, nao, nao)
+            - For UKS: shape (2, nset, nao, nao)
+        - spin: None for RKS, 'uks' for UKS
+
+        Returns:
+        - Updated vmat
+        """
+        import numpy as np
+
+        if spin == "uks":
+            # UKS case
+            if isinstance(K_contrib, tuple) or (
+                isinstance(K_contrib, list)
+                and len(K_contrib) == 2
+                and isinstance(K_contrib[0], np.ndarray)
+            ):
+                # Separate alpha/beta lists
+                K_contrib_alpha, K_contrib_beta = K_contrib
+                nset = (
+                    len(K_contrib_alpha)
+                    if isinstance(K_contrib_alpha, list)
+                    else K_contrib_alpha.shape[0]
+                )
+
+                # Handle both list and array formats
+                if isinstance(K_contrib_alpha, list):
+                    # List format
+                    for i in range(nset):
+                        K_contrib_alpha[i] = 0.5 * (
+                            K_contrib_alpha[i] + K_contrib_alpha[i].T
+                        )
+                        K_contrib_beta[i] = 0.5 * (
+                            K_contrib_beta[i] + K_contrib_beta[i].T
+                        )
+                        vmat[0, i] += K_contrib_alpha[i]
+                        vmat[1, i] += K_contrib_beta[i]
+                else:
+                    # Array format
+                    for i in range(nset):
+                        K_contrib_alpha[i] = 0.5 * (
+                            K_contrib_alpha[i] + K_contrib_alpha[i].T
+                        )
+                        K_contrib_beta[i] = 0.5 * (
+                            K_contrib_beta[i] + K_contrib_beta[i].T
+                        )
+                        vmat[0, i] += K_contrib_alpha[i]
+                        vmat[1, i] += K_contrib_beta[i]
+            else:
+                # K_contrib already in shape (2, nset, nao, nao)
+                nset = K_contrib.shape[1]
+                for i in range(nset):
+                    K_contrib[0, i] = 0.5 * (K_contrib[0, i] + K_contrib[0, i].T)
+                    K_contrib[1, i] = 0.5 * (K_contrib[1, i] + K_contrib[1, i].T)
+                    vmat[0, i] += K_contrib[0, i]
+                    vmat[1, i] += K_contrib[1, i]
+        else:
+            # RKS case
+            nset = len(K_contrib)
+
+            # Symmetrize
+            for i in range(nset):
+                K_contrib[i] = 0.5 * (K_contrib[i] + K_contrib[i].T)
+
+            for i in range(nset):
+                vmat[i] += 0.5 * K_contrib[i]
+
+        return vmat
 
 
 class NLDFAuxiliaryPlan(ABC):
@@ -1295,8 +1561,9 @@ class NLDFAuxiliaryPlan(ABC):
             coef_order (str): Whether interpolation/expansion coefficients
                 have grid as the slow (first) index ('gq') or exponent ('qg')
             alpha_formula (str): How to generate the interpolating exponents.
-                Must be 'etb' (alphas[j] = alpha0 * lambd**j))
-                or 'zexp' (alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1))
+                Must be ``"etb"`` (``alphas[j] = alpha0 * lambd**j``) or
+                ``"zexp"``
+                (``alphas[j] = alpha0 * (lambd**j - 1) / (lambd - 1)``).
             proc_inds (list or np.ndarray): If parallelized, which
                 alpha indexes does this process cover. List or array
                 of integers.
@@ -1309,9 +1576,9 @@ class NLDFAuxiliaryPlan(ABC):
                 to going outside the interpolation range.
             use_smooth_expnt_cutoff (bool, False): If True, use a damping function
                 for large exponent to smoothly ensure that as the exponent goes
-                to infinity, the damped exponent goes to alpha_max. The
-                smoothing function is design to contribute insignificantly
-                except for near and beyond alpha_max.
+                to infinity, the damped exponent approaches ``alpha_max``.
+                The smoothing function is designed to contribute
+                insignificantly except near and beyond ``alpha_max``.
         """
         if not isinstance(nldf_settings, NLDFSettings):
             raise ValueError("Require NLDFSettings object")
@@ -1477,14 +1744,18 @@ class NLDFAuxiliaryPlan(ABC):
             with respect to rho, sigma, and tau. Combined, this makes for a
             tuple of four arrays.
         """
-        rho = rho_tuple[0]
+        rho = rho_tuple[0].copy()
+        cond = rho < self.rhocut
+        rho[cond] = 0
         if self.nldf_settings.rho_mult == "one":
             da = [
                 np.ones_like(rho),
             ] + [np.zeros_like(r) for r in rho_tuple[1:]]
+            da[0][cond] = 0
             return rho, tuple(da)
         elif self.nldf_settings.rho_mult == "expnt":
             a, da_tuple = self.eval_feat_exp(rho_tuple, i=-1)
+            a[cond] = 0
             for da in da_tuple:
                 da[:] *= rho
             da_tuple[0][:] += a
@@ -1940,7 +2211,7 @@ class NLDFAuxiliaryPlan(ABC):
 class NLDFGaussianPlan(NLDFAuxiliaryPlan):
     def _run_setup(self):
         ovlp, _ = _get_ovlp_fit_interpolation_coefficients(
-            self, self.alphas, i=-1, local=False
+            self, self.alphas, i=-1, local=False, force_se=True
         )
         ovlp *= self.alpha_norms[None, :] * self.alpha_norms[:, None]
         self._dmul = False
@@ -2045,7 +2316,7 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
 
     def _run_setup(self):
         ovlp, _ = _get_ovlp_fit_interpolation_coefficients(
-            self, self.alphas, i=-1, local=False
+            self, self.alphas, i=-1, local=False, force_se=True
         )
         ovlp *= self.alpha_norms[None, :] * self.alpha_norms[:, None]
         self._alpha_transform = []
@@ -2062,6 +2333,7 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
             if self.coef_order == "gq":
                 p = p.T
             p[:, :] *= self.alpha_norms[:, None]
+
             if p.shape == ovlp.shape:
                 diff = np.max(np.abs(p * self.alpha_norms - ovlp))
             else:
@@ -2079,7 +2351,7 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
         if self.coef_order == "gq":
             p = p.T
         p[:, :] *= self.alpha_norms[:, None]
-        # coefs_qi = np.ascontiguousarray(_stable_solve(ovlp, p))
+
         if p.shape == ovlp.shape:
             diff = np.max(np.abs(p * self.alpha_norms - ovlp))
         else:

@@ -532,7 +532,7 @@ class MappedDFTKernel(KernelEvalBase, XCEvalSerializable):
     def N1(self):
         return self.feature_list.nfeat
 
-    def __call__(self, X0T, add_base=True, rhocut=0):
+    def __call__(self, X0T, add_base=True, rhocut=0, return_raw_ml_output=False):
         X1 = self.get_descriptors(X0T, force_polarize=True)
         Nsamp_internal = X1.shape[-2]
         f = np.zeros(Nsamp_internal)
@@ -542,6 +542,12 @@ class MappedDFTKernel(KernelEvalBase, XCEvalSerializable):
         if self.mode == "SEP":
             f = f.reshape(X0T.shape[0], -1)
         dfdX0T = self.apply_descriptor_grad(X0T, df, force_polarize=True)
+
+        # Store raw ML output before baseline application if requested
+        if return_raw_ml_output:
+            f_raw = f.copy()
+            df_raw = dfdX0T.copy()
+
         res, dres = self.apply_baseline(X0T, f, dfdX0T)
         if rhocut > 0:
             if self.mode == "SEP":
@@ -555,7 +561,10 @@ class MappedDFTKernel(KernelEvalBase, XCEvalSerializable):
                 dres[..., cond] = 0.0
         if self.mode == "SEP":
             res = res.sum(0)
-        return res, dres
+        if return_raw_ml_output:
+            return res, dres, f_raw, df_raw
+        else:
+            return res, dres
 
     def to_dict(self):
         return {
@@ -616,6 +625,16 @@ class ModelWithNormalizer:
 
 
 class MappedXC:
+    """Inference-time evaluator for a mapped CIDER functional.
+
+    A ``MappedXC`` bundles one or more mapped DFT kernels with the
+    :class:`~ciderpress.dft.settings.FeatureSettings` that define their
+    inputs. It is the object reconstructed from a serialized CIDER model
+    file (for example the packaged CIDER23X exchange models) and evaluates
+    the XC energy contribution and its functional derivatives from
+    normalized features.
+    """
+
     def __init__(self, mapped_kernels, settings, libxc_baseline=None):
         """
 
@@ -628,23 +647,54 @@ class MappedXC:
         self.settings = settings
         self.libxc_baseline = libxc_baseline
 
-    def __call__(self, X0T, rhocut=0):
+    def __call__(self, X0T, rhocut=0, return_raw_ml_output=False):
         """
         Evaluate functional from normalized features
         Args:
             X0T (array): normalized features
             rhocut (float): low-density cutoff
+            return_raw_ml_output (bool): If True, return raw ML outputs before baseline
 
         Returns:
             res, dres (array, array), XC energy contribution
                 and functional derivative
+            If return_raw_ml_output is True, also returns:
+                f_raw, df_raw (array, array): Raw ML outputs before baseline
         """
         res, dres = 0, 0
+        if return_raw_ml_output:
+            f_raw_list = []
+            df_raw_list = []
+
         for kernel in self.kernels:
-            tmp, dtmp = kernel(X0T, rhocut=rhocut)
+            if return_raw_ml_output:
+                tmp, dtmp, f_raw, df_raw = kernel(
+                    X0T, rhocut=rhocut, return_raw_ml_output=True
+                )
+                f_raw_list.append(f_raw)
+                df_raw_list.append(df_raw)
+            else:
+                tmp, dtmp = kernel(X0T, rhocut=rhocut)
             res += tmp
             dres += dtmp
-        return res, dres
+
+        if return_raw_ml_output:
+            # Aggregate raw outputs from all kernels
+            if len(f_raw_list) == 1:
+                f_raw_total = f_raw_list[0]
+                df_raw_total = df_raw_list[0]
+            else:
+                # Collect raw outputs from EXX kernels (assumption: only one EXX-containing kernel)
+                for i, kernel in enumerate(self.kernels):
+                    if kernel._mul_basefunc.__name__ in {
+                        "exx_energy_baseline",
+                        "exx_pbe_diff_baseline",
+                    }:
+                        f_raw_total = f_raw_list[i]
+                        df_raw_total = df_raw_list[i]
+            return res, dres, f_raw_total, df_raw_total
+        else:
+            return res, dres
 
     @property
     def normalizer(self):

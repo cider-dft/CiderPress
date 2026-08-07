@@ -1,17 +1,39 @@
-pbc.dft
-=======
+Periodic PySCF Interface
+========================
 
-The :py:mod:`ciderpress.pyscf.pbc.dft` module serves the same
-purpose as :py:mod:`ciderpress.pyscf.dft` but for periodic
-systems. This module's version of :py:func:`make_cider_calc`
-modifies a :py:mod:`pbc` Kohn Sham DFT object from PySCF
-to evaluate a CIDER functional. Currently only semilocal
-and SDMX features are supported.
+The :py:mod:`ciderpress.pyscf.pbc.dft` module decorates periodic Kohn--Sham
+objects from ``pyscf.pbc.dft``.  Its
+:py:func:`~ciderpress.pyscf.pbc.dft.make_cider_calc` function supports the
+semilocal and SDMX features used for methodological reproduction of the
+CIDER24X work. :footcite:p:`CIDER24X`  Packaged periodic NLDF calculations use
+the classic GPAW/PAW interface.
 
-**NOTE**: This module is particularly experimental. It is
-provided for the purpose of reproducing previous work that
-used this module (i.e. :footcite:t:`CIDER24X`) and is not as
-close to production readiness as other parts of the code.
+NOTE: Periodic PySCF calculations must use pseudopotentials and uniform
+integration grids. All-electron calculations and atom-centered grids
+are not supported.
+
+Numerical implementation
+------------------------
+
+.. py:module:: ciderpress.pyscf.pbc.numint
+
+:mod:`ciderpress.pyscf.pbc.numint` connects the mapped evaluator to PySCF's
+periodic boundary condition implementation.  It evaluates the
+semilocal and SDMX blocks, applies their adjoint matrix contributions, and
+supports the k-point layouts accepted by the periodic Kohn--Sham object.
+
+.. py:module:: ciderpress.pyscf.pbc.sdmx_fft
+
+:mod:`ciderpress.pyscf.pbc.sdmx_fft` constructs periodic SDMX quantities from
+real- and reciprocal-space orbital representations.  Its Gaussian smoothing
+and k-point conventions implement the CIDER24X periodic descriptor path.
+
+.. py:module:: ciderpress.pyscf.pbc.util
+
+:mod:`ciderpress.pyscf.pbc.util` supplies the FFT interpolation used when the
+XC evaluation mesh is denser than the cell's base mesh.  Forward feature
+evaluation and the returned matrix potential use the corresponding pair of
+mesh transfers.
 
 .. automodule:: ciderpress.pyscf.pbc.dft
     :members:

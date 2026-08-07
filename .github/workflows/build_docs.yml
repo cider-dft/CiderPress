@@ -4,6 +4,10 @@ on:
   push:
     branches:
     - main
+    - release/0.5.0
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -17,45 +21,67 @@ jobs:
       run:
         shell: bash -el {0}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup conda environment
-      uses: mamba-org/setup-micromamba@v1
+      uses: mamba-org/setup-micromamba@v3
       with:
-        micromamba-version: '1.5.6-0' # any version from https://github.com/mamba-org/micromamba-releases
+        micromamba-version: '2.8.1-0'
         environment-name: run_tests
-        init-shell: >-
-          bash
-          powershell
+        init-shell: bash
         cache-environment: false
         post-cleanup: 'all'
         create-args: >-
           python=${{ matrix.python-version }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Install dependencies and build
-      run: |
-        sudo apt-get -qq install gcc cmake
+          pip
+          cmake<3.31
+          c-compiler
+          cxx-compiler
+          doxygen
+          fftw
+          libxc=*=cpu_*
+          make
+          openblas
     - name: Build things
+      env:
+        CMAKE_CONFIGURE_ARGS: >-
+          -DBUILD_WITH_MPI=OFF
+          -DBUILD_WITH_MKL=OFF
+          -DBUILD_FFTW=OFF
+          -DBUILD_LIBXC=OFF
       run: |
-        source .github/workflows/load_conda.sh
-        source .github/workflows/mm_install_torch.sh
-        pip install gpaw
-        ./.github/workflows/run_local_pip.sh
+        pip install -c .github/workflows/test-constraints.txt \
+          torch --index-url https://download.pytorch.org/whl/cpu
+        # Release 0.5.0 is validated against the classic GPAW 25.7 API.
+        pip install -c .github/workflows/test-constraints.txt 'gpaw==25.7.0'
+        export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+        export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+        pip install -c .github/workflows/test-constraints.txt '.[d4]'
     - name: Build documentation
+      env:
+        CIDERPRESS_SOURCE_REF: ${{ github.sha }}
       run: |
-        source .github/workflows/load_conda.sh
-        sudo apt-get -qq install doxygen
         pip install sphinx breathe sphinx_rtd_theme sphinxcontrib-bibtex
         cd docs
         doxygen Doxyfile.in
-        sphinx-build ./ _build
-        make html
+        sphinx-build -n -W --keep-going -b html . _build/html
+        python tools/check_html_links.py _build/html
+        python tools/check_mathjax.py _build/html
         cd ..
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Deploy main documentation
+      uses: peaceiris/actions-gh-pages@v4
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       with:
         publish_branch: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build/html
-        force_orphan: true
+        # Preserve versioned documentation previews alongside the main site.
+        keep_files: true
+    - name: Deploy release documentation preview
+      uses: peaceiris/actions-gh-pages@v4
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/release/0.5.0' }}
+      with:
+        publish_branch: gh-pages
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
+        destination_dir: release/0.5.0
+        keep_files: true

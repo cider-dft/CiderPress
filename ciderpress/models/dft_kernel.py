@@ -333,12 +333,14 @@ class DFTKernel2(KernelEvalBase2, DFTKernel):
         ctrl_tol=1e-5,
         ctrl_nmax=None,
         component=None,
+        omega=0.0,
     ):
         self.kernel = kernel
         self.feature_list = feature_list
         self.mode = mode
         self._mul_basefunc = multiplicative_baseline
         self._add_basefunc = additive_baseline
+        self.omega = omega
         assert isinstance(multiplicative_baseline, str)
         assert additive_baseline is None or isinstance(additive_baseline, str)
         self.ctrl_tol = ctrl_tol
@@ -371,4 +373,6 @@ class DFTKernel2(KernelEvalBase2, DFTKernel):
             self.mode,
             self._mul_basefunc,
             self._add_basefunc,
+            component=self.component,
+            omega=self.omega,
         )

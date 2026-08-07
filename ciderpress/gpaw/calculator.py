@@ -22,7 +22,12 @@ import yaml
 from gpaw.calculator import GPAW
 from gpaw.xc.libxc import LibXC
 
-from ciderpress.dft.model_utils import load_cider_model
+from ciderpress.dft.model_utils import (
+    CIDER24X_MODELS,
+    get_builtin_model_name,
+    load_cider_model,
+    validate_cider_composition,
+)
 from ciderpress.gpaw.cider_fft import CiderGGA, CiderMGGA
 from ciderpress.gpaw.cider_kernel import CiderGGAHybridKernel, CiderMGGAHybridKernel
 from ciderpress.gpaw.cider_paw import CiderGGAPASDW, CiderMGGAPASDW
@@ -54,11 +59,11 @@ def get_cider_functional(
 
         E_xc = xkernel * (1 - xmix) + ckernel + xmix * E_x^CIDER
 
-    where and ``E_x^CIDER`` is the ML exchange energy contained in mlfunc.
+    where ``E_x^CIDER`` is the ML exchange energy contained in mlfunc.
     xkernel and ckernel should be strings corresponding to an exchange
-    and correlation functional in libxc. The above formula applies even
-    if ``E_x^CIDER`` is a full XC functional. In this case, one should
-    set ``xkernel=None``, ``ckernel=None``, ``xmix=1.0``.
+    and correlation functional in libxc. Mapped full-XC models already contain
+    the complete baseline and therefore require ``xkernel=None``,
+    ``ckernel=None``, and ``xmix=1.0``; other compositions are rejected.
 
     NOTE: Do not use CIDER with ultrasoft pseudopotentials (PAW only).
     At your own risk, you can use CIDER with norm-conserving pseudopotentials,
@@ -88,7 +93,7 @@ def get_cider_functional(
         mlfunc (MappedXC, MappedXC2, str): An ML functional object or a str
             corresponding to the file name of a yaml or joblib file
             containing it.
-        xmix (float, 1.00): Mixing parameter for CIDER exchnange.
+        xmix (float, 1.00): Mixing parameter for CIDER exchange.
         xkernel (str, GGA_X_PBE): libxc code str for semi-local X functional
         ckernel (str, GGA_C_PBE): libxc code str for semi-local C functional
         mlfunc_format (str, None): 'joblib' or 'yaml', specifies the format
@@ -115,8 +120,10 @@ def get_cider_functional(
             Maximum value of q to use for kernel interpolation on FFT grid.
             Default should be fine for most cases.
         lambd (float, 1.8):
-            Density of interpolation points. q_alpha=q_0 * lambd**alpha.
-            Smaller lambd is more expensive and more precise.
+            Density of interpolation points,
+            :math:`q_\\alpha=q_0\\lambda^\\alpha`, with ``lambd`` representing
+            :math:`\\lambda`. Smaller values are more expensive and more
+            precise.
         _force_nonlocal (bool, False): Use nonlocal kernel even if nonlocal
             features are not required. For debugging use only. Do not
             adjust except for testing.
@@ -128,7 +135,30 @@ def get_cider_functional(
         functional is semi-local or nonlocal.)
     """
 
+    builtin_name = get_builtin_model_name(mlfunc)
+    if builtin_name in CIDER24X_MODELS and mlfunc_format in (None, "yaml"):
+        raise NotImplementedError(
+            "SDMX features in GPAW are not implemented; CIDER24X uses PySCF."
+        )
+
     mlfunc = load_cider_model(mlfunc, mlfunc_format)
+    validate_cider_composition(
+        mlfunc,
+        xmix=xmix,
+        xkernel=xkernel,
+        ckernel=ckernel,
+        backend="GPAW",
+    )
+    vdw_info = getattr(mlfunc, "vdw_fit_info", None)
+    vdw_kind = ""
+    if isinstance(vdw_info, dict):
+        vdw_kind = str(vdw_info.get("kind") or "").lower()
+    vdw_term = str(getattr(mlfunc, "vdw_fit_term", None) or "").lower()
+    if vdw_kind == "d4" or vdw_term == "d4":
+        raise NotImplementedError(
+            "D4 post-density evaluation is supported by the PySCF backend only; "
+            "GPAW cannot evaluate CIDER26XCCHEMD4 in CiderPress 0.5.0."
+        )
     sl_level = mlfunc.settings.sl_settings.level
     if not mlfunc.settings.nlof_settings.is_empty:
         raise NotImplementedError("Nonlocal orbital features in GPAW")
@@ -185,7 +215,7 @@ def get_cider_functional(
 class CiderGPAW(GPAW):
     """
     This class is equivalent to the GPAW calculator object
-    provded in the gpaw package, except that it is able to load
+    provided in the gpaw package, except that it is able to load
     and save CIDER calculations. The GPAW object can run CIDER but
     not save/load CIDER calculations.
 
@@ -255,6 +285,9 @@ def cider_functional_from_dict(d):
     Returns:
         XC Functional object for use in GPAW.
     """
+    # GPAW may retain the serialized dictionary in its parameter state.  Work
+    # on a shallow copy so deserialization does not remove its type marker.
+    d = d.copy()
     cider_type = d.pop("_cider_type")
     if cider_type == "CiderGGAPASDW":
         cls = CiderGGAPASDW
@@ -286,6 +319,13 @@ def cider_functional_from_dict(d):
     if "Cider" in cider_type:
         mlfunc = yaml.load(d["mlfunc"], Loader=yaml.CLoader)
         # kernel_params should be xmix, xkernel, ckernel
+        validate_cider_composition(
+            mlfunc,
+            xmix=d["kernel_params"]["xmix"],
+            xkernel=d["kernel_params"].get("xstr"),
+            ckernel=d["kernel_params"].get("cstr"),
+            backend="GPAW restart",
+        )
         cider_kernel = kcls(mlfunc, **(d["kernel_params"]))
         if "SLCider" in cider_type:
             xc = cls(cider_kernel)

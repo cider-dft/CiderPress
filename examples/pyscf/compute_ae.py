@@ -7,15 +7,21 @@ from ase.data import chemical_symbols, ground_state_magnetic_moments
 from pyscf import dft, gto, scf
 from pyscf.pbc.tools.pyscf_ase import atoms_from_ase
 
+from ciderpress.dft.model_utils import (
+    BUILTIN_MODELS,
+    CIDER23X_MODELS,
+    CIDER24X_MODELS,
+    CIDER26XC_MODELS,
+)
 from ciderpress.pyscf.dft import make_cider_calc
 
 """
 This script demonstrates running a CIDER calculation with accelerated
 nonlocal feature evaluation. Example commands:
 
-    python examples/pyscf/fast_cider.py <molecule_formula> <charge> <spin> <functional>
-    python examples/pyscf/fast_cider.py H2 0 0 PBE
-    python examples/pyscf/fast_cider.py O2 0 2 CIDER_NL_MGGA
+    python examples/pyscf/compute_ae.py <molecule_formula> <charge> <spin> <functional>
+    python examples/pyscf/compute_ae.py H2 0 0 PBE
+    python examples/pyscf/compute_ae.py O2 0 2 CIDER23X_NL_MGGA
 
 <molecule_formula> is a chemical formula string like CH4, H2, etc. It must be included
 in the list of molecules supported by ase.build.molecule()
@@ -24,11 +30,9 @@ in the list of molecules supported by ase.build.molecule()
 
 <spin> is the integer spin of the system 2S.
 
-<functional> is the functional name. It can be the name of a libxc functional,
-or it can be the name of a functional in the functionals/ directory, in which case
-the corresponding example CIDER functional is run with the PBE0/CIDER
-surrogate hybrid functional form. If a path to a joblib file is given, that
-file will be read assuming it is a CIDER functional.
+<functional> is a libxc functional name or one of the packaged CIDER model
+names. CIDER23X and CIDER24X models use the PBE0/CIDER surrogate-hybrid
+composition; CIDER26XC models use the full-XC composition stored in the model.
 
 At the end, prints out the total energy of the molecule and its atomization energy
 in Ha and eV, then saves the atomization energy in eV to aeresult.txt.
@@ -57,11 +61,7 @@ else:
     atoms = molecule(name)
     atoms.center(vacuum=4)
 
-if functional.startswith("CIDER"):
-    functional = "functionals/{}.yaml".format(functional)
-    is_cider = True
-    mlfunc = functional
-elif functional.endswith(".joblib"):
+if functional in BUILTIN_MODELS:
     is_cider = True
     mlfunc = functional
 else:
@@ -82,13 +82,16 @@ def run_calc(mol, spinpol):
     ks.with_df.auxbasis = "def2-universal-jfit"
     ks = ks.apply(scf.addons.remove_linear_dep_)
     if is_cider:
-        ks = make_cider_calc(
-            ks,
-            functional,
-            xmix=0.25,
-            xkernel="GGA_X_PBE",
-            ckernel="GGA_C_PBE",
-        )
+        if mlfunc in CIDER26XC_MODELS:
+            ks = make_cider_calc(ks, mlfunc)
+        elif mlfunc in CIDER23X_MODELS + CIDER24X_MODELS:
+            ks = make_cider_calc(
+                ks,
+                mlfunc,
+                xmix=0.25,
+                xkernel="GGA_X_PBE",
+                ckernel="GGA_C_PBE",
+            )
     else:
         ks.xc = functional
     ks.grids.level = 3

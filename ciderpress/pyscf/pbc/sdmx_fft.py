@@ -19,7 +19,6 @@
 #
 
 import ctypes
-import time
 
 import numpy as np
 from pyscf import lib
@@ -427,7 +426,6 @@ def fft_fast(f_in, mesh, fwd=True, inplace=False, scale=None, f_out=None):
 def compute_sdmx_tensor(
     dms, cell, coords, alphas, alpha_norms, itype, kpts, cutoff_type=None, has_l1=False
 ):
-    t0s = time.monotonic()
     Gv = np.asfortranarray(cell.Gv)
     shls_slice = (0, cell.nbas)
     ao_loc = cell.ao_loc_nr()
@@ -441,11 +439,7 @@ def compute_sdmx_tensor(
         )
     else:
         precomp_list = [None] * len(kpts)
-    t0e = time.monotonic()
-    t1 = 0
-    t2 = 0
     for kn, kpt in enumerate(kpts):
-        t1s = time.monotonic()
         # ao, aokG = get_ao_and_aok(cell, coords, kpt, 0)
         ao, aokG = get_ao_and_aok_fast(cell, coords, kpt, 0)
         ao = ao * np.exp(-1j * np.dot(coords, kpt))[:, None]
@@ -459,8 +453,6 @@ def compute_sdmx_tensor(
             c1[2] += 1j * kpt[2] * c0
         Gk = Gv + kpt
         Gk2 = lib.einsum("gv,gv->g", Gk, Gk)
-        t1e = time.monotonic()
-        t2s = time.monotonic()
         for ialpha in range(nalpha):
             conv_aokR = convolve_aos(
                 cell,
@@ -478,18 +470,12 @@ def compute_sdmx_tensor(
                 tmp[1, ialpha] -= _contract_rho(conv_aokR.T, c1[0])
                 tmp[2, ialpha] -= _contract_rho(conv_aokR.T, c1[1])
                 tmp[3, ialpha] -= _contract_rho(conv_aokR.T, c1[2])
-        t2e = time.monotonic()
-        t1 += t1e - t1s
-        t2 += t2e - t2s
-    t3s = time.monotonic()
     tmp[:] /= len(kpts)
     if has_l1:
         tmp1 = fft_grad(tmp[0], cell.mesh, Gv)
         tmp[1] += tmp1[0]
         tmp[2] += tmp1[1]
         tmp[3] += tmp1[2]
-    t3e = time.monotonic()
-    print("SDMX TIMES", t0e - t0s, t1, t2, t3e - t3s)
     return tmp
 
 
@@ -584,7 +570,6 @@ def compute_sdmx_tensor_lowmem(
     precomp_list=None,
     spinpol=False,
 ):
-    t0s = time.monotonic()
     nao = cell.nao_nr()
     nalpha = len(alphas)
     ncpa = 4 if has_l1 else 1
@@ -598,9 +583,6 @@ def compute_sdmx_tensor_lowmem(
         )
     else:
         precomp_list = [None] * len(kpts)
-    t0e = time.monotonic()
-    t1 = 0
-    t2 = 0
 
     rtype, Gv, ng_recip, ng_real = _get_grid_info(cell, kpts, dms)
     nalpha = len(alphas)
@@ -616,7 +598,6 @@ def compute_sdmx_tensor_lowmem(
     c_all = np.ndarray((nspin, nao, ng_recip), dtype=np.complex128)
     bufs = np.ndarray((nspin * ncpa + 1, nao_per_block * ng_recip), dtype=np.complex128)
     for kn, kpt in enumerate(kpts):
-        t1s = time.monotonic()
         Gk = Gv + kpt
         Gk2 = lib.einsum("gv,gv->g", Gk, Gk)
         aoG = get_ao_recip(recip_cell, Gk, deriv=0, out=aobuf)[0].T
@@ -639,9 +620,6 @@ def compute_sdmx_tensor_lowmem(
             out=conv_aG,
         )
         igk = _get_igk(Gk, rtype, cell.mesh)
-        t1e = time.monotonic()
-        t1 += t1e - t1s
-        t2s = time.monotonic()
         for i0, i1 in lib.prange(0, nao, nao_per_block):
             ck = np.ndarray(
                 (nspin, ncpa, i1 - i0, ng_recip),
@@ -678,9 +656,6 @@ def compute_sdmx_tensor_lowmem(
                         tmp[s, 1, ialpha] -= _contract_rho(conv_aor.T, cr[s, 1].T)
                         tmp[s, 2, ialpha] -= _contract_rho(conv_aor.T, cr[s, 2].T)
                         tmp[s, 3, ialpha] -= _contract_rho(conv_aor.T, cr[s, 3].T)
-        t2e = time.monotonic()
-        t2 += t2e - t2s
-    t3s = time.monotonic()
     tmp[:] /= len(kpts)
     if rtype == np.float64:
         tmp = np.ascontiguousarray(
@@ -703,8 +678,6 @@ def compute_sdmx_tensor_lowmem(
             tmp[s, 3] += tmp1[2]
     if not spinpol:
         tmp = tmp[0]
-    t3e = time.monotonic()
-    print("SDMX TIMES", t0e - t0s, t1, t2, t3e - t3s)
     return tmp
 
 
@@ -748,7 +721,6 @@ def compute_sdmx_tensor_mo(
 ):
     if nmo_per_block is None:
         nmo_per_block = 32
-    t0s = time.monotonic()
     nao = cell.nao_nr()
     nalpha = len(alphas)
     ncpa = 4 if has_l1 else 1
@@ -764,9 +736,6 @@ def compute_sdmx_tensor_mo(
         )
     else:
         precomp_list = [None] * len(kpts)
-    t0e = time.monotonic()
-    t1 = 0
-    t2 = 0
     nalpha = len(alphas)
     recip_cell = build_ft_cell(cell)
     conv_aG = np.ndarray((nalpha, ng_recip), order="C")
@@ -800,7 +769,6 @@ def compute_sdmx_tensor_mo(
         #     _zero_even_edges_fft(aoG, cell.mesh)
         assert aoG.flags.c_contiguous
         assert aoG.shape == (nao, ng_recip)
-        t1s = time.monotonic()
         get_recip_convolutions(
             cell,
             Gk2,
@@ -813,9 +781,6 @@ def compute_sdmx_tensor_mo(
             out=conv_aG,
         )
         igk = _get_igk(Gk, rtype, cell.mesh)
-        t1e = time.monotonic()
-        t1 += t1e - t1s
-        t2s = time.monotonic()
         for s in range(nspin):
             nmo = cmo_lists[s][kn].shape[0]
             ck_all = np.ndarray((nmo, ng_recip), dtype=np.complex128, buffer=ck_all_buf)
@@ -842,19 +807,11 @@ def compute_sdmx_tensor_mo(
                 conv_aor = np.ndarray(
                     (i1 - i0, ng_real), dtype=rtype, buffer=bufs[ncpa]
                 )
-                tc, td = 0, 0
                 for ialpha in range(nalpha):
                     # conv_ao[:] = ck * conv_aG[ialpha]
                     _mul_dz(ck_all[i0:i1], conv_aG[ialpha], conv_aog)
-                    tc -= time.monotonic()
                     fft_fast(conv_aog, cell.mesh, fwd=False, inplace=True)
-                    tc += time.monotonic()
-                    td -= time.monotonic()
                     _contract_convolution(tmp[s], conv_aor, cr, ialpha)
-                    td += time.monotonic()
-            t2e = time.monotonic()
-        t2 += t2e - t2s
-    t3s = time.monotonic()
     tmp[:] /= len(kpts)
     tmp[:, 1:] *= -1
     if rtype == np.float64:
@@ -878,8 +835,6 @@ def compute_sdmx_tensor_mo(
             tmp[s, 3] += tmp1[2]
     if not spinpol:
         tmp = tmp[0]
-    t3e = time.monotonic()
-    print("SDMX TIMES", t0e - t0s, t1, t2, t3e - t3s)
     return tmp
 
 
@@ -1044,11 +999,7 @@ def compute_sdmx_tensor_vxc(
     recip_cell = build_ft_cell(cell)
     aobuf = np.ndarray((1, nao, ng_recip), dtype=np.complex128).transpose(0, 2, 1)
     bufs = np.ndarray((nspin * ncpa + 1, nao_per_block * ng_recip), dtype=np.complex128)
-    dt0, dt1, dt2, dt3 = 0, 0, 0, 0
-    dt4 = 0
-    dt5 = 0
     for kn, kpt in enumerate(kpts):
-        t0 = time.monotonic()
         Gk = Gv + kpt
         Gk2 = lib.einsum("gv,gv->g", Gk, Gk)
         aoG = get_ao_recip(recip_cell, Gk, deriv=0, out=aobuf)[0].T
@@ -1070,10 +1021,7 @@ def compute_sdmx_tensor_vxc(
         )
         igk = _get_igk(Gk, rtype, cell.mesh)
         # igk = np.asfortranarray(Gk * 1j)
-        t1 = time.monotonic()
-        dt4 += t1 - t0
         for i0, i1 in lib.prange(0, nao, nao_per_block):
-            t0 = time.monotonic()
             wvr = np.ndarray(
                 (nspin, ncpa, i1 - i0, ng_real),
                 dtype=rtype,
@@ -1091,7 +1039,6 @@ def compute_sdmx_tensor_vxc(
             conv_aor = np.ndarray(
                 (i1 - i0, ng_real), dtype=rtype, buffer=bufs[nspin * ncpa]
             )
-            t1 = time.monotonic()
             for ialpha in range(nalpha):
                 _mul_dz(aoG[i0:i1], conv_aG[ialpha], conv_aog)
                 fft_fast(conv_aog, cell.mesh, fwd=False, inplace=True)
@@ -1109,15 +1056,12 @@ def compute_sdmx_tensor_vxc(
                             _mul_add_d(conv_aor, vgridc[1, ialpha], wvr[s, 1])
                             _mul_add_d(conv_aor, vgridc[2, ialpha], wvr[s, 2])
                             _mul_add_d(conv_aor, vgridc[3, ialpha], wvr[s, 3])
-            t2 = time.monotonic()
             shape = wvk.shape
             wvk.shape = (nspin * ncpa * (i1 - i0), ng_recip)
-            t2b = time.monotonic()
             ngrid64 = np.prod(np.asarray(cell.mesh).astype(np.float64))
             fft_fast(wvk, cell.mesh, fwd=True, inplace=True, scale=1.0 / ngrid64)
             wvk.shape = shape
             _fast_conj(wvk)
-            t3 = time.monotonic()
             for s in range(nspin):
                 if has_l1:
                     _mul_add_z(wvk[s, 1], igk[:, 0], wvk[s, 0])
@@ -1136,14 +1080,6 @@ def compute_sdmx_tensor_vxc(
                 else:
                     raise ValueError
             # vmats[kn][:, i0:i1] += np.dot(aoG, wv[0].T)
-            t4 = time.monotonic()
-            # """
-            dt0 += t1 - t0
-            dt1 += t2 - t1
-            dt2 += t3 - t2b
-            dt3 += t4 - t3
-            dt5 += t2b - t2
-    print("VXC SPLITS", dt0, dt1, dt2, dt3, dt4, dt5)
     return vmats
 
 

@@ -1,52 +1,351 @@
-name: Run PySCF Tests
+name: Tests
 
 on:
   push:
     branches:
-    - main
-
+      - main
   pull_request:
     branches:
-    - main
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  MKL_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
 
 jobs:
-  build:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Run flake8
+        run: |
+          python -m pip install flake8
+          python -m flake8 . --count --show-source --statistics
 
-    runs-on: ubuntu-latest
+  core-openblas:
+    name: Core / OpenBLAS / ubuntu-24.04 / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.12']
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Build and test
+        run: ./.github/workflows/run_core_ci.sh
+
+  core-openblas-macos:
+    name: Core / OpenBLAS / macos-15-intel
+    runs-on: macos-15-intel
+    timeout-minutes: 120
     defaults:
       run:
         shell: bash -el {0}
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup conda environment
-      uses: mamba-org/setup-micromamba@v1
-      with:
-        micromamba-version: '1.5.6-0' # any version from https://github.com/mamba-org/micromamba-releases
-        environment-name: run_tests
-        init-shell: >-
-          bash
-          powershell
-        cache-environment: false
-        post-cleanup: 'all'
-        create-args: >-
-          python=${{ matrix.python-version }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Install dependencies and build
-      run: |
-        sudo apt-get -qq install gcc cmake
-    - name: Build things
-      run: |
-        source .github/workflows/load_conda.sh
-        source .github/workflows/mm_install_torch.sh
-        export CMAKE_CONFIGURE_ARGS="-DBUILD_WITH_MKL=ON -DBUILD_LIBXC=OFF"
-        ./.github/workflows/run_local_pip.sh
-        python scripts/download_functionals.py
-    - name: Test with unittest
-      run: |
-        source .github/workflows/load_conda.sh
-        ./.github/workflows/run_tests.sh
+      - uses: actions/checkout@v6
+      - name: Set up OpenBLAS environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.8.1-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            openblas
+            numba=0.60.0
+            numpy=1.26.4
+            scipy=1.14.1
+      - name: Install PyTorch
+        run: |
+          python -m pip install -c .github/workflows/test-constraints.txt torch
+      - name: Build CiderPress
+        id: build_ciderpress
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=OFF
+            -DBUILD_WITH_MPI=OFF
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          set -o pipefail
+          export CMAKE_PREFIX_PATH="$CONDA_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install -v -c .github/workflows/test-constraints.txt \
+            '.[test,d4,cider24]' 2>&1 | tee "$RUNNER_TEMP/ciderpress-build.log"
+      - name: Report CiderPress build failure
+        if: ${{ failure() && steps.build_ciderpress.outcome == 'failure' }}
+        run: |
+          details="$(tail -n 30 "$RUNNER_TEMP/ciderpress-build.log")"
+          details="${details//'%'/'%25'}"
+          details="${details//$'\r'/'%0D'}"
+          details="${details//$'\n'/'%0A'}"
+          printf '::error title=CiderPress macOS build failed::%s\n' "$details"
+      - name: Check Python environment
+        run: |
+          python -m pip check
+      - name: Run tests
+        run: ./.github/workflows/run_tests.sh
+
+  gpaw-openblas:
+    name: GPAW / OpenBLAS / ubuntu-24.04
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and test
+        run: ./.github/workflows/run_gpaw_ci.sh
+
+  gpaw-openblas-macos:
+    name: GPAW / OpenBLAS / macos-15-intel
+    runs-on: macos-15-intel
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up GPAW environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.8.1-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            openblas
+            gpaw=25.7.0
+            numba=0.66.0
+            numpy=2.3.5
+            scipy=1.18.0
+      - name: Build CiderPress
+        id: build_ciderpress
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=OFF
+            -DBUILD_WITH_MPI=OFF
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          set -o pipefail
+          export CMAKE_PREFIX_PATH="$CONDA_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install -v '.[test]' \
+            2>&1 | tee "$RUNNER_TEMP/ciderpress-build.log"
+      - name: Report CiderPress build failure
+        if: ${{ failure() && steps.build_ciderpress.outcome == 'failure' }}
+        run: |
+          details="$(tail -n 30 "$RUNNER_TEMP/ciderpress-build.log")"
+          details="${details//'%'/'%25'}"
+          details="${details//$'\r'/'%0D'}"
+          details="${details//$'\n'/'%0A'}"
+          printf '::error title=CiderPress macOS build failed::%s\n' "$details"
+      - name: Check Python environment
+        run: |
+          python -m pip check
+          python -c "import _gpaw; assert hasattr(_gpaw, 'lxcXCFuncNum')"
+      - name: Install GPAW data
+        run: |
+          ./.github/workflows/install_gpaw_data.sh
+      - name: Run GPAW tests
+        run: ./.github/workflows/run_gpaw_tests.sh
+
+  core-mkl:
+    name: Core / MKL / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up MKL environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.8.1-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            mkl
+            mkl-devel
+      - name: Build and test
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=ON
+            -DBUILD_WITH_MPI=OFF
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          export MKLROOT="$CONDA_PREFIX"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install -c .github/workflows/test-constraints.txt \
+            torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -c .github/workflows/test-constraints.txt '.[test,d4,cider24]'
+          ./.github/workflows/run_tests.sh
+
+  gpaw-mkl:
+    name: GPAW / MKL / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up MKL environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.8.1-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            mkl
+            mkl-devel
+      - name: Build and test
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=ON
+            -DBUILD_WITH_MPI=OFF
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          export MKLROOT="$CONDA_PREFIX"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install -c .github/workflows/test-constraints.txt \
+            torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -c .github/workflows/test-constraints.txt '.[test,cider24]'
+          ./.github/workflows/setup_gpaw_nompi.sh
+          ./.github/workflows/run_gpaw_tests.sh
+
+  mpi-openblas:
+    name: MPI / OpenBLAS / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and test
+        run: |
+          ./.github/workflows/run_gpaw_mpi_ci.sh
+          ./.github/workflows/run_mpi_tests.sh
+
+  mpi-mkl:
+    name: MPI / MKL / Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up MKL and MPI environment
+        uses: mamba-org/setup-micromamba@v3
+        with:
+          micromamba-version: "2.8.1-0"
+          environment-name: ciderpress-ci
+          init-shell: bash
+          cache-environment: false
+          post-cleanup: all
+          create-args: >-
+            python=3.12
+            pip
+            cmake<3.31
+            c-compiler
+            cxx-compiler
+            make
+            libxc=*=cpu_*
+            fftw
+            openmpi
+            openmpi-mpicc
+            mkl
+            mkl-devel
+      - name: Build and test
+        env:
+          CMAKE_CONFIGURE_ARGS: >-
+            -DBUILD_WITH_MKL=ON
+            -DBUILD_WITH_MPI=ON
+            -DBUILD_LIBXC=OFF
+            -DBUILD_FFTW=OFF
+            -DBUILD_MARCH_NATIVE=OFF
+        run: |
+          export MKLROOT="$CONDA_PREFIX"
+          export LIBRARY_PATH="$CONDA_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+          export LD_LIBRARY_PATH="$CONDA_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export C_INCLUDE_PATH="$CONDA_PREFIX/include${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}"
+          python -m pip install -c .github/workflows/test-constraints.txt \
+            torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -c .github/workflows/test-constraints.txt '.[test,cider24]'
+          ./.github/workflows/setup_gpaw.sh
+          ./.github/workflows/run_gpaw_tests.sh
+          ./.github/workflows/run_mpi_tests.sh

@@ -1,40 +1,113 @@
-Density and Orbital Features in CiderPress
-==========================================
+Electronic Features in CiderPress
+==================================
 
-To predict the exchange-correlation energy :math:`E_{\text{xc}}`, we need
-to train a machine learning model :math:`e_{\text{xc}}(\mathbf{x})` such that
+CIDER models predict a grid-resolved exchange or exchange-correlation energy
+density from an electronic feature vector.  Density-based models use
+functionals of :math:`n(\mathbf r)`; generalized Kohn--Sham models may also
+depend on the one-particle density matrix
+:math:`n_1(\mathbf r,\mathbf r')`:
 
-.. math:: E_{\text{xc}} = \int \text{d}^3\mathbf{r}\, e_\text{xc}(\mathbf{x}[n_1](\mathbf{r}))
+.. math::
 
-where :math:`\mathbf{x}[n_1](\mathbf{r})` is a position-dependent feature vector that is
-a functional of the density :math:`n(\mathbf{r})` in "pure" Kohn-Sham DFT and a 
-functional of the density matrix :math:`n_1(\mathbf{r}, \mathbf{r}')` in the case of
-"generalized" Kohn-Sham DFT. Cider provides several types of feature that can
-be used as input to the ML model. These features
-can be divided into four categories:
+   E_{\mathrm{xc}} = \int d^3\mathbf r\,
+   e_{\mathrm{xc}}\!\left(\mathbf x[n,n_1](\mathbf r)\right).
 
-* :ref:`Semilocal Features (SL) <sl_feat>`: Same features as in conventional GGA/meta-GGA functionals (i.e. :math:`n`, :math:`\nabla n`, :math:`\tau`).
-  NOTE: All Cider models must include semilocal features.
-  They need not be used explicitly in the model, but evaluating
-  them is required to evalute baseline functionals and other quantities in the code.
-* :ref:`Nonlocal Density Features (NLDF) <nldf_feat>`: These features are constructed by integrating the density
-  over a real-space kernel function to characterize the shape of the density around a point :math:`\mathbf{r}`.
-* :ref:`Nonlocal Orbital Features (NLOF) <nlof_feat>`: EXPERIMENTAL, NOT TESTED, NOT RECOMMENDED FOR USE.
-  One coordinate of the density matrix is operated on by a fractional Laplacian.
-* :ref:`Smooth Density Matrix Exchange (SDMX) <sdmx_feat>`:
-  One coordinate of the density matrix is convolved at different length scales. Then these convolutions
-  are contracted to approximately characterize the shape of the density matrix around a point :math:`\mathbf{r}`.
+The feature representation determines what spatial information is available
+to the regression, which exact scaling behavior can be imposed, which
+backends can evaluate the model, and which derivatives are available.  The
+serialized feature representation is part of the functional definition.
 
-The set of features to be used in a model is specified using the :class:`FeatureSettings` object. To see
-the code API for setting up feature settings, see the :ref:`Settings module <settings_module>` section. To see
-mathematical descriptions and physical intuition for the different types of features, see
-the subsections below.
+Feature families
+----------------
+
+.. list-table:: Electronic information exposed by each feature family
+   :header-rows: 1
+   :widths: 16 29 28 27
+
+   * - Family
+     - Inputs
+     - Information represented
+     - Packaged use
+   * - :ref:`SL <sl_feat>`
+     - Density, gradient, and optionally kinetic-energy density
+     - Local GGA or meta-GGA environment
+     - Present in every packaged family
+   * - :ref:`NLDF <nldf_feat>`
+     - Density integrated through density-dependent real-space kernels
+     - Rotationally invariant finite-neighborhood density shape
+     - CIDER23X and CIDER26XC
+   * - :ref:`SDMX <sdmx_feat>`
+     - Smoothed one-particle density matrix
+     - Approximate exchange-hole and orbital information
+     - CIDER24X
+
+Every packaged model begins with a semilocal block.  Its density ingredients
+also enter the energy baselines, kernel length scales, normalization factors,
+and low-density regularization.
+
+Representation in the code
+--------------------------
+
+For each grid point, CiderPress evaluates raw features :math:`\mathbf X_0`,
+applies the model's physical normalizers :math:`\mathcal N`, and then applies
+the bounded feature maps :math:`\mathcal T` used by the regression:
+
+.. math::
+
+   \mathbf X_0(\mathbf r)
+   \xrightarrow{\mathcal N}
+   \widetilde{\mathbf X}_0(\mathbf r)
+   \xrightarrow{\mathcal T}
+   \mathbf X_1(\mathbf r)
+   \xrightarrow{f_{\mathrm{ML}}}
+   e_{\mathrm{xc}}(\mathbf r).
+
+The corresponding objects are:
+
+.. list-table:: Feature representation objects
+   :header-rows: 1
+   :widths: 24 36 40
+
+   * - Stage
+     - Class
+     - Role
+   * - Feature declaration
+     - :class:`~ciderpress.dft.settings.FeatureSettings`
+     - Stores the ordered semilocal, NLDF, or SDMX settings used by a model
+   * - Physical normalization
+     - :class:`~ciderpress.dft.feat_normalizer.FeatNormalizerList`
+     - Converts the raw feature powers to the representation expected by the
+       energy form
+   * - Bounded feature map
+     - :class:`~ciderpress.dft.transform_data.FeatureList`
+     - Maps normalized features to the coordinates of one regression kernel
+   * - Mapped evaluator
+     - :class:`~ciderpress.dft.xc_evaluator.MappedXC` or
+       :class:`~ciderpress.dft.xc_evaluator2.MappedXC2`
+     - Evaluates the mapped exchange or full-XC model and its derivatives
+
+:class:`~ciderpress.dft.settings.SemilocalSettings`,
+:class:`~ciderpress.dft.settings.NLDFSettingsVJ`, and
+:class:`~ciderpress.dft.settings.SDMXSettings` define the individual feature
+blocks.  Their numerical plans are implemented by
+:class:`~ciderpress.dft.plans.SemilocalPlan`,
+:class:`~ciderpress.dft.plans.NLDFSplinePlan`, and
+:class:`~ciderpress.dft.plans.SDMXPlan`.
+
+The settings, normalizers, and mapped kernels are serialized together in a
+CIDER model file.  The PySCF and GPAW interfaces reconstruct them when the
+functional is loaded.
+
+The equations and parameter conventions for each block are given below.
+Uniform-scaling constraints are derived in :doc:`../theory/uniform_scaling`,
+and the exchange and correlation energy forms used by CIDER26XC are defined
+in :doc:`../theory/full_xc`.  Backend support for the packaged families is
+listed in :doc:`../usage/production_models`.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Feature definitions
 
    sl
    nldf
-   nlof
    sdmx
-

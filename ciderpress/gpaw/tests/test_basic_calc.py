@@ -29,17 +29,18 @@ from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional
 
 NKPT = 4
 REFERENCE_ENERGIES = {
-    "CIDER23X_SL_GGA": -12.866290987790224,
-    "CIDER23X_NL_GGA": -13.046146980191777,
-    "CIDER23X_SL_MGGA": -12.265893307629582,
-    "CIDER23X_NL_MGGA_DTR": -12.53022643638701,
+    # PAW references use the production orbital-product construction.
+    "CIDER23X_SL_GGA": -12.86582176127865,
+    "CIDER23X_NL_GGA": -13.04553492593161,
+    "CIDER23X_SL_MGGA": -12.265329892688479,
+    "CIDER23X_NL_MGGA_DTR": -12.529810909249525,
 }
 USE_AUGMENT_GRIDS = True
 
 
 def run_calc(xc, spinpol, setups="paw"):
     atoms = bulk("Si")
-    mlfunc = "functionals/{}.yaml".format(xc)
+    mlfunc = xc
     xc = get_cider_functional(
         mlfunc,
         xmix=0.25,

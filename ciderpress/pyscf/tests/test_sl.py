@@ -210,6 +210,40 @@ class TestSemilocal(unittest.TestCase):
         ]
         return feat_fd
 
+    def _get_fd_group_feats(
+        self,
+        key,
+        orbitals,
+        settings_list,
+        analyzer,
+        inner_level,
+        grids,
+    ):
+        if analyzer.dm.ndim != 2:
+            raise ValueError("Degenerate-subspace check expects a restricted density")
+        _, coeffs, _, _ = get_labels_and_coeffs(
+            {key: orbitals},
+            analyzer.mo_coeff,
+            analyzer.mo_occ,
+            analyzer.mo_energy,
+        )
+        dm_direction = sum(np.outer(coeff, coeff) for coeff in coeffs)
+        delta = FD_DELTA if key == "U" else -FD_DELTA
+
+        features = []
+        for sign in (1, -1):
+            dm = analyzer.dm + sign * delta * dm_direction
+            displaced = RHFAnalyzer(analyzer.mol, dm, grids_level=inner_level)
+            displaced.grids = grids
+            displaced.perform_full_analysis()
+            features.append(
+                [get_descriptors(displaced, settings) for settings in settings_list]
+            )
+        return [
+            (plus - minus)[0] / (2 * delta)
+            for plus, minus in zip(features[0], features[1])
+        ]
+
     def _check_sl_occ_derivs(self, analyzer, coords, rtol=1e-3, atol=1e-3):
         mo_occ = analyzer.mo_occ
         mo_coeff = analyzer.mo_coeff
@@ -300,6 +334,36 @@ class TestSemilocal(unittest.TestCase):
                 else:
                     spin, occd_pred = 0, occd_nst[k][iorb]
                 assert_allclose(occd_pred, dfeat_list[3], rtol=rtol, atol=atol)
+
+    def _check_sl_occ_derivs_degenerate_subspace(
+        self, analyzer, coords, rtol=3e-3, atol=3e-3
+    ):
+        grids = _Grids(analyzer.mol, coords)
+        inner_level = 3
+        analyzer.grids = grids
+        analyzer.perform_full_analysis()
+        orbitals = [0, 1, 2]
+        settings_list = [
+            self.np_settings,
+            self.ns_settings,
+            self.npa_settings,
+            self.nst_settings,
+        ]
+        predictions = [
+            get_descriptors(analyzer, settings, orbs={"O": orbitals})[1]
+            for settings in settings_list
+        ]
+        finite_differences = self._get_fd_group_feats(
+            "O", orbitals, settings_list, analyzer, inner_level, grids
+        )
+        for prediction, finite_difference in zip(predictions, finite_differences):
+            subspace_derivative = sum(prediction["O"][index] for index in orbitals)
+            assert_allclose(
+                subspace_derivative,
+                finite_difference,
+                rtol=rtol,
+                atol=atol,
+            )
 
     def _check_rotation_invariance(self, mol, coords, settings):
         rot_coords = get_rotated_coords(coords, 0.6 * np.pi, axis="x")
@@ -438,8 +502,9 @@ class TestSemilocal(unittest.TestCase):
             self._check_sl_equivalence(mol, ks.make_rdm1(), coords)
 
     def test_sl_occ_derivs(self):
-        tols = [(1e-3, 1e-3), (1e-3, 1e-3), (3e-3, 3e-3), (1e-3, 1e-3)]
-        for mol, (atol, rtol) in zip(self.mols, tols):
+        mols = [self.mols[0], self.mols[1], self.mols[3]]
+        tols = [(1e-3, 1e-3), (1e-3, 1e-3), (1e-3, 1e-3)]
+        for mol, (atol, rtol) in zip(mols, tols):
             print(mol.atom)
             ks = dft.RKS(mol) if mol.spin == 0 else dft.UKS(mol)
             ks.xc = "PBE"
@@ -451,6 +516,15 @@ class TestSemilocal(unittest.TestCase):
             else:
                 analyzer = RHFAnalyzer.from_calc(ks)
             self._check_sl_occ_derivs(analyzer, coords, rtol=rtol, atol=atol)
+
+    def test_sl_occ_derivs_degenerate_subspace(self):
+        mol = self.mols[2]
+        ks = dft.RKS(mol)
+        ks.xc = "PBE"
+        ks.kernel()
+        coords = get_random_coords(ks)
+        analyzer = RHFAnalyzer.from_calc(ks)
+        self._check_sl_occ_derivs_degenerate_subspace(analyzer, coords)
 
 
 if __name__ == "__main__":

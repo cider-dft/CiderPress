@@ -313,7 +313,7 @@ class EXXSphGenerator:
     ):
         rf_loc = _get_rf_loc(mol)
         args = [
-            ctypes.c_int(b0.shape[-1]),
+            ctypes.c_size_t(b0.shape[-1]),  # ngrids: int->size_t (int32 overflow fix)
             b0.ctypes.data_as(ctypes.c_void_p),
             ylm.ctypes.data_as(ctypes.c_void_p),
             c0.ctypes.data_as(ctypes.c_void_p),
@@ -325,7 +325,7 @@ class EXXSphGenerator:
             mol._bas.ctypes.data_as(ctypes.c_void_p),
             ctypes.c_int(mol.nbas),
             mol._env.ctypes.data_as(ctypes.c_void_p),
-            ctypes.c_int(rf_loc[-1]),
+            ctypes.c_size_t(rf_loc[-1]),  # nrf: int->size_t (int32 overflow fix)
             rf_loc.ctypes.data_as(ctypes.c_void_p),
         ]
         if coords is not None:
@@ -357,7 +357,7 @@ class EXXSphGenerator:
         ylm = np.ndarray((ncpa, ylm_atom_loc[-1], ngrids), buffer=buf, order="C")
         atom_coords = np.ascontiguousarray(mol.atom_coords(unit="Bohr"))
         libcider.SDMXylm_loop(
-            ctypes.c_int(coords.shape[0]),
+            ctypes.c_size_t(coords.shape[0]),  # ngrids: int->size_t (overflow fix)
             ylm.ctypes.data_as(ctypes.c_void_p),
             coords.ctypes.data_as(ctypes.c_void_p),
             ylm_atom_loc.ctypes.data_as(ctypes.c_void_p),
@@ -367,7 +367,7 @@ class EXXSphGenerator:
         if ncpa > 1:
             gaunt_coeff = get_deriv_ylm_coeff(gaunt_lmax)
             libcider.SDMXylm_grad(
-                ctypes.c_int(coords.shape[0]),
+                ctypes.c_size_t(coords.shape[0]),  # ngrids: int->size_t (overflow fix)
                 ylm.ctypes.data_as(ctypes.c_void_p),
                 gaunt_coeff.ctypes.data_as(ctypes.c_void_p),
                 ctypes.c_int(gaunt_coeff.shape[1]),
@@ -375,7 +375,7 @@ class EXXSphGenerator:
                 ctypes.c_int(mol.natm),
             )
         libcider.SDMXylm_yzx2xyz(
-            ctypes.c_int(coords.shape[0]),
+            ctypes.c_size_t(coords.shape[0]),  # ngrids: int->size_t (overflow fix)
             ctypes.c_int(ncpa),
             ylm.ctypes.data_as(ctypes.c_void_p),
             ylm_atom_loc.ctypes.data_as(ctypes.c_void_p),
@@ -398,7 +398,7 @@ class EXXSphGenerator:
             atom_coords = np.asfortranarray(mol.atom_coords(unit="Bohr"))
             rf_loc = _get_rf_loc(mol)
             args = [
-                ctypes.c_int(b0.shape[-1]),
+                ctypes.c_size_t(b0.shape[-1]),  # ngrids: int->size_t (overflow fix)
                 b0.ctypes.data_as(ctypes.c_void_p),
                 ylm.ctypes.data_as(ctypes.c_void_p),
                 c0.ctypes.data_as(ctypes.c_void_p),
@@ -412,7 +412,7 @@ class EXXSphGenerator:
                 mol._env.ctypes.data_as(ctypes.c_void_p),
                 coords.ctypes.data_as(ctypes.c_void_p),
                 atom_coords.ctypes.data_as(ctypes.c_void_p),
-                ctypes.c_int(rf_loc[-1]),
+                ctypes.c_size_t(rf_loc[-1]),  # nrf: int->size_t (overflow fix)
                 rf_loc.ctypes.data_as(ctypes.c_void_p),
             ]
             if bwd:
@@ -473,9 +473,9 @@ class EXXSphGenerator:
             b0[0] = _scale_ao(cao[:nalpha], tmp2[0])
         else:
             libcider.contract_shl_to_alpha_l1_bwd(
-                ctypes.c_int(coords.shape[0]),
-                ctypes.c_int(nalpha),
-                ctypes.c_int(cao.shape[-1]),
+                ctypes.c_size_t(coords.shape[0]),
+                ctypes.c_size_t(nalpha),
+                ctypes.c_size_t(cao.shape[-1]),
                 tmp2.ctypes.data_as(ctypes.c_void_p),
                 b0.ctypes.data_as(ctypes.c_void_p),
                 cao.ctypes.data_as(ctypes.c_void_p),
@@ -546,9 +546,9 @@ class EXXSphGenerator:
                 assert tmp.flags.c_contiguous
                 assert b0.flags.c_contiguous
                 libcider.contract_shl_to_alpha_l1(
-                    ctypes.c_int(coords.shape[0]),
-                    ctypes.c_int(nalpha),
-                    ctypes.c_int(cao.shape[-1]),
+                    ctypes.c_size_t(coords.shape[0]),
+                    ctypes.c_size_t(nalpha),
+                    ctypes.c_size_t(cao.shape[-1]),
                     tmp.ctypes.data_as(ctypes.c_void_p),
                     b0.ctypes.data_as(ctypes.c_void_p),
                     cao.ctypes.data_as(ctypes.c_void_p),

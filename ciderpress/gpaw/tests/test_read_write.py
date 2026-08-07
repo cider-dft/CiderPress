@@ -58,6 +58,11 @@ def run_load_write(xc, use_pp=False, is_cider=False, is_nl=False):
 
     calc.write("_tmp.gpw")
     si1, calc1 = restart("_tmp.gpw", Class=CiderGPAW, parallel=mypar)
+    if is_cider:
+        override = CiderGPAW("_tmp.gpw", xc="PBE", parallel=mypar, txt=None)
+        override.get_potential_energy()
+        assert override.hamiltonian.xc.name == "PBE"
+        del override
     if is_cider and is_nl:
         xc0 = calc.hamiltonian.xc
         xc1 = calc1.hamiltonian.xc
@@ -105,8 +110,8 @@ def get_xc(fname, use_paw=True):
 class TestReadWrite(unittest.TestCase):
     def test_nl_ml(self):
         for fname in [
-            "functionals/CIDER23X_NL_GGA.yaml",
-            "functionals/CIDER23X_NL_MGGA.yaml",
+            "CIDER23X_NL_GGA",
+            "CIDER23X_NL_MGGA",
         ]:
             for use_paw in [False, True]:
                 xc = get_xc(fname, use_paw)
@@ -116,8 +121,8 @@ class TestReadWrite(unittest.TestCase):
 
     def test_sl_ml(self):
         for fname in [
-            "functionals/CIDER23X_SL_GGA.yaml",
-            "functionals/CIDER23X_SL_MGGA.yaml",
+            "CIDER23X_SL_GGA",
+            "CIDER23X_SL_MGGA",
         ]:
             xc = get_xc(fname)
             parprint("TEST", fname)

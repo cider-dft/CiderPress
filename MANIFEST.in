@@ -2,25 +2,24 @@ include MANIFEST.in
 include README.md setup.py LICENSE NOTICE
 
 include ciderpress/data/*.npy
+recursive-include ciderpress/data/functionals *.yaml
 
 prune pyscf/lib/build
-include ciderpress/lib/*.so
-include ciderpress/lib/*.so*
-recursive-include ciderpress/lib/deps *.so
-recursive-include ciderpress/lib/deps *.so.*
 
-# macos dynamic libraries
-include ciderpress/lib/*.dylib
-include ciderpress/lib/*.dylib*
-recursive-include ciderpress/lib/deps *.dylib
-recursive-include ciderpress/lib/deps *.dylib.*
+# Source distributions must be portable and must not capture locally built
+# libraries.  The extension modules and their dependencies are rebuilt during
+# installation.
 
 # source code
 recursive-include ciderpress/lib *.c *.h *.h.in CMakeLists.txt
 recursive-exclude ciderpress/lib *.cl
+exclude ciderpress/lib/fft_wrapper/cider_fft_config.h
+exclude ciderpress/lib/pwutil/config.h
+prune ciderpress/lib/deps
+recursive-exclude ciderpress/lib *.so* *.dylib*
 
 global-exclude *.py[cod]
 prune ciderpress/lib/build
 
-# docs
-recursive-exclude docs/
+# Documentation is built and deployed separately from the source package.
+prune docs

@@ -30,6 +30,7 @@ from pyscf.dft.numint import NumInt
 from ciderpress.dft.plans import FracLaplPlan, SemilocalPlan
 from ciderpress.dft.settings import (
     FracLaplSettings,
+    HybridSettings,
     NLDFSettings,
     SDMXBaseSettings,
     SemilocalSettings,
@@ -39,6 +40,11 @@ from ciderpress.pyscf.frac_lapl import FLNumInt
 from ciderpress.pyscf.gen_cider_grid import CiderGrids
 from ciderpress.pyscf.nldf_convolutions import DEFAULT_CIDER_LMAX, PyscfNLDFGenerator
 from ciderpress.pyscf.sdmx_slow import EXXSphGenerator
+
+try:
+    from pyscf.sgx import sgx as _sgx_mod  # PySCF ≥ 2.2
+except ImportError:  # pragma: no cover – old PySCF fallback
+    _sgx_mod = None
 
 NLDF_VERSION_LIST = ["i", "j", "ij", "k"]
 
@@ -113,6 +119,8 @@ def get_descriptors(analyzer, settings, orbs=None, **kwargs):
         my_desc_getter = _sl_desc_getter
     elif isinstance(settings, NLDFSettings):
         my_desc_getter = _nldf_desc_getter
+    elif isinstance(settings, HybridSettings):
+        my_desc_getter = _hyb_desc_getter
     elif isinstance(settings, FracLaplSettings):
         my_desc_getter = _fl_desc_getter
     elif isinstance(settings, SDMXBaseSettings):
@@ -485,3 +493,100 @@ def _sdmx_desc_getter(mol, pgrids, dm, settings, coeffs=None, **kwargs):
     elif len(coeffs) == 0:
         return desc, 0
     return desc, ddesc
+
+
+def _hyb_desc_getter(
+    mol,
+    pgrids,
+    dms,
+    settings,
+    coeffs=None,
+    sgx_cache=None,
+    return_a_tensor=False,
+    **kwargs
+):
+    """Compute exact-exchange energy density ε_x^EXX on *pgrids* and return
+    it as the single-component feature required by HybridPlan.
+
+    Parameters
+    ----------
+    mol : Mole object
+        Molecule
+    pgrids : Grids object
+        Grid points
+    dms : array
+        Density matrix
+    settings : HybridSettings
+        Hybrid functional settings
+    coeffs : array, optional
+        Orbital coefficients (not supported yet)
+    sgx_cache : dict, optional
+        Cache dictionary for SGX objects
+    return_a_tensor : bool, optional
+        If True, also return three-center integrals A tensor, this is needed for the non-local contributions to vxc in SCF calculations
+
+    Returns
+    -------
+    feat : array (nfeat, ngrids)
+        Exchange energy density feature
+    a_tensor : array (ngrids, nao, nao), optional
+        Three-center integrals if return_a_tensor=True
+    """
+    if coeffs is not None and len(coeffs):
+        raise NotImplementedError(
+            "Orbital-occupation derivatives are not yet supported for hybrids"
+        )
+
+    if _sgx_mod is None:
+        raise RuntimeError(
+            "PySCF compiled without SGX module – cannot compute exact exchange density"
+        )
+
+    # Use caching if cache dict provided
+    sgx_obj = None
+    if sgx_cache is not None:
+        # Create cache key from mol and grids
+        cache_key = (id(mol), id(pgrids))
+        if cache_key in sgx_cache:
+            sgx_obj = sgx_cache[cache_key]
+
+    if sgx_obj is None:
+        # The SGX object internally generates a pruned grid. To ensure grid
+        # consistency with all other features, we must force it to use the full,
+        # unpruned grid from the main analyzer. We do this by creating the SGX
+        # object, letting it run its internal build, and then overwriting its
+        # .grids attribute with the correct, full grid object.
+        sgx_obj = _sgx_mod.SGX(mol)
+        sgx_obj.build()  # This creates sgx_obj.grids with pruning
+        sgx_obj.grids = pgrids  # Overwrite with the full grid
+
+        # Cache the SGX object if cache dict provided
+        if sgx_cache is not None:
+            sgx_cache[cache_key] = sgx_obj
+
+    # Use the enhanced function that can return A tensor
+    from ciderpress.external.sgx_tools import get_jk_densities_and_a_tensor
+
+    result = get_jk_densities_and_a_tensor(
+        sgx_obj, dms, hermi=1, return_a_tensor=return_a_tensor
+    )
+
+    if return_a_tensor:
+        _ej, ek, a_tensor = result
+    else:
+        _ej, ek = result
+
+    # Feature array expected shape: (nfeat, ngrids)
+    # Factor of 0.5 explanation for RKS (closed-shell):
+    # - In RKS, we use total density matrix P_total = 2 * P_alpha (factor of 2)
+    # - Exchange integral involves P^2, giving factor of 4 compared to spin-resolved
+    # - SGX returns -0.5 * exchange integral (factor of -0.5)
+    # - We need another 0.5 to get the correct per-particle exchange energy density
+    # - Final scaling: 4 * (-0.5) * 0.5 = -1, which is correct
+    # For UKS, this factor works as well, since we pass 2*P_alpha and 2*P_beta
+    feat = 0.5 * ek[0][None, :]  # RKS-specific scaling for exchange energy density
+
+    if return_a_tensor:
+        return feat, a_tensor
+    else:
+        return feat

@@ -47,3 +47,16 @@ void get_mgga_baseline(int fn_id, int nspin, int size, double *rho,
     xc_mgga_exc_vxc(&func, size, rho, sigma, rho, tau, exc, vrho, vsigma, NULL,
                     vtau);
 }
+
+void get_lda_rs_baseline(int fn_id, int nspin, int size, double *rho,
+                         double *exc, double *vrho, double omega,
+                         double dens_threshold) {
+    xc_func_type func;
+
+    xc_func_init(&func, fn_id, nspin);
+    xc_func_set_dens_threshold(&func, dens_threshold);
+
+    func.cam_omega = omega;
+
+    xc_lda_exc_vxc(&func, size, rho, exc, vrho);
+}

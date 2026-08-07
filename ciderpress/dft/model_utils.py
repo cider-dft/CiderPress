@@ -18,15 +18,73 @@
 # Author: Kyle Bystrom <kylebystrom@gmail.com>
 #
 
+import os
+from importlib.resources import files
+from math import isclose
+
 import joblib
 import yaml
 
 from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
 
+CIDER23X_MODELS = (
+    "CIDER23X_SL_GGA",
+    "CIDER23X_SL_MGGA",
+    "CIDER23X_NL_GGA",
+    "CIDER23X_NL_MGGA",
+    "CIDER23X_NL_MGGA_PBE",
+    "CIDER23X_NL_MGGA_DTR",
+)
 
-def load_cider_model(mlfunc, mlfunc_format):
+CIDER24X_MODELS = (
+    "CIDER24Xne",
+    "CIDER24Xe",
+)
+
+CIDER26XC_MODELS = (
+    "CIDER26XCCHEM",
+    "CIDER26XCCHEMD4",
+    "CIDER26XCSURFSCI",
+)
+
+BUILTIN_MODELS = CIDER23X_MODELS + CIDER24X_MODELS + CIDER26XC_MODELS
+
+
+def _get_builtin_model_name(value):
+    if value in BUILTIN_MODELS:
+        return value
+    if value.endswith(".yaml") and value[:-5] in BUILTIN_MODELS:
+        return value[:-5]
+    return None
+
+
+def get_builtin_model_name(value):
+    """Return the packaged model selected by *value*, if any.
+
+    Existing file paths return ``None`` because explicit files take precedence
+    over packaged short names in :func:`load_cider_model`.
+    """
+    if isinstance(value, os.PathLike):
+        value = os.fspath(value)
+    if not isinstance(value, str) or os.path.exists(value):
+        return None
+    return _get_builtin_model_name(value)
+
+
+def load_cider_model(mlfunc, mlfunc_format=None):
+    if isinstance(mlfunc, os.PathLike):
+        mlfunc = os.fspath(mlfunc)
     if isinstance(mlfunc, str):
+        resource = None
+        builtin_name = get_builtin_model_name(mlfunc)
+        if builtin_name is not None:
+            resource = files("ciderpress.data.functionals").joinpath(
+                builtin_name + ".yaml"
+            )
+            if mlfunc_format not in (None, "yaml"):
+                raise ValueError("Built-in CIDER models use YAML format")
+            mlfunc_format = "yaml"
         if mlfunc_format is None:
             if mlfunc.endswith(".yaml"):
                 mlfunc_format = "yaml"
@@ -35,14 +93,24 @@ def load_cider_model(mlfunc, mlfunc_format):
             else:
                 raise ValueError("Unsupported file format")
         if mlfunc_format == "yaml":
-            with open(mlfunc, "r") as f:
-                mlfunc = yaml.load(f, Loader=yaml.CLoader)
+            context = resource.open("r") if resource is not None else open(mlfunc, "r")
+            try:
+                with context as f:
+                    mlfunc = yaml.load(f, Loader=yaml.CLoader)
+            except ModuleNotFoundError as exc:
+                if exc.name == "torch":
+                    raise ModuleNotFoundError(
+                        "This CIDER model requires PyTorch. Install the optional "
+                        "dependency with `pip install 'ciderpress[cider24]'`, or "
+                        "install a platform-specific PyTorch build before loading it."
+                    ) from exc
+                raise
         elif mlfunc_format == "joblib":
             mlfunc = joblib.load(mlfunc)
         else:
             raise ValueError("Unsupported file format")
     if not isinstance(mlfunc, (MappedXC, MappedXC2)):
-        raise ValueError("mlfunc must be MappedXC")
+        raise ValueError("mlfunc must be MappedXC or MappedXC2")
     return mlfunc
 
 
@@ -57,3 +125,65 @@ def get_slxc_settings(xc, xkernel, ckernel, xmix):
     if xc.endswith(" + "):
         xc = xc[:-3]
     return xc
+
+
+def _mapped_kernel_components(kernel):
+    """Return the exchange/correlation components represented by a kernel."""
+    component = getattr(kernel, "component", None)
+    if component == "xc":
+        return {"x", "c"}
+    if component in ("x", "c"):
+        return {component}
+
+    # Mapped models created before component metadata was serialized can be
+    # identified from the libxc baseline names used by DFTKernel2.
+    components = set()
+    for baseline in (
+        getattr(kernel, "_mul_basefunc", None),
+        getattr(kernel, "_add_basefunc", None),
+    ):
+        if not isinstance(baseline, str):
+            continue
+        tokens = baseline.upper().split("_")
+        if "XC" in tokens:
+            components.update(("x", "c"))
+        else:
+            if "X" in tokens:
+                components.add("x")
+            if "C" in tokens:
+                components.add("c")
+    return components
+
+
+def _is_full_xc_model(mlfunc):
+    if not isinstance(mlfunc, MappedXC2):
+        return False
+    components = set()
+    for kernel in mlfunc.kernels:
+        components.update(_mapped_kernel_components(kernel))
+    return components.issuperset(("x", "c"))
+
+
+def validate_cider_composition(
+    mlfunc, *, xmix, xkernel, ckernel, xc=None, backend="CiderPress"
+):
+    """Reject additive semilocal terms for mapped full-XC models.
+
+    A ``MappedXC2`` object may represent exchange alone or a complete
+    exchange-correlation model. Mixing a full-XC model with an external
+    exchange or correlation kernel changes the functional and, in GPAW's
+    historical default configuration, silently double-counts PBE correlation.
+    """
+    if not _is_full_xc_model(mlfunc):
+        return
+    try:
+        mix_is_one = isclose(float(xmix), 1.0, rel_tol=0.0, abs_tol=1e-15)
+    except (TypeError, ValueError):
+        mix_is_one = False
+    safe = mix_is_one and xkernel is None and ckernel is None and xc is None
+    if not safe:
+        raise ValueError(
+            f"{backend} full-XC CIDER models require xmix=1.0, "
+            "xkernel=None, ckernel=None, and no additional xc term; the "
+            "serialized model already contains the complete XC baseline."
+        )

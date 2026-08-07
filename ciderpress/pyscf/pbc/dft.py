@@ -20,6 +20,7 @@
 
 from pyscf import lib
 
+from ciderpress.dft.model_utils import validate_cider_composition
 from ciderpress.pyscf.dft import _CiderKS as _MolCiderKS
 from ciderpress.pyscf.dft import get_slxc_settings, load_cider_model
 from ciderpress.pyscf.pbc.numint import CiderKNumInt, CiderNumInt, numint
@@ -47,6 +48,14 @@ def make_cider_calc(
     integration grid and pseudopotentials.
     """
     mlfunc = load_cider_model(mlfunc, mlfunc_format)
+    validate_cider_composition(
+        mlfunc,
+        xmix=xmix,
+        xkernel=xkernel,
+        ckernel=ckernel,
+        xc=xc,
+        backend="periodic PySCF",
+    )
     ks._xc = get_slxc_settings(xc, xkernel, ckernel, xmix)
     # Assign the PySCF-facing functional to be a simple SL
     # functional to avoid hybrid DFT being called.

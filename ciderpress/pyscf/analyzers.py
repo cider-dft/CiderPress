@@ -19,6 +19,7 @@
 #
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 import numpy as np
 from pyscf import dft, gto, lib, scf
@@ -65,7 +66,14 @@ class ElectronAnalyzer(ABC):
     _atype = None
 
     def __init__(
-        self, mol, dm, grids_level=3, mo_occ=None, mo_coeff=None, mo_energy=None
+        self,
+        mol,
+        dm,
+        grids_level=3,
+        mo_occ=None,
+        mo_coeff=None,
+        mo_energy=None,
+        grid_spec=None,
     ):
         if mo_occ is None and hasattr(dm, "mo_occ"):
             self.mo_occ = dm.mo_occ
@@ -84,8 +92,16 @@ class ElectronAnalyzer(ABC):
         self.mol.verbose = 3
         self.mol.build()
         self.grids_level = grids_level
+        self.grid_spec = deepcopy(grid_spec) if grid_spec is not None else None
         self.grids = Grids(self.mol)
-        self.grids.level = self.grids_level
+        if self.grid_spec is not None:
+            self.grids.__dict__.update(deepcopy(self.grid_spec))
+            if getattr(self.grids, "level", None) is None:
+                self.grids.level = self.grids_level
+            else:
+                self.grids_level = self.grids.level
+        else:
+            self.grids.level = self.grids_level
         self._data = {}
         self.grids.build(with_non0tab=False)
 
@@ -104,6 +120,7 @@ class ElectronAnalyzer(ABC):
             "mo_coeff": self.mo_coeff,
             "mo_energy": self.mo_energy,
             "grids_level": self.grids_level,
+            "grid_spec": self.grid_spec,
             "mol": gto.mole.pack(self.mol),
         }
 
@@ -118,6 +135,7 @@ class ElectronAnalyzer(ABC):
             "mo_occ": d.get("mo_occ"),
             "mo_coeff": d.get("mo_coeff"),
             "mo_energy": d.get("mo_energy"),
+            "grid_spec": d.get("grid_spec"),
         }
         atype = d.get("atype")
         if atype is None:
@@ -260,7 +278,7 @@ class ElectronAnalyzer(ABC):
         return self._data["ORBXC_{}".format(xcname)]
 
     @staticmethod
-    def from_calc(calc, grids_level=None, store_energy_orig=True):
+    def from_calc(calc, grids_level=None, store_energy_orig=True, grid_spec=None):
         """
         NOTE: This has side effects on calc, see notes below.
 
@@ -291,6 +309,7 @@ class ElectronAnalyzer(ABC):
             mo_occ=calc.mo_occ,
             mo_coeff=calc.mo_coeff,
             mo_energy=calc.mo_energy,
+            grid_spec=grid_spec,
         )
         if store_energy_orig and isinstance(calc, dft.rks.KohnShamDFT):
             # save initial exc for reference
@@ -303,20 +322,44 @@ class ElectronAnalyzer(ABC):
                 # settings/screenings on the grids. Also
                 # scf_summary will be overwritten
                 old_level = calc.grids.level
-                calc.grids.level = grids_level
-                calc.grids.build()
-                if hasattr(calc, "with_df") and hasattr(calc.with_df, "grids"):
-                    calc.with_df.build()
-                if hasattr(calc, "_numint") and hasattr(calc._numint, "build"):
-                    calc._numint.build()
-                e_tot = calc.energy_tot(analyzer.dm)
-                calc.grids.level = old_level
-                calc.grids.build()
+                old_direct_scf = getattr(calc, "direct_scf", None)
+                old_eri = getattr(calc, "_eri", None)
+                old_incore_anyway = getattr(calc.mol, "incore_anyway", False)
+                old_max_memory = getattr(calc, "max_memory", None)
+                try:
+                    calc.grids.level = grids_level
+                    calc.grids.build()
+                    if hasattr(calc, "with_df") and hasattr(calc.with_df, "grids"):
+                        calc.with_df.build()
+                    if hasattr(calc, "_numint") and hasattr(calc._numint, "build"):
+                        calc._numint.build()
+                    calc.direct_scf = True
+                    calc._eri = None
+                    calc.mol.incore_anyway = False
+                    if old_max_memory is not None:
+                        calc.max_memory = min(old_max_memory, 4000)
+                    e_tot = calc.energy_tot(analyzer.dm)
+                finally:
+                    calc.grids.level = old_level
+                    calc.grids.build()
+                    calc.direct_scf = old_direct_scf
+                    calc._eri = old_eri
+                    calc.mol.incore_anyway = old_incore_anyway
+                    if old_max_memory is not None:
+                        calc.max_memory = old_max_memory
             else:
                 e_tot = calc.e_tot
             analyzer._data["xc_orig"] = calc.xc
             analyzer._data["exc_orig"] = calc.scf_summary["exc"]
             analyzer._data["e_tot_orig"] = e_tot
+            # Detect wrapper-based dispersion (D3/D4) that is included in
+            # e_tot_orig but NOT in exc_orig. Downstream REF compilation uses
+            # this to store the no-dispersion baseline expected by vdW fitting.
+            # Note: NLC/VV10 is part of the XC functional and IS in exc_orig,
+            # so it doesn't need this correction.
+            from ciderpress.pyscf.dft import _get_present_dispersion_energy_ha
+
+            analyzer._data["e_disp_orig"] = _get_present_dispersion_energy_ha(calc)
         return analyzer
 
     def get_rho_data(self, overwrite=False):

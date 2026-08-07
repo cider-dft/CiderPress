@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
 export OMP_NUM_THREADS=1
-export PYTHONPATH=$(pwd):$PYTHONPATH
+PYTHONPATH="$(pwd)${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH
 ulimit -s 20000
 
-version=$(python -c 'import sys; print("{0}.{1}".format(*sys.version_info[:2]))')
-pytest ciderpress/gpaw -s -c pytest_mpi.ini ciderpress
+PYTHONHASHSEED=0 python -m pytest -s -c pytest_mpi.ini ciderpress/gpaw

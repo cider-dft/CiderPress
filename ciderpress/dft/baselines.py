@@ -151,6 +151,38 @@ def get_libxc_lda_baseline(xcid, rho):
     return exc, vrho
 
 
+def get_libxc_lda_rs_baseline(xcid, rho, omega=0.0):
+    """
+    Range-separated LDA baseline function.
+
+    Args:
+        xcid: Exchange-correlation functional ID (string or int)
+        rho: Density array
+        omega: Range-separation parameter
+
+    Returns:
+        exc, vrho: Energy and potential arrays
+    """
+    if isinstance(xcid, str):
+        xcid = LDA_CODES[xcid]
+    nspin, size = rho.shape
+    rho = np.asfortranarray(rho)
+    exc = np.zeros(size)
+    vrho = np.zeros_like(rho, order="F")
+
+    xc_helper.get_lda_rs_baseline(
+        ctypes.c_int(xcid),
+        ctypes.c_int(nspin),
+        ctypes.c_int(size),
+        rho.ctypes.data_as(ctypes.c_void_p),
+        exc.ctypes.data_as(ctypes.c_void_p),
+        vrho.ctypes.data_as(ctypes.c_void_p),
+        ctypes.c_double(omega),
+        ctypes.c_double(1e-12),
+    )
+    return exc, vrho
+
+
 def get_libxc_gga_baseline(xcid, rho, sigma):
     if isinstance(xcid, str):
         xcid = GGA_CODES[xcid]
@@ -254,11 +286,14 @@ def get_libxc_baseline_os(xcid, rho_tuple):
     return exc, vrho, vsigma
 
 
-def get_libxc_baseline(xcid, rho_tuple):
+def get_libxc_baseline(xcid, rho_tuple, omega=0.0):
     for r in rho_tuple:
         assert r.ndim == 2
     if xcid in LDA_CODES:
-        res = get_libxc_lda_baseline(xcid, rho_tuple[0])
+        if abs(omega) > 1e-11:
+            res = get_libxc_lda_rs_baseline(xcid, rho_tuple[0], omega)
+        else:
+            res = get_libxc_lda_baseline(xcid, rho_tuple[0])
     elif xcid in GGA_CODES:
         res = get_libxc_gga_baseline(xcid, rho_tuple[0], rho_tuple[1])
     elif xcid in MGGA_CODES:
@@ -332,6 +367,70 @@ def mgga_c_r2scan(X0T):
     raise NotImplementedError
 
 
+def exx_energy_baseline(X0T):
+    """Multiplicative baseline that takes the last raw feature--assumed to be
+    the exact-exchange energy density ek--and returns it.
+
+    NOTE: The feature is normalized by LDA exchange during feature generation,
+    so we need to denormalize it here to get the actual exchange energy density.
+    """
+    nspin, nfeat, nsamp = X0T.shape
+
+    # Initialize outputs
+    e = np.zeros(nsamp)
+    dedx = np.zeros_like(X0T)
+
+    # Handle each spin channel separately
+    for s in range(nspin):
+        rho_s = X0T[s, 0]  # First feature is unnormalized density
+        normalized_exx_s = X0T[s, -1]  # Last feature is normalized exx
+
+        # Compute energy contribution for this spin
+        e_s = -1.0 * np.abs(normalized_exx_s * LDA_FACTOR * rho_s ** (4.0 / 3.0))
+
+        # Add to total energy
+        e += e_s
+
+        # Compute derivatives for this spin
+        sign_factor = np.sign(normalized_exx_s * LDA_FACTOR)
+        dedx[s, -1] = (
+            -1.0 * sign_factor * LDA_FACTOR * rho_s ** (4.0 / 3.0)
+        )  # d/d(normalized_exx)
+        dedx[s, 0] = (
+            -1.0
+            * sign_factor
+            * normalized_exx_s
+            * LDA_FACTOR
+            * (4.0 / 3.0)
+            * rho_s ** (1.0 / 3.0)
+        )  # d/drho
+
+    e /= nspin
+    dedx /= nspin
+
+    return e, dedx
+
+
+def exx_pbe_diff_baseline(X0T):
+    """Difference between exact-exchange and PBE exchange energy densities.
+    This is a baseline for the multiplicative part of a local hybrid model.
+
+    Now that we have access to density (feature 0) and gradient information (feature 1),
+    we can properly compute both exx and PBE exchange.
+    """
+    e_exx, d_exx = exx_energy_baseline(X0T)
+
+    e_pbe, dedx_pbe = _sl_x_helper(X0T, _pbe_x_helper)
+
+    e_diff = e_exx - e_pbe
+
+    d_diff = d_exx.copy()
+    d_diff[:, 0] -= dedx_pbe[:, 0]  # derivative w.r.t. rho
+    d_diff[:, 1] -= dedx_pbe[:, 1]  # derivative w.r.t. s^2
+
+    return e_diff, d_diff
+
+
 BASELINE_CODES = {
     "RHO": nsp_rho_basline,
     "ZERO": zero_xc,
@@ -341,11 +440,14 @@ BASELINE_CODES = {
     "GGA_X_PBE": gga_x_pbe,
     "GGA_X_CHACHIYO": gga_x_chachiyo,
     "GGA_C_PBE": gga_c_pbe,
+    "HYB_EXX": exx_energy_baseline,
+    "HYB_PBE_DIFF": exx_pbe_diff_baseline,
 }
 
 LDA_CODES = {
     "LDA_X": 1,
     "LDA_C_PW_MOD": 13,
+    "LDA_X_ERF": 546,
 }
 
 GGA_CODES = {
@@ -353,6 +455,7 @@ GGA_CODES = {
     "GGA_C_PBE": 130,
     "GGA_X_PBE_SOL": 116,
     "GGA_C_PBE_SOL": 133,
+    "GGA_X_PW86": 108,
 }
 
 MGGA_CODES = {

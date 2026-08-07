@@ -55,8 +55,11 @@ H       -0.809495   -0.467362   -0.272232
 """
 
 
-FD_DELTA = 5e-6
-FD_DELTA2 = 1e-4
+# NLDF descriptor recomputation introduces numerical noise that is amplified
+# by very small occupation steps.  The larger step limits cancellation while
+# keeping central-difference truncation below the descriptor test tolerances.
+FD_OCC_DELTA = 5e-4
+FD_VXC_DELTA = 1e-4
 
 
 class _Grids:
@@ -133,7 +136,10 @@ class _TestNLDFBase:
         ksa.conv_tol = 1e-13
         ksb.conv_tol = 1e-13
         ksa.kernel()
-        ksb.kernel()
+        # Start from the spin-exchanged converged density.  Independent atomic
+        # guesses can enter slightly different symmetry-broken UHF basins,
+        # making this spin-exchange invariance check nondeterministic.
+        ksb.kernel(dm0=ksa.make_rdm1()[::-1])
         ana_a = UHFAnalyzer.from_calc(ksa)
         ana_b = UHFAnalyzer.from_calc(ksb)
         orbs = {"U": [0], "O": [0]}
@@ -264,9 +270,9 @@ class _TestNLDFBase:
             dtmp, mo_coeff, mo_occ, mo_energy
         )
         if k == "U":
-            delta = FD_DELTA2
+            delta = FD_OCC_DELTA
         else:
-            delta = -1 * FD_DELTA2
+            delta = -1 * FD_OCC_DELTA
         if analyzer.dm.ndim == 3:
             coeff_vector = coeffs[0][0] if len(coeffs[0]) > 0 else coeffs[1][0]
         else:
@@ -723,9 +729,9 @@ class _TestNLDFBase:
                 )
                 de = np.sum(vrho1[spin] * occd_rho)
                 if "U" in my_orb.keys():
-                    delta = FD_DELTA
+                    delta = FD_VXC_DELTA
                 else:
-                    delta = -1 * FD_DELTA
+                    delta = -1 * FD_VXC_DELTA
                 dmtmp = analyzer.dm.copy()
                 if dmtmp.ndim == 3:
                     dmtmp[spin] += delta * occd_dm
