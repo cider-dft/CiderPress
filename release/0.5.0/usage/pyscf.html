@@ -204,7 +204,7 @@ composition explicitly:</p>
 </div>
 <p>The example uses the <code class="docutils literal notranslate"><span class="pre">def2-tzvp</span></code> basis and PySCF grid level 3.  For a small
 end-to-end energetics workflow,
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/67951b269d8213606a97075a28de73a0b534cf6d/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
 with a chosen libxc or packaged CIDER functional.</p>
 </section>
 <section id="density-fitting">
@@ -226,13 +226,14 @@ model and its D4 behavior remain unchanged.</p>
 multiplicity for the converged unrestricted solution.</p>
 <p>For a difficult system, first converge a conventional functional with the
 same molecule, basis, grid, charge, and spin, then provide its density to the
-CIDER calculation:</p>
+CIDER calculation.  The following script uses a small O2 calculation to keep
+the restart example quick to run:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
-<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Demonstrate a reusable restart ladder on a compact open-shell molecule.</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Demonstrate restart-ladder mechanics on a compact open-shell molecule.</span>
 <span class="linenos"> 3</span>
-<span class="linenos"> 4</span><span class="sd">O2 keeps the example inexpensive and normally converges on an early rung. The</span>
-<span class="linenos"> 5</span><span class="sd">same sequence can be applied when a larger open-shell calculation needs a PBE</span>
-<span class="linenos"> 6</span><span class="sd">warm start or more conservative SCF controls.</span>
+<span class="linenos"> 4</span><span class="sd">O2 keeps the example inexpensive.  The ladder is a template for a larger</span>
+<span class="linenos"> 5</span><span class="sd">open-shell calculation that needs a PBE warm start or conservative SCF</span>
+<span class="linenos"> 6</span><span class="sd">controls.</span>
 <span class="linenos"> 7</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="linenos"> 8</span>
 <span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -381,7 +382,7 @@ derivative to the electronic CIDER and nuclear-repulsion terms.  See
 CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
 evaluator.  Keep the model on the device selected by its evaluator and avoid
 mixing CUDA and CPU PyTorch installations within one environment.  A minimal
-SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/7472439abb227a2aabc30db9f2ae247556a1c5de/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/67951b269d8213606a97075a28de73a0b534cf6d/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
 </section>
 <section id="gradients-and-other-methods">
 <h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>

@@ -76,6 +76,7 @@
 <li class="toctree-l2"><a class="reference internal" href="descriptors.html">GPAW Descriptor Interface</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">GPAW FFT, PAW, and Radial Implementation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-ciderpress.gpaw.cider_kernel">Smooth-grid forward and adjoint</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_kernel.CiderKernel"><code class="docutils literal notranslate"><span class="pre">CiderKernel</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.nldf_interface.LibCiderPW"><code class="docutils literal notranslate"><span class="pre">LibCiderPW</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.nldf_interface.FFTWrapper"><code class="docutils literal notranslate"><span class="pre">FFTWrapper</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_fft.CiderGGA"><code class="docutils literal notranslate"><span class="pre">CiderGGA</span></code></a></li>
@@ -150,6 +151,15 @@ model, and distributes the returned derivatives to the density, gradient,
 kinetic-energy-density, and NLDF potentials.  The GGA/MGGA kernel classes also
 assemble the explicit exchange and correlation terms selected by
 <code class="docutils literal notranslate"><span class="pre">get_cider_functional</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.cider_kernel.CiderKernel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.cider_kernel.</span></span><span class="sig-name descname"><span class="pre">CiderKernel</span></span><a class="headerlink" href="#ciderpress.gpaw.cider_kernel.CiderKernel" title="Link to this definition"></a></dt>
+<dd><p>Common mapped-model adapter used by the GPAW GGA and meta-GGA kernel
+classes.  It assembles and normalizes the raw semilocal and NLDF features,
+calls the mapped evaluator, and distributes the returned derivatives to
+GPAW’s semilocal and NLDF potential arrays.</p>
+</dd></dl>
+
 <p id="module-ciderpress.gpaw.cider_sl"><a class="reference internal" href="#module-ciderpress.gpaw.cider_sl" title="ciderpress.gpaw.cider_sl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_sl</span></code></a> connects packaged semilocal CIDER23X models to
 the same GGA/MGGA and PAW framework.</p>
 <p id="module-ciderpress.gpaw.nldf_interface"><a class="reference internal" href="#module-ciderpress.gpaw.nldf_interface" title="ciderpress.gpaw.nldf_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.nldf_interface</span></code></a> wraps the compiled periodic NLDF

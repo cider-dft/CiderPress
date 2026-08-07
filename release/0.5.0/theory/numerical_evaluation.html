@@ -16,6 +16,7 @@
       <script src="../_static/documentation_options.js?v=1dd76d02"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -65,10 +66,11 @@
 <li class="toctree-l2"><a class="reference internal" href="gp.html">Machine Learning Framework for CIDER Functionals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nldf_numerical.html">Numerical Evaluation of NLDF Features</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Numerical Evaluation in PySCF and GPAW</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#common-forward-and-adjoint-calculation">Common forward and adjoint calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forward-evaluation-and-its-adjoint">Forward evaluation and its adjoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend-map">Backend map</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#molecular-gaussian-basis-path">Molecular Gaussian-basis path</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#periodic-plane-wave-and-paw-path">Periodic plane-wave and PAW path</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#parallel-and-restart-state">Parallel and restart state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#periodic-fft-and-paw-path">Periodic FFT and PAW path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numerical-state">Numerical state</a></li>
 </ul>
 </li>
 </ul>
@@ -120,69 +122,183 @@
              
   <section id="numerical-evaluation-in-pyscf-and-gpaw">
 <h1>Numerical Evaluation in PySCF and GPAW<a class="headerlink" href="#numerical-evaluation-in-pyscf-and-gpaw" title="Link to this heading"></a></h1>
-<p>The mapped functional is backend independent.  PySCF constructs its input
-features in a molecular Gaussian basis, and GPAW constructs them on a
-periodic plane-wave/PAW representation.  Both paths implement the forward and
-adjoint structure described below.</p>
-<section id="common-forward-and-adjoint-calculation">
-<h2>Common forward and adjoint calculation<a class="headerlink" href="#common-forward-and-adjoint-calculation" title="Link to this heading"></a></h2>
-<p>The forward calculation evaluates raw features and the mapped energy density.
-The model also returns derivatives with respect to every feature.  The backend
-applies the adjoint of each feature operation to obtain derivatives with
-respect to the density, density gradient, kinetic-energy density, orbitals, or
-density matrix.  Those quantities enter the host code’s XC potential and its
-analytical nuclear or cell derivatives.</p>
-<p>Forward features, feature derivatives, density potentials, forces, and stress
-must all represent the same discretized functional.</p>
+<p>This page follows a mapped CIDER model from host-code density arrays to the
+XC energy and potential.  The feature definitions are collected in
+<a class="reference internal" href="../features/features.html"><span class="doc">Electronic Features in CiderPress</span></a>; the NLDF interpolation algorithm is derived in
+<a class="reference internal" href="nldf_numerical.html"><span class="doc">Numerical Evaluation of NLDF Features</span></a>.  Module-level references for the two backends are given
+in <a class="reference internal" href="../ciderpress/pyscf/numerical.html"><span class="doc">PySCF Numerical and Derivative Implementation</span></a> and
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a>.</p>
+<section id="forward-evaluation-and-its-adjoint">
+<h2>Forward evaluation and its adjoint<a class="headerlink" href="#forward-evaluation-and-its-adjoint" title="Link to this heading"></a></h2>
+<p>Let <span class="math notranslate nohighlight">\(x_i[n](\mathbf r)\)</span> denote the ordered raw features required by a
+model, including their spin channels.  The numerical integral has the form</p>
+<div class="math notranslate nohighlight">
+\[E_{\mathrm{xc}}[n]
+= \int \mathrm d^3\mathbf r\,
+  \mathcal E_{\mathrm{map}}\!\left(
+    x_1[n](\mathbf r),\ldots,x_m[n](\mathbf r)
+  \right).\]</div>
+<p>The mapped evaluator returns <span class="math notranslate nohighlight">\(\mathcal E_{\mathrm{map}}\)</span> and
+<span class="math notranslate nohighlight">\(\partial\mathcal E_{\mathrm{map}}/\partial x_i\)</span>.  Each feature
+generator then applies the adjoint of its discretized derivative,</p>
+<div class="math notranslate nohighlight">
+\[\frac{\delta E_{\mathrm{xc}}}{\delta n_s}
+= \sum_i
+  \left(\frac{\delta x_i}{\delta n_s}\right)^{\!*}
+  \frac{\partial\mathcal E_{\mathrm{map}}}{\partial x_i},\]</div>
+<p>to form the XC contribution expected by the host code.  For semilocal
+features this produces density, gradient, and kinetic-energy-density
+potentials.  An NLDF generator additionally reverses the exponent
+interpolation and convolution; an SDMX generator returns a density-matrix
+potential.  This forward/adjoint organization is the numerical form of the
+CIDER23X NLDF method and the CIDER24X SDMX method, and is also used by the
+CIDER26XC models. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-cider24x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-cider26xc" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p>
+<p>The common mapped-model layer is implemented by
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> and
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>.  The backend applies the
+serialized physical normalizers before calling these objects and reverses the
+normalization afterward.  The mapped kernels apply their bounded feature
+transforms, evaluate the regression, and return derivatives in normalized
+feature order.</p>
+</section>
+<section id="backend-map">
+<h2>Backend map<a class="headerlink" href="#backend-map" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Main numerical objects used during an XC evaluation</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 39.0%" />
+<col style="width: 39.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>PySCF molecular path</p></th>
+<th class="head"><p>GPAW plane-wave/PAW path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Host-code entry</p></td>
+<td><p><a class="reference internal" href="../ciderpress/pyscf/dft.html#ciderpress.pyscf.dft.make_cider_calc" title="ciderpress.pyscf.dft.make_cider_calc"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_cider_calc()</span></code></a> installs
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.CiderNumInt" title="ciderpress.pyscf.numint.CiderNumInt"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderNumInt</span></code></a> on an RKS or UKS object.</p></td>
+<td><p><a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.get_cider_functional" title="ciderpress.gpaw.calculator.get_cider_functional"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cider_functional()</span></code></a> constructs a
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_fft.CiderGGA" title="ciderpress.gpaw.cider_fft.CiderGGA"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGGA</span></code></a> or
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_fft.CiderMGGA" title="ciderpress.gpaw.cider_fft.CiderMGGA"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderMGGA</span></code></a> functional.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Density integration</p></td>
+<td><p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_rks" title="ciderpress.pyscf.numint.nr_rks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_rks()</span></code></a> and
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_uks" title="ciderpress.pyscf.numint.nr_uks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_uks()</span></code></a> process atom-centered grid
+blocks and assemble an AO-matrix potential.</p></td>
+<td><p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_fft" title="ciderpress.gpaw.cider_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code></a> processes the distributed smooth grid;
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_kernel" title="ciderpress.gpaw.cider_kernel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_kernel</span></code></a> evaluates the mapped energy and
+feature derivatives.</p></td>
+</tr>
+<tr class="row-even"><td><p>NLDF forward/adjoint</p></td>
+<td><p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator" title="ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyscfNLDFGenerator</span></code></a> uses
+atom-centered auxiliary Gaussian expansions and interpolation.</p></td>
+<td><p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.nldf_interface.LibCiderPW" title="ciderpress.gpaw.nldf_interface.LibCiderPW"><code class="xref py py-class docutils literal notranslate"><span class="pre">LibCiderPW</span></code></a> evaluates fixed
+kernels by reciprocal-space multiplication and FFTs.</p></td>
+</tr>
+<tr class="row-odd"><td><p>SDMX forward/adjoint</p></td>
+<td><p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.sdmx.EXXSphGenerator" title="ciderpress.pyscf.sdmx.EXXSphGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EXXSphGenerator</span></code></a> contracts smoothed
+orbital quantities with the molecular density matrix.</p></td>
+<td><p>SDMX models are not implemented in the GPAW interface.</p></td>
+</tr>
+<tr class="row-even"><td><p>Atom-centered response</p></td>
+<td><p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.rks_grad" title="ciderpress.pyscf.rks_grad"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.rks_grad</span></code></a> and
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.uks_grad" title="ciderpress.pyscf.uks_grad"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.uks_grad</span></code></a> differentiate the molecular grid and
+NLDF auxiliary representation for nuclear gradients.</p></td>
+<td><p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_paw" title="ciderpress.gpaw.cider_paw"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_paw</span></code></a> and
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_utils" title="ciderpress.gpaw.atom_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.atom_utils</span></code></a> apply PAW/PASDW energy, potential,
+force, and stress contractions.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="molecular-gaussian-basis-path">
 <h2>Molecular Gaussian-basis path<a class="headerlink" href="#molecular-gaussian-basis-path" title="Link to this heading"></a></h2>
-<p>PySCF evaluates semilocal ingredients on an atom-centered quadrature grid.
-CiderPress augments that grid for NLDF features, evaluates the atom-centered
-convolution and interpolation operations, and inserts the resulting energy
-and potential through a custom numerical integrator.  SDMX models construct
-smoothed quantities from the one-particle density matrix.</p>
-<p>The decorated mean-field object retains PySCF controls for molecular basis
-sets, grids, density fitting, occupations, and SCF convergence.  Settings
-stored in the model select the CIDER grid and feature generator when the
-decorated object is constructed.</p>
+<p>PySCF supplies the density ingredients on blocks of its atom-centered
+quadrature grid.  <a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.CiderNumInt" title="ciderpress.pyscf.numint.CiderNumInt"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderNumInt</span></code></a> selects the
+feature generator from the settings stored in the model and retains the same
+serialized feature order for restricted and unrestricted calculations.  The
+unrestricted path keeps the alpha and beta arrays separate until the model’s
+spin-combination rule is applied.</p>
+<p>For an NLDF model,
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.gen_cider_grid.CiderGrids" title="ciderpress.pyscf.gen_cider_grid.CiderGrids"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGrids</span></code></a> records the radial and
+angular indexing of the molecular quadrature points.  The forward call to
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator" title="ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyscfNLDFGenerator</span></code></a> produces the
+NLDF feature block; its backward call returns contributions to the density
+and to the density-dependent exponents.  For an SDMX model,
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.sdmx.EXXSphGenerator" title="ciderpress.pyscf.sdmx.EXXSphGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EXXSphGenerator</span></code></a> performs the corresponding
+density-matrix contractions.  The full blockwise sequence is implemented in
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/67951b269d8213606a97075a28de73a0b534cf6d/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a>.</p>
+<p>The final return from <a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_rks" title="ciderpress.pyscf.numint.nr_rks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_rks()</span></code></a> or
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_uks" title="ciderpress.pyscf.numint.nr_uks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_uks()</span></code></a> contains the integrated XC energy and
+the AO-matrix potential.  Analytical NLDF nuclear gradients add the response
+of the atom-centered grid, auxiliary basis, and interpolation operations; the
+implementation is described in <a class="reference internal" href="../ciderpress/pyscf/numerical.html"><span class="doc">PySCF Numerical and Derivative Implementation</span></a>.</p>
 </section>
-<section id="periodic-plane-wave-and-paw-path">
-<h2>Periodic plane-wave and PAW path<a class="headerlink" href="#periodic-plane-wave-and-paw-path" title="Link to this heading"></a></h2>
-<p>For GPAW, version-j NLDF kernels are expanded over interpolation points and
-evaluated as FFT convolutions on the uniform real-space grid.  The
-<code class="docutils literal notranslate"><span class="pre">Nalpha</span></code>, <code class="docutils literal notranslate"><span class="pre">qmax</span></code>, and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> controls describe this interpolation:
-<code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> is normally chosen automatically, <code class="docutils literal notranslate"><span class="pre">qmax</span></code> bounds the represented
-kernel exponent, and smaller <code class="docutils literal notranslate"><span class="pre">lambd</span></code> gives a denser and more expensive
-interpolation grid.</p>
-<p>The smooth pseudo density excludes the core and rapidly varying all-electron
-density inside augmentation spheres.  CiderPress combines the smooth-grid
-calculation with PAW corrections.  PASDW transfers the nonlocal feature
-sources and potentials between the uniform grid and the atom-centered
-augmentation representation.  <code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit=True</span></code> selects overlap fitting;
-<code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs=True</span></code> trades memory for reduced repeated atomic work.</p>
-<p>The PAW interpolation code reconstructs all-electron and pseudo partial-wave
-quantities on radial grids, including kinetic-energy-density terms required by
-meta-GGA models.  Core kinetic-energy contributions are constrained to their
-von Weizsäcker lower bound to control finite-grid violations, and elements
-above argon use the setup’s denser all-electron radial grid.</p>
-<p>Forces and stress require derivatives of both the FFT contribution and the
-PAW/PASDW projection terms.  The supported meta-GGA force and stress path uses
-PAW setups.</p>
+<section id="periodic-fft-and-paw-path">
+<h2>Periodic FFT and PAW path<a class="headerlink" href="#periodic-fft-and-paw-path" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_fft" title="ciderpress.gpaw.cider_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code></a> receives GPAW’s smooth density, gradient,
+and, for meta-GGA models, kinetic-energy-density arrays.  Version-J NLDF
+source channels are interpolated over kernel exponents by
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.nldf_interface.LibCiderPW" title="ciderpress.gpaw.nldf_interface.LibCiderPW"><code class="xref py py-class docutils literal notranslate"><span class="pre">LibCiderPW</span></code></a>.  Each fixed-kernel
+convolution is evaluated on the distributed reciprocal grid, after which
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_kernel.CiderKernel" title="ciderpress.gpaw.cider_kernel.CiderKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderKernel</span></code></a> evaluates the mapped model.
+The backward FFT and interpolation calls add the NLDF contribution to GPAW’s
+smooth XC potential and stress.</p>
+<p>The smooth grid omits the all-electron density variation inside PAW
+augmentation spheres.  <a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_paw.CiderGGAPASDW" title="ciderpress.gpaw.cider_paw.CiderGGAPASDW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGGAPASDW</span></code></a> and
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_paw.CiderMGGAPASDW" title="ciderpress.gpaw.cider_paw.CiderMGGAPASDW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderMGGAPASDW</span></code></a> transfer NLDF sources and
+potentials between the uniform grid and atom-centered support grids.  The
+PAW/PASDW equations and their implementation classes are given in
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a>.</p>
+<p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.interp_paw.DiffPAWXCCorrection" title="ciderpress.gpaw.interp_paw.DiffPAWXCCorrection"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiffPAWXCCorrection</span></code></a> supplies the radial
+all-electron and pseudo quantities used by the on-site correction.  When
+<code class="docutils literal notranslate"><span class="pre">build_kinetic=True</span></code>, the pair densities and their radial derivatives are
+formed from products of the interpolated partial waves, alongside the
+kinetic-energy-density terms required by the meta-GGA correction.  With
+<code class="docutils literal notranslate"><span class="pre">build_kinetic=False</span></code>, the tabulated GPAW pair-density arrays and their
+derivatives are interpolated directly.  The implementation is in
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/67951b269d8213606a97075a28de73a0b534cf6d/ciderpress/gpaw/interp_paw.py">ciderpress/gpaw/interp_paw.py</a>.</p>
+<p>The radial reconstruction also applies two finite-grid safeguards.  Mapping
+beyond a radial endpoint is accepted only within floating-point roundoff, and
+the all-electron and pseudo frozen-core kinetic-energy densities are bounded
+below by the radial-grid form of
+<span class="math notranslate nohighlight">\(\tau_{\mathrm W}=|\nabla n|^2/(8n)\)</span>.  Elements above argon retain the
+setup’s denser all-electron radial grid inside the required cutoff.</p>
 </section>
-<section id="parallel-and-restart-state">
-<h2>Parallel and restart state<a class="headerlink" href="#parallel-and-restart-state" title="Link to this heading"></a></h2>
-<p>FFT and augmented-grid work can be distributed with
-<code class="docutils literal notranslate"><span class="pre">parallel={&quot;augment_grids&quot;:</span> <span class="pre">True}</span></code>.  CiderPress and GPAW must be built with
-compatible FFT, MPI, BLAS, and OpenMP runtimes.  Compatibility can be checked
-with a small calculation using the launcher and rank layout planned for
-larger jobs.</p>
-<p>A full meta-GGA restart needs wavefunctions to reconstruct the kinetic-energy
-density.  Write the baseline and CIDER checkpoints with <code class="docutils literal notranslate"><span class="pre">mode=&quot;all&quot;</span></code>.
-CIDER checkpoint dictionaries also store the nonlocal interpolation grid so
-that a resumed calculation evaluates the same numerical functional.</p>
-<p>See <a class="reference internal" href="../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a> for executable settings and
-<a class="reference internal" href="../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for implementation guidance.</p>
+<section id="numerical-state">
+<h2>Numerical state<a class="headerlink" href="#numerical-state" title="Link to this heading"></a></h2>
+<p>The molecular NLDF representation is determined by the model settings, the
+PySCF quadrature grid, and the auxiliary expansion constructed for that
+molecule.  A molecular restart recreates the CIDER-decorated mean-field object
+and supplies orbitals or a density matrix loaded from the PySCF checkpoint, as
+shown in <a class="reference internal" href="../usage/pyscf.html"><span class="doc">Molecular Calculations with PySCF</span></a>.</p>
+<p>For GPAW, <code class="docutils literal notranslate"><span class="pre">qmax</span></code>, <code class="docutils literal notranslate"><span class="pre">lambd</span></code>, and <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> determine the exponent range and
+interpolation resolution of the periodic NLDF.  <code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit</span></code> selects the
+atomic overlap fit, while <code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs</span></code> controls caching of atomic
+projector values.  <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a> records the
+mapped model and NLDF interpolation state in its checkpoint.  Meta-GGA
+restarts are written with <code class="docutils literal notranslate"><span class="pre">mode=&quot;all&quot;</span></code> so that GPAW retains the
+wavefunctions needed to reconstruct the kinetic-energy density; see
+<a class="reference internal" href="../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.</p>
+<div class="docutils container" id="id4">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
+</aside>
+</aside>
+</div>
 </section>
 </section>
 
