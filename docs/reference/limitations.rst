@@ -12,7 +12,9 @@ interfaces in this release.
 * CIDER24X requires PyTorch and is evaluated through PySCF.  Periodic PySCF
   SDMX support is intended primarily for methodological reproduction
   of the CIDER24X work. :footcite:p:`CIDER24X` Periodic PySCF calculations
-  with SDMX use pseudopotentials and uniform grids.
+  with SDMX use pseudopotentials and uniform grids. Do not use
+  all-electron setups or atom-centered grids for periodic SDMX calculations
+  in PySCF.
 * ``CIDER26XCCHEMD4`` uses the PySCF interface.  Its total energy and analytical
   molecular gradient both include the D4 correction.  CiderPress raises an
   error for gradients when a model requests the unsupported D3 or nonlocal-
