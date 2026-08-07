@@ -116,7 +116,9 @@ PAW supplies the all-electron information needed by its nonlocal features.</p></
 <li><p>CIDER24X requires PyTorch and is evaluated through PySCF.  Periodic PySCF
 SDMX support is intended primarily for methodological reproduction
 of the CIDER24X work. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> Periodic PySCF calculations
-with SDMX use pseudopotentials and uniform grids.</p></li>
+with SDMX use pseudopotentials and uniform grids. Do not use
+all-electron setups or atom-centered grids for periodic SDMX calculations
+in PySCF.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> uses the PySCF interface.  Its total energy and analytical
 molecular gradient both include the D4 correction.  CiderPress raises an
 error for gradients when a model requests the unsupported D3 or nonlocal-

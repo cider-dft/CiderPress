@@ -198,7 +198,7 @@ the all-electron augmentation-region contribution.</p>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">bulk</span>
 <span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
-<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">Mixer</span><span class="p">,</span> <span class="n">PW</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">PW</span><span class="p">,</span> <span class="n">Mixer</span>
 <span class="linenos"> 7</span>
 <span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
 <span class="linenos"> 9</span>
@@ -211,41 +211,45 @@ the all-electron augmentation-region contribution.</p>
 <span class="linenos">16</span>        <span class="n">kpts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
 <span class="linenos">17</span>        <span class="n">occupations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
 <span class="linenos">18</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
-<span class="linenos">19</span>        <span class="n">convergence</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
-<span class="linenos">20</span>                     <span class="s2">&quot;eigenstates&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">&quot;bands&quot;</span><span class="p">:</span> <span class="s2">&quot;occupied&quot;</span><span class="p">},</span>
-<span class="linenos">21</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="linenos">22</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_pbe.txt&quot;</span><span class="p">,</span>
-<span class="linenos">23</span>    <span class="p">)</span>
-<span class="linenos">24</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
-<span class="linenos">25</span>    <span class="c1"># The production models are meta-GGAs and need the wavefunctions to</span>
-<span class="linenos">26</span>    <span class="c1"># reconstruct the kinetic-energy density after restart.</span>
-<span class="linenos">27</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_pbe.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-<span class="linenos">28</span>
-<span class="linenos">29</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
-<span class="linenos">30</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
-<span class="linenos">31</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-<span class="linenos">32</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="linenos">33</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="linenos">34</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="linenos">35</span>    <span class="p">)</span>
-<span class="linenos">36</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
-<span class="linenos">37</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;si_pbe.gpw&quot;</span><span class="p">,</span>
-<span class="linenos">38</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
-<span class="linenos">39</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
-<span class="linenos">40</span>        <span class="n">occupations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
-<span class="linenos">41</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
-<span class="linenos">42</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="linenos">43</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider.txt&quot;</span><span class="p">,</span>
-<span class="linenos">44</span>    <span class="p">)</span>
-<span class="linenos">45</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
-<span class="linenos">46</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
-<span class="linenos">47</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
-<span class="linenos">48</span>    <span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_cider.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-<span class="linenos">49</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CIDER26XCSURFSCI energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
-<span class="linenos">50</span>
-<span class="linenos">51</span>
-<span class="linenos">52</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-<span class="linenos">53</span>    <span class="n">main</span><span class="p">()</span>
+<span class="linenos">19</span>        <span class="n">convergence</span><span class="o">=</span><span class="p">{</span>
+<span class="linenos">20</span>            <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+<span class="linenos">21</span>            <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+<span class="linenos">22</span>            <span class="s2">&quot;eigenstates&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+<span class="linenos">23</span>            <span class="s2">&quot;bands&quot;</span><span class="p">:</span> <span class="s2">&quot;occupied&quot;</span><span class="p">,</span>
+<span class="linenos">24</span>        <span class="p">},</span>
+<span class="linenos">25</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">26</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_pbe.txt&quot;</span><span class="p">,</span>
+<span class="linenos">27</span>    <span class="p">)</span>
+<span class="linenos">28</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">29</span>    <span class="c1"># The production models are meta-GGAs and need the wavefunctions to</span>
+<span class="linenos">30</span>    <span class="c1"># reconstruct the kinetic-energy density after restart.</span>
+<span class="linenos">31</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_pbe.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">32</span>
+<span class="linenos">33</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
+<span class="linenos">34</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">35</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="linenos">36</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">37</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="linenos">38</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="linenos">39</span>    <span class="p">)</span>
+<span class="linenos">40</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
+<span class="linenos">41</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;si_pbe.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">42</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
+<span class="linenos">43</span>        <span class="n">mixer</span><span class="o">=</span><span class="n">Mixer</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+<span class="linenos">44</span>        <span class="n">occupations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fermi-dirac&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+<span class="linenos">45</span>        <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="linenos">46</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">47</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider.txt&quot;</span><span class="p">,</span>
+<span class="linenos">48</span>    <span class="p">)</span>
+<span class="linenos">49</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<span class="linenos">50</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
+<span class="linenos">51</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
+<span class="linenos">52</span>    <span class="n">calc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;si_cider.gpw&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="linenos">53</span>    <span class="n">parprint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CIDER26XCSURFSCI energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> eV&quot;</span><span class="p">)</span>
+<span class="linenos">54</span>
+<span class="linenos">55</span>
+<span class="linenos">56</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">57</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Use <a class="reference internal" href="../ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a> for checkpointed
@@ -262,7 +266,7 @@ and separate PBE and CIDER checkpoints:</p>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_adsorbate</span><span class="p">,</span> <span class="n">fcc111</span><span class="p">,</span> <span class="n">molecule</span>
 <span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
-<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">Mixer</span><span class="p">,</span> <span class="n">PW</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">PW</span><span class="p">,</span> <span class="n">Mixer</span>
 <span class="linenos"> 7</span>
 <span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
 <span class="linenos"> 9</span>
@@ -332,7 +336,7 @@ uses Gamma-point sampling:</p>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atoms</span>
 <span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
-<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">Mixer</span><span class="p">,</span> <span class="n">PW</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPAW</span><span class="p">,</span> <span class="n">PW</span><span class="p">,</span> <span class="n">Mixer</span>
 <span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">gpaw.eigensolvers.davidson</span><span class="w"> </span><span class="kn">import</span> <span class="n">Davidson</span>
 <span class="linenos"> 8</span>
 <span class="linenos"> 9</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
@@ -461,7 +465,7 @@ the functional for the resumed calculation.</p>
 <p>ASE’s normal <code class="docutils literal notranslate"><span class="pre">get_forces()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_stress()</span></code> calls include the CIDER FFT
 and PAW derivative contributions for the supported PAW path.  See
 <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>, which includes the complete
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a47141b82c15626ab414fcf6187e4a6173b5d5f1/examples/gpaw/forces_stress.py">examples/gpaw/forces_stress.py</a> template.</p>
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/51f55e0457dfa903b0f0905279e1ebef3422b7dd/examples/gpaw/forces_stress.py">examples/gpaw/forces_stress.py</a> template.</p>
 </section>
 <section id="pasdw-and-interpolation-controls">
 <h2>PASDW and interpolation controls<a class="headerlink" href="#pasdw-and-interpolation-controls" title="Link to this heading"></a></h2>

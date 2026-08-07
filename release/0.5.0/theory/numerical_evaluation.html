@@ -205,7 +205,7 @@ An NLDF couples different grid points, so
 <ol class="arabic simple">
 <li><p>Evaluate the density ingredients on the complete molecular quadrature grid
 and call <code class="docutils literal notranslate"><span class="pre">LCAONLDFGenerator.get_features</span></code> in
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a47141b82c15626ab414fcf6187e4a6173b5d5f1/ciderpress/dft/lcao_nldf_generator.py">ciderpress/dft/lcao_nldf_generator.py</a>.</p></li>
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/51f55e0457dfa903b0f0905279e1ebef3422b7dd/ciderpress/dft/lcao_nldf_generator.py">ciderpress/dft/lcao_nldf_generator.py</a>.</p></li>
 <li><p>Evaluate the mapped energy and feature derivatives block by block.  Store
 the weighted NLDF derivatives on the complete grid.</p></li>
 <li><p>Call <code class="docutils literal notranslate"><span class="pre">LCAONLDFGenerator.get_potential</span></code> once, add its density, gradient,
@@ -219,7 +219,7 @@ arrays of shape <code class="docutils literal notranslate"><span class="pre">(ns
 mode performs the spin contraction.</p>
 <p>The mapped evaluators return an energy per unit volume.  PySCF’s numerical
 integration interface expects <code class="docutils literal notranslate"><span class="pre">exc</span></code> per particle, so <code class="docutils literal notranslate"><span class="pre">eval_xc_cider</span></code> in
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a47141b82c15626ab414fcf6187e4a6173b5d5f1/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a> divides the mapped result by the total
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/51f55e0457dfa903b0f0905279e1ebef3422b7dd/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a> divides the mapped result by the total
 density.  PySCF then accumulates
 <span class="math notranslate nohighlight">\(\sum_g w_g n_g\,\mathtt{exc}_g\)</span>.</p>
 <p>Analytical molecular gradients differentiate the atom-centered quadrature and
