@@ -1954,8 +1954,10 @@ def dalpha(rho, sigma, tau):
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
     tauw = sigma / (8 * rho)
-    # Match the inactive branch of max(tau - tauw, 0).  The equality
-    # convention also fixes the fractional-occupation derivative at alpha=0.
+    # Match the inactive branch of max(tau - tauw, 0).  At equality the
+    # clipped function is nondifferentiable; the zero derivative is retained
+    # for release compatibility, while the fractional-occupation convention
+    # requires separate validation.
     inactive = np.logical_or(cond, tau <= tauw)
     dwdn, dwds = -sigma / (8 * rho * rho), 1 / (8 * rho)
     dadn = 5.0 * (tauw - tau) / (3 * tau0 * rho) - dwdn / tau0
