@@ -18,6 +18,8 @@
 # Author: Kyle Bystrom <kylebystrom@gmail.com>
 #
 
+import numpy as np
+
 from pyscf import lib
 from pyscf.dft.gen_grid import Grids
 
@@ -39,13 +41,8 @@ from ciderpress.pyscf.sdmx import PySCFSDMXInitializer
 
 
 def _sanitize_vdw_value(v):
-    try:
-        import numpy as _np
-
-        if isinstance(v, _np.generic):
-            return v.item()
-    except Exception:
-        pass
+    if isinstance(v, np.generic):
+        return v.item()
     if isinstance(v, bytes):
         return v.decode("utf-8", errors="replace")
     if isinstance(v, dict):
@@ -56,6 +53,39 @@ def _sanitize_vdw_value(v):
     if isinstance(v, (list, tuple)):
         return type(v)(_sanitize_vdw_value(x) for x in v)
     return v
+
+
+def _make_d4_dispersion(mol, params):
+    """Construct a D4 evaluator from serialized model parameters."""
+    try:
+        from pyscf.dispersion import dftd4
+    except Exception as exc:
+        raise RuntimeError(
+            "D4 evaluation requires the optional pyscf-dispersion dependency. "
+            "Install it with `pip install 'ciderpress[d4]'`."
+        ) from exc
+
+    params = _sanitize_vdw_value(params or {})
+    allowed = {"xc", "ga", "gc", "wf", "atm"}
+    unknown = sorted(set(params) - allowed)
+    if unknown:
+        raise ValueError(f"Unsupported D4 model parameters: {unknown!r}")
+    xc = params.get("xc")
+    if not xc:
+        raise ValueError("The serialized D4 model parameters must specify 'xc'.")
+    return dftd4.DFTD4Dispersion(
+        mol,
+        xc=xc,
+        ga=params.get("ga"),
+        gc=params.get("gc"),
+        wf=params.get("wf"),
+        atm=bool(params.get("atm", False)),
+    )
+
+
+def _validate_post_density_mode(vdw_eval_mode):
+    if vdw_eval_mode not in (None, "post_density"):
+        raise ValueError(f"Unsupported vdW evaluation mode: {vdw_eval_mode!r}")
 
 
 def _get_present_dispersion_energy_ha(mf):
@@ -102,6 +132,7 @@ def _compute_expected_vdw_energy_ha(mf, vdw_fit_info, vdw_eval_mode):
     kind = (vdw_fit_info.get("kind") or "").lower()
     params = vdw_fit_info.get("params") or {}
     mol = mf.mol
+    _validate_post_density_mode(vdw_eval_mode)
 
     if kind == "d3":
         try:
@@ -117,20 +148,10 @@ def _compute_expected_vdw_energy_ha(mf, vdw_fit_info, vdw_eval_mode):
         return float(disp.get_dispersion()["energy"])
 
     if kind == "d4":
-        try:
-            from pyscf.dispersion import dftd4
-        except Exception as e:
-            raise RuntimeError(
-                "D4 evaluation requires the optional pyscf-dispersion dependency. "
-                "Install it with `pip install 'ciderpress[d4]'`."
-            ) from e
-        xc = params.get("xc")
-        disp = dftd4.DFTD4Dispersion(mol, xc=xc)
+        disp = _make_d4_dispersion(mol, params)
         return float(disp.get_dispersion()["energy"])
 
     if kind == "nlc":
-        if vdw_eval_mode not in (None, "post_density"):
-            raise ValueError(f"Unsupported vdW eval mode for NLC: {vdw_eval_mode!r}")
         from pyscf.dft import numint
 
         xc_code = params.get("xc_code") or "GGA_XC_VV10"
@@ -149,6 +170,36 @@ def _compute_expected_vdw_energy_ha(mf, vdw_fit_info, vdw_eval_mode):
         return float(excsum)
 
     raise ValueError(f"Unsupported vdW kind in vdw_fit_info: {vdw_fit_info!r}")
+
+
+def _compute_expected_vdw_gradient_ha_per_bohr(
+    mf, vdw_fit_info, vdw_eval_mode, mol=None, atmlst=None
+):
+    """Evaluate the analytical gradient prescribed by the model contract."""
+    if mol is None:
+        mol = mf.mol
+    if vdw_fit_info is None:
+        gradient = np.zeros((mol.natm, 3))
+    else:
+        vdw_fit_info = _sanitize_vdw_value(vdw_fit_info)
+        kind = (vdw_fit_info.get("kind") or "").lower()
+        params = vdw_fit_info.get("params") or {}
+        _validate_post_density_mode(vdw_eval_mode)
+        if kind == "d4":
+            result = _make_d4_dispersion(mol, params).get_dispersion(grad=True)
+            gradient = np.asarray(result["gradient"], dtype=float)
+        elif kind in {"d3", "nlc"}:
+            raise NotImplementedError(
+                f"Analytical gradients for post-density {kind.upper()} model "
+                "contracts are not implemented."
+            )
+        else:
+            raise ValueError(
+                f"Unsupported vdW kind in vdw_fit_info: {vdw_fit_info!r}"
+            )
+    if atmlst is not None:
+        gradient = gradient[np.asarray(atmlst, dtype=int)]
+    return gradient
 
 
 def _apply_post_density_vdw_energy(mf):
@@ -233,6 +284,55 @@ def _strip_present_dispersion_wrappers(mf):
             or getattr(mf, "with_dftd3", None) is not None
         ):
             raise RuntimeError("Failed to disable an attached dispersion wrapper.")
+
+
+class _CiderVDWGradient:
+    """Add the model's post-density correction to a CIDER gradient."""
+
+    def grad_nuc(self, mol=None, atmlst=None):
+        nuc_gradient = super().grad_nuc(mol=mol, atmlst=atmlst)
+        base = self.base
+        vdw_gradient = _compute_expected_vdw_gradient_ha_per_bohr(
+            base,
+            getattr(base, "_cider_vdw_fit_info", None),
+            getattr(base, "_cider_vdw_eval_mode", None),
+            mol=mol,
+            atmlst=atmlst,
+        )
+        return nuc_gradient + vdw_gradient
+
+    def get_dispersion(self, *args, **kwargs):
+        # grad_nuc includes the model-prescribed correction. Returning zero
+        # prevents PySCF's mf.disp hook from adding it a second time.
+        atmlst = getattr(self, "atmlst", None)
+        natm = self.mol.natm if atmlst is None else len(atmlst)
+        return np.zeros((natm, 3))
+
+
+def _add_cider_vdw_gradient(mf, mf_grad):
+    """Validate the model contract and decorate a supported gradient."""
+    if not getattr(mf, "_cider_vdw_contract_enabled", False):
+        return mf_grad
+    vdw_term = getattr(mf, "_cider_vdw_fit_term", None)
+    if vdw_term is None:
+        return mf_grad
+
+    vdw_info = _sanitize_vdw_value(getattr(mf, "_cider_vdw_fit_info", None))
+    if not isinstance(vdw_info, dict):
+        raise ValueError("A post-density vdW term requires serialized fit metadata.")
+    kind = (vdw_info.get("kind") or "").lower()
+    if kind != str(vdw_term).lower():
+        raise ValueError(
+            "The serialized vdW term and fit metadata disagree: "
+            f"{vdw_term!r} != {kind!r}."
+        )
+    _validate_post_density_mode(getattr(mf, "_cider_vdw_eval_mode", None))
+    if kind != "d4":
+        raise NotImplementedError(
+            f"Analytical gradients for post-density {kind.upper()} model "
+            "contracts are not implemented."
+        )
+    return lib.set_class(mf_grad, (_CiderVDWGradient, mf_grad.__class__))
 
 
 def make_cider_calc(
@@ -478,16 +578,19 @@ class _CiderKS:
             from ciderpress.pyscf import rks_grad
 
             if has_df:
-                return rks_grad.DFGradients(self)
+                mf_grad = rks_grad.DFGradients(self)
             else:
-                return rks_grad.Gradients(self)
+                mf_grad = rks_grad.Gradients(self)
         elif isinstance(self, dft.uks.UKS):
             from ciderpress.pyscf import uks_grad
 
             if has_df:
-                return uks_grad.DFGradients(self)
+                mf_grad = uks_grad.DFGradients(self)
             else:
-                return uks_grad.Gradients(self)
+                mf_grad = uks_grad.Gradients(self)
+        else:
+            return None
+        return _add_cider_vdw_gradient(self, mf_grad)
 
     Gradients = nuc_grad_method
 
