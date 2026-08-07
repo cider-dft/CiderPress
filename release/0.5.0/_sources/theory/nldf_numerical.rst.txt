@@ -3,108 +3,195 @@
 Numerical Evaluation of NLDF Features
 =====================================
 
-An NLDF contains a density-dependent length scale at its source and, for
-version J, at its target.  Direct evaluation couples every pair of real-space
-grid points.  CiderPress replaces that double-grid operation with an
-interpolation over kernel exponents followed by ordinary convolutions.  This
-is the density-dependent-kernel strategy used for the molecular and periodic
-algorithms in CIDER23X. :footcite:p:`CIDER23X,Roman-Perez2009`
+The packaged CIDER23X and CIDER26XC models use the Version-J algorithm.  Its
+feature definition and exponent parameterization are given in
+:doc:`../features/nldf`.  The numerical construction follows the kernel
+expansion introduced for CIDER23X, which adapts the convolution method of
+Román-Pérez and Soler to density-dependent CIDER kernels.
+:footcite:p:`CIDER23X,Roman-Perez2009`
 
-Exponent interpolation
-----------------------
+Kernel expansion
+----------------
 
-For version J, write the feature as
+Suppressing the constant normalization of the feature, a Version-J NLDF is
 
 .. math::
 
    G_i(\mathbf r)
    = \int \mathrm d^3\mathbf r'\,
-     k\!\left(a_0(\mathbf r'),a_i(\mathbf r),
-     |\mathbf r-\mathbf r'|\right)n(\mathbf r').
+     \Phi\!\left(a_0(\mathbf r'),a_i(\mathbf r),
+     |\mathbf r-\mathbf r'|\right)n(\mathbf r'),
 
-The density-dependent exponents are represented on an ordered grid
-:math:`\{q_\alpha\}`.  Interpolation functions :math:`p_\alpha(a)` give
+where
 
 .. math::
 
-   k(a,b,R)
-   \simeq \sum_{\alpha\beta}
-   p_\alpha(a)\,k(q_\alpha,q_\beta,R)\,p_\beta(b).
+   \Phi(a,b,R)=\exp[-(a+b)R^2].
 
-The source coefficients
+The density-dependent exponents are represented on a finite set of positive
+values :math:`\{q_\alpha\}`.  Source and target interpolation functions give
+
+.. math::
+
+   \Phi(a,b,R)
+   \simeq \sum_{\alpha\beta}
+   p^a_\alpha(a)\,\Phi_{\alpha\beta}(R)\,p^b_\beta(b),
+   \qquad
+   \Phi_{\alpha\beta}(R)
+   = \exp[-(q_\alpha+q_\beta)R^2].
+
+This is Equation 61 of the CIDER23X paper.  It converts the feature into three
+operations:
 
 .. math::
 
    \theta_\alpha(\mathbf r')
-   = p_\alpha(a_0(\mathbf r'))n(\mathbf r')
+   &= p^a_\alpha(a_0(\mathbf r'))n(\mathbf r'), \\
+   F_\beta(\mathbf r)
+   &= \sum_\alpha \int \mathrm d^3\mathbf r'\,
+      \Phi_{\alpha\beta}(|\mathbf r-\mathbf r'|)
+      \theta_\alpha(\mathbf r'), \\
+   G_i(\mathbf r)
+   &\simeq \sum_\beta
+      p^b_\beta(a_i(\mathbf r))F_\beta(\mathbf r).
 
-can then be convolved with the fixed kernels
-:math:`k(q_\alpha,q_\beta,R)`.  Interpolation at
-:math:`a_i(\mathbf r)` combines the resulting channels into each feature.
-The exponent grid and interpolation coefficients also enter the adjoint
-calculation that returns the NLDF contribution to the XC potential.
+Only the middle line is spatially nonlocal, and every kernel in that line is
+independent of the density.  CiderPress therefore evaluates a finite set of
+ordinary convolutions and performs local interpolation before and after them.
 
-Version-J squared-exponential kernels have the separable form
+The potential applies the transpose of the same discrete operations.  It
+first propagates :math:`\partial E_{\mathrm{xc}}/\partial G_i` through the
+target coefficients, applies the adjoint convolution, and then differentiates
+the source coefficients and source density.  Derivatives of
+:math:`p_\alpha(a)` supply the response of the semilocal exponents
+:math:`a_0[n]` and :math:`a_i[n]`.
 
-.. math::
+Exponent coefficients and spatial convolutions
+----------------------------------------------
 
-   k(a,b,R)=\exp[-(a+b)R^2]
-   =\exp(-aR^2)\exp(-bR^2).
+Exponent interpolation and spatial convolution are separate numerical
+choices.  Their implementation objects are:
 
-:class:`~ciderpress.dft.plans.NLDFGaussianPlan` represents the exponent
-dependence in an auxiliary Gaussian basis.
-:class:`~ciderpress.dft.plans.NLDFSplinePlan` uses spline interpolation on a
-dense exponent coordinate.  The packaged molecular models use the spline
-plan.  Both plans implement the same raw feature definitions and provide
-matching forward and adjoint interpolation operations.
+.. list-table:: Numerical representations used in the NLDF evaluator
+   :header-rows: 1
+   :widths: 22 30 48
 
-Molecular Gaussian-basis algorithm
-----------------------------------
+   * - Operation
+     - Implementation
+     - Representation
+   * - Exponent coefficients
+     - :class:`~ciderpress.dft.plans.NLDFGaussianPlan`
+     - Projects :math:`\exp(-aR^2)` onto the Gaussian functions at
+       :math:`q_\alpha` using their overlap matrix, as in CIDER23X
+       Equations 63--65.
+   * - Exponent coefficients
+     - :class:`~ciderpress.dft.plans.NLDFSplinePlan`
+     - Tabulates the projection coefficients as functions of the exponent
+       coordinate and evaluates them with cubic splines.
+   * - Molecular convolution
+     - :class:`~ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator`
+     - Expands the spatial source and convolved fields in atom-centered
+       Gaussian auxiliary bases.
+   * - Periodic convolution
+     - :class:`~ciderpress.gpaw.nldf_interface.LibCiderPW`
+     - Applies the fixed kernels on the distributed reciprocal-space grid.
 
-The PySCF path expands each source channel in an atom-centered, even-tempered
-Gaussian auxiliary basis.  Convolution matrices connect those auxiliary
-coefficients to the required exponent channels, and an atom-centered
-interpolator transfers the results to and from the molecular quadrature grid.
-The angular expansion is truncated at a selected spherical-harmonic order.
+The current PySCF default uses :class:`~ciderpress.dft.plans.NLDFSplinePlan`
+for the exponent coefficients.  Its spatial convolution still uses the
+atom-centered Gaussian auxiliary bases described below.  GPAW also uses
+:class:`~ciderpress.dft.plans.NLDFSplinePlan`, with an even-tempered exponent
+grid :math:`q_\alpha=q_0\lambda^\alpha`.
 
-:mod:`ciderpress.pyscf.gen_cider_grid` records the radial and angular layout
-of PySCF's sorted quadrature points.  The auxiliary expansion, convolution,
-and interpolation are assembled by
-:mod:`ciderpress.pyscf.nldf_convolutions`,
-:mod:`ciderpress.dft.lcao_convolutions`,
-:mod:`ciderpress.dft.lcao_interpolation`, and
-:mod:`ciderpress.dft.lcao_nldf_generator`.
-The same grid indexer, auxiliary basis, exponent grid, and interpolation
-scheme are used in the energy and potential paths.
+Molecular auxiliary-basis algorithm
+-----------------------------------
+
+The molecular path implements the CIDER23X construction of Equations 67--78.
+For each source channel, it performs the following sequence:
+
+1. :class:`~ciderpress.pyscf.gen_cider_grid.CiderGrids` records the atomic
+   radial and angular structure of PySCF's partitioned quadrature grid.
+2. :class:`~ciderpress.dft.lcao_nldf_generator.LCAONLDFGenerator` forms
+   :math:`\theta_\alpha` on that grid, resolves each atomic contribution into
+   spherical harmonics, and projects the radial components onto an
+   even-tempered Gaussian auxiliary basis.
+3. :class:`~ciderpress.dft.lcao_convolutions.ConvolutionCollection` applies
+   analytically evaluated Gaussian convolution integrals to obtain the
+   coefficients of :math:`F_\beta` in a second auxiliary basis.
+4. :class:`~ciderpress.dft.lcao_interpolation.LCAOInterpolatorDirect` evaluates
+   the convolved fields on the molecular quadrature grid.  The target
+   coefficients then produce :math:`G_i`.
+
+The ``LCAONLDFGenerator.get_potential`` call in
+:source:`ciderpress/dft/lcao_nldf_generator.py` reverses this sequence using
+the stored forward intermediates.  Analytical nuclear gradients also
+differentiate the atomic partition, auxiliary projection, and grid
+interpolation; see
+:doc:`../ciderpress/pyscf/numerical`.
 
 Periodic FFT and PAW algorithm
 ------------------------------
 
-On a uniform periodic grid, each fixed-kernel convolution is a product in
-reciprocal space.  :mod:`ciderpress.gpaw.nldf_interface` and the compiled
-plane-wave library transform the source channels, multiply by the reciprocal
-kernel, and transform the convolved channels back to real space.  ``qmax``,
-``lambd``, and ``Nalpha`` set the covered exponent range and its resolution.
+For a periodic cell, the Fourier transform of a fixed Gaussian kernel is
 
-The FFT evaluates the smooth pseudo-density contribution.  The PAW/PASDW
-path supplies the all-electron source and on-site corrections required inside
-augmentation spheres.  Its returned potentials use the adjoint of the same
-source augmentation and projection operations.  The complete PAW data flow
-is described in :doc:`../ciderpress/gpaw/numerical`.
+.. math::
 
-Numerical controls
-------------------
+   \widetilde\Phi_{\alpha\beta}(\mathbf k)
+   = \left(\frac{\pi}{q_\alpha+q_\beta}\right)^{3/2}
+     \exp\!\left[-\frac{|\mathbf k|^2}
+     {4(q_\alpha+q_\beta)}\right].
 
-The exponent range must cover the values generated by the density.  The
-spacing controls interpolation error and the number of convolution channels.
-The molecular angular cutoff and auxiliary basis, or the periodic plane-wave
-cutoff and PAW projection basis, add representation errors of their own.
-Energies, potentials, forces, and stress used in one comparison must share
-these settings.
+:mod:`ciderpress.gpaw.cider_fft` constructs the source interpolation
+coefficients and passes the source channels to
+:class:`~ciderpress.gpaw.nldf_interface.LibCiderPW`.  The compiled evaluator
+transforms them to reciprocal space, multiplies by
+:math:`\widetilde\Phi_{\alpha\beta}`, and transforms the convolved fields back
+to the real-space grid.  Target interpolation produces the NLDFs.  The reverse
+calls supply the smooth-grid potential and the reciprocal-kernel contribution
+to stress.
 
-Version-I and version-K features use the same auxiliary-expansion framework
-with their corresponding source, target, vector, and damping terms.  Their
-available molecular plans are model-construction interfaces; packaged models
-and the GPAW calculation path use version J.
+The smooth density in PAW lacks the all-electron source inside augmentation
+spheres.  PASDW augments the source before the FFT so that the convolved field
+has the correct exterior behavior, then projects that field onto atomic
+support grids for the all-electron-minus-pseudo energy and potential
+correction.  This is the construction in CIDER23X Equations 82--98.  Its
+equations and implementation objects are documented in
+:doc:`../ciderpress/gpaw/numerical`.
+
+Numerical parameters
+--------------------
+
+.. list-table:: Parameters that define the NLDF discretization
+   :header-rows: 1
+   :widths: 24 24 52
+
+   * - Path
+     - Parameter
+     - Effect
+   * - GPAW
+     - ``qmax``
+     - Largest interpolation exponent, in inverse bohr squared.
+   * - GPAW
+     - ``lambd``
+     - Ratio between adjacent exponents.  With an automatically selected
+       ``Nalpha``, a smaller ratio gives a denser exponent grid.
+   * - GPAW
+     - ``Nalpha``
+     - Number of exponent channels.  The value is inferred from ``qmax``,
+       ``lambd``, and the model exponents when omitted.
+   * - PySCF
+     - ``alpha_min``, ``alpha_max``, ``aux_lambd``
+     - Exponent range and spacing used when constructing the molecular NLDF
+       generator.
+   * - PySCF
+     - ``lmax``, ``aug_beta``
+     - Angular truncation and spacing of the atom-centered auxiliary basis.
+
+The host quadrature or real-space grid adds another discretization to these
+kernel and auxiliary representations.  PAW calculations also contain the
+finite PASDW projection bases described on the GPAW implementation page.
+
+Version-I and Version-K definitions are listed in :doc:`../features/nldf`.
+They are model-development interfaces and are outside the packaged Version-J
+path described here.
 
 .. footbibliography::
