@@ -38,6 +38,16 @@ composition:
 The GPAW interface evaluates NLDF models.  CIDER24X uses the PySCF SDMX path,
 and CIDER26XCCHEMD4 uses the PySCF D4 energy interface.
 
+The CIDER23X pseudopotential route used in earlier band-gap work remains
+available for methodological reproduction:
+
+.. literalinclude:: ../../examples/gpaw/pp_calc.py
+   :language: python
+   :linenos:
+
+The production CIDER26XC route uses PAW so its nonlocal descriptors include
+the all-electron augmentation-region contribution.
+
 PBE-seeded periodic workflow
 ----------------------------
 
@@ -133,3 +143,5 @@ SCF strategy
 :doc:`convergence` lists the mixer, eigensolver, occupation, and restart
 settings used by the bulk, surface, isolated-system, and magnetic fallback
 examples.
+
+.. footbibliography::

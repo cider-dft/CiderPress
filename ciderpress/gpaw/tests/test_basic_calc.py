@@ -29,11 +29,11 @@ from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional
 
 NKPT = 4
 REFERENCE_ENERGIES = {
-    "CIDER23X_SL_GGA": -12.866290987790224,
-    "CIDER23X_NL_GGA": -13.046146980191777,
-    "CIDER23X_SL_MGGA": -12.265893307629582,
-    # The frozen-core FHC floor changes this PAW NL-MGGA energy by 22 micro-eV.
-    "CIDER23X_NL_MGGA_DTR": -12.530204288611188,
+    # PAW references use the production orbital-product construction.
+    "CIDER23X_SL_GGA": -12.86582176127865,
+    "CIDER23X_NL_GGA": -13.04553492593161,
+    "CIDER23X_SL_MGGA": -12.265329892688479,
+    "CIDER23X_NL_MGGA_DTR": -12.529810909249525,
 }
 USE_AUGMENT_GRIDS = True
 

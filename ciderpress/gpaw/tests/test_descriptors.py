@@ -664,10 +664,24 @@ def run_sl_feature_test2(spinpol=False):
     gap, p_vbm, p_cbm = bandgap(si.calc)
     bfeat0, bwt0 = get_descriptors(si.calc, **kwargs)
     bfeat, bdfeat_j, bwt = get_descriptors(si.calc, p_i=[p_vbm, p_cbm], **kwargs)
+    # The production orbital-product PAW correction and GPAW's tabulated
+    # correction differ at the radial-interpolation discretization level.
+    feature_atol = 2e-6
+    feature_rtol = 1e-5
     tol = 1e-6
     for i in range(5):
-        assert_allclose(afeat0[:, i], bfeat0[:, i], atol=tol, rtol=tol)
-        assert_allclose(afeat[:, i], bfeat[:, i], atol=tol, rtol=tol)
+        assert_allclose(
+            afeat0[:, i],
+            bfeat0[:, i],
+            atol=feature_atol,
+            rtol=feature_rtol,
+        )
+        assert_allclose(
+            afeat[:, i],
+            bfeat[:, i],
+            atol=feature_atol,
+            rtol=feature_rtol,
+        )
     assert_allclose(awt0, bwt0, atol=tol, rtol=tol)
     assert_allclose(awt, bwt, atol=tol, rtol=tol)
     for p, adfeat, bdfeat in zip([p_vbm, p_cbm], adfeat_j, bdfeat_j):
