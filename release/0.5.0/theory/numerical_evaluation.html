@@ -148,8 +148,9 @@ e_{\mathrm{xc}}(\mathbf r),
 \qquad
 e_{\mathrm{xc}}=\sum_\kappa e_\kappa.\]</div>
 <p><a class="reference internal" href="../ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizerList" title="ciderpress.dft.feat_normalizer.FeatNormalizerList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code></a> applies
-<span class="math notranslate nohighlight">\(\mathcal N\)</span>, and each mapped kernel stores its
-<a class="reference internal" href="../ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.FeatureList" title="ciderpress.dft.transform_data.FeatureList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureList</span></code></a>.  The evaluator propagates
+<span class="math notranslate nohighlight">\(\mathcal N\)</span>, and each mapped kernel stores an instance of
+<a class="reference internal" href="../ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.FeatureList" title="ciderpress.dft.transform_data.FeatureList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureList</span></code></a> to evaluate
+the transformation <span class="math notranslate nohighlight">\(\mathcal T_\kappa\)</span>.  The evaluator propagates
 derivatives back through both layers to obtain</p>
 <div class="math notranslate nohighlight">
 \[v_i(\mathbf r)
@@ -168,38 +169,25 @@ density-matrix potential produced by SDMX.</p>
 </section>
 <section id="mapped-evaluators">
 <h2>Mapped evaluators<a class="headerlink" href="#mapped-evaluators" title="Link to this heading"></a></h2>
-<table class="docutils align-default" id="id6">
-<caption><span class="caption-text">Inference-time model objects</span><a class="headerlink" href="#id6" title="Link to this table"></a></caption>
-<colgroup>
-<col style="width: 24.0%" />
-<col style="width: 38.0%" />
-<col style="width: 38.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Object</p></th>
-<th class="head"><p>Energy form</p></th>
-<th class="head"><p>Returned derivatives</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a></p></td>
-<td><p>Applies baselines expressed through the feature array.  Packaged
-CIDER23X and CIDER24X models use this representation.</p></td>
-<td><p>Derivatives with respect to normalized features; the backend reverses
-normalization to obtain <span class="math notranslate nohighlight">\(v_i\)</span>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a></p></td>
-<td><p>Evaluates mapped kernels whose multiplicative and additive baselines
-depend directly on density, gradient, or kinetic-energy density.
-CIDER26XC uses this representation. <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
-<td><p>Feature derivatives and a separate <code class="docutils literal notranslate"><span class="pre">vrho_tuple</span></code> containing the
-explicit derivatives of the baselines.</p></td>
-</tr>
-</tbody>
-</table>
+<p>Mapped evaluators provide efficient implementations of trained functionals.
+There are two types of mapped evaluator in CiderPress:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a>
+applies baselines expressed through the feature array.  Packaged
+CIDER23X and CIDER24X models use this representation.
+This evaluator returns derivatives with respect to normalized
+features; the backend reverses normalization to obtain <span class="math notranslate nohighlight">\(v_i\)</span>.</p></li>
+<li><p><a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>
+evaluates mapped kernels whose multiplicative and additive baselines
+depend directly on the density, gradient, and/or kinetic-energy density.
+CIDER26XC uses this representation. <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+This evaluator returns both feature derivatives and a separate
+<code class="docutils literal notranslate"><span class="pre">vrho_tuple</span></code> containing the explicit derivatives of the baselines.</p></li>
+</ul>
 <p>The kernel mode stored in the model determines its spin contraction.
-<code class="docutils literal notranslate"><span class="pre">SEP</span></code> evaluates a contribution for each spin channel; <code class="docutils literal notranslate"><span class="pre">NPOL</span></code> evaluates
-the transformed features of their mean.  CIDER26XC uses separate-spin
+<code class="docutils literal notranslate"><span class="pre">SEP</span></code> evaluates a contribution for each spin channel; <code class="docutils literal notranslate"><span class="pre">NPOL</span></code> takes
+the mean of the normalized features over spin before evaluating
+the transformed features.  CIDER26XC uses separate-spin
 exchange kernels and a spin-averaged feature vector for its correlation
 kernel, consistent with the energy form in the CIDER26XC manuscript.
 <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
@@ -213,11 +201,11 @@ with the model and assembles <span class="math notranslate nohighlight">\(\mathb
 <p>Semilocal and SDMX features can be evaluated on the current quadrature block.
 An NLDF couples different grid points, so
 <a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_rks" title="ciderpress.pyscf.numint.nr_rks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_rks()</span></code></a> and
-<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_uks" title="ciderpress.pyscf.numint.nr_uks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_uks()</span></code></a> use two passes:</p>
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_uks" title="ciderpress.pyscf.numint.nr_uks"><code class="xref py py-func docutils literal notranslate"><span class="pre">nr_uks()</span></code></a> use three passes over grids:</p>
 <ol class="arabic simple">
 <li><p>Evaluate the density ingredients on the complete molecular quadrature grid
 and call <code class="docutils literal notranslate"><span class="pre">LCAONLDFGenerator.get_features</span></code> in
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/cff0547af466debc19af016394ef1c6a89344e6d/ciderpress/dft/lcao_nldf_generator.py">ciderpress/dft/lcao_nldf_generator.py</a>.</p></li>
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a47141b82c15626ab414fcf6187e4a6173b5d5f1/ciderpress/dft/lcao_nldf_generator.py">ciderpress/dft/lcao_nldf_generator.py</a>.</p></li>
 <li><p>Evaluate the mapped energy and feature derivatives block by block.  Store
 the weighted NLDF derivatives on the complete grid.</p></li>
 <li><p>Call <code class="docutils literal notranslate"><span class="pre">LCAONLDFGenerator.get_potential</span></code> once, add its density, gradient,
@@ -231,7 +219,7 @@ arrays of shape <code class="docutils literal notranslate"><span class="pre">(ns
 mode performs the spin contraction.</p>
 <p>The mapped evaluators return an energy per unit volume.  PySCF’s numerical
 integration interface expects <code class="docutils literal notranslate"><span class="pre">exc</span></code> per particle, so <code class="docutils literal notranslate"><span class="pre">eval_xc_cider</span></code> in
-<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/cff0547af466debc19af016394ef1c6a89344e6d/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a> divides the mapped result by the total
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/a47141b82c15626ab414fcf6187e4a6173b5d5f1/ciderpress/pyscf/numint.py">ciderpress/pyscf/numint.py</a> divides the mapped result by the total
 density.  PySCF then accumulates
 <span class="math notranslate nohighlight">\(\sum_g w_g n_g\,\mathtt{exc}_g\)</span>.</p>
 <p>Analytical molecular gradients differentiate the atom-centered quadrature and

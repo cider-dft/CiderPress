@@ -36,8 +36,9 @@ where :math:`\mathcal N` is the model's physical normalization and
    e_{\mathrm{xc}}=\sum_\kappa e_\kappa.
 
 :class:`~ciderpress.dft.feat_normalizer.FeatNormalizerList` applies
-:math:`\mathcal N`, and each mapped kernel stores its
-:class:`~ciderpress.dft.transform_data.FeatureList`.  The evaluator propagates
+:math:`\mathcal N`, and each mapped kernel stores an instance of
+:class:`~ciderpress.dft.transform_data.FeatureList` to evaluate
+the transformation :math:`\mathcal T_\kappa`.  The evaluator propagates
 derivatives back through both layers to obtain
 
 .. math::
@@ -63,28 +64,25 @@ density-matrix potential produced by SDMX.
 Mapped evaluators
 -----------------
 
-.. list-table:: Inference-time model objects
-   :header-rows: 1
-   :widths: 24 38 38
+Mapped evaluators provide efficient implementations of trained functionals.
+There are two types of mapped evaluator in CiderPress:
 
-   * - Object
-     - Energy form
-     - Returned derivatives
-   * - :class:`~ciderpress.dft.xc_evaluator.MappedXC`
-     - Applies baselines expressed through the feature array.  Packaged
-       CIDER23X and CIDER24X models use this representation.
-     - Derivatives with respect to normalized features; the backend reverses
-       normalization to obtain :math:`v_i`.
-   * - :class:`~ciderpress.dft.xc_evaluator2.MappedXC2`
-     - Evaluates mapped kernels whose multiplicative and additive baselines
-       depend directly on density, gradient, or kinetic-energy density.
-       CIDER26XC uses this representation. :footcite:p:`CIDER26XC`
-     - Feature derivatives and a separate ``vrho_tuple`` containing the
-       explicit derivatives of the baselines.
+* :class:`~ciderpress.dft.xc_evaluator.MappedXC`
+  applies baselines expressed through the feature array.  Packaged
+  CIDER23X and CIDER24X models use this representation.
+  This evaluator returns derivatives with respect to normalized
+  features; the backend reverses normalization to obtain :math:`v_i`.
+* :class:`~ciderpress.dft.xc_evaluator2.MappedXC2`
+  evaluates mapped kernels whose multiplicative and additive baselines
+  depend directly on the density, gradient, and/or kinetic-energy density.
+  CIDER26XC uses this representation. :footcite:p:`CIDER26XC`
+  This evaluator returns both feature derivatives and a separate
+  ``vrho_tuple`` containing the explicit derivatives of the baselines.
 
 The kernel mode stored in the model determines its spin contraction.
-``SEP`` evaluates a contribution for each spin channel; ``NPOL`` evaluates
-the transformed features of their mean.  CIDER26XC uses separate-spin
+``SEP`` evaluates a contribution for each spin channel; ``NPOL`` takes
+the mean of the normalized features over spin before evaluating
+the transformed features.  CIDER26XC uses separate-spin
 exchange kernels and a spin-averaged feature vector for its correlation
 kernel, consistent with the energy form in the CIDER26XC manuscript.
 :footcite:p:`CIDER26XC`
@@ -100,7 +98,7 @@ with the model and assembles :math:`\mathbf X_0` in serialized order.
 Semilocal and SDMX features can be evaluated on the current quadrature block.
 An NLDF couples different grid points, so
 :func:`~ciderpress.pyscf.numint.nr_rks` and
-:func:`~ciderpress.pyscf.numint.nr_uks` use two passes:
+:func:`~ciderpress.pyscf.numint.nr_uks` use three passes over grids:
 
 1. Evaluate the density ingredients on the complete molecular quadrature grid
    and call ``LCAONLDFGenerator.get_features`` in

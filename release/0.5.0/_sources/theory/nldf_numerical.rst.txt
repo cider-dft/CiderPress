@@ -153,8 +153,8 @@ The smooth density in PAW lacks the all-electron source inside augmentation
 spheres.  PASDW augments the source before the FFT so that the convolved field
 has the correct exterior behavior, then projects that field onto atomic
 support grids for the all-electron-minus-pseudo energy and potential
-correction.  This is the construction in CIDER23X Equations 82--98.  Its
-equations and implementation objects are documented in
+correction.  This is the construction in CIDER23X Equations 82--98. :footcite:p:`CIDER23X`
+Its equations and implementation objects are documented in
 :doc:`../ciderpress/gpaw/numerical`.
 
 Numerical parameters
@@ -190,8 +190,9 @@ The host quadrature or real-space grid adds another discretization to these
 kernel and auxiliary representations.  PAW calculations also contain the
 finite PASDW projection bases described on the GPAW implementation page.
 
+The features described above are labeled the Verion-J NLDF features.
 Version-I and Version-K definitions are listed in :doc:`../features/nldf`.
-They are model-development interfaces and are outside the packaged Version-J
-path described here.
+They are experimental features and are not used in the packaged Version-J
+functionals described here.
 
 .. footbibliography::
