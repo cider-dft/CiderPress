@@ -21,6 +21,13 @@ kinetic-energy-density, and NLDF potentials.  The GGA/MGGA kernel classes also
 assemble the explicit exchange and correlation terms selected by
 ``get_cider_functional``.
 
+.. py:class:: CiderKernel
+
+   Common mapped-model adapter used by the GPAW GGA and meta-GGA kernel
+   classes.  It assembles and normalizes the raw semilocal and NLDF features,
+   calls the mapped evaluator, and distributes the returned derivatives to
+   GPAW's semilocal and NLDF potential arrays.
+
 .. py:module:: ciderpress.gpaw.cider_sl
 
 :mod:`ciderpress.gpaw.cider_sl` connects packaged semilocal CIDER23X models to

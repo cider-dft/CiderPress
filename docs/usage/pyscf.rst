@@ -77,7 +77,8 @@ multiplicity for the converged unrestricted solution.
 
 For a difficult system, first converge a conventional functional with the
 same molecule, basis, grid, charge, and spin, then provide its density to the
-CIDER calculation:
+CIDER calculation.  The following script uses a small O2 calculation to keep
+the restart example quick to run:
 
 .. literalinclude:: ../../examples/pyscf/restart_calc.py
    :language: python
