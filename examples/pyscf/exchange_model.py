@@ -8,7 +8,6 @@ from pyscf import dft, gto
 from ciderpress.dft.model_utils import CIDER23X_MODELS, CIDER24X_MODELS
 from ciderpress.pyscf.dft import make_cider_calc
 
-
 MODELS = CIDER23X_MODELS + CIDER24X_MODELS
 
 

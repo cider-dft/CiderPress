@@ -89,7 +89,9 @@ def get_jk_densities(sgx, dm, hermi=1, direct_scf_tol=1e-13):
     return ej, ek
 
 
-def get_jk_densities_and_a_tensor(sgx, dm, hermi=1, direct_scf_tol=1e-13, return_a_tensor=False):
+def get_jk_densities_and_a_tensor(
+    sgx, dm, hermi=1, direct_scf_tol=1e-13, return_a_tensor=False
+):
     """
     Get J/K densities with optional A tensor computation.
 
@@ -230,7 +232,7 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
     # Calculate safe block size considering A tensor memory
     # Memory needed per block: block_size * nao * nao * 8 bytes
     max_memory_bytes = max_memory * 1e6 - lib.current_memory()[0] * 1e6
-    sblk = getattr(sgx, 'blockdim', 240)
+    sblk = getattr(sgx, "blockdim", 240)
 
     # Calculate block size based on available memory
     # We need memory for: A_tensor_block (blksize x nao x nao) + working arrays
@@ -241,12 +243,15 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
     # Align to BLKSIZE for efficiency (if BLKSIZE is defined)
     try:
         from pyscf.dft.gen_grid import BLKSIZE
+
         blksize = (blksize // BLKSIZE) * BLKSIZE
         blksize = max(BLKSIZE, blksize)
     except ImportError:
         pass
 
-    logger.debug(mol, f"build_k_matrix_blockwise: ngrids={ngrids}, blksize={blksize}, nao={nao}")
+    logger.debug(
+        mol, f"build_k_matrix_blockwise: ngrids={ngrids}, blksize={blksize}, nao={nao}"
+    )
 
     # Initialize K matrix contribution
     K_contrib = numpy.zeros((nao, nao))
@@ -273,7 +278,7 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
 
         # G_νg = α_eff(r_g) Σ_λ A_νλg F_λg
         # Note: dalpha_deps acts as α_eff here
-        gv = numpy.einsum('gij,jg->ig', a_tensor_block, F)
+        gv = numpy.einsum("gij,jg->ig", a_tensor_block, F)
         gv *= dalpha_deps[i0:i1][None, :]
         gv *= grids_weights[i0:i1][None, :]
 
@@ -287,7 +292,9 @@ def build_k_matrix_blockwise(sgx, dm, dalpha_deps, grids_weights=None, max_memor
     # Apply factor of -0.5 (consistent with existing implementation)
     K_contrib *= -0.5
 
-    logger.timer_debug1(mol, f"build_k_matrix_blockwise ({ngrids} points, {blksize} blocksize)", *t0)
+    logger.timer_debug1(
+        mol, f"build_k_matrix_blockwise ({ngrids} points, {blksize} blocksize)", *t0
+    )
     logger.timer_debug1(mol, "  nuclear integral time", *tnuc)
 
     return K_contrib

@@ -3,7 +3,7 @@
 
 from ase import Atoms
 from ase.parallel import parprint
-from gpaw import GPAW, Mixer, PW
+from gpaw import GPAW, PW, Mixer
 from gpaw.eigensolvers.davidson import Davidson
 
 from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional

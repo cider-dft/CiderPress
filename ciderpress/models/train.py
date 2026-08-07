@@ -18,8 +18,8 @@
 # Author: Kyle Bystrom <kylebystrom@gmail.com>
 #
 
-import os
 import multiprocessing as mp
+import os
 from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
@@ -31,7 +31,6 @@ from ciderpress.dft.plans import get_rho_tuple_with_grad_cross, vxc_tuple_to_arr
 from ciderpress.dft.settings import CFC, FeatureSettings
 from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
-
 
 _PARALLEL_COV_GPR = None
 
@@ -49,12 +48,36 @@ def _parallel_cov_worker(task):
         ddir, mol_ids, kernel, get_orb_deriv=get_orb_deriv, save_refs=save_refs
     )
     result = {
-        "cov": {mol_id: kernel.cov_dict[mol_id] for mol_id in mol_ids if mol_id in kernel.cov_dict},
-        "base": {mol_id: kernel.base_dict[mol_id] for mol_id in mol_ids if mol_id in kernel.base_dict},
-        "dcov": {mol_id: kernel.dcov_dict[mol_id] for mol_id in mol_ids if mol_id in kernel.dcov_dict},
-        "dbase": {mol_id: kernel.dbase_dict[mol_id] for mol_id in mol_ids if mol_id in kernel.dbase_dict},
-        "exx_ref": {mol_id: gpr.exx_ref_dict[mol_id] for mol_id in mol_ids if mol_id in gpr.exx_ref_dict},
-        "dexx_ref": {mol_id: gpr.dexx_ref_dict[mol_id] for mol_id in mol_ids if mol_id in gpr.dexx_ref_dict},
+        "cov": {
+            mol_id: kernel.cov_dict[mol_id]
+            for mol_id in mol_ids
+            if mol_id in kernel.cov_dict
+        },
+        "base": {
+            mol_id: kernel.base_dict[mol_id]
+            for mol_id in mol_ids
+            if mol_id in kernel.base_dict
+        },
+        "dcov": {
+            mol_id: kernel.dcov_dict[mol_id]
+            for mol_id in mol_ids
+            if mol_id in kernel.dcov_dict
+        },
+        "dbase": {
+            mol_id: kernel.dbase_dict[mol_id]
+            for mol_id in mol_ids
+            if mol_id in kernel.dbase_dict
+        },
+        "exx_ref": {
+            mol_id: gpr.exx_ref_dict[mol_id]
+            for mol_id in mol_ids
+            if mol_id in gpr.exx_ref_dict
+        },
+        "dexx_ref": {
+            mol_id: gpr.dexx_ref_dict[mol_id]
+            for mol_id in mol_ids
+            if mol_id in gpr.dexx_ref_dict
+        },
         "ks_baseline": {
             mol_id: gpr.ks_baseline_dict[mol_id]
             for mol_id in mol_ids
@@ -114,7 +137,10 @@ def _sanitize_vdw_value(v):
     if isinstance(v, (list, tuple)):
         return type(v)(_sanitize_vdw_value(x) for x in v)
     if isinstance(v, dict):
-        return {str(_sanitize_vdw_value(k)): _sanitize_vdw_value(val) for k, val in v.items()}
+        return {
+            str(_sanitize_vdw_value(k)): _sanitize_vdw_value(val)
+            for k, val in v.items()
+        }
     return v
 
 
@@ -665,8 +691,7 @@ class MOLGP:
             f"chunksize={chunksize}"
         )
         tasks = [
-            (kernel_index, ddir, chunk, get_orb_deriv, save_refs)
-            for chunk in chunks
+            (kernel_index, ddir, chunk, get_orb_deriv, save_refs) for chunk in chunks
         ]
         kernel = self.kernels[kernel_index]
         with ProcessPoolExecutor(
@@ -889,7 +914,9 @@ class MOLGP:
                 kernel.rxn_cov_list.append(rxn_cov)
             if mode == 2:
                 if rxn.get("unit") is None:
-                    rxn["unit"] = 0.0015936014376405157  # 1/627.5094740631 (CODATA); was 0.00159360109742136 (~627.50961, 2e-7 off)
+                    rxn[
+                        "unit"
+                    ] = 0.0015936014376405157  # 1/627.5094740631 (CODATA); was 0.00159360109742136 (~627.50961, 2e-7 off)
                 rxn_ref += rxn["energy"] * rxn["unit"]
                 for sysid, count in zip(rxn["structs"], rxn["counts"]):
                     rxn_ref -= count * self.ks_baseline_dict[sysid]

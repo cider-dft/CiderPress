@@ -19,7 +19,6 @@
 #
 
 import numpy as np
-
 from pyscf import lib
 from pyscf.dft.gen_grid import Grids
 
@@ -194,9 +193,7 @@ def _compute_expected_vdw_gradient_ha_per_bohr(
                 "contracts are not implemented."
             )
         else:
-            raise ValueError(
-                f"Unsupported vdW kind in vdw_fit_info: {vdw_fit_info!r}"
-            )
+            raise ValueError(f"Unsupported vdW kind in vdw_fit_info: {vdw_fit_info!r}")
     if atmlst is not None:
         gradient = gradient[np.asarray(atmlst, dtype=int)]
     return gradient

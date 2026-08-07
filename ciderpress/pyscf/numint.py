@@ -178,7 +178,7 @@ def _tau_dot_sparse(
 
 
 def _get_sdmx_orbs(ni, mol, coords, ao):
-    if hasattr(ni, 'timer'):
+    if hasattr(ni, "timer"):
         ni.timer.start("sdmx ao")
     if ni.has_sdmx and ni.sdmxgen.fast:
         if ao is None:
@@ -190,7 +190,7 @@ def _get_sdmx_orbs(ni, mol, coords, ao):
         sdmx_ao, sdmx_cao = ni.sdmxgen.get_orb_vals(mol, coords, save_buf=True)
     else:
         sdmx_ao, sdmx_cao = None, None
-    if hasattr(ni, 'timer'):
+    if hasattr(ni, "timer"):
         ni.timer.stop("sdmx ao")
     return sdmx_ao, sdmx_cao
 
@@ -225,7 +225,7 @@ def nr_rks(
       excsum (nset,): XC energy of each DM set by numerical integration
       vmat (nset, nao, nao): XC potential matrix
     """
-    if hasattr(ni, 'timer'):
+    if hasattr(ni, "timer"):
         ni.timer.start("nr_rks")
     if relativity != 0:
         raise NotImplementedError
@@ -257,8 +257,12 @@ def nr_rks(
         if not ni.settings.nlof_settings.is_empty:
             nrho += ni.settings.nlof_settings.nrho
 
-        rho_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-        wv_full = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        rho_full = np.zeros(
+            (nset, nrho, grids.weights.size), dtype=np.float64, order="C"
+        )
+        wv_full = np.zeros(
+            (nset, nrho, grids.weights.size), dtype=np.float64, order="C"
+        )
 
         num_nldf = ni.settings.nldf_settings.nfeat
         vxc_nldf_full = np.zeros(
@@ -274,7 +278,7 @@ def nr_rks(
     sgx_cache = {}  # Cache for SGX data
 
     if ni.hyb_plan is not None:
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.start("hybrid exx")
 
         # Check memory requirement for A tensor
@@ -285,7 +289,10 @@ def nr_rks(
             # Use blockwise mode to avoid OOM
             use_blockwise_hybrid = True
             # Use logger.debug instead of print to reduce verbosity
-            lib.logger.debug(mol, f"Using blockwise hybrid mode: estimated A-tensor memory {memory_gb:.2f} GB > threshold {memory_threshold_gb:.2f} GB")
+            lib.logger.debug(
+                mol,
+                f"Using blockwise hybrid mode: estimated A-tensor memory {memory_gb:.2f} GB > threshold {memory_threshold_gb:.2f} GB",
+            )
 
             # Compute exact exchange energy density on the full grid (but no A tensor)
             eps_exx_all = np.zeros((nset, grids.coords.shape[0]))
@@ -293,8 +300,7 @@ def nr_rks(
             # Get only exchange energy density for all density matrices
             for i in range(nset):
                 eps_exx_all[i] = ni.hyb_plan.compute_eps_exx_only(
-                    mol, grids, dms[i], ni.settings.hyb_settings,
-                    sgx_cache=sgx_cache
+                    mol, grids, dms[i], ni.settings.hyb_settings, sgx_cache=sgx_cache
                 )
 
             a_tensor = None  # Will compute blockwise later
@@ -309,15 +315,23 @@ def nr_rks(
 
             # Get A tensor and exact exchange for first density matrix
             eps_exx_all[0], a_tensor = ni.hyb_plan.compute_a_tensor_and_exx(
-                mol, grids, dms[0], ni.settings.hyb_settings,
-                sgx_cache=sgx_cache, return_a_tensor=True
+                mol,
+                grids,
+                dms[0],
+                ni.settings.hyb_settings,
+                sgx_cache=sgx_cache,
+                return_a_tensor=True,
             )
 
             # For additional density matrices, reuse cached SGX object
             for i in range(1, nset):
                 eps_exx_all[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
-                    mol, grids, dms[i], ni.settings.hyb_settings,
-                    sgx_cache=sgx_cache, return_a_tensor=False
+                    mol,
+                    grids,
+                    dms[i],
+                    ni.settings.hyb_settings,
+                    sgx_cache=sgx_cache,
+                    return_a_tensor=False,
                 )
 
         eps_exx = eps_exx_all
@@ -329,7 +343,7 @@ def nr_rks(
         # Initialize K contributions (accumulated during grid loop)
         K_contrib = [np.zeros((nao, nao)) for _ in range(nset)]
 
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.stop("hybrid exx")
 
     def block_loop(ao_deriv, include_extra_ao=True):
@@ -353,7 +367,9 @@ def nr_rks(
         if any(x in xc_code.upper() for x in ("CC06", "CS", "BR89", "MK00")):
             raise NotImplementedError("laplacian in meta-GGA method")
         ao_deriv = 1
-        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(
+            ao_deriv, include_extra_ao=False
+        ):
             rho_full[i, :, ip0:ip1] = make_rho(i, ao, mask, xctype)
 
         # Compute NLDF features
@@ -444,7 +460,9 @@ def nr_rks(
                             elif f_raw.ndim == 1:
                                 alpha_ml[idm, ip0:ip1] = f_raw[:]
                             else:
-                                raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+                                raise ValueError(
+                                    f"Unexpected f_raw shape: {f_raw.shape}"
+                                )
             ip0 = ip1
 
         # Apply NLDF potential
@@ -467,9 +485,11 @@ def nr_rks(
                 if ni.hyb_plan is not None:
                     # Slice the exact exchange data for this block
                     eps_block = eps_exx[i, ip0:ip1]  # Shape: (ngrids_block,)
-                    hyb_feat = eps_block[None, :]  # Shape: (1, ngrids_block) for single feature
+                    hyb_feat = eps_block[
+                        None, :
+                    ]  # Shape: (1, ngrids_block) for single feature
 
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.start("sdmx fwd")
                 if ni.has_sdmx:
                     sdmx_feat = ni.sdmxgen.get_features(
@@ -481,24 +501,30 @@ def nr_rks(
                     )
                 else:
                     sdmx_feat = None
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.stop("sdmx fwd")
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.start("xc cider")
                 xc_result = ni.eval_xc_cider(
-                    xc_code, rho, None, sdmx_feat, hyb_feat=hyb_feat, deriv=1, xctype=xctype
+                    xc_code,
+                    rho,
+                    None,
+                    sdmx_feat,
+                    hyb_feat=hyb_feat,
+                    deriv=1,
+                    xctype=xctype,
                 )
                 exc = xc_result[0]
                 vxc, vxc_nldf, vxc_sdmx, vxc_hyb = xc_result[1]
                 # Extract raw ML output (alpha) if available
                 f_raw = xc_result[4] if len(xc_result) > 4 else None
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.stop("xc cider")
                 assert vxc_nldf is None
 
                 # Build K matrix contribution for local hybrid if needed
                 if ni.hyb_plan is not None and vxc_hyb is not None:
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.start("hybrid K build")
 
                     # Extract derivative from vxc_hyb (this is local contribution to d(E_xc)/d(eps_exx))
@@ -512,13 +538,17 @@ def nr_rks(
                             elif f_raw.ndim == 1:
                                 alpha_ml[i, ip0:ip1] = f_raw[:]
                             else:
-                                raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+                                raise ValueError(
+                                    f"Unexpected f_raw shape: {f_raw.shape}"
+                                )
                         elif isinstance(f_raw, list) and len(f_raw) > 0:
                             raw_output = f_raw[0]
-                            if hasattr(raw_output, 'shape'):
+                            if hasattr(raw_output, "shape"):
                                 alpha_ml[i, ip0:ip1] = raw_output.ravel()[:]
                             else:
-                                raise ValueError(f"Unexpected raw output format: {type(raw_output)}")
+                                raise ValueError(
+                                    f"Unexpected raw output format: {type(raw_output)}"
+                                )
                         else:
                             raise ValueError(f"Unexpected f_raw type: {type(f_raw)}")
 
@@ -526,20 +556,23 @@ def nr_rks(
                     if not use_blockwise_hybrid and a_tensor is not None:
                         # Use pre-computed A tensor
                         K_block = ni.hyb_plan.build_k_matrix_block(
-                            ao, dms[i], a_tensor[ip0:ip1],
-                            dalpha_deps[i, ip0:ip1], weight
+                            ao,
+                            dms[i],
+                            a_tensor[ip0:ip1],
+                            dalpha_deps[i, ip0:ip1],
+                            weight,
                         )
                         K_contrib[i] += K_block
                     # For blockwise mode, K matrix will be built after all dalpha_deps are collected
 
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.stop("hybrid K build")
 
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.start("sdmx bwd")
                 if ni.has_sdmx:
                     ni.sdmxgen.get_vxc_(vmat[i], vxc_sdmx[0] * weight)
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.stop("sdmx bwd")
                 den = rho[0] * weight
                 nelec[i] += den.sum()
@@ -555,7 +588,9 @@ def nr_rks(
 
     if ni.has_nldf:
         # Contract from wv_full for NLDF case
-        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(
+            ao_deriv, include_extra_ao=False
+        ):
             wv = wv_full[i, :, ip0:ip1]
             vmats, buffers = ni.contract_wv(
                 ao,
@@ -571,17 +606,16 @@ def nr_rks(
             # Build K matrix for hybrid if needed (NLDF case)
             if ni.hyb_plan is not None and a_tensor is not None:
                 if dalpha_deps[i, ip0:ip1].any():
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.start("hybrid K build")
 
                     # Build K matrix contribution using HybridPlan
                     K_block = ni.hyb_plan.build_k_matrix_block(
-                        ao, dms[i], a_tensor[ip0:ip1],
-                        dalpha_deps[i, ip0:ip1], weight
+                        ao, dms[i], a_tensor[ip0:ip1], dalpha_deps[i, ip0:ip1], weight
                     )
                     K_contrib[i] += K_block
 
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.stop("hybrid K build")
     else:
         # Contract directly for non-NLDF case
@@ -601,18 +635,22 @@ def nr_rks(
     # Add K contribution and symmetrize
     # Build K matrix blockwise if using blockwise hybrid mode
     if use_blockwise_hybrid and ni.hyb_plan is not None:
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.start("hybrid K blockwise")
 
         # Build K matrix blockwise for each density matrix
         for i in range(nset):
             if dalpha_deps[i].any():  # Only if we have non-zero derivatives
                 K_contrib[i] = ni.hyb_plan.build_k_matrix_blockwise(
-                    mol, grids, dms[i], dalpha_deps[i],
-                    max_memory=max_memory, sgx_cache=sgx_cache
+                    mol,
+                    grids,
+                    dms[i],
+                    dalpha_deps[i],
+                    max_memory=max_memory,
+                    sgx_cache=sgx_cache,
                 )
 
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.stop("hybrid K blockwise")
 
     if ni.hyb_plan is not None and K_contrib is not None:
@@ -637,7 +675,7 @@ def nr_rks(
         vmat = np.asarray(vmat, dtype=dtype)
     # if ni.has_sdmx:
     #    ni.sdmxgen.reset_buffers()
-    if hasattr(ni, 'timer'):
+    if hasattr(ni, "timer"):
         ni.timer.stop("nr_rks")
     return nelec, excsum, vmat
 
@@ -657,7 +695,7 @@ def nr_uks(
     - Handles spin-polarized density matrices
     - Separate alpha and beta spin channels
     """
-    if hasattr(ni, 'timer'):
+    if hasattr(ni, "timer"):
         ni.timer.start("nr_uks")
     if relativity != 0:
         raise NotImplementedError
@@ -704,9 +742,15 @@ def nr_uks(
             nrho += ni.settings.nlof_settings.nrho
 
         # For UKS, we need spin-up and spin-down densities
-        rho_full_a = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-        rho_full_b = np.zeros((nset, nrho, grids.weights.size), dtype=np.float64, order="C")
-        wv_full = np.zeros((2, nset, nrho, grids.weights.size), dtype=np.float64, order="C")
+        rho_full_a = np.zeros(
+            (nset, nrho, grids.weights.size), dtype=np.float64, order="C"
+        )
+        rho_full_b = np.zeros(
+            (nset, nrho, grids.weights.size), dtype=np.float64, order="C"
+        )
+        wv_full = np.zeros(
+            (2, nset, nrho, grids.weights.size), dtype=np.float64, order="C"
+        )
 
         num_nldf = ni.settings.nldf_settings.nfeat
         vxc_nldf_full = np.zeros(
@@ -722,7 +766,7 @@ def nr_uks(
     sgx_cache = {}  # Cache for SGX data
 
     if ni.hyb_plan is not None:
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.start("hybrid exx")
 
         # Check memory requirement for A tensor
@@ -733,7 +777,10 @@ def nr_uks(
             # Use blockwise mode to avoid OOM
             use_blockwise_hybrid = True
             # Use logger.debug instead of print to reduce verbosity
-            lib.logger.debug(mol, f"UKS: Using blockwise hybrid mode: estimated A-tensor memory {memory_gb:.2f} GB > threshold {memory_threshold_gb:.2f} GB")
+            lib.logger.debug(
+                mol,
+                f"UKS: Using blockwise hybrid mode: estimated A-tensor memory {memory_gb:.2f} GB > threshold {memory_threshold_gb:.2f} GB",
+            )
 
             # Compute exact exchange energy density for both spins (but no A tensors)
             eps_exx_all_a = np.zeros((nset, grids.coords.shape[0]))
@@ -743,12 +790,18 @@ def nr_uks(
             for i in range(nset):
                 # For UKS, match training convention: each spin gets 2*P_spin
                 eps_exx_all_a[i] = ni.hyb_plan.compute_eps_exx_only(
-                    mol, grids, 2 * dma[i], ni.settings.hyb_settings,
-                    sgx_cache=sgx_cache
+                    mol,
+                    grids,
+                    2 * dma[i],
+                    ni.settings.hyb_settings,
+                    sgx_cache=sgx_cache,
                 )
                 eps_exx_all_b[i] = ni.hyb_plan.compute_eps_exx_only(
-                    mol, grids, 2 * dmb[i], ni.settings.hyb_settings,
-                    sgx_cache=sgx_cache
+                    mol,
+                    grids,
+                    2 * dmb[i],
+                    ni.settings.hyb_settings,
+                    sgx_cache=sgx_cache,
                 )
 
             a_tensor_a = a_tensor_b = None  # Will compute blockwise later
@@ -764,28 +817,48 @@ def nr_uks(
             # For UKS, match training convention: each spin gets 2*P_spin
             # This gives same features as RKS for closed-shell but different for open-shell
             eps_exx_all_a[0], a_tensor_a = ni.hyb_plan.compute_a_tensor_and_exx(
-                mol, grids, 2 * dma[0], ni.settings.hyb_settings,
-                sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
+                mol,
+                grids,
+                2 * dma[0],
+                ni.settings.hyb_settings,
+                sgx_cache=sgx_cache,
+                return_a_tensor=True,
+                is_uks=True,
             )
 
             # For beta spin
             eps_exx_all_b[0], a_tensor_b = ni.hyb_plan.compute_a_tensor_and_exx(
-                mol, grids, 2 * dmb[0], ni.settings.hyb_settings,
-                sgx_cache=sgx_cache, return_a_tensor=True, is_uks=True
+                mol,
+                grids,
+                2 * dmb[0],
+                ni.settings.hyb_settings,
+                sgx_cache=sgx_cache,
+                return_a_tensor=True,
+                is_uks=True,
             )
 
             # For additional density matrices
             for i in range(1, nset):
                 # Each spin gets features from its own doubled density matrix
                 eps_exx_all_a[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
-                    mol, grids, 2 * dma[i], ni.settings.hyb_settings,
-                    sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+                    mol,
+                    grids,
+                    2 * dma[i],
+                    ni.settings.hyb_settings,
+                    sgx_cache=sgx_cache,
+                    return_a_tensor=False,
+                    is_uks=True,
                 )
 
                 # Beta
                 eps_exx_all_b[i], _ = ni.hyb_plan.compute_a_tensor_and_exx(
-                    mol, grids, 2 * dmb[i], ni.settings.hyb_settings,
-                    sgx_cache=sgx_cache, return_a_tensor=False, is_uks=True
+                    mol,
+                    grids,
+                    2 * dmb[i],
+                    ni.settings.hyb_settings,
+                    sgx_cache=sgx_cache,
+                    return_a_tensor=False,
+                    is_uks=True,
                 )
 
         eps_exx_a = eps_exx_all_a
@@ -796,7 +869,7 @@ def nr_uks(
         dalpha_deps = np.zeros((2, nset, grids.coords.shape[0]))
         K_contrib = np.zeros((2, nset, nao, nao))
 
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.stop("hybrid exx")
 
     def block_loop(ao_deriv, include_extra_ao=True):
@@ -821,7 +894,9 @@ def nr_uks(
             raise NotImplementedError("laplacian in meta-GGA method")
         ao_deriv = 1
         # For NLDF density computation, don't include extra_ao (matching backup implementation)
-        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(
+            ao_deriv, include_extra_ao=False
+        ):
             rho_full_a[i, :, ip0:ip1] = make_rhoa(i, ao, mask, xctype)
             rho_full_b[i, :, ip0:ip1] = make_rhob(i, ao, mask, xctype)
 
@@ -924,8 +999,12 @@ def nr_uks(
                         dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0, 0, :]
                         dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1, 0, :]
                     else:
-                        dalpha_deps[0, idm, ip0:ip1] = vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
-                        dalpha_deps[1, idm, ip0:ip1] = vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+                        dalpha_deps[0, idm, ip0:ip1] = (
+                            vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
+                        )
+                        dalpha_deps[1, idm, ip0:ip1] = (
+                            vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+                        )
 
                     # Store ML output
                     if f_raw is not None:
@@ -973,7 +1052,7 @@ def nr_uks(
                     # Stack them: shape (2, 1, ngrids) - each spin has 1 feature
                     hyb_feat = np.stack([hyb_feat_a[None, :], hyb_feat_b[None, :]])
 
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.start("sdmx fwd")
                 if ni.has_sdmx:
                     sdmx_feat = ni.sdmxgen.get_features(
@@ -985,24 +1064,34 @@ def nr_uks(
                     )
                 else:
                     sdmx_feat = None
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.stop("sdmx fwd")
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.start("xc cider")
                 xc_result = ni.eval_xc_cider(
-                    xc_code, rho, None, sdmx_feat, hyb_feat=hyb_feat, deriv=1, xctype=xctype
+                    xc_code,
+                    rho,
+                    None,
+                    sdmx_feat,
+                    hyb_feat=hyb_feat,
+                    deriv=1,
+                    xctype=xctype,
                 )
                 exc = xc_result[0]
                 vxc, vxc_nldf, vxc_sdmx, vxc_hyb = xc_result[1][:4]
                 # Extract raw ML output (alpha) if available
                 f_raw = xc_result[4] if len(xc_result) > 4 else None
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.stop("xc cider")
                 assert vxc_nldf is None
 
                 # Build K matrix contribution for local hybrid if needed
-                if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and vxc_hyb is not None:
-                    if hasattr(ni, 'timer'):
+                if (
+                    hasattr(ni.settings, "has_hyb")
+                    and ni.settings.has_hyb
+                    and vxc_hyb is not None
+                ):
+                    if hasattr(ni, "timer"):
                         ni.timer.start("hybrid K build")
 
                     # Extract derivative from vxc_hyb
@@ -1010,8 +1099,12 @@ def nr_uks(
                         dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0, 0, :]
                         dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1, 0, :]
                     else:
-                        dalpha_deps[0, i, ip0:ip1] = vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
-                        dalpha_deps[1, i, ip0:ip1] = vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+                        dalpha_deps[0, i, ip0:ip1] = (
+                            vxc_hyb[0] if vxc_hyb.ndim > 1 else vxc_hyb
+                        )
+                        dalpha_deps[1, i, ip0:ip1] = (
+                            vxc_hyb[1] if vxc_hyb.ndim > 1 else vxc_hyb
+                        )
 
                     # Extract alpha from ML model
                     if f_raw is not None:
@@ -1025,34 +1118,42 @@ def nr_uks(
                                 alpha_ml[0, i, ip0:ip1] = f_raw[0]
                                 alpha_ml[1, i, ip0:ip1] = f_raw[1]
                             else:
-                                raise ValueError(f"Unexpected f_raw shape: {f_raw.shape}")
+                                raise ValueError(
+                                    f"Unexpected f_raw shape: {f_raw.shape}"
+                                )
 
                     # Build K matrix contributions
                     if not use_blockwise_hybrid and a_tensor_a is not None:
                         # Use pre-computed A tensors
                         # Alpha spin
                         K_block_a = ni.hyb_plan.build_k_matrix_block(
-                            ao, 2*dma[i], a_tensor_a[ip0:ip1],
-                            dalpha_deps[0, i, ip0:ip1], weight
+                            ao,
+                            2 * dma[i],
+                            a_tensor_a[ip0:ip1],
+                            dalpha_deps[0, i, ip0:ip1],
+                            weight,
                         )
                         K_contrib[0, i] += K_block_a
 
                         # Beta spin
                         K_block_b = ni.hyb_plan.build_k_matrix_block(
-                            ao, 2*dmb[i], a_tensor_b[ip0:ip1],
-                            dalpha_deps[1, i, ip0:ip1], weight
+                            ao,
+                            2 * dmb[i],
+                            a_tensor_b[ip0:ip1],
+                            dalpha_deps[1, i, ip0:ip1],
+                            weight,
                         )
                         K_contrib[1, i] += K_block_b
                     # For blockwise mode, K matrix will be built after all dalpha_deps are collected
 
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.stop("hybrid K build")
 
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.start("sdmx bwd")
                 if ni.has_sdmx:
                     ni.sdmxgen.get_vxc_(vmat[:, i], vxc_sdmx * weight)
-                if hasattr(ni, 'timer'):
+                if hasattr(ni, "timer"):
                     ni.timer.stop("sdmx bwd")
                 den_a = rho[0, 0] * weight
                 den_b = rho[1, 0] * weight
@@ -1069,7 +1170,9 @@ def nr_uks(
 
     if ni.has_nldf:
         # Contract from wv_full for NLDF case
-        for i, ip0, ip1, ao, mask, weight, coords in block_loop(ao_deriv, include_extra_ao=False):
+        for i, ip0, ip1, ao, mask, weight, coords in block_loop(
+            ao_deriv, include_extra_ao=False
+        ):
             wv_a = wv_full[0, i, :, ip0:ip1]
             wv_b = wv_full[1, i, :, ip0:ip1]
 
@@ -1097,30 +1200,40 @@ def nr_uks(
             )
 
             # Build K matrix for hybrid if needed (NLDF case)
-            if hasattr(ni.settings, 'has_hyb') and ni.settings.has_hyb and a_tensor_a is not None:
+            if (
+                hasattr(ni.settings, "has_hyb")
+                and ni.settings.has_hyb
+                and a_tensor_a is not None
+            ):
                 # Check if we have non-zero derivatives for this block
                 if dalpha_deps[0, i, ip0:ip1].any() or dalpha_deps[1, i, ip0:ip1].any():
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.start("hybrid K build")
 
                     # Build K matrix contributions using HybridPlan
                     # Alpha spin
                     if dalpha_deps[0, i, ip0:ip1].any():
                         K_block_a = ni.hyb_plan.build_k_matrix_block(
-                            ao, 2*dma[i], a_tensor_a[ip0:ip1],
-                            dalpha_deps[0, i, ip0:ip1], weight
+                            ao,
+                            2 * dma[i],
+                            a_tensor_a[ip0:ip1],
+                            dalpha_deps[0, i, ip0:ip1],
+                            weight,
                         )
                         K_contrib[0, i] += K_block_a
 
                     # Beta spin
                     if dalpha_deps[1, i, ip0:ip1].any():
                         K_block_b = ni.hyb_plan.build_k_matrix_block(
-                            ao, 2*dmb[i], a_tensor_b[ip0:ip1],
-                            dalpha_deps[1, i, ip0:ip1], weight
+                            ao,
+                            2 * dmb[i],
+                            a_tensor_b[ip0:ip1],
+                            dalpha_deps[1, i, ip0:ip1],
+                            weight,
                         )
                         K_contrib[1, i] += K_block_b
 
-                    if hasattr(ni, 'timer'):
+                    if hasattr(ni, "timer"):
                         ni.timer.stop("hybrid K build")
     else:
         # Contract directly for non-NLDF case
@@ -1151,7 +1264,7 @@ def nr_uks(
 
     # Build K matrix blockwise if using blockwise hybrid mode
     if use_blockwise_hybrid and ni.hyb_plan is not None:
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.start("hybrid K blockwise")
 
         # Build K matrix blockwise for each density matrix and spin
@@ -1159,24 +1272,32 @@ def nr_uks(
             # Alpha spin
             if dalpha_deps[0, i].any():  # Only if we have non-zero derivatives
                 K_contrib[0, i] = ni.hyb_plan.build_k_matrix_blockwise(
-                    mol, grids, 2 * dma[i], dalpha_deps[0, i],
-                    max_memory=max_memory, sgx_cache=sgx_cache
+                    mol,
+                    grids,
+                    2 * dma[i],
+                    dalpha_deps[0, i],
+                    max_memory=max_memory,
+                    sgx_cache=sgx_cache,
                 )
 
             # Beta spin
             if dalpha_deps[1, i].any():  # Only if we have non-zero derivatives
                 K_contrib[1, i] = ni.hyb_plan.build_k_matrix_blockwise(
-                    mol, grids, 2 * dmb[i], dalpha_deps[1, i],
-                    max_memory=max_memory, sgx_cache=sgx_cache
+                    mol,
+                    grids,
+                    2 * dmb[i],
+                    dalpha_deps[1, i],
+                    max_memory=max_memory,
+                    sgx_cache=sgx_cache,
                 )
 
-        if hasattr(ni, 'timer'):
+        if hasattr(ni, "timer"):
             ni.timer.stop("hybrid K blockwise")
 
     # Add K contribution and symmetrize
     if ni.hyb_plan is not None and K_contrib is not None:
         # Finalize K matrix with proper symmetrization and factors for UKS
-        ni.hyb_plan.finalize_k_matrix(K_contrib, vmat, spin='uks')
+        ni.hyb_plan.finalize_k_matrix(K_contrib, vmat, spin="uks")
 
     vmat = lib.hermi_sum(vmat.reshape(-1, nao, nao), axes=(0, 2, 1)).reshape(
         2, nset, nao, nao
@@ -1194,7 +1315,7 @@ def nr_uks(
     dtype = np.result_type(dma, dmb)
     if vmat.dtype != dtype:
         vmat = np.asarray(vmat, dtype=dtype)
-    if hasattr(ni, 'timer'):
+    if hasattr(ni, "timer"):
         ni.timer.stop("nr_uks")
     return nelec, excsum, vmat
 
@@ -1350,7 +1471,9 @@ class CiderNumIntMixin:
             if hyb_feat is not None:
                 if hyb_feat.ndim == 2:
                     hyb_feat = hyb_feat[None, :]
-                assert hyb_feat.shape[0] == nspin, f"hyb_feat.shape[0]={hyb_feat.shape[0]} != nspin={nspin}"
+                assert (
+                    hyb_feat.shape[0] == nspin
+                ), f"hyb_feat.shape[0]={hyb_feat.shape[0]} != nspin={nspin}"
                 assert hyb_feat.ndim == 3
                 nfeat_tmp = self.settings.hyb_settings.nfeat
                 X0T[:, start : start + nfeat_tmp] = hyb_feat
@@ -1368,7 +1491,7 @@ class CiderNumIntMixin:
                     X0TN, rhocut=self.rhocut, return_raw_ml_output=True
                 )
                 # Extract the raw output for this block
-                if hasattr(f_raw_total, 'shape'):
+                if hasattr(f_raw_total, "shape"):
                     if f_raw_total.ndim == 2 and f_raw_total.shape[0] == 1:
                         f_raw = f_raw_total[0, :]
                     elif f_raw_total.ndim == 1:

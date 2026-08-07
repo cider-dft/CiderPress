@@ -30,9 +30,9 @@ from pyscf.dft.numint import NumInt
 from ciderpress.dft.plans import FracLaplPlan, SemilocalPlan
 from ciderpress.dft.settings import (
     FracLaplSettings,
+    HybridSettings,
     NLDFSettings,
     SDMXBaseSettings,
-    HybridSettings,
     SemilocalSettings,
 )
 from ciderpress.pyscf.analyzers import UHFAnalyzer
@@ -495,7 +495,16 @@ def _sdmx_desc_getter(mol, pgrids, dm, settings, coeffs=None, **kwargs):
     return desc, ddesc
 
 
-def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, sgx_cache=None, return_a_tensor=False, **kwargs):
+def _hyb_desc_getter(
+    mol,
+    pgrids,
+    dms,
+    settings,
+    coeffs=None,
+    sgx_cache=None,
+    return_a_tensor=False,
+    **kwargs
+):
     """Compute exact-exchange energy density ε_x^EXX on *pgrids* and return
     it as the single-component feature required by HybridPlan.
 
@@ -524,10 +533,14 @@ def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, sgx_cache=None, re
         Three-center integrals if return_a_tensor=True
     """
     if coeffs is not None and len(coeffs):
-        raise NotImplementedError("Orbital-occupation derivatives are not yet supported for hybrids")
+        raise NotImplementedError(
+            "Orbital-occupation derivatives are not yet supported for hybrids"
+        )
 
     if _sgx_mod is None:
-        raise RuntimeError("PySCF compiled without SGX module – cannot compute exact exchange density")
+        raise RuntimeError(
+            "PySCF compiled without SGX module – cannot compute exact exchange density"
+        )
 
     # Use caching if cache dict provided
     sgx_obj = None
@@ -553,7 +566,10 @@ def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, sgx_cache=None, re
 
     # Use the enhanced function that can return A tensor
     from ciderpress.external.sgx_tools import get_jk_densities_and_a_tensor
-    result = get_jk_densities_and_a_tensor(sgx_obj, dms, hermi=1, return_a_tensor=return_a_tensor)
+
+    result = get_jk_densities_and_a_tensor(
+        sgx_obj, dms, hermi=1, return_a_tensor=return_a_tensor
+    )
 
     if return_a_tensor:
         _ej, ek, a_tensor = result
@@ -568,7 +584,7 @@ def _hyb_desc_getter(mol, pgrids, dms, settings, coeffs=None, sgx_cache=None, re
     # - We need another 0.5 to get the correct per-particle exchange energy density
     # - Final scaling: 4 * (-0.5) * 0.5 = -1, which is correct
     # For UKS, this factor works as well, since we pass 2*P_alpha and 2*P_beta
-    feat = 0.5*ek[0][None, :]  # RKS-specific scaling for exchange energy density
+    feat = 0.5 * ek[0][None, :]  # RKS-specific scaling for exchange energy density
 
     if return_a_tensor:
         return feat, a_tensor

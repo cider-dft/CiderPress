@@ -358,6 +358,7 @@ class ElectronAnalyzer(ABC):
             # Note: NLC/VV10 is part of the XC functional and IS in exc_orig,
             # so it doesn't need this correction.
             from ciderpress.pyscf.dft import _get_present_dispersion_energy_ha
+
             analyzer._data["e_disp_orig"] = _get_present_dispersion_energy_ha(calc)
         return analyzer
 

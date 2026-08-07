@@ -84,9 +84,7 @@ def test_model_d4_gradient_matches_direct_evaluator_and_finite_difference():
         new_mol = mol.set_geom_(new_coords, unit="Bohr", inplace=False)
         new_calc = SimpleNamespace(mol=new_mol)
         displaced.append(
-            cider_dft._compute_expected_vdw_energy_ha(
-                new_calc, info, "post_density"
-            )
+            cider_dft._compute_expected_vdw_energy_ha(new_calc, info, "post_density")
         )
     finite_difference = (displaced[1] - displaced[0]) / (2 * step)
     assert gradient[1, 2] == pytest.approx(finite_difference, abs=1e-9)
@@ -153,9 +151,7 @@ def test_external_d4_wrapper_does_not_wrap_cider_gradient_twice():
     mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g", verbose=0)
     base = dft.RKS(mol)
     base.xc = "PBE"
-    calc = cider_dft.make_cider_calc(
-        dftd4_pyscf.energy(base), "CIDER26XCCHEMD4"
-    )
+    calc = cider_dft.make_cider_calc(dftd4_pyscf.energy(base), "CIDER26XCCHEMD4")
 
     gradient = calc.nuc_grad_method()
     gradient_mro = gradient.__class__.mro()

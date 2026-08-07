@@ -3,7 +3,7 @@
 
 from ase.build import add_adsorbate, fcc111, molecule
 from ase.parallel import parprint
-from gpaw import GPAW, Mixer, PW
+from gpaw import GPAW, PW, Mixer
 
 from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional
 

@@ -668,7 +668,9 @@ class MappedXC:
 
         for kernel in self.kernels:
             if return_raw_ml_output:
-                tmp, dtmp, f_raw, df_raw = kernel(X0T, rhocut=rhocut, return_raw_ml_output=True)
+                tmp, dtmp, f_raw, df_raw = kernel(
+                    X0T, rhocut=rhocut, return_raw_ml_output=True
+                )
                 f_raw_list.append(f_raw)
                 df_raw_list.append(df_raw)
             else:
@@ -684,7 +686,10 @@ class MappedXC:
             else:
                 # Collect raw outputs from EXX kernels (assumption: only one EXX-containing kernel)
                 for i, kernel in enumerate(self.kernels):
-                    if kernel._mul_basefunc.__name__ in {"exx_energy_baseline", "exx_pbe_diff_baseline"}:
+                    if kernel._mul_basefunc.__name__ in {
+                        "exx_energy_baseline",
+                        "exx_pbe_diff_baseline",
+                    }:
                         f_raw_total = f_raw_list[i]
                         df_raw_total = df_raw_list[i]
             return res, dres, f_raw_total, df_raw_total

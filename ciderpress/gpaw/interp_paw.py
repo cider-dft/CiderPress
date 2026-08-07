@@ -80,10 +80,7 @@ def create_kinetic_diffpaw(
     for j1 in range(nj):
         for j2 in range(j1, nj):
             n_qg[q] = phi_jg[j1] * phi_jg[j2]
-            d_qg[q] = (
-                phi_jg[j1] * dphidr_jg[j2]
-                + dphidr_jg[j1] * phi_jg[j2]
-            )
+            d_qg[q] = phi_jg[j1] * dphidr_jg[j2] + dphidr_jg[j1] * phi_jg[j2]
             q += 1
 
     # second term
@@ -256,12 +253,8 @@ class DiffPAWXCCorrection:
         else:
             n_qg = np.array([_interpc(n_g) for n_g in xcc.n_qg])
             nt_qg = np.array([_interpc(n_g) for n_g in xcc.nt_qg])
-            d_qg = np.array(
-                [_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg]
-            )
-            dt_qg = np.array(
-                [_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg]
-            )
+            d_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.n_qg])
+            dt_qg = np.array([_interpc(xcc.rgd.derivative(n_g)) for n_g in xcc.nt_qg])
             tau_npg = None
             taut_npg = None
 

@@ -702,9 +702,7 @@ class TestDescriptors(unittest.TestCase):
 
     def test_eigval(self):
         for use_pp in [True, False]:
-            xc = get_xc(
-                "CIDER23X_NL_GGA", use_paw=not use_pp, force_nl=True
-            )
+            xc = get_xc("CIDER23X_NL_GGA", use_paw=not use_pp, force_nl=True)
             run_nscf_eigval_test(
                 "PBE", xc, spinpol=False, use_pp=use_pp, safe=not use_pp
             )

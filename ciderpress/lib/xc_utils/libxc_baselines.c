@@ -48,8 +48,9 @@ void get_mgga_baseline(int fn_id, int nspin, int size, double *rho,
                     vtau);
 }
 
-void get_lda_rs_baseline(int fn_id, int nspin, int size, double *rho, double *exc,
-    double *vrho, double omega, double dens_threshold) {
+void get_lda_rs_baseline(int fn_id, int nspin, int size, double *rho,
+                         double *exc, double *vrho, double omega,
+                         double dens_threshold) {
     xc_func_type func;
 
     xc_func_init(&func, fn_id, nspin);

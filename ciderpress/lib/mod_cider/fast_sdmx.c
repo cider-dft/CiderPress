@@ -589,13 +589,10 @@ void SDMXcontract_ao_to_bas_grid(size_t ngrids, double *vbas, double *ylm_lg,
     }
 }
 
-void SDMXcontract_ao_to_bas_grid_bwd(size_t ngrids, double *vbas,
-                                     double *ylm_lg, double *ao,
-                                     int *shls_slice, int *ao_loc,
-                                     int *ylm_atom_loc, int *atm, int natm,
-                                     int *bas, int nbas, double *env,
-                                     double *gridx, double *atomx, size_t nrf,
-                                     int *rf_loc) {
+void SDMXcontract_ao_to_bas_grid_bwd(
+    size_t ngrids, double *vbas, double *ylm_lg, double *ao, int *shls_slice,
+    int *ao_loc, int *ylm_atom_loc, int *atm, int natm, int *bas, int nbas,
+    double *env, double *gridx, double *atomx, size_t nrf, int *rf_loc) {
 #pragma omp parallel
     {
         // NOTE: This is an in-place operation and ads to ao.
@@ -794,8 +791,8 @@ void SDMXcontract_ao_to_bas_l1_bwd(size_t ngrids, double *vbas, double *ylm_vlg,
     }
 }
 
-void contract_shl_to_alpha_l1(size_t ngrids, size_t nalpha, size_t nsh, double *p,
-                              double *b, double *csh) {
+void contract_shl_to_alpha_l1(size_t ngrids, size_t nalpha, size_t nsh,
+                              double *p, double *b, double *csh) {
 #pragma omp parallel
     {
         int blksize = 128;
@@ -860,8 +857,8 @@ void contract_shl_to_alpha_l1(size_t ngrids, size_t nalpha, size_t nsh, double *
     }
 }
 
-void contract_shl_to_alpha_l1_bwd(size_t ngrids, size_t nalpha, size_t nsh, double *p,
-                                  double *b, double *csh) {
+void contract_shl_to_alpha_l1_bwd(size_t ngrids, size_t nalpha, size_t nsh,
+                                  double *p, double *b, double *csh) {
 #pragma omp parallel
     {
         int blksize = 128;

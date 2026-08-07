@@ -60,11 +60,15 @@ class TestUEGVector(unittest.TestCase):
         assert_allclose(settings.ueg_vector(rho), [0.0], atol=1e-14)
 
         a = _get_ueg_expnt(theta_params[0], theta_params[2], rho)
-        radial_integral = 4 * np.pi * quad(
-            lambda r: r * r * (4 * a * a * r * r - 6 * a) * np.exp(-a * r * r),
-            0,
-            np.inf,
-        )[0]
+        radial_integral = (
+            4
+            * np.pi
+            * quad(
+                lambda r: r * r * (4 * a * a * r * r - 6 * a) * np.exp(-a * r * r),
+                0,
+                np.inf,
+            )[0]
+        )
         assert_allclose(radial_integral, 0.0, atol=1e-12)
 
     def _run_ueg_test(self, rho_const, gg_kwargs, vv_gg_kwargs):

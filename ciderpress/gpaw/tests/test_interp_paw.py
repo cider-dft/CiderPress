@@ -43,9 +43,7 @@ def _orbital_products(xcc, correction, phi_jg):
     for j1 in range(len(phi_jg)):
         for j2 in range(j1, len(phi_jg)):
             n_qg.append(phi_jg[j1] * phi_jg[j2])
-            d_qg.append(
-                phi_jg[j1] * dphi_jg[j2] + dphi_jg[j1] * phi_jg[j2]
-            )
+            d_qg.append(phi_jg[j1] * dphi_jg[j2] + dphi_jg[j1] * phi_jg[j2])
     return np.asarray(n_qg), np.asarray(d_qg)
 
 

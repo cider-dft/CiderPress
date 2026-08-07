@@ -3,7 +3,7 @@
 
 from ase.build import bulk
 from ase.parallel import parprint
-from gpaw import GPAW, Mixer, PW
+from gpaw import GPAW, PW, Mixer
 
 from ciderpress.gpaw.calculator import CiderGPAW, get_cider_functional
 
@@ -16,8 +16,12 @@ def main():
         kpts={"size": (4, 4, 4), "gamma": False},
         occupations={"name": "fermi-dirac", "width": 0.1},
         mixer=Mixer(0.05, 5, 50),
-        convergence={"energy": 1e-5, "density": 1e-5,
-                     "eigenstates": 1e-3, "bands": "occupied"},
+        convergence={
+            "energy": 1e-5,
+            "density": 1e-5,
+            "eigenstates": 1e-3,
+            "bands": "occupied",
+        },
         parallel={"augment_grids": True},
         txt="si_pbe.txt",
     )

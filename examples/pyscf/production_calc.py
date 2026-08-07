@@ -7,7 +7,6 @@ from pyscf import dft, gto
 
 from ciderpress.pyscf.dft import make_cider_calc
 
-
 MODELS = ("CIDER26XCCHEM", "CIDER26XCCHEMD4", "CIDER26XCSURFSCI")
 
 

@@ -386,15 +386,24 @@ def exx_energy_baseline(X0T):
         normalized_exx_s = X0T[s, -1]  # Last feature is normalized exx
 
         # Compute energy contribution for this spin
-        e_s = -1.0 * np.abs(normalized_exx_s * LDA_FACTOR * rho_s**(4.0/3.0))
+        e_s = -1.0 * np.abs(normalized_exx_s * LDA_FACTOR * rho_s ** (4.0 / 3.0))
 
         # Add to total energy
         e += e_s
 
         # Compute derivatives for this spin
         sign_factor = np.sign(normalized_exx_s * LDA_FACTOR)
-        dedx[s, -1] = -1.0 * sign_factor * LDA_FACTOR * rho_s**(4.0/3.0)  # d/d(normalized_exx)
-        dedx[s, 0] = -1.0 * sign_factor * normalized_exx_s * LDA_FACTOR * (4.0/3.0) * rho_s**(1.0/3.0)  # d/drho
+        dedx[s, -1] = (
+            -1.0 * sign_factor * LDA_FACTOR * rho_s ** (4.0 / 3.0)
+        )  # d/d(normalized_exx)
+        dedx[s, 0] = (
+            -1.0
+            * sign_factor
+            * normalized_exx_s
+            * LDA_FACTOR
+            * (4.0 / 3.0)
+            * rho_s ** (1.0 / 3.0)
+        )  # d/drho
 
     e /= nspin
     dedx /= nspin
