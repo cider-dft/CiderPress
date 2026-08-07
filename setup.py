@@ -4,8 +4,6 @@ from glob import glob
 
 from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py
-
-# TODO not using wheel yet, but plan to do so eventually
 from wheel.bdist_wheel import bdist_wheel
 
 
@@ -33,7 +31,7 @@ def get_platform():
 
 class CMakeBuildPy(build_py):
     def _copy_built_libraries(self, src_dir):
-        """Copy CMake outputs into the wheel's package tree.
+        """Copy CMake outputs into the built package tree.
 
         Shared libraries are intentionally excluded from the source
         distribution so a local build cannot contaminate a release archive.
@@ -96,37 +94,16 @@ class CMakeBuildPy(build_py):
         self._copy_built_libraries(src_dir)
 
 
-# NOTE note trying to support wheal yet, but including
-# these code block from PySCF setup.py for future.
-initialize_options_1 = bdist_wheel.initialize_options
-
-
-def initialize_with_default_plat_name(self):
-    initialize_options_1(self)
-    self.plat_name = get_platform()
-    self.plat_name_supplied = True
-
-
-bdist_wheel.initialize_options = initialize_with_default_plat_name
-
-# from PySCF setup.py
-try:
-    from setuptools.command.bdist_wheel import bdist_wheel
-
-    initialize_options_2 = bdist_wheel.initialize_options
-
-    def initialize_with_default_plat_name(self):
-        initialize_options_2(self)
+class CMakeBDistWheel(bdist_wheel):
+    def initialize_options(self):
+        super().initialize_options()
         self.plat_name = get_platform()
         self.plat_name_supplied = True
 
-    bdist_wheel.initialize_options = initialize_with_default_plat_name
-except ImportError:
-    pass
 
 setup(
     version=VERSION,
     include_package_data=True,
     packages=find_packages(exclude=["*test*", "*examples*"]),
-    cmdclass={"build_py": CMakeBuildPy},
+    cmdclass={"build_py": CMakeBuildPy, "bdist_wheel": CMakeBDistWheel},
 )

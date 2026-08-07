@@ -7,13 +7,15 @@ name = "ciderpress"
 dynamic = ["version"]
 description = "CiderPress: DFT Calculations with Machine-Learned XC Functionals"
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.10,<3.13"
 classifiers = [
   "Development Status :: 3 - Alpha",
   'Intended Audience :: Science/Research',
   'Intended Audience :: Developers',
   'Programming Language :: C',
   'Programming Language :: Python',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
   'Programming Language :: Python :: 3.12',
   'Topic :: Scientific/Engineering',
   'Operating System :: POSIX',
