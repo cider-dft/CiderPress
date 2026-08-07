@@ -947,8 +947,8 @@ at the integrated coordinate :math:`\mathbf r'`
 
 ``se_ap2r2``: :math:`a^2R^2\exp(-aR^2)`
 
-``se_lapl``: :math:`(4a^2R^2-2a)\exp(-aR^2)` (the historical
-one-dimensional second-derivative form used by the implementation)
+``se_lapl``: :math:`(4a^2R^2-6a)\exp(-aR^2)`, the three-dimensional
+Laplacian of the squared-exponential kernel
 """
 
 ALLOWED_I_SPECS_L1 = ["se_grad", "se_rvec"]
@@ -1271,7 +1271,7 @@ class NLDFSettingsVI(NLDFSettings):
             elif spec == "se_ap2r2":
                 integral *= 1.5 * expnt
             elif spec == "se_lapl":
-                integral *= 4 * expnt
+                integral = 0.0
             else:
                 raise ValueError
             l0ueg.append(rho * rho_mult * integral)
@@ -1954,6 +1954,8 @@ def dalpha(rho, sigma, tau):
     rho = np.maximum(ALPHA_TOL, rho)
     tau0 = get_uniform_tau(rho)
     tauw = sigma / (8 * rho)
+    # Match the inactive branch of max(tau - tauw, 0).  The equality
+    # convention also fixes the fractional-occupation derivative at alpha=0.
     inactive = np.logical_or(cond, tau <= tauw)
     dwdn, dwds = -sigma / (8 * rho * rho), 1 / (8 * rho)
     dadn = 5.0 * (tauw - tau) / (3 * tau0 * rho) - dwdn / tau0

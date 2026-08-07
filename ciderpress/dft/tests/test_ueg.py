@@ -46,6 +46,27 @@ TOL = 10
 
 
 class TestUEGVector(unittest.TestCase):
+    def test_se_lapl_is_three_dimensional_laplacian(self):
+        rho = 0.8
+        theta_params = [0.7, 0.0, 0.03]
+        settings = NLDFSettingsVI(
+            "MGGA",
+            theta_params,
+            "one",
+            l0_feat_specs=["se_lapl"],
+            l1_feat_specs=[],
+            l1_feat_dots=[],
+        )
+        assert_allclose(settings.ueg_vector(rho), [0.0], atol=1e-14)
+
+        a = _get_ueg_expnt(theta_params[0], theta_params[2], rho)
+        radial_integral = 4 * np.pi * quad(
+            lambda r: r * r * (4 * a * a * r * r - 6 * a) * np.exp(-a * r * r),
+            0,
+            np.inf,
+        )[0]
+        assert_allclose(radial_integral, 0.0, atol=1e-12)
+
     def _run_ueg_test(self, rho_const, gg_kwargs, vv_gg_kwargs):
         tau_const = 0.3 * (3 * np.pi**2) ** (2.0 / 3) * rho_const ** (5.0 / 3)
 
