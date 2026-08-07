@@ -205,6 +205,7 @@ class MappedDFTKernel2(KernelEvalBase2, XCEvalSerializable):
         multiplicative_baseline,
         additive_baseline=None,
         omega=0.0,
+        component=None,
     ):
         """
         fevals: FuncEvaluator
@@ -219,6 +220,9 @@ class MappedDFTKernel2(KernelEvalBase2, XCEvalSerializable):
         self.feature_list = feature_list
         self._mul_basefunc = multiplicative_baseline
         self._add_basefunc = additive_baseline
+        if component not in (None, "x", "c", "xc"):
+            raise ValueError("component must be 'x', 'c', 'xc', or None")
+        self.component = component
         self.omega = omega
 
     @property
@@ -268,13 +272,13 @@ class MappedDFTKernel2(KernelEvalBase2, XCEvalSerializable):
 
 
 class MappedXC2:
-    """Inference-time evaluator for a mapped full-XC CIDER functional.
+    """Inference-time evaluator for mapped density-dependent kernels.
 
     ``MappedXC2`` extends the mapped-model concept of
     :class:`~ciderpress.dft.xc_evaluator.MappedXC` to kernels that take
-    density arguments in addition to normalized features, as required by
-    the CIDER26XC full exchange-correlation models. It is the object
-    reconstructed from the packaged CIDER26XC model files.
+    density arguments in addition to normalized features. This representation
+    is used by both range-separated exchange models and the CIDER26XC full
+    exchange-correlation models.
     """
 
     def __init__(self, mapped_kernels, settings, libxc_baseline=None):

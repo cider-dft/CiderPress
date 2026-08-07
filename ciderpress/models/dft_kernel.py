@@ -373,5 +373,6 @@ class DFTKernel2(KernelEvalBase2, DFTKernel):
             self.mode,
             self._mul_basefunc,
             self._add_basefunc,
+            component=self.component,
             omega=self.omega,
         )

@@ -127,17 +127,54 @@ def get_slxc_settings(xc, xkernel, ckernel, xmix):
     return xc
 
 
+def _mapped_kernel_components(kernel):
+    """Return the exchange/correlation components represented by a kernel."""
+    component = getattr(kernel, "component", None)
+    if component == "xc":
+        return {"x", "c"}
+    if component in ("x", "c"):
+        return {component}
+
+    # Mapped models created before component metadata was serialized can be
+    # identified from the libxc baseline names used by DFTKernel2.
+    components = set()
+    for baseline in (
+        getattr(kernel, "_mul_basefunc", None),
+        getattr(kernel, "_add_basefunc", None),
+    ):
+        if not isinstance(baseline, str):
+            continue
+        tokens = baseline.upper().split("_")
+        if "XC" in tokens:
+            components.update(("x", "c"))
+        else:
+            if "X" in tokens:
+                components.add("x")
+            if "C" in tokens:
+                components.add("c")
+    return components
+
+
+def _is_full_xc_model(mlfunc):
+    if not isinstance(mlfunc, MappedXC2):
+        return False
+    components = set()
+    for kernel in mlfunc.kernels:
+        components.update(_mapped_kernel_components(kernel))
+    return components.issuperset(("x", "c"))
+
+
 def validate_cider_composition(
     mlfunc, *, xmix, xkernel, ckernel, xc=None, backend="CiderPress"
 ):
     """Reject additive semilocal terms for mapped full-XC models.
 
-    ``MappedXC2`` objects already contain their complete exchange-correlation
-    baseline.  Mixing them with an external exchange or correlation kernel
-    changes the functional and, in GPAW's historical default configuration,
-    silently double-counts PBE correlation.
+    A ``MappedXC2`` object may represent exchange alone or a complete
+    exchange-correlation model. Mixing a full-XC model with an external
+    exchange or correlation kernel changes the functional and, in GPAW's
+    historical default configuration, silently double-counts PBE correlation.
     """
-    if not isinstance(mlfunc, MappedXC2):
+    if not _is_full_xc_model(mlfunc):
         return
     try:
         mix_is_one = isclose(float(xmix), 1.0, rel_tol=0.0, abs_tol=1e-15)

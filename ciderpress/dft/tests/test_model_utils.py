@@ -15,6 +15,7 @@ from ciderpress.dft.model_utils import (
 )
 from ciderpress.dft.xc_evaluator import MappedXC
 from ciderpress.dft.xc_evaluator2 import MappedXC2
+from ciderpress.models.dft_kernel import DFTKernel2
 
 EXPECTED_HASHES = {
     "CIDER23X_SL_GGA": "2e518727b836cd806c4f27c5566e9401b8c15db77182e34380728efdea24f0ce",
@@ -158,3 +159,30 @@ def test_full_xc_composition_is_validated():
         ckernel="GGA_C_PBE",
         backend="test",
     )
+
+
+def test_exchange_only_mapped_xc2_composition_is_allowed():
+    kernel = DFTKernel2(
+        None,
+        object(),
+        "SEP",
+        "LDA_X_ERF",
+        additive_baseline="GGA_X_PBE",
+        component="x",
+        omega=0.3,
+    ).map(lambda _: [])
+    exchange = MappedXC2([kernel], settings=None)
+
+    assert kernel.component == "x"
+    assert kernel.omega == pytest.approx(0.3)
+    composition = {
+        "xmix": 0.25,
+        "xkernel": "GGA_X_PBE",
+        "ckernel": "GGA_C_PBE",
+        "backend": "test",
+    }
+    validate_cider_composition(exchange, **composition)
+
+    # Models mapped before component metadata was added use baseline names.
+    del kernel.component
+    validate_cider_composition(exchange, **composition)
