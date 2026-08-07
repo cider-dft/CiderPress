@@ -41,8 +41,6 @@ jobs:
           libxc=*=cpu_*
           make
           openblas
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build things
       env:
         CMAKE_CONFIGURE_ARGS: >-
