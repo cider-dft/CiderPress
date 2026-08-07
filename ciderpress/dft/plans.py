@@ -64,8 +64,6 @@ VI_ID_MAP = {
     "se_grad": 7,
 }
 
-# TODO Apr25: this is where -1 default is used
-
 
 def _get_ovlp_fit_interpolation_coefficients(
     plan, arg_g, i=-1, local=True, vbuf=None, dbuf=None, force_se=False
@@ -89,13 +87,10 @@ def _get_ovlp_fit_interpolation_coefficients(
     if i == -1:
         if force_se:
             # Force SE kernel for overlap matrix computation
-            # print(f"DEBUG: Force SE kernel for overlap matrix computation for i={i}")
             feat_id = VJ_ID_MAP["se"]
         elif not hasattr(plan.nldf_settings, "vdw_param"):
             feat_id = VJ_ID_MAP["se"]
-            # print(f"DEBUG: No vdw_param, using SE kernel for i={i}")
         elif not plan.nldf_settings.vdw_param:
-            # print(f"DEBUG: No vdw_param, using SE kernel for i={i}")
             feat_id = VJ_ID_MAP["se"]
         else:
             if (
@@ -103,9 +98,7 @@ def _get_ovlp_fit_interpolation_coefficients(
                 or plan.nldf_settings.feat_spec_list[i] == "se_rinv2"
             ):
                 feat_id = VJ_ID_MAP["rinv2"]
-                # print(f"DEBUG: Feature {i} (rinv4_rinv2) using feat_id={feat_id} (RINV4)")
             else:
-                # print(f"DEBUG: Using RINV4 kernel for i={i}")
                 feat_id = VJ_ID_MAP["rinv4"]
 
     else:
@@ -117,18 +110,13 @@ def _get_ovlp_fit_interpolation_coefficients(
         else:
             if plan.nldf_settings.feat_spec_list[i] == "rinv2_rinv4":
                 feat_id = VJ_ID_MAP["rinv2"]
-                # print(f"DEBUG: Feature {i} (rinv2_rinv4) using feat_id={feat_id} (RINV2)")
-                # print(f"DEBUG: Feature {i} (rinv2_rinv4) using feat_id={feat_id} (RINV2)")
             elif (
                 plan.nldf_settings.feat_spec_list[i] == "se_rinv4"
                 or plan.nldf_settings.feat_spec_list[i] == "se_rinv2"
             ):
                 feat_id = VJ_ID_MAP["se"]
-                # print(f"DEBUG: Feature {i} (se_rinv4) using feat_id={feat_id} (se)")
-                # print(f"DEBUG: Feature {i} (se_rinv4) using feat_id={feat_id} (SE)")
             elif plan.nldf_settings.feat_spec_list[i] == "rinv4_rinv2":
                 feat_id = VJ_ID_MAP["rinv4"]
-                # print(f"DEBUG: Feature {i} (rinv4_rinv2) using feat_id={feat_id} (RINV4)")
             else:
                 feat_id = VJ_ID_MAP[plan.nldf_settings.feat_spec_list[i]]
     if feat_id == VJ_ID_MAP["se_erf_rinv"]:
@@ -161,8 +149,7 @@ def _get_ovlp_fit_interpolation_coefficients(
         ctypes.c_int(len(alphas)),
         ctypes.c_int(feat_id),
         extra_args,
-    )  # TODO Apr25: c functions call
-    # print(f"DEBUG _get_ovlp_fit: After C call for feat_id={feat_id}, i={i}: p[0]={p.flat[0]:.6f}, p.sum()={p.sum():.6f}")
+    )
     return p, dp
 
 
@@ -1790,7 +1777,7 @@ class NLDFAuxiliaryPlan(ABC):
             is_mgga=self.nldf_settings.sl_level == "MGGA",
         )
 
-    def eval_feat_exp(self, rho_tuple, i=-1):  # TODO Apr25: check this
+    def eval_feat_exp(self, rho_tuple, i=-1):
         """
         Evaluate the exponents that determine the length-scale
         of feature i at each grid point. i can take a range
@@ -1825,30 +1812,6 @@ class NLDFAuxiliaryPlan(ABC):
                 nspin=self.nspin,
             )
             res = a, (dadn, dadsigma, dadtau)
-            # DEBUG: Monitor exponent values for MGGA
-            if a.size > 0:
-                # print(f"DEBUG eval_feat_exp MGGA i={i}: min(a)={a.min():.6e}, max(a)={a.max():.6e}, mean(a)={a.mean():.6e}")
-                small_mask = (a < 0.1) & (a > 0)
-                if np.any(small_mask):
-                    # print(f"  -> Found {np.sum(small_mask)}/{a.size} points with a < 0.1")
-                    # print(f"  -> At small a: rho range [{rho[small_mask].min():.6e}, {rho[small_mask].max():.6e}]")
-                    # print(f"  -> At small a: sigma range [{sigma[small_mask].min():.6e}, {sigma[small_mask].max():.6e}]")
-                    # print(f"  -> At small a: tau range [{tau[small_mask].min():.6e}, {tau[small_mask].max():.6e}]")
-                    pass
-                very_small_mask = (a < 0.001) & (a > 0)
-                if np.any(very_small_mask):
-                    # print(f"  -> WARNING: {np.sum(very_small_mask)} points with a < 0.001!")
-                    # print(f"  -> At very small a: rho range [{rho[very_small_mask].min():.6e}, {rho[very_small_mask].max():.6e}]")
-                    # print(f"  -> At very small a: sigma range [{sigma[very_small_mask].min():.6e}, {sigma[very_small_mask].max():.6e}]")
-                    # print(f"  -> At very small a: tau range [{tau[very_small_mask].min():.6e}, {tau[very_small_mask].max():.6e}]")
-                    pass
-                negative_mask = a < 0
-                if np.any(negative_mask):
-                    # print(f"  -> WARNING: {np.sum(negative_mask)} points with a < 0!")
-                    # print(f"  -> At negative a: rho range [{rho[negative_mask].min():.6e}, {rho[negative_mask].max():.6e}]")
-                    # print(f"  -> At negative a: sigma range [{sigma[negative_mask].min():.6e}, {sigma[negative_mask].max():.6e}]")
-                    # print(f"  -> At negative a: tau range [{tau[negative_mask].min():.6e}, {tau[negative_mask].max():.6e}]")
-                    pass
         else:
             rho, sigma = rho_tuple
             if i == -1:
@@ -1866,19 +1829,6 @@ class NLDFAuxiliaryPlan(ABC):
                 nspin=self.nspin,
             )
             res = a, (dadn, dadsigma)
-            # DEBUG: Monitor exponent values for GGA
-            if a.size > 0:
-                # print(f"DEBUG eval_feat_exp GGA i={i}: min(a)={a.min():.6e}, max(a)={a.max():.6e}, mean(a)={a.mean():.6e}")
-                small_mask = (a < 0.1) & (a > 0)
-                if np.any(small_mask):
-                    # print(f"  -> Found {np.sum(small_mask)}/{a.size} points with a < 0.1")
-                    # print(f"  -> At small a: rho range [{rho[small_mask].min():.6e}, {rho[small_mask].max():.6e}]")
-                    # print(f"  -> At small a: sigma range [{sigma[small_mask].min():.6e}, {sigma[small_mask].max():.6e}]")
-                    pass
-                very_small_mask = (a < 0.01) & (a > 0)
-                if np.any(very_small_mask):
-                    # print(f"  -> WARNING: {np.sum(very_small_mask)} points with a < 0.01!")
-                    pass
         if self._use_smooth_expnt_cutoff:
             derivs = [arr.ctypes.data_as(ctypes.c_void_p) for arr in res[1]]
             nd = len(derivs)
@@ -1922,17 +1872,7 @@ class NLDFAuxiliaryPlan(ABC):
             p_i_qg = [p.T for p in p_i_qg]
         nalpha = p_i_qg[0].shape[0]
         for i in range(len(p_i_qg)):
-            # print(f"DEBUG eval_rho_vj_: Multiplying f_qg[0,0]={f_qg[0,0] if f_qg.size > 0 else 0:.6f} with p_i_qg[{i}][0,0]={p_i_qg[i][0,0] if p_i_qg[i].size > 0 else 0:.6f}")
             feat[i] = np.einsum("qg,qg->g", f_qg[:nalpha], p_i_qg[i])
-            # print(f"DEBUG eval_rho_vj_: Result feat[{i}][0]={feat[i][0] if feat[i].size > 0 else 0:.6f}")
-            # DEBUG: Check for negative features
-            if feat[i].size > 0:
-                neg_mask = feat[i] < 0
-                if np.any(neg_mask):
-                    # print(f"DEBUG eval_rho_vj_: Feature {i} has {np.sum(neg_mask)}/{feat[i].size} negative values")
-                    # print(f"  -> Negative range: [{feat[i][neg_mask].min():.6e}, {feat[i][neg_mask].max():.6e}]")
-                    # print(f"  -> Overall range: [{feat[i].min():.6e}, {feat[i].max():.6e}]")
-                    pass
         return feat
 
     def eval_vxc_vj_(self, vfeat, p_i_qg, vf_qg):
@@ -2024,7 +1964,6 @@ class NLDFAuxiliaryPlan(ABC):
             and derivative of features (nfeat, ngrids) with respect to
             the feat_params exponent.
         """
-        # print(f"DEBUG eval_rho_full: f.sum()={f.sum():.6f}, f.shape={f.shape}, apply_transformation={apply_transformation}")
         if self.coef_order == "qg":
             f_qg = f
         else:
@@ -2041,15 +1980,6 @@ class NLDFAuxiliaryPlan(ABC):
         for i in range(num_vj):
             a_g = self.get_interpolation_arguments(rho_tuple, i=i)[0]
             p, dp = self.get_interpolation_coefficients(a_g, i=i, dbuf=dbuf)
-            # print(f"DEBUG: Returned from get_interpolation_coefficients for feature {i}")
-            # Safer debug print - check if p is valid first
-            # try:
-            #     if p is not None and hasattr(p, 'sum'):
-            #         print(f"DEBUG: Feature {i}: p.shape={p.shape}, p.sum()={p.sum():.6f}, p[0,0]={p[0,0] if p.size > 0 else 0:.6f}")
-            #     else:
-            #         print(f"DEBUG: Feature {i}: p is invalid or None")
-            # except Exception as e:
-            #     print(f"DEBUG: Feature {i}: Error accessing p: {e}")
             if coeff_multipliers is not None:
                 p[:] *= coeff_multipliers[:, None]
                 dp[:] *= coeff_multipliers[:, None]
@@ -2060,7 +1990,6 @@ class NLDFAuxiliaryPlan(ABC):
                 )
             self.eval_rho_vj_(f_qg[: self.nalpha], [dp], dfeat[i : i + 1])
             self.eval_rho_vj_(f_qg[: self.nalpha], [p], feat[i : i + 1])
-            # print(f"DEBUG: Feature {i} result: feat[{i}].sum()={feat[i].sum():.6f}, feat[{i}][0]={feat[i][0] if feat[i].size > 0 else 0:.6f}")
             if cache_p:
                 self._cache_p_tensor(spin, p)
         start = 0 if self.nldf_settings.nldf_type == "i" else self.nalpha
@@ -2238,7 +2167,7 @@ class NLDFAuxiliaryPlan(ABC):
                 ctypes.c_int(self.nalpha),
             )
             return p, dp
-        else:  # TODO Apr25: this is where coefficients are obtained
+        else:
             return self._get_interpolation_coefficients(
                 arg_g, i=i, vbuf=vbuf, dbuf=dbuf
             )
@@ -2401,63 +2330,34 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
             p, _ = _get_ovlp_fit_interpolation_coefficients(
                 self, dense_alphas, i=i, local=False
             )
-            # print(f"DEBUG _run_setup: Feature i={i} raw p from C kernel: p[0]={p.flat[0]:.6f}, p.sum()={p.sum():.6f}, shape={p.shape}")
             if self.coef_order == "gq":
                 p = p.T
             p[:, :] *= self.alpha_norms[:, None]
-            # print(f"DEBUG _run_setup: Feature i={i} after alpha_norms multiply: p[0]={p.flat[0]:.6f}, p.sum()={p.sum():.6f}")
-
-            # Print full feature matrices for debugging
-            # np.set_printoptions(precision=4, suppress=True, linewidth=200, threshold=10000)
-            # print(f"DEBUG _run_setup: Feature i={i} Full p matrix:")
-            # print(p)
-            # print(f"DEBUG _run_setup: Feature i={i} Full ovlp matrix:")
-            # print(ovlp)
 
             if p.shape == ovlp.shape:
                 diff = np.max(np.abs(p * self.alpha_norms - ovlp))
-                # print(f"DEBUG _run_setup: Feature i={i} diff={diff:.2e}")
             else:
                 diff = 1e10
-                # print(f"DEBUG _run_setup: Feature i={i} shape mismatch, using diff=1e10")
             if diff > 1e-14:
                 coefs_qi = np.ascontiguousarray(_stable_solve(ovlp, p))
-                # print(f"DEBUG _run_setup: Feature i={i} Using linear solve: coefs_qi[0]={coefs_qi.flat[0]:.6f}")
             else:
                 coefs_qi = np.identity(p.shape[0]) / self.alpha_norms
-                # print(f"DEBUG _run_setup: Feature i={i} Using identity fallback: coefs_qi[0]={coefs_qi.flat[0]:.6f}")
             self._alpha_transform.append(
                 _construct_cubic_splines(coefs_qi, interp_indexes)
             )
         p, _ = _get_ovlp_fit_interpolation_coefficients(
             self, dense_alphas, i=-1, local=False
         )
-        # print(f"DEBUG _run_setup: THETA (i=-1) raw p from C kernel: p[0]={p.flat[0]:.6f}, p.sum()={p.sum():.6f}, shape={p.shape}")
         if self.coef_order == "gq":
             p = p.T
         p[:, :] *= self.alpha_norms[:, None]
-        # print(f"DEBUG _run_setup: THETA after alpha_norms multiply: p[0]={p.flat[0]:.6f}, p.sum()={p.sum():.6f}")
-        # coefs_qi = np.ascontiguousarray(_stable_solve(ovlp, p))
-        # print(f"DEBUG _run_setup: THETA p.shape={p.shape}, ovlp.shape={ovlp.shape}")
-
-        # Print full theta matrices for debugging
-        # np.set_printoptions(precision=4, suppress=True, linewidth=200, threshold=10000)
-        # print(f"DEBUG _run_setup: THETA Full p matrix:")
-        # print(p)
-        # print(f"DEBUG _run_setup: THETA Full ovlp matrix:")
-        # print(ovlp)
-        # print(f"DEBUG _run_setup: alpha_norms vector:")
-        # print(self.alpha_norms)
 
         if p.shape == ovlp.shape:
             diff = np.max(np.abs(p * self.alpha_norms - ovlp))
-            # print(f"DEBUG _run_setup: THETA Computed diff={diff:.2e}, comparing to 1e-14")
         else:
             diff = 1e10
-            # print(f"DEBUG _run_setup: Shapes don't match, setting diff=1e10")
         if diff > 1e-14:
             coefs_qi = np.ascontiguousarray(_stable_solve(ovlp, p))
-            # print(f"DEBUG _run_setup: After linear solve: coefs_qi[0]={coefs_qi.flat[0]:.6f}, coefs_qi.sum()={coefs_qi.sum():.6f}")
         else:
             coefs_qi = np.identity(p.shape[0]) / self.alpha_norms
         self._alpha_transform.append(_construct_cubic_splines(coefs_qi, interp_indexes))
@@ -2518,8 +2418,6 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
             w_kap = self._local_alpha_transform[i]
         else:
             w_kap = self._alpha_transform[i]
-        # print(f"DEBUG Spline _get_interpolation_coefficients: i={i}, arg_g[0]={arg_g.flat[0]:.6f}, arg_g.sum()={arg_g.sum():.6f}")
-        # print(f"DEBUG Spline: w_kap shape={w_kap.shape}, w_kap[0]={w_kap.flat[0]:.6f}, w_kap.sum()={w_kap.sum():.6f}")
         fn(
             p.ctypes.data_as(ctypes.c_void_p),
             dp.ctypes.data_as(ctypes.c_void_p),
@@ -2529,11 +2427,6 @@ class NLDFSplinePlan(NLDFAuxiliaryPlan):
             ctypes.c_int(nalpha),
             ctypes.c_double(self.lambd),
         )
-        # print(f"DEBUG Spline: After C spline call: p[0]={p.flat[0]:.6f}, p.sum()={p.sum():.6f}")
-        # Check if arrays are still valid before returning
-        # print(f"DEBUG Spline: Before return - p.shape={p.shape}, dp.shape={dp.shape}")
-        # print(f"DEBUG Spline: p memory valid? flags={p.flags}")
-        # print(f"DEBUG Spline: dp memory valid? flags={dp.flags}")
         return p, dp
 
     def _get_transformed_interpolation_terms(self, p_xx, i=-1, fwd=True, inplace=False):

@@ -251,7 +251,6 @@ void cider_coefs_gto_gq(double *p_ga, double *dp_ga, double *exp_g,
                         double *alphas, int ngrids, int nalpha, int featid,
                         double *extra_args) {
     double pi32 = pow(4 * atan(1.0), 1.5);
-    /* printf("DEBUG cider_coefs_gto_gq: featid=%d, ngrids=%d, nalpha=%d\n", featid, ngrids, nalpha); */
 #pragma omp parallel
     {
         double tmp, tmp1, tmp2;
@@ -286,7 +285,6 @@ void cider_coefs_gto_qg(double *p_ag, double *dp_ag, double *exp_g,
                         double *alphas, int ngrids, int nalpha, int featid,
                         double *extra_args) {
     double pi32 = pow(4 * atan(1.0), 1.5);
-    /* printf("DEBUG cider_coefs_gto_qg: featid=%d\n", featid); */
 #pragma omp parallel
     {
         double tmp, tmp1, tmp2;
@@ -417,15 +415,6 @@ void cider_ind_clip(double *di_g, double *derivi_g, int sizem1, int ngrids) {
 void cider_coefs_spline_gq(double *p_ga, double *dp_ga, double *di_g,
                            double *w_iap, int ngrids, int nalpha,
                            double lambd) {
-    /* Debug: Print first few spline coefficients and input values
-    if (ngrids > 0) {
-        fprintf(stderr, "DEBUG cider_coefs_spline_gq: ngrids=%d, nalpha=%d, lambd=%f\n",
-                ngrids, nalpha, lambd);
-        fprintf(stderr, "  -> di_g[0]=%f, di_g[1]=%f (input exponents)\n",
-                di_g[0], ngrids > 1 ? di_g[1] : 0.0);
-        fprintf(stderr, "  -> w_iap[0]=%f, w_iap[1]=%f (spline coefs)\n",
-                w_iap[0], w_iap[1]);
-    } */
 #pragma omp parallel
     {
         double di;
@@ -443,10 +432,6 @@ void cider_coefs_spline_gq(double *p_ga, double *dp_ga, double *di_g,
                 p_a[a] = w_p[0] + di * (w_p[1] + di * (w_p[2] + di * w_p[3]));
                 dp_a[a] = w_p[1] + di * (2 * w_p[2] + di * 3 * w_p[3]);
             }
-            /* Debug: Print result for first grid point
-            if (g == 0) {
-                fprintf(stderr, "  -> Result p_a[0]=%f (first grid point, first alpha)\n", p_a[0]);
-            } */
         }
     }
 }
