@@ -6,21 +6,21 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>descriptors &mdash; CiderPress 0.4.0 documentation</title>
+  <title>PySCF Descriptor Extraction &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=6c02275b"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="GPAW Interface" href="../gpaw/gpaw.html" />
-    <link rel="prev" title="analyzers" href="analyzers.html" /> 
+    <link rel="next" title="PySCF Numerical and Derivative Implementation" href="numerical.html" />
+    <link rel="prev" title="PySCF Electronic Analyzers" href="analyzers.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,25 +43,50 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Density and Orbital Features in CiderPress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../models/models.html">The Models Module</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="pyscf.html">PySCF Interface</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="dft.html">dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">pbc.dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="analyzers.html">analyzers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">descriptors</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pyscf.html">PySCF Interface and Numerical Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dft.html">PySCF Calculator Decoration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbc/dft.html">Periodic PySCF Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analyzers.html">PySCF Electronic Analyzers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PySCF Descriptor Extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.pyscf.descriptors.get_descriptors"><code class="docutils literal notranslate"><span class="pre">get_descriptors()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html">PySCF Numerical and Derivative Implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -78,8 +103,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="pyscf.html">PySCF Interface</a></li>
-      <li class="breadcrumb-item active">descriptors</li>
+          <li class="breadcrumb-item"><a href="pyscf.html">PySCF Interface and Numerical Modules</a></li>
+      <li class="breadcrumb-item active">PySCF Descriptor Extraction</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/pyscf/descriptors.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -89,13 +114,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="descriptors">
-<h1>descriptors<a class="headerlink" href="#descriptors" title="Link to this heading"></a></h1>
-<p>The <a class="reference internal" href="#module-ciderpress.pyscf.descriptors" title="ciderpress.pyscf.descriptors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.pyscf.descriptors</span></code></a> module provides the
-function <code class="xref py py-func docutils literal notranslate"><span class="pre">get_descriptors()</span></code>, which computes a
-set of requested CIDER features from a completed PySCF calculation.
-This is the utility used to generate the features
-for training CIDER models</p>
+  <section id="pyscf-descriptor-extraction">
+<h1>PySCF Descriptor Extraction<a class="headerlink" href="#pyscf-descriptor-extraction" title="Link to this heading"></a></h1>
+<p><a class="reference internal" href="#ciderpress.pyscf.descriptors.get_descriptors" title="ciderpress.pyscf.descriptors.get_descriptors"><code class="xref py py-func docutils literal notranslate"><span class="pre">ciderpress.pyscf.descriptors.get_descriptors()</span></code></a> evaluates one feature
+settings component on the fixed density and orbitals held by an analyzer.
+Semilocal, NLDF, and SDMX settings select their corresponding molecular
+generators.  Passing the component settings from a loaded model preserves its
+feature order and parameters.</p>
+<p>Leaving the orbital selectors unset gives an array with shape
+<code class="docutils literal notranslate"><span class="pre">(nspin,</span> <span class="pre">nfeature,</span> <span class="pre">ngrid)</span></code>.  Orbital selectors request fixed-orbital
+occupation derivatives and return the descriptor array, a nested derivative
+dictionary, and the selected orbital energies.  Selectors can count from the
+bottom, highest occupied orbital, or lowest unoccupied orbital as documented
+by the function.</p>
+<p>See <a class="reference internal" href="../../workflows/descriptors.html"><span class="doc">Inspecting Densities and Descriptors</span></a> for an example and the returned
+array layout.</p>
 <p id="module-ciderpress.pyscf.descriptors">This module is for fast evaluation of features and their derivatives with
 respect to orbital occupations and rotations. Only for b and d features</p>
 <dl class="py function">
@@ -159,14 +192,14 @@ for the eigenvalues.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="analyzers.html" class="btn btn-neutral float-left" title="analyzers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../gpaw/gpaw.html" class="btn btn-neutral float-right" title="GPAW Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="analyzers.html" class="btn btn-neutral float-left" title="PySCF Electronic Analyzers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="numerical.html" class="btn btn-neutral float-right" title="PySCF Numerical and Derivative Implementation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

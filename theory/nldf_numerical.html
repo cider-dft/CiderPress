@@ -6,21 +6,21 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Numerical Evaluation of NLDF Features &mdash; CiderPress 0.4.0 documentation</title>
+  <title>Numerical Evaluation of NLDF Features &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c02275b"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Density and Orbital Features in CiderPress" href="../features/features.html" />
+    <link rel="next" title="Numerical Evaluation in PySCF and GPAW" href="numerical_evaluation.html" />
     <link rel="prev" title="Machine Learning Framework for CIDER Functionals" href="gp.html" /> 
 </head>
 
@@ -44,21 +44,55 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theory Overview</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="theory.html">Theory and Functional Design</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="framework.html">The CIDER Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="uniform_scaling.html">Uniform Scaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="full_xc.html">From Exchange Models to Full XC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gp.html">Machine Learning Framework for CIDER Functionals</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Numerical Evaluation of NLDF Features</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Numerical Evaluation of NLDF Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kernel-expansion">Kernel expansion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exponent-coefficients-and-spatial-convolutions">Exponent coefficients and spatial convolutions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#molecular-auxiliary-basis-algorithm">Molecular auxiliary-basis algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#periodic-fft-and-paw-algorithm">Periodic FFT and PAW algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numerical-parameters">Numerical parameters</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Density and Orbital Features in CiderPress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">The Models Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_evaluation.html">Numerical Evaluation in PySCF and GPAW</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -75,7 +109,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="theory.html">Theory Overview</a></li>
+          <li class="breadcrumb-item"><a href="theory.html">Theory and Functional Design</a></li>
       <li class="breadcrumb-item active">Numerical Evaluation of NLDF Features</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/theory/nldf_numerical.rst.txt" rel="nofollow"> View page source</a>
@@ -88,39 +122,211 @@
              
   <section id="numerical-evaluation-of-nldf-features">
 <span id="nldf-numerical"></span><h1>Numerical Evaluation of NLDF Features<a class="headerlink" href="#numerical-evaluation-of-nldf-features" title="Link to this heading"></a></h1>
-<p>Computing <a class="reference internal" href="../features/nldf.html#nldf-feat"><span class="std std-ref">Nonlocal Density Features</span></a> (NLDFs) using simple
-numerical integration can be unwieldy and computationally costly, so in
-practical calculations, the feature integrals are expanded as a sum
-of convolutions. The expansion is slightly different for each
-feature version.</p>
-<p>For version j, the general form of the feature is</p>
+<p>The packaged CIDER23X and CIDER26XC models use the Version-J algorithm.  Its
+feature definition and exponent parameterization are given in
+<a class="reference internal" href="../features/nldf.html"><span class="doc">Nonlocal Density Features (NLDF)</span></a>.  The numerical construction follows the kernel
+expansion introduced for CIDER23X, which adapts the convolution method of
+Román-Pérez and Soler to density-dependent CIDER kernels.
+<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a><a class="footnote-reference brackets" href="#footcite-roman-perez2009" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p>
+<section id="kernel-expansion">
+<h2>Kernel expansion<a class="headerlink" href="#kernel-expansion" title="Link to this heading"></a></h2>
+<p>Suppressing the constant normalization of the feature, a Version-J NLDF is</p>
 <div class="math notranslate nohighlight">
-\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')\]</div>
-<p>In the context of implementing a nonlocal van der Waals density functional, Román-Pérez and Soler<a class="footnote-reference brackets" href="#footcite-roman-perez2009" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
-found that the kernel <span class="math notranslate nohighlight">\(k(a_0[n](\mathbf{r}'), a_i(\mathbf{r}), |\mathbf{r}-\mathbf{r}'|)\)</span>
-can be approximated as</p>
+\[G_i(\mathbf r)
+= \int \mathrm d^3\mathbf r'\,
+  \Phi\!\left(a_0(\mathbf r'),a_i(\mathbf r),
+  |\mathbf r-\mathbf r'|\right)n(\mathbf r'),\]</div>
+<p>where</p>
 <div class="math notranslate nohighlight">
-\[k(a, b, r) \approx \sum_\alpha \sum_\beta k(\alpha, \beta, r) p_\alpha(a) p_\beta(b)\]</div>
-<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> are a set of interpolating points that span the range
-of values taken by <span class="math notranslate nohighlight">\(a_0\)</span> and <span class="math notranslate nohighlight">\(a_i\)</span> over the density distribution,
-and <span class="math notranslate nohighlight">\(p_\alpha(a)\)</span> is a cubic spline that is <span class="math notranslate nohighlight">\(1\)</span> when <span class="math notranslate nohighlight">\(a=\alpha\)</span> and <span class="math notranslate nohighlight">\(0\)</span>
-when <span class="math notranslate nohighlight">\(a=\beta\)</span> (with <span class="math notranslate nohighlight">\(\beta\)</span> being another interpolation point not equal to <span class="math notranslate nohighlight">\(\alpha\)</span>).
-Because the interpolation points are constants independent of the density, the above approximation
-converts the feature integral into a sum over convolutions.</p>
-<p>The <a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.dft.plans.NLDFSplinePlan</span></code></a> class implements this interpolation
-approach.</p>
-<p>The version j integration kernel <span class="math notranslate nohighlight">\(k(a, b, r)\)</span> is separable in <span class="math notranslate nohighlight">\(a\)</span> and <span class="math notranslate nohighlight">\(b\)</span>:</p>
+\[\Phi(a,b,R)=\exp[-(a+b)R^2].\]</div>
+<p>The density-dependent exponents are represented on a finite set of positive
+values <span class="math notranslate nohighlight">\(\{q_\alpha\}\)</span>.  Source and target interpolation functions give</p>
 <div class="math notranslate nohighlight">
-\[k(a, b, r) = \exp(-(a+b)r^2) = \exp(-a r^2) \exp(-b r^2)\]</div>
-<p>Because of this, the interpolations can also be performed by expanding <span class="math notranslate nohighlight">\(\exp(-a r^2)\)</span>
-as a linear combination of the interpolation functions <span class="math notranslate nohighlight">\(\exp(-\alpha r^2)\)</span>. This
-modified approach is implemented by the <a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFGaussianPlan" title="ciderpress.dft.plans.NLDFGaussianPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">ciderpress.dft.plans.NLDFGaussianPlan</span></code></a> class.</p>
-<p>The details of how this interpolation approximation is used to compute the NLDFs
-is dependent on the periodicity, type of grid, and type of basis set used in a DFT
-calculation. For details on the implementation of this approach for isolated Gaussian-type
-orbital calculations and periodic plane-wave DFT calculations, see Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
-<p>The other features versions (i and k) require slightly modified version of this approach,
-but the basic idea is the same and the implementation quite similar.</p>
+\[\Phi(a,b,R)
+\simeq \sum_{\alpha\beta}
+p^a_\alpha(a)\,\Phi_{\alpha\beta}(R)\,p^b_\beta(b),
+\qquad
+\Phi_{\alpha\beta}(R)
+= \exp[-(q_\alpha+q_\beta)R^2].\]</div>
+<p>This is Equation 61 of the CIDER23X paper.  It converts the feature into three
+operations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\theta_\alpha(\mathbf r')
+&amp;= p^a_\alpha(a_0(\mathbf r'))n(\mathbf r'), \\
+F_\beta(\mathbf r)
+&amp;= \sum_\alpha \int \mathrm d^3\mathbf r'\,
+   \Phi_{\alpha\beta}(|\mathbf r-\mathbf r'|)
+   \theta_\alpha(\mathbf r'), \\
+G_i(\mathbf r)
+&amp;\simeq \sum_\beta
+   p^b_\beta(a_i(\mathbf r))F_\beta(\mathbf r).\end{split}\]</div>
+<p>Only the middle line is spatially nonlocal, and every kernel in that line is
+independent of the density.  CiderPress therefore evaluates a finite set of
+ordinary convolutions and performs local interpolation before and after them.</p>
+<p>The potential applies the transpose of the same discrete operations.  It
+first propagates <span class="math notranslate nohighlight">\(\partial E_{\mathrm{xc}}/\partial G_i\)</span> through the
+target coefficients, applies the adjoint convolution, and then differentiates
+the source coefficients and source density.  Derivatives of
+<span class="math notranslate nohighlight">\(p_\alpha(a)\)</span> supply the response of the semilocal exponents
+<span class="math notranslate nohighlight">\(a_0[n]\)</span> and <span class="math notranslate nohighlight">\(a_i[n]\)</span>.</p>
+</section>
+<section id="exponent-coefficients-and-spatial-convolutions">
+<h2>Exponent coefficients and spatial convolutions<a class="headerlink" href="#exponent-coefficients-and-spatial-convolutions" title="Link to this heading"></a></h2>
+<p>Exponent interpolation and spatial convolution are separate numerical
+choices.  Their implementation objects are:</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Numerical representations used in the NLDF evaluator</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 30.0%" />
+<col style="width: 48.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Operation</p></th>
+<th class="head"><p>Implementation</p></th>
+<th class="head"><p>Representation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Exponent coefficients</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFGaussianPlan" title="ciderpress.dft.plans.NLDFGaussianPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFGaussianPlan</span></code></a></p></td>
+<td><p>Projects <span class="math notranslate nohighlight">\(\exp(-aR^2)\)</span> onto the Gaussian functions at
+<span class="math notranslate nohighlight">\(q_\alpha\)</span> using their overlap matrix, as in CIDER23X
+Equations 63–65.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Exponent coefficients</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a></p></td>
+<td><p>Tabulates the projection coefficients as functions of the exponent
+coordinate and evaluates them with cubic splines.</p></td>
+</tr>
+<tr class="row-even"><td><p>Molecular convolution</p></td>
+<td><p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator" title="ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyscfNLDFGenerator</span></code></a></p></td>
+<td><p>Expands the spatial source and convolved fields in atom-centered
+Gaussian auxiliary bases.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Periodic convolution</p></td>
+<td><p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.nldf_interface.LibCiderPW" title="ciderpress.gpaw.nldf_interface.LibCiderPW"><code class="xref py py-class docutils literal notranslate"><span class="pre">LibCiderPW</span></code></a></p></td>
+<td><p>Applies the fixed kernels on the distributed reciprocal-space grid.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The current PySCF default uses <a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a>
+for the exponent coefficients.  Its spatial convolution still uses the
+atom-centered Gaussian auxiliary bases described below.  GPAW also uses
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a>, with an even-tempered exponent
+grid <span class="math notranslate nohighlight">\(q_\alpha=q_0\lambda^\alpha\)</span>.</p>
+</section>
+<section id="molecular-auxiliary-basis-algorithm">
+<h2>Molecular auxiliary-basis algorithm<a class="headerlink" href="#molecular-auxiliary-basis-algorithm" title="Link to this heading"></a></h2>
+<p>The molecular path implements the CIDER23X construction of Equations 67–78.
+For each source channel, it performs the following sequence:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="../ciderpress/pyscf/numerical.html#ciderpress.pyscf.gen_cider_grid.CiderGrids" title="ciderpress.pyscf.gen_cider_grid.CiderGrids"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGrids</span></code></a> records the atomic
+radial and angular structure of PySCF’s partitioned quadrature grid.</p></li>
+<li><p><a class="reference internal" href="../ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_nldf_generator.LCAONLDFGenerator" title="ciderpress.dft.lcao_nldf_generator.LCAONLDFGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LCAONLDFGenerator</span></code></a> forms
+<span class="math notranslate nohighlight">\(\theta_\alpha\)</span> on that grid, resolves each atomic contribution into
+spherical harmonics, and projects the radial components onto an
+even-tempered Gaussian auxiliary basis.</p></li>
+<li><p><a class="reference internal" href="../ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_convolutions.ConvolutionCollection" title="ciderpress.dft.lcao_convolutions.ConvolutionCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvolutionCollection</span></code></a> applies
+analytically evaluated Gaussian convolution integrals to obtain the
+coefficients of <span class="math notranslate nohighlight">\(F_\beta\)</span> in a second auxiliary basis.</p></li>
+<li><p><a class="reference internal" href="../ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_interpolation.LCAOInterpolatorDirect" title="ciderpress.dft.lcao_interpolation.LCAOInterpolatorDirect"><code class="xref py py-class docutils literal notranslate"><span class="pre">LCAOInterpolatorDirect</span></code></a> evaluates
+the convolved fields on the molecular quadrature grid.  The target
+coefficients then produce <span class="math notranslate nohighlight">\(G_i\)</span>.</p></li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">LCAONLDFGenerator.get_potential</span></code> call in
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/9ab3d3aad184f486b6f5c04f1e91441536a93b03/ciderpress/dft/lcao_nldf_generator.py">ciderpress/dft/lcao_nldf_generator.py</a> reverses this sequence using
+the stored forward intermediates.  Analytical nuclear gradients also
+differentiate the atomic partition, auxiliary projection, and grid
+interpolation; see
+<a class="reference internal" href="../ciderpress/pyscf/numerical.html"><span class="doc">PySCF Numerical and Derivative Implementation</span></a>.</p>
+</section>
+<section id="periodic-fft-and-paw-algorithm">
+<h2>Periodic FFT and PAW algorithm<a class="headerlink" href="#periodic-fft-and-paw-algorithm" title="Link to this heading"></a></h2>
+<p>For a periodic cell, the Fourier transform of a fixed Gaussian kernel is</p>
+<div class="math notranslate nohighlight">
+\[\widetilde\Phi_{\alpha\beta}(\mathbf k)
+= \left(\frac{\pi}{q_\alpha+q_\beta}\right)^{3/2}
+  \exp\!\left[-\frac{|\mathbf k|^2}
+  {4(q_\alpha+q_\beta)}\right].\]</div>
+<p><a class="reference internal" href="../ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_fft" title="ciderpress.gpaw.cider_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code></a> constructs the source interpolation
+coefficients and passes the source channels to
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html#ciderpress.gpaw.nldf_interface.LibCiderPW" title="ciderpress.gpaw.nldf_interface.LibCiderPW"><code class="xref py py-class docutils literal notranslate"><span class="pre">LibCiderPW</span></code></a>.  The compiled evaluator
+transforms them to reciprocal space, multiplies by
+<span class="math notranslate nohighlight">\(\widetilde\Phi_{\alpha\beta}\)</span>, and transforms the convolved fields back
+to the real-space grid.  Target interpolation produces the NLDFs.  The reverse
+calls supply the smooth-grid potential and the reciprocal-kernel contribution
+to stress.</p>
+<p>The smooth density in PAW lacks the all-electron source inside augmentation
+spheres.  PASDW augments the source before the FFT so that the convolved field
+has the correct exterior behavior, then projects that field onto atomic
+support grids for the all-electron-minus-pseudo energy and potential
+correction.  This is the construction in CIDER23X Equations 82–98. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+Its equations and implementation objects are documented in
+<a class="reference internal" href="../ciderpress/gpaw/numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a>.</p>
+</section>
+<section id="numerical-parameters">
+<h2>Numerical parameters<a class="headerlink" href="#numerical-parameters" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Parameters that define the NLDF discretization</span><a class="headerlink" href="#id6" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 24.0%" />
+<col style="width: 52.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Parameter</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>GPAW</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qmax</span></code></p></td>
+<td><p>Largest interpolation exponent, in inverse bohr squared.</p></td>
+</tr>
+<tr class="row-odd"><td><p>GPAW</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lambd</span></code></p></td>
+<td><p>Ratio between adjacent exponents.  With an automatically selected
+<code class="docutils literal notranslate"><span class="pre">Nalpha</span></code>, a smaller ratio gives a denser exponent grid.</p></td>
+</tr>
+<tr class="row-even"><td><p>GPAW</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nalpha</span></code></p></td>
+<td><p>Number of exponent channels.  The value is inferred from <code class="docutils literal notranslate"><span class="pre">qmax</span></code>,
+<code class="docutils literal notranslate"><span class="pre">lambd</span></code>, and the model exponents when omitted.</p></td>
+</tr>
+<tr class="row-odd"><td><p>PySCF</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">alpha_min</span></code>, <code class="docutils literal notranslate"><span class="pre">alpha_max</span></code>, <code class="docutils literal notranslate"><span class="pre">aux_lambd</span></code></p></td>
+<td><p>Exponent range and spacing used when constructing the molecular NLDF
+generator.</p></td>
+</tr>
+<tr class="row-even"><td><p>PySCF</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lmax</span></code>, <code class="docutils literal notranslate"><span class="pre">aug_beta</span></code></p></td>
+<td><p>Angular truncation and spacing of the atom-centered auxiliary basis.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The host quadrature or real-space grid adds another discretization to these
+kernel and auxiliary representations.  PAW calculations also contain the
+finite PASDW projection bases described on the GPAW implementation page.</p>
+<p>The features described above are labeled the Verion-J NLDF features.
+Version-I and Version-K definitions are listed in <a class="reference internal" href="../features/nldf.html"><span class="doc">Nonlocal Density Features (NLDF)</span></a>.
+They are experimental features and are not used in the packaged Version-J
+functionals described here.</p>
+<div class="docutils container" id="id4">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-roman-perez2009" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Guillermo Román-Pérez and José M Soler. Efficient Implementation of a van der Waals Density Functional: Application to Double-Wall Carbon Nanotubes. <em>Phys. Rev. Lett.</em>, 103(9):096102, August 2009. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.103.096102">doi:10.1103/PhysRevLett.103.096102</a>.</p>
+</aside>
+</aside>
+</div>
+</section>
 </section>
 
 
@@ -128,13 +334,13 @@ but the basic idea is the same and the implementation quite similar.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="gp.html" class="btn btn-neutral float-left" title="Machine Learning Framework for CIDER Functionals" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../features/features.html" class="btn btn-neutral float-right" title="Density and Orbital Features in CiderPress" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="numerical_evaluation.html" class="btn btn-neutral float-right" title="Numerical Evaluation in PySCF and GPAW" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

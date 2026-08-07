@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training and Mapping Workflow &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Extending CiderPress" href="extending.html" />
+    <link rel="prev" title="Inspecting Densities and Descriptors" href="descriptors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="workflows.html">Model and Descriptor Workflows</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models.html">Model Objects and Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">Inspecting Densities and Descriptors</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Training and Mapping Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#electronic-data-expected-by-the-model-layer">Electronic data expected by the model layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integrated-observations">Integrated observations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sparse-gaussian-process-fit">Sparse Gaussian-process fit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#self-consistent-full-xc-training">Self-consistent full-XC training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mapping-and-validation">Mapping and validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="extending.html">Extending CiderPress</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="workflows.html">Model and Descriptor Workflows</a></li>
+      <li class="breadcrumb-item active">Training and Mapping Workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/workflows/training.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="training-and-mapping-workflow">
+<h1>Training and Mapping Workflow<a class="headerlink" href="#training-and-mapping-workflow" title="Link to this heading"></a></h1>
+<p>CiderPress supplies feature, covariance, fitting, and mapping primitives for
+constructing CIDER models with Gaussian process regression.
+Reference calculations, dataset assembly, and job scheduling
+are external to the model layer.</p>
+<section id="electronic-data-expected-by-the-model-layer">
+<h2>Electronic data expected by the model layer<a class="headerlink" href="#electronic-data-expected-by-the-model-layer" title="Link to this heading"></a></h2>
+<p>For each electronic system, the training layer consumes arrays generated with
+one consistent feature definition:</p>
+<ul class="simple">
+<li><p>quadrature weights and spin-resolved semilocal density ingredients;</p></li>
+<li><p>normalized descriptor blocks in their serialized order;</p></li>
+<li><p>total-energy and XC baseline terms used to form the training target;</p></li>
+<li><p>exact-exchange values when exchange is an explicit training target;</p></li>
+<li><p>orbital-occupation derivatives when eigenvalue data are included; and</p></li>
+<li><p>optional correction values and metadata associated with the reference calculation.</p></li>
+</ul>
+<p><a class="reference internal" href="../ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer" title="ciderpress.pyscf.analyzers.ElectronAnalyzer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronAnalyzer</span></code></a> and the descriptor tools
+in <a class="reference internal" href="descriptors.html"><span class="doc">Inspecting Densities and Descriptors</span></a> provide these electronic arrays.  Their stored geometry,
+basis or PAW representation, density-generating functional, grid, spin, and
+orbital conventions define the metadata of a system record.</p>
+</section>
+<section id="integrated-observations">
+<h2>Integrated observations<a class="headerlink" href="#integrated-observations" title="Link to this heading"></a></h2>
+<p>CIDER fits integrated energies and their linear combinations (as opposed to
+the energy densities directly predicted by the model).  This allows one to
+fit the total XC energies of chemical systems and relative energies of chemical
+systems, which can be applied to fitting reaction energies, barrier heights,
+interaction energies, equations of state, ionization potentials, and more.
+In CiderPress, all these properties are expressed as linear combinations
+of the energies of chemical systems and referred to as “reactions.” A reaction
+record gives the member identifiers, stoichiometric coefficients, reference
+energy, unit conversion, and observation noise.  The model evaluates the
+explicit Kohn–Sham and additive baseline contributions on the same systems,
+then fits the residual assigned to the learned component.</p>
+<p>It is also possible to fit the derivative of a system’s energy with respect
+the occupation number of a given Kohn-Sham orbital (along with linear
+combinations of these derivatives) within the same reaction framework
+described above. This approach enables
+direct fitting of orbital properties like band gaps. <a class="footnote-reference brackets" href="#footcite-cider24x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p>
+<p>A <a class="reference internal" href="../ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel" title="ciderpress.models.dft_kernel.DFTKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFTKernel</span></code></a> couples transformed
+descriptors to a differentiable covariance kernel, an energy multiplier, an
+additive baseline, and a control-point set.  <code class="docutils literal notranslate"><span class="pre">DFTKernel2</span></code> supplies the
+libxc-based baseline interface used by full-XC models.  Multiple kernels can
+represent separate exchange and correlation terms and contribute to the same
+reaction labels.</p>
+</section>
+<section id="sparse-gaussian-process-fit">
+<h2>Sparse Gaussian-process fit<a class="headerlink" href="#sparse-gaussian-process-fit" title="Link to this heading"></a></h2>
+<p>For each kernel, integrated covariances with the control points form the
+columns of <code class="docutils literal notranslate"><span class="pre">Kmn</span></code>.  <code class="docutils literal notranslate"><span class="pre">Kmm</span></code> is the covariance matrix among control points.
+The system covariance is</p>
+<div class="math notranslate nohighlight">
+\[\mathbf K_\mathrm{sys}
+= \mathbf K_{mn}^{\mathsf T}\mathbf K_{mm}^{-1}\mathbf K_{mn}.\]</div>
+<p>Independent learned components contribute additive system covariance
+matrices.  <a class="reference internal" href="../ciderpress/models/train.html#ciderpress.models.train.MOLGP.fit" title="ciderpress.models.train.MOLGP.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ciderpress.models.train.MOLGP.fit()</span></code></a> solves their shared noisy
+system problem and converts the resulting system weights into one set of
+control-point coefficients per kernel.  The complete predictive-mean
+derivation is in <a class="reference internal" href="../theory/gp.html"><span class="doc">Machine Learning Framework for CIDER Functionals</span></a>.</p>
+<p>A typical construction sequence is:</p>
+<ol class="arabic simple">
+<li><p>Create feature settings, normalizers, transforms, and differentiable
+kernels.</p></li>
+<li><p>Select control points that cover the transformed feature distribution.</p></li>
+<li><p>Store each system’s integrated covariance, explicit baseline, and any
+requested occupation derivatives.</p></li>
+<li><p>Assemble reaction or constraint observations with their units and noise.</p></li>
+<li><p>Fit the shared system covariance problem.</p></li>
+<li><p>Map each kernel to its selected inference evaluator and validate the
+mapped object.</p></li>
+</ol>
+</section>
+<section id="self-consistent-full-xc-training">
+<h2>Self-consistent full-XC training<a class="headerlink" href="#self-consistent-full-xc-training" title="Link to this heading"></a></h2>
+<p>For a full-XC reaction-energy model, orbital relaxation changes the density
+and therefore the descriptors, baselines, and residual labels.  An iterative
+workflow can regenerate those quantities on densities produced by the current
+model and refit the GP.  Comparisons between fixed-density and
+self-consistent predictions measure convergence of that outer procedure.</p>
+<p>The CIDER26XC work uses this approach together with reaction-specific noise
+and uniform-electron-gas constraints. <a class="footnote-reference brackets" href="#footcite-cider26xc" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>  Dataset
+selection, weighting policy, hyperparameter selection, and stopping criteria
+are inputs supplied by the surrounding training workflow.</p>
+</section>
+<section id="mapping-and-validation">
+<h2>Mapping and validation<a class="headerlink" href="#mapping-and-validation" title="Link to this heading"></a></h2>
+<p>The mapping step creates the inference evaluator described in <a class="reference internal" href="models.html"><span class="doc">Model Objects and Mapping</span></a>.
+Mapping tests compare pointwise energies and derivatives, integrated
+fixed-density values, self-consistent composition, serialized metadata, and
+backend derivatives at matching numerical settings.  The published artifact
+adds a stable filename and checksum.</p>
+<p>The relevant APIs are <a class="reference internal" href="../ciderpress/models/train.html#module-ciderpress.models.train" title="ciderpress.models.train"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.train</span></code></a>,
+<a class="reference internal" href="../ciderpress/models/dft_kernel.html#module-ciderpress.models.dft_kernel" title="ciderpress.models.dft_kernel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.dft_kernel</span></code></a>,
+<a class="reference internal" href="../ciderpress/models/kernels.html#module-ciderpress.models.kernels" title="ciderpress.models.kernels"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.kernels</span></code></a>, and
+<a class="reference internal" href="../ciderpress/models/kernel_tools.html#module-ciderpress.models.kernel_plans.kernel_tools" title="ciderpress.models.kernel_plans.kernel_tools"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.models.kernel_plans.kernel_tools</span></code></a>.</p>
+<div class="docutils container" id="id3">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-cider24x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom, Stefano Falletta, and Boris Kozinsky. Training machine-learned density functionals on band gaps. <em>Journal of Chemical Theory and Computation</em>, 20(17):7516–7532, 2024. PMID: 39178337. URL: <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">https://doi.org/10.1021/acs.jctc.4c00999</a>, <a class="reference external" href="https://doi.org/10.1021/acs.jctc.4c00999">doi:10.1021/acs.jctc.4c00999</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-cider26xc" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Mohamed Samy Abdallah, Zhuotao Jin, Boris Kozinsky, and Kyle Bystrom. Machine-learned exchange-correlation functionals in the cider framework and application to chemistry and surface science. Manuscript forthcoming; public identifier pending, 2026.</p>
+</aside>
+</aside>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="descriptors.html" class="btn btn-neutral float-left" title="Inspecting Densities and Descriptors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="extending.html" class="btn btn-neutral float-right" title="Extending CiderPress" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

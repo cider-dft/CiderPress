@@ -6,22 +6,22 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Density and Orbital Features in CiderPress &mdash; CiderPress 0.4.0 documentation</title>
+  <title>Electronic Features in CiderPress &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c02275b"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Semilocal Features (SL)" href="sl.html" />
-    <link rel="prev" title="Numerical Evaluation of NLDF Features" href="../theory/nldf_numerical.html" /> 
+    <link rel="prev" title="Numerical Evaluation in PySCF and GPAW" href="../theory/numerical_evaluation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,22 +44,49 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Density and Orbital Features in CiderPress</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Electronic Features in CiderPress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#feature-families">Feature families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#representation-in-the-code">Representation in the code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">The Models Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -76,7 +103,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Density and Orbital Features in CiderPress</li>
+      <li class="breadcrumb-item active">Electronic Features in CiderPress</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/features/features.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -86,57 +113,145 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="density-and-orbital-features-in-ciderpress">
-<h1>Density and Orbital Features in CiderPress<a class="headerlink" href="#density-and-orbital-features-in-ciderpress" title="Link to this heading"></a></h1>
-<p>To predict the exchange-correlation energy <span class="math notranslate nohighlight">\(E_{\text{xc}}\)</span>, we need
-to train a machine learning model <span class="math notranslate nohighlight">\(e_{\text{xc}}(\mathbf{x})\)</span> such that</p>
+  <section id="electronic-features-in-ciderpress">
+<h1>Electronic Features in CiderPress<a class="headerlink" href="#electronic-features-in-ciderpress" title="Link to this heading"></a></h1>
+<p>CIDER models predict a grid-resolved exchange or exchange-correlation energy
+density from an electronic feature vector.  Density-based models use
+functionals of <span class="math notranslate nohighlight">\(n(\mathbf r)\)</span>; generalized Kohn–Sham models may also
+depend on the one-particle density matrix
+<span class="math notranslate nohighlight">\(n_1(\mathbf r,\mathbf r')\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[E_{\text{xc}} = \int \text{d}^3\mathbf{r}\, e_\text{xc}(\mathbf{x}[n_1](\mathbf{r}))\]</div>
-<p>where <span class="math notranslate nohighlight">\(\mathbf{x}[n_1](\mathbf{r})\)</span> is a position-dependent feature vector that is
-a functional of the density <span class="math notranslate nohighlight">\(n(\mathbf{r})\)</span> in “pure” Kohn-Sham DFT and a
-functional of the density matrix <span class="math notranslate nohighlight">\(n_1(\mathbf{r}, \mathbf{r}')\)</span> in the case of
-“generalized” Kohn-Sham DFT. Cider provides several types of feature that can
-be used as input to the ML model. These features
-can be divided into four categories:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="sl.html#sl-feat"><span class="std std-ref">Semilocal Features (SL)</span></a>: Same features as in conventional GGA/meta-GGA functionals (i.e. <span class="math notranslate nohighlight">\(n\)</span>, <span class="math notranslate nohighlight">\(\nabla n\)</span>, <span class="math notranslate nohighlight">\(\tau\)</span>).
-NOTE: All Cider models must include semilocal features.
-They need not be used explicitly in the model, but evaluating
-them is required to evalute baseline functionals and other quantities in the code.</p></li>
-<li><p><a class="reference internal" href="nldf.html#nldf-feat"><span class="std std-ref">Nonlocal Density Features (NLDF)</span></a>: These features are constructed by integrating the density
-over a real-space kernel function to characterize the shape of the density around a point <span class="math notranslate nohighlight">\(\mathbf{r}\)</span>.</p></li>
-<li><p><a class="reference internal" href="nlof.html#nlof-feat"><span class="std std-ref">Nonlocal Orbital Features (NLOF)</span></a>: EXPERIMENTAL, NOT TESTED, NOT RECOMMENDED FOR USE.
-One coordinate of the density matrix is operated on by a fractional Laplacian.</p></li>
-<li><p><a class="reference internal" href="sdmx.html#sdmx-feat"><span class="std std-ref">Smooth Density Matrix Exchange (SDMX)</span></a>:
-One coordinate of the density matrix is convolved at different length scales. Then these convolutions
-are contracted to approximately characterize the shape of the density matrix around a point <span class="math notranslate nohighlight">\(\mathbf{r}\)</span>.</p></li>
-</ul>
-<p>The set of features to be used in a model is specified using the <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSettings</span></code> object. To see
-the code API for setting up feature settings, see the <a class="reference internal" href="../ciderpress/dft/settings.html#settings-module"><span class="std std-ref">Settings module</span></a> section. To see
-mathematical descriptions and physical intuition for the different types of features, see
-the subsections below.</p>
+\[E_{\mathrm{xc}} = \int d^3\mathbf r\,
+e_{\mathrm{xc}}\!\left(\mathbf x[n,n_1](\mathbf r)\right).\]</div>
+<p>The feature representation determines what spatial information is available
+to the regression, which exact scaling behavior can be imposed, which
+backends can evaluate the model, and which derivatives are available.  The
+serialized feature representation is part of the functional definition.</p>
+<section id="feature-families">
+<h2>Feature families<a class="headerlink" href="#feature-families" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Electronic information exposed by each feature family</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 29.0%" />
+<col style="width: 28.0%" />
+<col style="width: 27.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Family</p></th>
+<th class="head"><p>Inputs</p></th>
+<th class="head"><p>Information represented</p></th>
+<th class="head"><p>Packaged use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="sl.html#sl-feat"><span class="std std-ref">SL</span></a></p></td>
+<td><p>Density, gradient, and optionally kinetic-energy density</p></td>
+<td><p>Local GGA or meta-GGA environment</p></td>
+<td><p>Present in every packaged family</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="nldf.html#nldf-feat"><span class="std std-ref">NLDF</span></a></p></td>
+<td><p>Density integrated through density-dependent real-space kernels</p></td>
+<td><p>Rotationally invariant finite-neighborhood density shape</p></td>
+<td><p>CIDER23X and CIDER26XC</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="sdmx.html#sdmx-feat"><span class="std std-ref">SDMX</span></a></p></td>
+<td><p>Smoothed one-particle density matrix</p></td>
+<td><p>Approximate exchange-hole and orbital information</p></td>
+<td><p>CIDER24X</p></td>
+</tr>
+</tbody>
+</table>
+<p>Every packaged model begins with a semilocal block.  Its density ingredients
+also enter the energy baselines, kernel length scales, normalization factors,
+and low-density regularization.</p>
+</section>
+<section id="representation-in-the-code">
+<h2>Representation in the code<a class="headerlink" href="#representation-in-the-code" title="Link to this heading"></a></h2>
+<p>For each grid point, CiderPress evaluates raw features <span class="math notranslate nohighlight">\(\mathbf X_0\)</span>,
+applies the model’s physical normalizers <span class="math notranslate nohighlight">\(\mathcal N\)</span>, and then applies
+the bounded feature maps <span class="math notranslate nohighlight">\(\mathcal T\)</span> used by the regression:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf X_0(\mathbf r)
+\xrightarrow{\mathcal N}
+\widetilde{\mathbf X}_0(\mathbf r)
+\xrightarrow{\mathcal T}
+\mathbf X_1(\mathbf r)
+\xrightarrow{f_{\mathrm{ML}}}
+e_{\mathrm{xc}}(\mathbf r).\]</div>
+<p>The corresponding objects are:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Feature representation objects</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 36.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Class</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Feature declaration</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings" title="ciderpress.dft.settings.FeatureSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSettings</span></code></a></p></td>
+<td><p>Stores the ordered semilocal, NLDF, or SDMX settings used by a model</p></td>
+</tr>
+<tr class="row-odd"><td><p>Physical normalization</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizerList" title="ciderpress.dft.feat_normalizer.FeatNormalizerList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatNormalizerList</span></code></a></p></td>
+<td><p>Converts the raw feature powers to the representation expected by the
+energy form</p></td>
+</tr>
+<tr class="row-even"><td><p>Bounded feature map</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.FeatureList" title="ciderpress.dft.transform_data.FeatureList"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureList</span></code></a></p></td>
+<td><p>Maps normalized features to the coordinates of one regression kernel</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mapped evaluator</p></td>
+<td><p><a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
+<a class="reference internal" href="../ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a></p></td>
+<td><p>Evaluates the mapped exchange or full-XC model and its derivatives</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings" title="ciderpress.dft.settings.SemilocalSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SemilocalSettings</span></code></a>,
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a>, and
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXSettings" title="ciderpress.dft.settings.SDMXSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXSettings</span></code></a> define the individual feature
+blocks.  Their numerical plans are implemented by
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan" title="ciderpress.dft.plans.SemilocalPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SemilocalPlan</span></code></a>,
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan" title="ciderpress.dft.plans.NLDFSplinePlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSplinePlan</span></code></a>, and
+<a class="reference internal" href="../ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan" title="ciderpress.dft.plans.SDMXPlan"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDMXPlan</span></code></a>.</p>
+<p>The settings, normalizers, and mapped kernels are serialized together in a
+CIDER model file.  The PySCF and GPAW interfaces reconstruct them when the
+functional is loaded.</p>
+<p>The equations and parameter conventions for each block are given below.
+Uniform-scaling constraints are derived in <a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>,
+and the exchange and correlation energy forms used by CIDER26XC are defined
+in <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.  Backend support for the packaged families is
+listed in <a class="reference internal" href="../usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Feature definitions</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 </ul>
 </div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../theory/nldf_numerical.html" class="btn btn-neutral float-left" title="Numerical Evaluation of NLDF Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../theory/numerical_evaluation.html" class="btn btn-neutral float-left" title="Numerical Evaluation in PySCF and GPAW" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="sl.html" class="btn btn-neutral float-right" title="Semilocal Features (SL)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

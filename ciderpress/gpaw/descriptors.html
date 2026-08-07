@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPAW Descriptor Interface &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="GPAW FFT, PAW, and Radial Implementation" href="numerical.html" />
+    <link rel="prev" title="GPAW Calculator Interface" href="calculator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gpaw.html">GPAW Interface and PAW Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calculator.html">GPAW Calculator Interface</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GPAW Descriptor Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ciderpress.gpaw.descriptors.get_descriptors"><code class="docutils literal notranslate"><span class="pre">get_descriptors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-settings-from-a-packaged-model">Using settings from a packaged model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#occupation-derivatives">Occupation derivatives</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="numerical.html">GPAW FFT, PAW, and Radial Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="gpaw.html">GPAW Interface and PAW Implementation</a></li>
+      <li class="breadcrumb-item active">GPAW Descriptor Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/ciderpress/gpaw/descriptors.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-ciderpress.gpaw.descriptors">
+<span id="gpaw-descriptor-interface"></span><h1>GPAW Descriptor Interface<a class="headerlink" href="#module-ciderpress.gpaw.descriptors" title="Link to this heading"></a></h1>
+<p>The GPAW descriptor interface evaluates semilocal or version-J NLDF features
+on the fixed density and orbitals of a completed classic GPAW plane-wave
+calculation. It combines uniform-grid values with the matching PAW
+all-electron-minus-pseudo contributions and uses the electronic state retained
+by the calculator.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ciderpress.gpaw.descriptors.get_descriptors">
+<span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.descriptors.</span></span><span class="sig-name descname"><span class="pre">get_descriptors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_paw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screen_dens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.gpaw.descriptors.get_descriptors" title="Link to this definition"></a></dt>
+<dd><p>Evaluate one feature-settings component on a converged GPAW calculator.</p>
+<p><code class="docutils literal notranslate"><span class="pre">calc</span></code> must retain its density, wavefunctions, PAW setups, and grid
+distribution. <code class="docutils literal notranslate"><span class="pre">settings</span></code> is a semilocal or NLDF settings object, or the
+string <code class="docutils literal notranslate"><span class="pre">&quot;l&quot;</span></code> for the raw density/gradient/kinetic-energy-density vector.
+The documented GPAW descriptor settings are semilocal and version-J NLDF.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">p_i=None</span></code>, the return value is <code class="docutils literal notranslate"><span class="pre">(features,</span> <span class="pre">weights)</span></code>. <code class="docutils literal notranslate"><span class="pre">features</span></code>
+has shape <code class="docutils literal notranslate"><span class="pre">(nspin,</span> <span class="pre">nfeature,</span> <span class="pre">npoint)</span></code> and <code class="docutils literal notranslate"><span class="pre">weights</span></code> has shape
+<code class="docutils literal notranslate"><span class="pre">(npoint,)</span></code>. When <code class="docutils literal notranslate"><span class="pre">p_i</span></code> is provided, the return value is
+<code class="docutils literal notranslate"><span class="pre">(features,</span> <span class="pre">feature_derivatives,</span> <span class="pre">weights)</span></code>;
+<code class="docutils literal notranslate"><span class="pre">feature_derivatives</span></code> has shape <code class="docutils literal notranslate"><span class="pre">(norbital,</span> <span class="pre">nfeature,</span> <span class="pre">npoint)</span></code>.
+When provided, <code class="docutils literal notranslate"><span class="pre">p_i</span></code> is a list of orbital/band indexes,
+where each index is a zero-based <code class="docutils literal notranslate"><span class="pre">(spin,</span> <span class="pre">kpoint,</span> <span class="pre">band)</span></code> tuple.</p>
+<p><code class="docutils literal notranslate"><span class="pre">use_paw=True</span></code> includes the atomic all-electron correction used by the
+supported PAW calculation path.
+<code class="docutils literal notranslate"><span class="pre">screen_dens=True</span></code> removes very-low-density uniform-grid points before
+returning arrays. Keyword arguments such as <code class="docutils literal notranslate"><span class="pre">qmax</span></code> and <code class="docutils literal notranslate"><span class="pre">lambd</span></code> select
+the same NLDF numerical representation used by a CIDER calculation.</p>
+</dd></dl>
+
+<section id="using-settings-from-a-packaged-model">
+<h2>Using settings from a packaged model<a class="headerlink" href="#using-settings-from-a-packaged-model" title="Link to this heading"></a></h2>
+<p>Feature order and normalization belong to the model.  Load its serialized
+component settings to preserve the exact feature definition:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.dft.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_cider_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_descriptors</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">load_cider_model</span><span class="p">(</span><span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">)</span>
+
+<span class="n">sl_features</span><span class="p">,</span> <span class="n">sl_weights</span> <span class="o">=</span> <span class="n">get_descriptors</span><span class="p">(</span>
+    <span class="n">calc</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">sl_settings</span><span class="p">,</span>
+    <span class="n">use_paw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">nldf_features</span><span class="p">,</span> <span class="n">nldf_weights</span> <span class="o">=</span> <span class="n">get_descriptors</span><span class="p">(</span>
+    <span class="n">calc</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">nldf_settings</span><span class="p">,</span>
+    <span class="n">use_paw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmax</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+    <span class="n">lambd</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The two calls describe the same retained electronic state and return
+independent point lists.  A workflow that combines them must align the
+weights, screening convention, and model feature order.</p>
+</section>
+<section id="occupation-derivatives">
+<h2>Occupation derivatives<a class="headerlink" href="#occupation-derivatives" title="Link to this heading"></a></h2>
+<p>Supplying <code class="docutils literal notranslate"><span class="pre">p_i</span></code> evaluates derivatives with respect to the selected orbital
+occupations. The routine constructs both the smooth-grid density response and
+the PAW atomic density-matrix response, then applies the descriptor
+forward/adjoint machinery at fixed orbitals.  The orbital indices,
+k-point distribution, spin convention, occupations, and NLDF numerical
+settings define the returned derivative arrays.</p>
+<p>This interface serves inspection and training-data construction.  Its
+occupation derivatives hold the orbitals fixed; a self-consistent energy is
+obtained through the calculator interface.</p>
+<p>See <a class="reference internal" href="../../workflows/descriptors.html"><span class="doc">Inspecting Densities and Descriptors</span></a> for the cross-backend workflow and
+<a class="reference internal" href="numerical.html"><span class="doc">GPAW FFT, PAW, and Radial Implementation</span></a> for the GPAW/PASDW implementation.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="calculator.html" class="btn btn-neutral float-left" title="GPAW Calculator Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="numerical.html" class="btn btn-neutral float-right" title="GPAW FFT, PAW, and Radial Implementation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

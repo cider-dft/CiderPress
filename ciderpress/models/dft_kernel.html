@@ -6,21 +6,21 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ciderpress.models.dft_kernel &mdash; CiderPress 0.4.0 documentation</title>
+  <title>DFT Kernels &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=6c02275b"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ciderpress.models.kernels" href="kernels.html" />
-    <link rel="prev" title="ciderpress.models.train" href="train.html" /> 
+    <link rel="next" title="Differentiable Covariance Kernels" href="kernels.html" />
+    <link rel="prev" title="Integrated-System GP Models" href="train.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,15 +43,34 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Density and Orbital Features in CiderPress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="models.html">The Models Module</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="train.html">ciderpress.models.train</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">ciderpress.models.dft_kernel</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="models.html">Regression, Training, and Mapping APIs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="train.html">Integrated-System GP Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">DFT Kernels</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#ciderpress.models.dft_kernel.DFTKernel"><code class="docutils literal notranslate"><span class="pre">DFTKernel</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.dft_kernel.DFTKernel.mode"><code class="docutils literal notranslate"><span class="pre">DFTKernel.mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ciderpress.models.dft_kernel.DFTKernel.X1ctrl"><code class="docutils literal notranslate"><span class="pre">DFTKernel.X1ctrl</span></code></a></li>
@@ -67,13 +86,18 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="kernels.html">ciderpress.models.kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kernels.html">Differentiable Covariance Kernels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kernel_tools.html">Kernel Tools</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -90,8 +114,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="models.html">The Models Module</a></li>
-      <li class="breadcrumb-item active">ciderpress.models.dft_kernel</li>
+          <li class="breadcrumb-item"><a href="models.html">Regression, Training, and Mapping APIs</a></li>
+      <li class="breadcrumb-item active">DFT Kernels</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/ciderpress/models/dft_kernel.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -101,12 +125,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="ciderpress-models-dft-kernel">
-<span id="dftkernel"></span><h1>ciderpress.models.dft_kernel<a class="headerlink" href="#ciderpress-models-dft-kernel" title="Link to this heading"></a></h1>
-<p>The DFTKernel</p>
+  <section id="dft-kernels">
+<span id="dftkernel"></span><h1>DFT Kernels<a class="headerlink" href="#dft-kernels" title="Link to this heading"></a></h1>
+<p>A DFT kernel binds a differentiable covariance kernel to feature transforms,
+control points, spin/component mode, and energy-density baselines.  It
+accumulates integrated covariances during fitting and maps the fitted
+coefficients to an inference evaluator.</p>
+<p><code class="docutils literal notranslate"><span class="pre">DFTKernel</span></code> uses Python baseline callables.
+<code class="docutils literal notranslate"><span class="pre">DFTKernel2</span></code> uses libxc baseline identifiers and supplies the full-XC
+component interface described in <a class="reference internal" href="../../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.</p>
 <dl class="py class" id="module-ciderpress.models.dft_kernel">
 <dt class="sig sig-object py" id="ciderpress.models.dft_kernel.DFTKernel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ciderpress.models.dft_kernel.</span></span><span class="sig-name descname"><span class="pre">DFTKernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicative_baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additive_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.dft_kernel.DFTKernel" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.dft_kernel.</span></span><span class="sig-name descname"><span class="pre">DFTKernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicative_baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additive_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.dft_kernel.DFTKernel" title="Link to this definition"></a></dt>
 <dd><p>This class is used to evaluate kernel functions,
 including the baseline X/C energies, for use in the
 MOLGP Gaussian process models.</p>
@@ -132,7 +162,7 @@ N1 is the number of transformed features.</p>
 <dd><p>Control points for kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Nctrl, N1</p>
+<dd class="field-odd"><p>Nctrl, <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedDFTKernel.N1" title="ciderpress.dft.xc_evaluator.MappedDFTKernel.N1">N1</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -267,7 +297,7 @@ contribution of <code class="docutils literal notranslate"><span class="pre">sel
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ciderpress.models.dft_kernel.DFTKernel2">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ciderpress.models.dft_kernel.</span></span><span class="sig-name descname"><span class="pre">DFTKernel2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicative_baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additive_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.dft_kernel.DFTKernel2" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.models.dft_kernel.</span></span><span class="sig-name descname"><span class="pre">DFTKernel2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicative_baseline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additive_baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctrl_nmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ciderpress.models.dft_kernel.DFTKernel2" title="Link to this definition"></a></dt>
 <dd><p>DFTKernel2 is a modification of the DFTKernel object to use a different
 approach to constructing the baseline X(C) energy.
 DFTKernel2 is build on KernelEvalBase2, which uses libxc to
@@ -287,14 +317,14 @@ uses the native functions in <code class="docutils literal notranslate"><span cl
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="train.html" class="btn btn-neutral float-left" title="ciderpress.models.train" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="kernels.html" class="btn btn-neutral float-right" title="ciderpress.models.kernels" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="train.html" class="btn btn-neutral float-left" title="Integrated-System GP Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kernels.html" class="btn btn-neutral float-right" title="Differentiable Covariance Kernels" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

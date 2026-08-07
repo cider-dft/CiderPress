@@ -1,148 +1,195 @@
 Machine Learning Framework for CIDER Functionals
 ================================================
 
-This page covers the machine learning framework used to train exchange-correlation
-functionals in the CIDER formalism, which is built on Gaussian process regression
-(GPR).
+CIDER functionals are trained with Gaussian-process regression (GPR). This
+section describes the form used for local energy-density models and integrated
+electronic-energy observations.
 
 Gaussian Process Regression
 ---------------------------
 
-Gaussian process regression is a nonparametric, Bayesian statistical learning model.
-The detailed theory of Gaussian processes can be found in the excellent textbook
-by Rasmussen and Williams. :footcite:p:`Rasmussen2006` This section covers the application of Gaussian
-process regression to functional design. More details on the formalism
-can be found in :footcite:t:`CIDER23X` and :footcite:t:`CIDER24X`
+Gaussian process regression is a nonparametric Bayesian regression method. A
+general treatment is given by Rasmussen and Williams. :footcite:p:`Rasmussen2006`
+The construction below follows its application to density functionals in
+CIDER23X and CIDER24X. :footcite:p:`CIDER23X,CIDER24X`
 
-Consider the problem of learning some function :math:`f(\mathbf{x})`, with
-:math:`\mathbf{x}` being a feature vector of independent variables.
+Let :math:`f(\mathbf{x})` denote the learned function, with
+:math:`\mathbf{x}` as its feature vector.
 Let :math:`\mathbf{X}` be a feature matrix, where each row :math:`\mathbf{x}_i`
 is the feature vector for training point :math:`i`, and let :math:`\mathbf{y}`
 be a target vector, where each element :math:`y_i` is the observed value of
-the target function for training point :math:`i`. Then, there are two key
-components necessary to construct a Gaussian process regression for
-:math:`f(\mathbf{x})`. The first is the covariance kernel
-:math:`k(\mathbf{x}, \mathbf{x}')`, which defines the covariance between the
-values of the predictive function for two points, i.e.
-:math:`k(\mathbf{x}, \mathbf{x}')=\text{Cov}(f(\mathbf{x}), f(\mathbf{x}'))`.
+the target function for training point :math:`i`.
+
+The covariance kernel
+:math:`k(\mathbf{x}, \mathbf{x}')` defines the covariance between the
+predictive function at two points:
+:math:`k(\mathbf{x}, \mathbf{x}')=\operatorname{Cov}(f(\mathbf{x}), f(\mathbf{x}'))`.
 The matrix of covariances between training points is denoted :math:`\mathbf{K}`
 with matrix elements :math:`K_{ij}=k(\mathbf{x}_i, \mathbf{x}_j)`.
-The second is the noise labels :math:`\sigma_i`, indicating the estimated
-prior uncertainty on each training observation :math:`i`. We will denote the
-diagonal matrix whose entries are the noise covariances :math:`{\sigma_i^{}}^2`
-as :math:`\boldsymbol{\Sigma}_\text{noise}`. Using these components, the
-predictive function for a test point :math:`\mathbf{x}_*`
-takes the form :footcite:p:`Rasmussen2006`
+Observation standard deviations :math:`\sigma_i` specify the assumed noise or
+prior uncertainty. Their variances form the diagonal matrix
+:math:`\boldsymbol{\Sigma}_\mathrm{noise}`.  The predictive function for a
+test point :math:`\mathbf{x}_*` is :footcite:p:`Rasmussen2006`
 
-.. math:: f(\mathbf{x}_*) = \sum_\alpha k(\mathbf{x}_*, \mathbf{x}_i) \alpha_i
+.. math:: f(\mathbf{x}_*) = \sum_i k(\mathbf{x}_*, \mathbf{x}_i) \alpha_i
 
-with the following definition for the weight vector :math:`\boldsymbol{\alpha}`:
+with weight vector
 
 .. math:: \boldsymbol{\alpha} = \left(\mathbf{K} + \boldsymbol{\Sigma}_\text{noise}\right)^{-1} \mathbf{y}
 
-In the case of fitting energies of molecules and solids, we need to fit an
-extensive quantity in which the training labels are integrals of the predictive
-function :math:`f(\mathbf{x})` over real space. The next section covers
-adjustments to the Gaussian process model necessary to perform this task.
+For molecular and solid-state training, the observations are extensive
+quantities obtained by integrating a local predictive function over real
+space.  This changes the covariance construction because each label couples
+all quadrature points in one chemical system.
 
 Fitting Total Energy Data
 -------------------------
 
-Consider an extensive quantity :math:`F`, which is a contribution to the
-total electronic energy of a chemical system. In the case of CiderPress,
-this quanity will be the exchange, correlation, or exchange-correlation energy.
-We can fit :math:`F` by learning a function that gets integrated over
-real-space to yield :math:`F` for a given system:
+Consider an extensive quantity :math:`F` that contributes to the electronic
+energy of a chemical system.  In CiderPress, :math:`F` can be an exchange,
+correlation, or exchange-correlation contribution.  The regression learns a
+dimensionless function that is integrated with a baseline energy density:
 
-.. math:: F = \int \text{d}^3\mathbf{r}\,f\left(\mathbf{x}(\mathbf{r})\right) \label{eq:F_int}
+.. math::
 
-In the above equation, :math:`f\left(\mathbf{x}(\mathbf{r})\right)` is the predictive
-function for the energy density to be learned by the Gaussian process.
-In practice, the integral must be performed numerically. For a given chemical system
-indexed by :math:`m`, we write
-    
-.. math:: F^m = \sum_{g\in m} w_g^m f\left(\mathbf{x}_g^m\right) \label{eq:extensive_functional}
+   F = \int \mathrm{d}^3\mathbf{r}\,
+   e^{\mathrm{base}}(\mathbf{r})\,f\left(\mathbf{x}(\mathbf{r})\right)
 
-where :math:`g` indexes quadrature points and :math:`w_g^m` are the respective quadrature weights.
+Here :math:`f\left(\mathbf{x}(\mathbf{r})\right)` is the dimensionless
+enhancement factor learned by the regression, and :math:`e^{\mathrm{base}}`
+is the multiplicative baseline energy density: the LDA exchange energy
+density for an exchange kernel, and the PBE correlation energy density for a
+correlation kernel.  For a chemical system indexed by :math:`m`, numerical
+quadrature gives
+
+.. math::
+
+   F^m = \sum_{g\in m} w_g^m e_g^{\mathrm{base}}
+   f\left(\mathbf{x}_g^m\right)
+
+where :math:`g` indexes quadrature points and :math:`w_g^m` are the
+quadrature weights.
 The covariances between the numerical integrals :math:`F^m` and :math:`F^n`
 can be written as
 
-.. math:: \text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n k(\mathbf{x}_g^m, \mathbf{x}_h^m)
+.. math:: \text{Cov}(F^m, F^n) = \sum_{g \in m} \sum_{h \in n} w_g^m w_h^n e_g^{\mathrm{base}} e_h^{\mathrm{base}} k(\mathbf{x}_g^m, \mathbf{x}_h^n)
 
 where :math:`k(\mathbf{x}, \mathbf{x}')` is the covariance kernel for
-:math:`f(\mathbf{x})`. Computing the above double numerical integral directly
-would be expensive. To overcome this issue, we define a small set of "control points"
-:math:`\tilde{\mathbf{x}}_a` and approximate :math:`\text{Cov}(F^m, F^n)`
-using a resolution-of-the-identity approximation:
+:math:`f(\mathbf{x})`. CIDER avoids the direct double sum by introducing a
+set of control points :math:`\tilde{\mathbf{x}}_a` and applying a
+Nyström/resolution-of-the-identity approximation:
 
 .. math::
-    \text{Cov}(F^m, F^n) = K_{mn} &\approx \tilde{\mathbf{k}}_m \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \label{eq:roi_cov} \\
-    \left(\tilde{\mathbf{K}}\right)_{ab} &= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b) \\
-    \left(\tilde{\mathbf{k}}_m\right)_a &= \sum_{g\in m} w_g^m k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)
 
-Using this definition of the covariance kernel, the predictive function can be expressed as
+   \operatorname{Cov}(F^m, F^n) = K_{mn}
+   &\approx \tilde{\mathbf{k}}_m^{\mathsf T}
+   \tilde{\mathbf{K}}^{-1}\tilde{\mathbf{k}}_n, \\
+   \left(\tilde{\mathbf{K}}\right)_{ab}
+   &= k(\tilde{\mathbf{x}}_a, \tilde{\mathbf{x}}_b), \\
+   \left(\tilde{\mathbf{k}}_m\right)_a
+   &= \sum_{g\in m} w_g^m e_g^{\mathrm{base}}
+   k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a).
+
+Let :math:`\mathbf{K}_\mathrm{sys}` be the resulting covariance matrix between
+the integrated system observations. The predictive mean follows from
 
 .. math::
-    f(\mathbf{x}_*) &= \sum_a k(\mathbf{x}_*, \mathbf{\tilde{x}}_a) \alpha_a \label{eq:gp_sum_formula} \\
-    \boldsymbol{\alpha} &= \sum_m \mathbf{\tilde{k}}_m \left\{\left[\mathbf{K} + \boldsymbol{\Sigma}_\text{noise}\right]^{-1} \mathbf{y}\right\}_m \label{eq:gp_predictive_cider3}
 
-with :math:`\mathbf{y}` being the vector of training labels :math:`F^m`.
+   \mathbf{K}_\mathrm{sys}
+   &= [K_{mn}], \\
+   \boldsymbol{\beta}
+   &= \left(\mathbf{K}_\mathrm{sys}
+      +\boldsymbol{\Sigma}_\mathrm{noise}\right)^{-1}\mathbf{y}, \\
+   \boldsymbol{\alpha}
+   &= \tilde{\mathbf{K}}^{-1}
+      \sum_m \tilde{\mathbf{k}}_m\,\beta_m, \\
+   f(\mathbf{x}_*)
+   &= \sum_a k(\mathbf{x}_*,\tilde{\mathbf{x}}_a)\alpha_a.
+
+The vector :math:`\mathbf{y}` contains the integrated training labels.  This
+construction is implemented by
+:meth:`ciderpress.models.train.MOLGP.fit`: ``Kmm`` is
+:math:`\tilde{\mathbf{K}}`, the columns of ``Kmn`` are
+:math:`\tilde{\mathbf{k}}_m`, ``alpha_new`` is
+:math:`\boldsymbol{\beta}`, and ``kernel.alpha`` contains
+:math:`\boldsymbol{\alpha}`.
+
+If several independent GP components contribute to one observation, their
+system covariance matrices are added before the shared
+:math:`\boldsymbol{\beta}` solve. Each component then obtains its own
+control-point coefficients. CIDER26XC uses this construction for the learned
+exchange and correlation terms. :footcite:p:`CIDER26XC`
 
 Fitting Eigenvalues
 -------------------
 
-The Gaussian process scheme discussed above can be extended to fit the eigenvalues
-of the Kohn-Sham Hamiltonian. :footcite:p:`CIDER24X`
-The :math:`i`-th eigenvalue :math:`\epsilon_i^m` of chemical system :math:`m` is
-the partial derivate of the total energy with respect to the occupation
-number :math:`f_i^m` of the orbital: :footcite:p:`Janak1978`
+The Gaussian process scheme discussed above can be extended to fit
+orbital-occupation derivatives. :footcite:p:`CIDER24X` At a stationary
+generalized Kohn--Sham solution, the derivative of the total energy with
+respect to the occupation :math:`f_i^m` gives the corresponding eigenvalue
+:math:`\epsilon_i^m`: :footcite:p:`Janak1978`
 
 .. math:: \epsilon_i^m = \frac{\partial E}{\partial f_i^m}
 
-Most of the Kohn-Sham eigenvalues :math:`\epsilon_i^m` are fictional and lack
-explicit physical meaning, but the LUMO and HOMO eigenvalues of the exact
-functional correspond to the electron affinity and negative of the ionization
-potential, respectively. Therefore, we are interested in explicitly
-fitting the derivative of our target quantity :math:`\frac{\partial F}{\partial f_i^m}`.
-In the case of fitting exact exchange :math:`E_\text{x}^\text{exact}`, one can
-explicitly compute :math:`\frac{\partial E_\text{x}^\text{exact}}{\partial f_i^m}`
-for a given set of orbitals. For the full exchange-correlation energy, no
-explicit formula exists, but :math:`\frac{\partial E_\text{xc}^\text{exact}}{\partial f_i^m}`
-can be extracted from an experimental/quantum chemistry measurement
-of the electron affinity (EA) or ionization potential (IP). The total energy
-in DFT is
+The exact particle-number derivatives at an integer electron number
+:math:`N` are :math:`-I` from below and :math:`A` from above, where
+:math:`I` and :math:`A` are the ionization potential and electron affinity.
+In pure Kohn--Sham DFT, the difference between the neutral system's lowest
+unoccupied orbital energy and :math:`A` contains the XC derivative
+discontinuity.
+
+Occupation-derivative labels can provide both valence- and conduction-edge
+information.  CIDER24X fits derivatives of the target energy contribution,
+:math:`\partial F/\partial f_i^m`.
+
+For exact exchange :math:`E_\mathrm{x}^\mathrm{exact}`, the occupation
+derivative can be evaluated explicitly for a given set of orbitals.  A full
+exchange-correlation reference derivative can be constructed from a
+consistent ionization-potential, electron-affinity, or
+band-edge target. The total energy in generalized Kohn--Sham DFT is a
+functional of the one-particle density matrix :math:`n_1` (and therefore of
+its orbitals and occupations):
 
 .. math::
-   E[n] &= T[n] + V[n] + U[n] + E_\text{xc}[n] \\
-   E[n] &= E_0[n] + E_\text{xc}[n]
+   E[n_1] &= T[n_1] + V[n] + U[n] + E_\mathrm{xc}[n_1] \\
+   &= E_0[n_1] + E_\mathrm{xc}[n_1].
 
-where :math:`E_0[n]` is the sum of the kinetic (:math:`T`), external (:math:`V`),
+Here :math:`E_0[n_1]` is the sum of the kinetic (:math:`T`), external (:math:`V`),
 and Hartree (:math:`U`) energies, all of which can be written explicitly in terms
-of the Kohn-Sham orbitals. Therefore, if we know an eigenvalue :math:`\epsilon_i^m`
-from experimental/quantum chemistry measurements of the IP or EA, we can
-write
-
-.. math:: \frac{\partial E_\text{xc}[n]}{\partial f_i^m} = \epsilon_i^m - \frac{\partial E_0[n]}{\partial f_i^m}
-
-This gives us an explicit expression for :math:`\frac{\partial E_\text{xc}[n]}{\partial f_i^m}` that
-can be used as training data for the XC functional.
-
-Given such training data, we can relate the occupation derivative of :math:`F` to our model energy
-density :math:`f(\mathbf{x})` as
-
-.. math:: \frac{\partial F^m}{\partial f_i^m} = \sum_{g \in m} w_g^m \frac{\partial f(\mathbf{x}_g^m)}{\partial\mathbf{x}_g^m} \cdot \frac{\partial \mathbf{x}_g^m}{\partial f_i^m}
-
-To fit our model to the above equation, we only need to know the covariance between
-:math:`\frac{\partial F^m}{\partial f_i^m}` and :math:`\frac{\partial F^n}{\partial f_j^n}`
-or :math:`F^n`. This relationship is given by
+of the generalized Kohn--Sham orbitals. Given a reference total occupation
+derivative, the XC part follows by subtracting the explicit non-XC derivative:
 
 .. math::
-   \text{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &= \tilde{\mathbf{d}}_{mi} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
-   \text{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &= \tilde{\mathbf{d}}_{mi} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
-   \left(\tilde{\mathbf{d}}_{mi}\right)_a &= \sum_{g\in m} w_g^m \frac{\partial \mathbf{x}_g^m}{\partial f_i^m} \cdot \frac{\partial}{\partial \mathbf{x}_g^m} k(\mathbf{x}_g^m, \tilde{\mathbf{x}}_a)
 
-which allows occupation derivative training data to be included in the Gaussian process.
-For further details, see :footcite:t:`CIDER24X`
+   \frac{\partial E_\mathrm{xc}[n_1]}{\partial f_i^m}
+   = \epsilon_i^m - \frac{\partial E_0[n_1]}{\partial f_i^m}.
+
+The density matrix, orbitals, reference derivative, and side of the integer
+particle number must all be defined consistently when constructing such a
+training label.
+
+The occupation derivative must include the response of both the feature
+vector and the multiplicative baseline:
+
+.. math::
+
+   \frac{\partial F^m}{\partial f_i^m}
+   = \sum_{g\in m}w_g^m\frac{\partial}{\partial f_i^m}
+     \left[e_g^{\mathrm{base}}f(\mathbf{x}_g^m)\right].
+
+Including this label requires its covariance with an integrated energy
+:math:`F^n` or another occupation derivative.  These covariances are
+
+.. math::
+   \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, F^n\right) &= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{k}}_n \\
+   \operatorname{Cov}\left(\frac{\partial F^m}{\partial f_i^m}, \frac{\partial F^n}{\partial f_j^n}\right) &= \tilde{\mathbf{d}}_{mi}^{\mathsf T} \tilde{\mathbf{K}}^{-1} \tilde{\mathbf{d}}_{nj} \\
+   \left(\tilde{\mathbf{d}}_{mi}\right)_a
+   &= \sum_{g\in m}w_g^m\frac{\partial}{\partial f_i^m}
+      \left[e_g^{\mathrm{base}}
+      k(\mathbf{x}_g^m,\tilde{\mathbf{x}}_a)\right]
+
+These covariance blocks place integrated energies and occupation derivatives
+in the same Gaussian-process fit.  The complete occupation-derivative
+derivation is given in :footcite:t:`CIDER24X`.
 
 .. footbibliography::
-

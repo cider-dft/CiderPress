@@ -5,16 +5,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python Module Index &mdash; CiderPress 0.4.0 documentation</title>
+  <title>Python Module Index &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c02275b"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -43,16 +43,40 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features/features.html">Density and Orbital Features in CiderPress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">The Models Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -98,12 +122,47 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="ciderpress/dft/baselines.html#module-ciderpress.dft.baselines"><code class="xref">ciderpress.dft.baselines</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="ciderpress/dft/feat_normalizer.html#module-ciderpress.dft.feat_normalizer"><code class="xref">ciderpress.dft.feat_normalizer</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.grids_indexer"><code class="xref">ciderpress.dft.grids_indexer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_convolutions"><code class="xref">ciderpress.dft.lcao_convolutions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_interpolation"><code class="xref">ciderpress.dft.lcao_interpolation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_nldf_generator"><code class="xref">ciderpress.dft.lcao_nldf_generator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/dft/model_utils.html#module-ciderpress.dft.model_utils"><code class="xref">ciderpress.dft.model_utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="ciderpress/dft/plans.html#module-ciderpress.dft.plans"><code class="xref">ciderpress.dft.plans</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.dft.pwutil"><code class="xref">ciderpress.dft.pwutil</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -128,7 +187,62 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_descriptor_utils"><code class="xref">ciderpress.gpaw.atom_descriptor_utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_utils"><code class="xref">ciderpress.gpaw.atom_utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="ciderpress/gpaw/calculator.html#module-ciderpress.gpaw.calculator"><code class="xref">ciderpress.gpaw.calculator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_fft"><code class="xref">ciderpress.gpaw.cider_fft</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_kernel"><code class="xref">ciderpress.gpaw.cider_kernel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_paw"><code class="xref">ciderpress.gpaw.cider_paw</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_sl"><code class="xref">ciderpress.gpaw.cider_sl</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/descriptors.html#module-ciderpress.gpaw.descriptors"><code class="xref">ciderpress.gpaw.descriptors</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.fit_paw_gauss_pot"><code class="xref">ciderpress.gpaw.fit_paw_gauss_pot</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.gpaw_grids"><code class="xref">ciderpress.gpaw.gpaw_grids</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.interp_paw"><code class="xref">ciderpress.gpaw.interp_paw</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.nldf_interface"><code class="xref">ciderpress.gpaw.nldf_interface</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -168,7 +282,57 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.gen_cider_grid"><code class="xref">ciderpress.pyscf.gen_cider_grid</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.nldf_convolutions"><code class="xref">ciderpress.pyscf.nldf_convolutions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.numint"><code class="xref">ciderpress.pyscf.numint</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.dft"><code class="xref">ciderpress.pyscf.pbc.dft</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.numint"><code class="xref">ciderpress.pyscf.pbc.numint</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.sdmx_fft"><code class="xref">ciderpress.pyscf.pbc.sdmx_fft</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.util"><code class="xref">ciderpress.pyscf.pbc.util</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.rks_grad"><code class="xref">ciderpress.pyscf.rks_grad</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.sdmx"><code class="xref">ciderpress.pyscf.sdmx</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.sdmx_slow"><code class="xref">ciderpress.pyscf.sdmx_slow</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.uks_grad"><code class="xref">ciderpress.pyscf.uks_grad</code></a></td><td>
        <em></em></td></tr>
    </table>
 
@@ -180,7 +344,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

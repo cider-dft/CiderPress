@@ -1,27 +1,36 @@
-dft
-===
+PySCF Calculator Decoration
+===========================
 
-The :py:mod:`ciderpress.pyscf.dft` module provides the
-function :py:func:`make_cider_calc`, which takes
-a Pyscf :py:class:`KohnShamDFT` object and a CIDER
-functional object (:py:class:`MappedXC` or :py:class:`MappedXC2`)
-and returns an instance of a :py:class:`KohnShamDFT`
-subclass that uses the CIDER functional. The function
-is similar to native PySCF routines like :py:func:`density_fit`,
-in which the input SCF object is "decorated" with the
-necessary routines to evaluate the CIDER functional.
+:func:`~ciderpress.pyscf.dft.make_cider_calc` decorates a restricted or
+unrestricted PySCF Kohn--Sham object with a mapped CIDER functional.  The
+``mlfunc`` argument accepts a packaged name, trusted model path, or loaded
+:class:`~ciderpress.dft.xc_evaluator.MappedXC`/
+:class:`~ciderpress.dft.xc_evaluator2.MappedXC2` object.  The decorator selects
+its numerical integrator from the stored feature settings and supplies CIDER
+energy, potential, checkpoint, density-fitting, and supported gradient
+behavior.
 
-The basic use case is::
-    
-    from pyscf.dft import RKS
+Exchange models use ``xmix``, ``xkernel``, and ``ckernel`` to define their
+surrogate-hybrid composition.  Full-XC models use their serialized energy
+composition.  D4 metadata is reconciled after the SCF energy as described in
+:doc:`../../usage/production_models`.
+
+The basic full-XC use case is:
+
+.. code-block:: python
+
     from pyscf import gto
+    from pyscf.dft import RKS
+
+    from ciderpress.pyscf.dft import make_cider_calc
+
     mol = gto.M(...)
-    ks = dft.RKS(mol)
-    ks = make_cider_calc(ks, mlfunc, ...)
+    ks = RKS(mol)
+    ks = make_cider_calc(ks, "CIDER26XCCHEM")
     etot = ks.kernel()
 
-For a complete example, please see :source:`examples/pyscf/simple_calc.py`
-and the other examples in :source:`examples/pyscf`.
+See :source:`examples/pyscf/production_calc.py` and
+:doc:`../../usage/pyscf` for a complete example.
 
 .. automodule:: ciderpress.pyscf.dft
     :members:

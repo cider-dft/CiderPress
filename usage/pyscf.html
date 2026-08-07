@@ -1,0 +1,490 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Molecular Calculations with PySCF &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Periodic and Isolated Calculations with GPAW" href="gpaw.html" />
+    <link rel="prev" title="First Calculations" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Molecular Calculations with PySCF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#choose-the-functional-composition-first">Choose the functional composition first</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#closed-shell-workflow">Closed-shell workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#density-fitting">Density fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#open-shell-systems">Open-shell systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checkpoints-and-interrupted-calculations">Checkpoints and interrupted calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d4-corrected-energy">D4-corrected energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cider24x">CIDER24X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gradients-and-other-methods">Gradients and other methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Molecular Calculations with PySCF</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/usage/pyscf.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="molecular-calculations-with-pyscf">
+<h1>Molecular Calculations with PySCF<a class="headerlink" href="#molecular-calculations-with-pyscf" title="Link to this heading"></a></h1>
+<p>The PySCF <a class="footnote-reference brackets" href="#footcite-sunrecentdevelopmentspyscf2020a" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+interface decorates an existing restricted or unrestricted
+Kohn–Sham object.  Molecular geometry, charge, spin, basis, grids, density
+fitting, occupations, and SCF controls remain PySCF concepts; CiderPress
+replaces the numerical XC evaluation and adds any model-specific energy terms.</p>
+<p>NOTE: the decorated object sets <code class="docutils literal notranslate"><span class="pre">ks.xc</span></code> to a placeholder semilocal name
+(<code class="docutils literal notranslate"><span class="pre">&quot;PBE&quot;</span></code> for GGA-level models, <code class="docutils literal notranslate"><span class="pre">&quot;R2SCAN&quot;</span></code> for meta-GGA) so that PySCF
+routes the calculation through its semilocal machinery instead of treating it
+as a hybrid.  The functional actually evaluated is the CIDER model, so
+<code class="docutils literal notranslate"><span class="pre">ks.xc</span></code> should not be read as the functional in use.</p>
+<section id="choose-the-functional-composition-first">
+<h2>Choose the functional composition first<a class="headerlink" href="#choose-the-functional-composition-first" title="Link to this heading"></a></h2>
+<p>CIDER26XC models contain full exchange and correlation.  Their PySCF
+initializer defaults are correct:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>CIDER23X and CIDER24X contain exchange.  Specify the surrogate-hybrid
+composition explicitly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span>
+    <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span>
+    <span class="s2">&quot;CIDER23X_NL_MGGA_DTR&quot;</span><span class="p">,</span>
+    <span class="n">xmix</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+    <span class="n">xkernel</span><span class="o">=</span><span class="s2">&quot;GGA_X_PBE&quot;</span><span class="p">,</span>
+    <span class="n">ckernel</span><span class="o">=</span><span class="s2">&quot;GGA_C_PBE&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The compositions associated with each packaged model are listed in
+<a class="reference internal" href="production_models.html"><span class="doc">Choosing a CIDER Functional</span></a>.</p>
+</section>
+<section id="closed-shell-workflow">
+<h2>Closed-shell workflow<a class="headerlink" href="#closed-shell-workflow" title="Link to this heading"></a></h2>
+<p>A complete closed-shell example is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Closed-shell molecular CIDER26XC calculation in PySCF.&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_cider_calc</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="n">MODELS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEMD4&quot;</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">)</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">14</span>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="linenos">15</span>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">MODELS</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="linenos">16</span>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span>
+<span class="linenos">19</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">20</span><span class="s2">        O  0.000000  0.000000  0.117790</span>
+<span class="linenos">21</span><span class="s2">        H  0.000000  0.755453 -0.471161</span>
+<span class="linenos">22</span><span class="s2">        H  0.000000 -0.755453 -0.471161</span>
+<span class="linenos">23</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="linenos">24</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-tzvp&quot;</span><span class="p">,</span>
+<span class="linenos">25</span>        <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">26</span>        <span class="n">spin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">27</span>    <span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span>    <span class="n">base</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">30</span>    <span class="n">base</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">31</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+<span class="linenos">32</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
+<span class="linenos">33</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="linenos">34</span>    <span class="n">mf</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="linenos">35</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">38</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CIDER SCF did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">39</span>
+<span class="linenos">40</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;model = </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">41</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">42</span>    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="s2">&quot;e_vdw_expected&quot;</span><span class="p">):</span>
+<span class="linenos">43</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SCF/base energy = </span><span class="si">{</span><span class="n">mf</span><span class="o">.</span><span class="n">e_tot_base</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">44</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;expected dispersion = </span><span class="si">{</span><span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_expected</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">45</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dispersion adjustment = </span><span class="si">{</span><span class="n">mf</span><span class="o">.</span><span class="n">e_vdw_delta</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">46</span>
+<span class="linenos">47</span>
+<span class="linenos">48</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">49</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The example uses the <code class="docutils literal notranslate"><span class="pre">def2-tzvp</span></code> basis and PySCF grid level 3.  For a small
+end-to-end energetics workflow,
+<a class="reference external" href="https://github.com/mir-group/CiderPress/blob/9ab3d3aad184f486b6f5c04f1e91441536a93b03/examples/pyscf/compute_ae.py">examples/pyscf/compute_ae.py</a> computes a molecular atomization energy
+with a chosen libxc or packaged CIDER functional.</p>
+</section>
+<section id="density-fitting">
+<h2>Density fitting<a class="headerlink" href="#density-fitting" title="Link to this heading"></a></h2>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">density_fit</span></code> after <code class="docutils literal notranslate"><span class="pre">make_cider_calc</span></code> accelerates the Coulomb
+problem.  CIDER26XC has a zero exact-exchange fraction.  The auxiliary basis
+is supplied through the normal PySCF interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Density fitting approximates the Coulomb contribution.  The selected CIDER
+model and its D4 behavior remain unchanged.</p>
+</section>
+<section id="open-shell-systems">
+<h2>Open-shell systems<a class="headerlink" href="#open-shell-systems" title="Link to this heading"></a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">UKS</span></code> and set <code class="docutils literal notranslate"><span class="pre">mol.spin</span></code> to <span class="math notranslate nohighlight">\(N_\alpha-N_\beta\)</span>.
+<code class="docutils literal notranslate"><span class="pre">spin_square()</span></code> returns <span class="math notranslate nohighlight">\(\langle S^2\rangle\)</span> and the corresponding
+multiplicity for the converged unrestricted solution.</p>
+<p>For a difficult system, first converge a conventional functional with the
+same molecule, basis, grid, charge, and spin, then provide its density to the
+CIDER calculation.  The following script uses a small O2 calculation to keep
+the restart example quick to run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="ch">#!/usr/bin/env python</span>
+<span class="linenos">  2</span><span class="sd">&quot;&quot;&quot;Demonstrate restart-ladder mechanics on a compact open-shell molecule.</span>
+<span class="linenos">  3</span>
+<span class="linenos">  4</span><span class="sd">O2 keeps the example inexpensive.  The ladder is a template for a larger</span>
+<span class="linenos">  5</span><span class="sd">open-shell calculation that needs a PBE warm start or conservative SCF</span>
+<span class="linenos">  6</span><span class="sd">controls.</span>
+<span class="linenos">  7</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">  8</span>
+<span class="linenos">  9</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="linenos"> 10</span>
+<span class="linenos"> 11</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
+<span class="linenos"> 12</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.scf</span><span class="w"> </span><span class="kn">import</span> <span class="n">diis</span> <span class="k">as</span> <span class="n">pyscf_diis</span>
+<span class="linenos"> 13</span>
+<span class="linenos"> 14</span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.pyscf.dft</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_cider_calc</span>
+<span class="linenos"> 15</span>
+<span class="linenos"> 16</span><span class="n">LADDER</span> <span class="o">=</span> <span class="p">(</span>
+<span class="linenos"> 17</span>    <span class="p">{</span>
+<span class="linenos"> 18</span>        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">,</span>
+<span class="linenos"> 19</span>        <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span>
+<span class="linenos"> 20</span>        <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="linenos"> 21</span>        <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-9</span><span class="p">,</span>
+<span class="linenos"> 22</span>        <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 23</span>        <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 24</span>    <span class="p">},</span>
+<span class="linenos"> 25</span>    <span class="p">{</span>
+<span class="linenos"> 26</span>        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis12&quot;</span><span class="p">,</span>
+<span class="linenos"> 27</span>        <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span>
+<span class="linenos"> 28</span>        <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="linenos"> 29</span>        <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+<span class="linenos"> 30</span>        <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 31</span>        <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 32</span>    <span class="p">},</span>
+<span class="linenos"> 33</span>    <span class="p">{</span>
+<span class="linenos"> 34</span>        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;adiis&quot;</span><span class="p">,</span>
+<span class="linenos"> 35</span>        <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">ADIIS</span><span class="p">,</span>
+<span class="linenos"> 36</span>        <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="linenos"> 37</span>        <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span>
+<span class="linenos"> 38</span>        <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 39</span>        <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 40</span>    <span class="p">},</span>
+<span class="linenos"> 41</span>    <span class="p">{</span>
+<span class="linenos"> 42</span>        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;ediis&quot;</span><span class="p">,</span>
+<span class="linenos"> 43</span>        <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">EDIIS</span><span class="p">,</span>
+<span class="linenos"> 44</span>        <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="linenos"> 45</span>        <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span>
+<span class="linenos"> 46</span>        <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 47</span>        <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 48</span>    <span class="p">},</span>
+<span class="linenos"> 49</span>    <span class="p">{</span>
+<span class="linenos"> 50</span>        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis_shift02&quot;</span><span class="p">,</span>
+<span class="linenos"> 51</span>        <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span>
+<span class="linenos"> 52</span>        <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="linenos"> 53</span>        <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span>
+<span class="linenos"> 54</span>        <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+<span class="linenos"> 55</span>        <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos"> 56</span>    <span class="p">},</span>
+<span class="linenos"> 57</span>    <span class="p">{</span>
+<span class="linenos"> 58</span>        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;cdiis_shift05&quot;</span><span class="p">,</span>
+<span class="linenos"> 59</span>        <span class="s2">&quot;DIIS&quot;</span><span class="p">:</span> <span class="n">pyscf_diis</span><span class="o">.</span><span class="n">CDIIS</span><span class="p">,</span>
+<span class="linenos"> 60</span>        <span class="s2">&quot;diis_space&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="linenos"> 61</span>        <span class="s2">&quot;conv_tol&quot;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">,</span>
+<span class="linenos"> 62</span>        <span class="s2">&quot;level_shift&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="linenos"> 63</span>        <span class="s2">&quot;damp&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+<span class="linenos"> 64</span>    <span class="p">},</span>
+<span class="linenos"> 65</span><span class="p">)</span>
+<span class="linenos"> 66</span>
+<span class="linenos"> 67</span>
+<span class="linenos"> 68</span><span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">rung</span><span class="p">):</span>
+<span class="linenos"> 69</span>    <span class="n">mf</span><span class="o">.</span><span class="n">DIIS</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;DIIS&quot;</span><span class="p">]</span>
+<span class="linenos"> 70</span>    <span class="n">mf</span><span class="o">.</span><span class="n">diis_space</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;diis_space&quot;</span><span class="p">]</span>
+<span class="linenos"> 71</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;conv_tol&quot;</span><span class="p">]</span>
+<span class="linenos"> 72</span>    <span class="n">mf</span><span class="o">.</span><span class="n">level_shift</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;level_shift&quot;</span><span class="p">]</span>
+<span class="linenos"> 73</span>    <span class="n">mf</span><span class="o">.</span><span class="n">damp</span> <span class="o">=</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;damp&quot;</span><span class="p">]</span>
+<span class="linenos"> 74</span>    <span class="n">mf</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="linenos"> 75</span>
+<span class="linenos"> 76</span>
+<span class="linenos"> 77</span><span class="k">def</span><span class="w"> </span><span class="nf">run_ladder</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">):</span>
+<span class="linenos"> 78</span>    <span class="n">guesses</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;warm&quot;</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;atom&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="o">.</span><span class="n">get_init_guess</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;atom&quot;</span><span class="p">)))</span>
+<span class="linenos"> 79</span>    <span class="k">for</span> <span class="n">guess_name</span><span class="p">,</span> <span class="n">density</span> <span class="ow">in</span> <span class="n">guesses</span><span class="p">:</span>
+<span class="linenos"> 80</span>        <span class="k">for</span> <span class="n">rung</span> <span class="ow">in</span> <span class="n">LADDER</span><span class="p">:</span>
+<span class="linenos"> 81</span>            <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">rung</span><span class="p">)</span>
+<span class="linenos"> 82</span>            <span class="n">mf</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;o2_cider_</span><span class="si">{</span><span class="n">rung</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">guess_name</span><span class="si">}</span><span class="s2">.chk&quot;</span><span class="p">))</span>
+<span class="linenos"> 83</span>            <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">density</span><span class="p">)</span>
+<span class="linenos"> 84</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos"> 85</span>                <span class="k">continue</span>
+<span class="linenos"> 86</span>
+<span class="linenos"> 87</span>            <span class="c1"># A relaxed rung supplies a preconditioned density.  This example</span>
+<span class="linenos"> 88</span>            <span class="c1"># follows it with the standard CDIIS control set.</span>
+<span class="linenos"> 89</span>            <span class="k">if</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;cdiis8&quot;</span><span class="p">:</span>
+<span class="linenos"> 90</span>                <span class="n">tight_density</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
+<span class="linenos"> 91</span>                <span class="n">configure</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">LADDER</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="linenos"> 92</span>                <span class="n">mf</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="s2">&quot;o2_cider_final.chk&quot;</span>
+<span class="linenos"> 93</span>                <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">tight_density</span><span class="p">)</span>
+<span class="linenos"> 94</span>                <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos"> 95</span>                    <span class="k">continue</span>
+<span class="linenos"> 96</span>            <span class="k">return</span> <span class="n">energy</span><span class="p">,</span> <span class="n">rung</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="n">guess_name</span>
+<span class="linenos"> 97</span>    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CIDER SCF did not converge with the suggested ladder&quot;</span><span class="p">)</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span>
+<span class="linenos">100</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="linenos">101</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span>
+<span class="linenos">102</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;O 0 0 0; O 0 0 1.21&quot;</span><span class="p">,</span>
+<span class="linenos">103</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">,</span>
+<span class="linenos">104</span>        <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="linenos">105</span>        <span class="n">spin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="linenos">106</span>    <span class="p">)</span>
+<span class="linenos">107</span>
+<span class="linenos">108</span>    <span class="n">baseline</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">UKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">109</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="s2">&quot;PBE&quot;</span>
+<span class="linenos">110</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">111</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="linenos">112</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="linenos">113</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">chkfile</span> <span class="o">=</span> <span class="s2">&quot;o2_pbe.chk&quot;</span>
+<span class="linenos">114</span>    <span class="n">baseline</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
+<span class="linenos">115</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
+<span class="linenos">116</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Baseline PBE calculation did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">117</span>    <span class="n">warm_density</span> <span class="o">=</span> <span class="n">baseline</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">()</span>
+<span class="linenos">118</span>
+<span class="linenos">119</span>    <span class="n">base</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">UKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="linenos">120</span>    <span class="n">base</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="linenos">121</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="linenos">122</span>    <span class="n">energy</span><span class="p">,</span> <span class="n">rung</span><span class="p">,</span> <span class="n">guess</span> <span class="o">=</span> <span class="n">run_ladder</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">warm_density</span><span class="p">)</span>
+<span class="linenos">123</span>
+<span class="linenos">124</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
+<span class="linenos">125</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initial density = </span><span class="si">{</span><span class="n">guess</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">126</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;successful preconditioning rung = </span><span class="si">{</span><span class="n">rung</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">127</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;S^2&gt;, multiplicity = </span><span class="si">{</span><span class="n">mf</span><span class="o">.</span><span class="n">spin_square</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">128</span>
+<span class="linenos">129</span>
+<span class="linenos">130</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">131</span>    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The fallback ladder records each control set separately.  A relaxed or
+level-shifted rung supplies a new starting density, followed in this example
+by a calculation with the listed standard CDIIS controls.</p>
+</section>
+<section id="checkpoints-and-interrupted-calculations">
+<h2>Checkpoints and interrupted calculations<a class="headerlink" href="#checkpoints-and-interrupted-calculations" title="Link to this heading"></a></h2>
+<p>Set a different <code class="docutils literal notranslate"><span class="pre">chkfile</span></code> for the baseline, each fallback rung, and the
+final CIDER calculation.  A checkpoint can recover molecular orbitals and a
+density after interruption:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf.scf</span><span class="w"> </span><span class="kn">import</span> <span class="n">chkfile</span>
+
+<span class="n">mol_from_chk</span><span class="p">,</span> <span class="n">scf_data</span> <span class="o">=</span> <span class="n">chkfile</span><span class="o">.</span><span class="n">load_scf</span><span class="p">(</span><span class="s2">&quot;cider.chk&quot;</span><span class="p">)</span>
+<span class="n">mo</span> <span class="o">=</span> <span class="n">scf_data</span><span class="p">[</span><span class="s2">&quot;mo_coeff&quot;</span><span class="p">]</span>
+<span class="n">occ</span> <span class="o">=</span> <span class="n">scf_data</span><span class="p">[</span><span class="s2">&quot;mo_occ&quot;</span><span class="p">]</span>
+<span class="n">dm0</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">make_rdm1</span><span class="p">(</span><span class="n">mo</span><span class="p">,</span> <span class="n">occ</span><span class="p">)</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">dm0</span><span class="o">=</span><span class="n">dm0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Recreate the selected CIDER model, then load the orbitals and occupations from
+the PySCF checkpoint.  <code class="docutils literal notranslate"><span class="pre">load_scf</span></code> also returns the checkpoint’s <code class="docutils literal notranslate"><span class="pre">Mole</span></code>
+object; the stored orbital dimensions must match the new mean-field object.</p>
+</section>
+<section id="d4-corrected-energy">
+<h2>D4-corrected energy<a class="headerlink" href="#d4-corrected-energy" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code> evaluates its electronic full-XC contribution during the
+SCF and D4 from the geometry afterward, so the dispersion term changes the
+total energy but not the density or the CIDER potential.</p>
+<p>Because a user may already have attached a dispersion wrapper, CiderPress
+reconciles what is present with what the model expects rather than simply
+adding a term.  After <code class="docutils literal notranslate"><span class="pre">kernel()</span></code>, every CIDER26XC calculation exposes:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span></code></dt><dd><p>Energy returned by the underlying SCF object, before the dispersion
+adjustment.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_present</span></code></dt><dd><p>Dispersion already contained in that energy, if a supported
+<code class="docutils literal notranslate"><span class="pre">with_dftd3</span></code>/<code class="docutils literal notranslate"><span class="pre">with_dftd4</span></code> wrapper was attached.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_expected</span></code></dt><dd><p>Dispersion the selected model was trained with.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mf.e_vdw_delta</span></code></dt><dd><p>The correction <code class="docutils literal notranslate"><span class="pre">e_vdw_expected</span> <span class="pre">-</span> <span class="pre">e_vdw_present</span></code>.</p>
+</dd>
+</dl>
+<p>The returned <code class="docutils literal notranslate"><span class="pre">mf.e_tot</span></code> is <code class="docutils literal notranslate"><span class="pre">mf.e_tot_base</span> <span class="pre">+</span> <span class="pre">mf.e_vdw_delta</span></code>, which
+contains the expected term exactly once.  For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CIDER26XCSURFSCI</span></code> the expected dispersion is zero, so an attached wrapper
+is disabled and does not contribute to the returned energy.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>, <code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> adds the analytical D4
+derivative to the electronic CIDER and nuclear-repulsion terms.  See
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a> for the gradient interface.</p>
+</section>
+<section id="cider24x">
+<h2>CIDER24X<a class="headerlink" href="#cider24x" title="Link to this heading"></a></h2>
+<p>Install <code class="docutils literal notranslate"><span class="pre">ciderpress[cider24]</span></code> and use the same exchange-only composition as
+CIDER23X.  These SDMX models use the density matrix and PyTorch-backed mapped
+evaluator.  Keep the model on the device selected by its evaluator and avoid
+mixing CUDA and CPU PyTorch installations within one environment.  A minimal
+SDMX calculation is shown in <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/9ab3d3aad184f486b6f5c04f1e91441536a93b03/examples/pyscf/simple_sdmx.py">examples/pyscf/simple_sdmx.py</a>.</p>
+</section>
+<section id="gradients-and-other-methods">
+<h2>Gradients and other methods<a class="headerlink" href="#gradients-and-other-methods" title="Link to this heading"></a></h2>
+<p>Analytical restricted and unrestricted nuclear gradients are available for
+the molecular NLDF path, including density-fitted calculations and the D4
+correction selected by <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code>.  Use
+<code class="docutils literal notranslate"><span class="pre">mf.nuc_grad_method()</span></code> as shown in <a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  The gradient code
+raises <code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code> for models carrying SDMX features, so CIDER24X
+calculations give energies but not forces.</p>
+<p>The CIDER mean-field object provides the energies and derivatives listed in
+<a class="reference internal" href="properties.html"><span class="doc">Energies and Derivative Properties</span></a>.  Hessians, NMR, polarizability, coupled-cluster,
+multireference, and similar response or post-SCF methods are outside that
+interface.  The documented analytical-gradient implementation covers the
+molecular NLDF path.</p>
+<p>The PBE-seeded CDIIS, ADIIS, EDIIS, level-shift, and damping settings used by
+the restart example are listed in <a class="reference internal" href="convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a>.</p>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-sunrecentdevelopmentspyscf2020a" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Qiming Sun, Xing Zhang, Samragni Banerjee, Peng Bao, Marc Barbry, Nick S. Blunt, Nikolay A. Bogdanov, George H. Booth, Jia Chen, Zhi-Hao Cui, Janus J. Eriksen, Yang Gao, Sheng Guo, Jan Hermann, Matthew R. Hermes, Kevin Koh, Peter Koval, Susi Lehtola, Zhendong Li, Junzi Liu, Narbe Mardirossian, James D. McClain, Mario Motta, Bastien Mussard, Hung Q. Pham, Artem Pulkin, Wirawan Purwanto, Paul J. Robinson, Enrico Ronca, Elvira R. Sayfutyarova, Maximilian Scheurer, Henry F. Schurkus, James E. T. Smith, Chong Sun, Shi-Ning Sun, Shiv Upadhyay, Lucas K. Wagner, Xiao Wang, Alec White, James Daniel Whitfield, Mark J. Williamson, Sebastian Wouters, Jun Yang, Jason M. Yu, Tianyu Zhu, Timothy C. Berkelbach, Sandeep Sharma, Alexander Yu. Sokolov, and Garnet Kin-Lic Chan. Recent developments in the PySCF program package. <em>The Journal of Chemical Physics</em>, 153(2):024109, July 2020. <a class="reference external" href="https://doi.org/10.1063/5.0006074">doi:10.1063/5.0006074</a>.</p>
+</aside>
+</aside>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="First Calculations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gpaw.html" class="btn btn-neutral float-right" title="Periodic and Isolated Calculations with GPAW" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

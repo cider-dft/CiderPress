@@ -5,16 +5,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; CiderPress 0.4.0 documentation</title>
+  <title>Index &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c02275b"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -40,16 +40,40 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features/features.html">Density and Orbital Features in CiderPress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">The Models Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -94,7 +118,6 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
- | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -111,21 +134,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.add_reactions">add_reactions() (ciderpress.models.train.MOLGP method)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel">ADKernel (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.ALLOWED_I_SPECS_L0">ALLOWED_I_SPECS_L0 (in module ciderpress.dft.settings)</a>
-</li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.ALLOWED_I_SPECS_L1">ALLOWED_I_SPECS_L1 (in module ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.add_ueg_reactions">add_ueg_reactions() (ciderpress.models.train.MOLGP method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.ALLOWED_J_SPECS">ALLOWED_J_SPECS (in module ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.AntisymRBFEvaluator">AntisymRBFEvaluator (class in ciderpress.dft.xc_evaluator)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.ALLOWED_K_SPECS">ALLOWED_K_SPECS (in module ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_convolutions.ATCBasis">ATCBasis (class in ciderpress.dft.lcao_convolutions)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.ALLOWED_RHO_DAMPS">ALLOWED_RHO_DAMPS (in module ciderpress.dft.settings)</a>
-</li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.ALLOWED_RHO_MULTS">ALLOWED_RHO_MULTS (in module ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.grids_indexer.AtomicGridsIndexer">AtomicGridsIndexer (class in ciderpress.dft.grids_indexer)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -135,12 +152,14 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings">BaseSettings (class in ciderpress.dft.settings)</a>
 </li>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.bounds">bounds (ciderpress.models.kernels.DiffTransform property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.bounds">bounds (ciderpress.models.kernels.ADKernel property)</a>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.FuncEvaluator.build">build() (ciderpress.dft.xc_evaluator.FuncEvaluator method)</a>
 
       <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.bounds">(ciderpress.models.kernels.DiffTransform property)</a>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.NNEvaluator.build">(ciderpress.dft.xc_evaluator.NNEvaluator method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -155,8 +174,29 @@
 </li>
       <li><a href="ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.cider_functional_from_dict">cider_functional_from_dict() (in module ciderpress.gpaw.calculator)</a>
 </li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_fft.CiderGGA">CiderGGA (class in ciderpress.gpaw.cider_fft)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_paw.CiderGGAPASDW">CiderGGAPASDW (class in ciderpress.gpaw.cider_paw)</a>
+</li>
       <li><a href="ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.CiderGPAW">CiderGPAW (class in ciderpress.gpaw.calculator)</a>
 </li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.gen_cider_grid.CiderGrids">CiderGrids (class in ciderpress.pyscf.gen_cider_grid)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_kernel.CiderKernel">CiderKernel (class in ciderpress.gpaw.cider_kernel)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_fft.CiderMGGA">CiderMGGA (class in ciderpress.gpaw.cider_fft)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.cider_paw.CiderMGGAPASDW">CiderMGGAPASDW (class in ciderpress.gpaw.cider_paw)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.CiderNumInt">CiderNumInt (class in ciderpress.pyscf.numint)</a>
+</li>
+      <li>
+    ciderpress.dft.baselines
+
+      <ul>
+        <li><a href="ciderpress/dft/baselines.html#module-ciderpress.dft.baselines">module</a>
+</li>
+      </ul></li>
       <li>
     ciderpress.dft.feat_normalizer
 
@@ -165,10 +205,52 @@
 </li>
       </ul></li>
       <li>
+    ciderpress.dft.grids_indexer
+
+      <ul>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.grids_indexer">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.dft.lcao_convolutions
+
+      <ul>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_convolutions">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.dft.lcao_interpolation
+
+      <ul>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_interpolation">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.dft.lcao_nldf_generator
+
+      <ul>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_nldf_generator">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.dft.model_utils
+
+      <ul>
+        <li><a href="ciderpress/dft/model_utils.html#module-ciderpress.dft.model_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     ciderpress.dft.plans
 
       <ul>
         <li><a href="ciderpress/dft/plans.html#module-ciderpress.dft.plans">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.dft.pwutil
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.dft.pwutil">module</a>
 </li>
       </ul></li>
       <li>
@@ -200,10 +282,87 @@
 </li>
       </ul></li>
       <li>
+    ciderpress.gpaw.atom_descriptor_utils
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_descriptor_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.atom_utils
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_utils">module</a>
+</li>
+      </ul></li>
+      <li>
     ciderpress.gpaw.calculator
 
       <ul>
         <li><a href="ciderpress/gpaw/calculator.html#module-ciderpress.gpaw.calculator">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.cider_fft
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_fft">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.cider_kernel
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_kernel">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.cider_paw
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_paw">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.cider_sl
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_sl">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.descriptors
+
+      <ul>
+        <li><a href="ciderpress/gpaw/descriptors.html#module-ciderpress.gpaw.descriptors">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.fit_paw_gauss_pot
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.fit_paw_gauss_pot">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.gpaw_grids
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.gpaw_grids">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.interp_paw
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.interp_paw">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.gpaw.nldf_interface
+
+      <ul>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.nldf_interface">module</a>
 </li>
       </ul></li>
       <li>
@@ -256,10 +415,82 @@
 </li>
       </ul></li>
       <li>
+    ciderpress.pyscf.gen_cider_grid
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.gen_cider_grid">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.nldf_convolutions
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.nldf_convolutions">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.numint
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.numint">module</a>
+</li>
+      </ul></li>
+      <li>
     ciderpress.pyscf.pbc.dft
 
       <ul>
         <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.dft">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.pbc.numint
+
+      <ul>
+        <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.numint">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.pbc.sdmx_fft
+
+      <ul>
+        <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.sdmx_fft">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.pbc.util
+
+      <ul>
+        <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.util">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.rks_grad
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.rks_grad">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    ciderpress.pyscf.sdmx
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.sdmx">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.sdmx_slow
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.sdmx_slow">module</a>
+</li>
+      </ul></li>
+      <li>
+    ciderpress.pyscf.uks_grad
+
+      <ul>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.uks_grad">module</a>
 </li>
       </ul></li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_add_atom_info">ciderpw_add_atom_info (C function)</a>
@@ -308,8 +539,6 @@
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.gLDA">ciderpw_data_obj.gLDA (C var)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.icell">ciderpw_data_obj.icell (C var)</a>
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_data_obj.initialized">ciderpw_data_obj.initialized (C var)</a>
@@ -422,9 +651,17 @@
 </li>
       <li><a href="c_extensions/pwutil.html#c.ciderpw_zero_work">ciderpw_zero_work (C function)</a>
 </li>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.ckernels">ckernels (ciderpress.models.train.MOLGP property)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.cls">cls (in module ciderpress.dft.transform_data)</a>
 </li>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.compute_likelihood">compute_likelihood() (ciderpress.models.train.MOLGP method)</a>
+</li>
       <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.ConstantNormalizer">ConstantNormalizer (class in ciderpress.dft.feat_normalizer)</a>
+</li>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_convolutions.ConvolutionCollection">ConvolutionCollection (class in ciderpress.dft.lcao_convolutions)</a>
+</li>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_convolutions.ConvolutionCollectionK">ConvolutionCollectionK (class in ciderpress.dft.lcao_convolutions)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -436,17 +673,15 @@
 </li>
       <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.DensityNormalizer">DensityNormalizer (class in ciderpress.dft.feat_normalizer)</a>
 </li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.rks_grad.DFGradients">DFGradients (class in ciderpress.pyscf.rks_grad)</a>
+</li>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel">DFTKernel (class in ciderpress.models.dft_kernel)</a>
 </li>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel2">DFTKernel2 (class in ciderpress.models.dft_kernel)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.diag">diag() (ciderpress.models.kernels.ADKernel method)</a>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DensityNoise.diag">diag() (ciderpress.models.kernels.DensityNoise method)</a>
 
       <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DensityNoise.diag">(ciderpress.models.kernels.DensityNoise method)</a>
-</li>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAdditiveMixin.diag">(ciderpress.models.kernels.DiffAdditiveMixin method)</a>
-</li>
         <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffARBF.diag">(ciderpress.models.kernels.DiffARBF method)</a>
 </li>
         <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffLinearKernel.diag">(ciderpress.models.kernels.DiffLinearKernel method)</a>
@@ -459,17 +694,13 @@
 </li>
         <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.FittedDensityNoise.diag">(ciderpress.models.kernels.FittedDensityNoise method)</a>
 </li>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.QARBF.diag">(ciderpress.models.kernels.QARBF method)</a>
-</li>
       </ul></li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAdditiveMixin">DiffAdditiveMixin (class in ciderpress.models.kernels)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAddLLRBF">DiffAddLLRBF (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAddRQ">DiffAddRQ (class in ciderpress.models.kernels)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAntisymRBF">DiffAntisymRBF (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffARBF">DiffARBF (class in ciderpress.models.kernels)</a>
@@ -478,24 +709,28 @@
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffConstantKernel">DiffConstantKernel (class in ciderpress.models.kernels)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffExponentiation">DiffExponentiation (class in ciderpress.models.kernels)</a>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.interp_paw.DiffGGA">DiffGGA (class in ciderpress.gpaw.interp_paw)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffLinearKernel">DiffLinearKernel (class in ciderpress.models.kernels)</a>
 </li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.interp_paw.DiffMGGA">DiffMGGA (class in ciderpress.gpaw.interp_paw)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.interp_paw.DiffPAWXCCorrection">DiffPAWXCCorrection (class in ciderpress.gpaw.interp_paw)</a>
+</li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffPolyKernel">DiffPolyKernel (class in ciderpress.models.kernels)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffProduct">DiffProduct (class in ciderpress.models.kernels)</a>
-</li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffRBF">DiffRBF (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffSum">DiffSum (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform">DiffTransform (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffWhiteKernel">DiffWhiteKernel (class in ciderpress.models.kernels)</a>
 </li>
-      <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer.dump">dump() (ciderpress.pyscf.analyzers.ElectronAnalyzer method)</a>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.XCEvalSerializable.dump">dump() (ciderpress.dft.xc_evaluator.XCEvalSerializable method)</a>
+
+      <ul>
+        <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer.dump">(ciderpress.pyscf.analyzers.ElectronAnalyzer method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -506,17 +741,31 @@
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.EMap">EMap (class in ciderpress.dft.transform_data)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.empty_coefs">empty_coefs() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings">EmptySettings (class in ciderpress.dft.settings)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_feat_exp">eval_feat_exp() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_occd_full">eval_occd_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_full">eval_rho_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vi_">eval_rho_vi_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_rho_vj_">eval_rho_vj_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_full">eval_vxc_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vi_">eval_vxc_vi_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.eval_vxc_vj_">eval_vxc_vj_() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ExponentialDensityNoise">ExponentialDensityNoise (class in ciderpress.models.kernels)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.sdmx.EXXSphGenerator">EXXSphGenerator (class in ciderpress.pyscf.sdmx)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -524,6 +773,8 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.atom_utils.FastPASDWCiderKernel">FastPASDWCiderKernel (class in ciderpress.gpaw.atom_utils)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.feat_spec_list">feat_spec_list (ciderpress.dft.settings.NLDFSettings property)</a>
 
       <ul>
@@ -538,9 +789,17 @@
       </ul></li>
       <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizer">FeatNormalizer (class in ciderpress.dft.feat_normalizer)</a>
 </li>
+      <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.FeatNormalizerList">FeatNormalizerList (class in ciderpress.dft.feat_normalizer)</a>
+</li>
+      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.FeatureList">FeatureList (class in ciderpress.dft.transform_data)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.FeatureNormalizer">FeatureNormalizer (class in ciderpress.dft.transform_data)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings">FeatureSettings (class in ciderpress.dft.settings)</a>
+</li>
+      <li><a href="c_extensions/pwutil.html#c.fft_plan_t">fft_plan_t (C type)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.nldf_interface.FFTWrapper">FFTWrapper (class in ciderpress.gpaw.nldf_interface)</a>
 </li>
       <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.ConstantNormalizer.fill_bwd">fill_bwd() (ciderpress.dft.feat_normalizer.ConstantNormalizer method)</a>
 
@@ -568,13 +827,23 @@
         <li><a href="ciderpress/dft/feat_normalizer.html#ciderpress.dft.feat_normalizer.InhomogeneityNormalizer.fill_fwd">(ciderpress.dft.feat_normalizer.InhomogeneityNormalizer method)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.fit">fit() (ciderpress.models.train.MOLGP method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.fit_metric">fit_metric (ciderpress.dft.plans.SDMXFullPlan attribute)</a>
+</li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.FittedDensityNoise">FittedDensityNoise (class in ciderpress.models.kernels)</a>
 </li>
-      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.FracLaplPlan">FracLaplPlan (class in ciderpress.dft.plans)</a>
-</li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FracLaplSettings">FracLaplSettings (class in ciderpress.dft.settings)</a>
-</li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer.from_calc">from_calc() (ciderpress.pyscf.analyzers.ElectronAnalyzer static method)</a>
+</li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedDFTKernel.from_dict">from_dict() (ciderpress.dft.xc_evaluator.MappedDFTKernel class method)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.SplineSetEvaluator.from_dict">(ciderpress.dft.xc_evaluator.SplineSetEvaluator class method)</a>
+</li>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.XCEvalSerializable.from_dict">(ciderpress.dft.xc_evaluator.XCEvalSerializable class method)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.FuncEvaluator">FuncEvaluator (class in ciderpress.dft.xc_evaluator)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -586,17 +855,31 @@
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan.get_a2q_fast">get_a2q_fast() (ciderpress.dft.plans.NLDFSplinePlan method)</a>
 </li>
+      <li><a href="ciderpress/models/kernel_tools.html#ciderpress.models.kernel_plans.kernel_tools.get_agpr_kernel">get_agpr_kernel() (in module ciderpress.models.kernel_plans.kernel_tools)</a>
+</li>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_alpha">get_alpha() (in module ciderpress.dft.settings)</a>
+</li>
+      <li><a href="ciderpress/models/kernel_tools.html#ciderpress.models.kernel_plans.kernel_tools.get_antisym_rbf_kernel">get_antisym_rbf_kernel() (in module ciderpress.models.kernel_plans.kernel_tools)</a>
+</li>
+      <li><a href="ciderpress/dft/model_utils.html#ciderpress.dft.model_utils.get_builtin_model_name">get_builtin_model_name() (in module ciderpress.dft.model_utils)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_cider_exponent">get_cider_exponent() (in module ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_cider_exponent_gga">get_cider_exponent_gga() (in module ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/gpaw/calculator.html#ciderpress.gpaw.calculator.get_cider_functional">get_cider_functional() (in module ciderpress.gpaw.calculator)</a>
 </li>
-      <li><a href="ciderpress/pyscf/descriptors.html#ciderpress.pyscf.descriptors.get_descriptors">get_descriptors() (in module ciderpress.pyscf.descriptors)</a>
+      <li><a href="ciderpress/gpaw/descriptors.html#ciderpress.gpaw.descriptors.get_descriptors">get_descriptors() (in module ciderpress.gpaw.descriptors)</a>
+
+      <ul>
+        <li><a href="ciderpress/pyscf/descriptors.html#ciderpress.pyscf.descriptors.get_descriptors">(in module ciderpress.pyscf.descriptors)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_drhodf_tuple">get_drhodf_tuple() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_ee_energy_density">get_ee_energy_density() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.HybridSettings.get_feat_usps">get_feat_usps (ciderpress.dft.settings.HybridSettings property)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan.get_feat">get_feat() (ciderpress.dft.plans.SemilocalPlan method)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.get_feat_usps">get_feat_usps() (ciderpress.dft.settings.BaseSettings method)</a>
 
@@ -604,8 +887,6 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.get_feat_usps">(ciderpress.dft.settings.EmptySettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.get_feat_usps">(ciderpress.dft.settings.FeatureSettings method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FracLaplSettings.get_feat_usps">(ciderpress.dft.settings.FracLaplSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.get_feat_usps">(ciderpress.dft.settings.NLDFSettings method)</a>
 </li>
@@ -616,8 +897,6 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ.get_feat_usps">(ciderpress.dft.settings.NLDFSettingsVJ method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK.get_feat_usps">(ciderpress.dft.settings.NLDFSettingsVK method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SADMSettings.get_feat_usps">(ciderpress.dft.settings.SADMSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings.get_feat_usps">(ciderpress.dft.settings.SDMX1Settings method)</a>
 </li>
@@ -632,27 +911,29 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings.get_feat_usps">(ciderpress.dft.settings.SemilocalSettings method)</a>
 </li>
       </ul></li>
-      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SADMPlan.get_features">get_features() (ciderpress.dft.plans.SADMPlan method)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.get_features">get_features() (ciderpress.dft.plans.SDMXIntPlan method)</a>
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_function_to_convolve">get_function_to_convolve() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_arguments">get_interpolation_arguments() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_interpolation_coefficients">get_interpolation_coefficients() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_k">get_k() (ciderpress.models.dft_kernel.DFTKernel method)</a>
+</li>
+      <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_k_and_deriv">get_k_and_deriv() (ciderpress.models.dft_kernel.DFTKernel method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_k_and_deriv">get_k_and_deriv() (ciderpress.models.dft_kernel.DFTKernel method)</a>
-</li>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.get_kctrl">get_kctrl() (ciderpress.models.dft_kernel.DFTKernel method)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.get_params">get_params() (ciderpress.models.kernels.ADKernel method)</a>
-
-      <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.get_params">(ciderpress.models.kernels.DiffTransform method)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan.get_occd">get_occd() (ciderpress.dft.plans.SemilocalPlan method)</a>
 </li>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SpinSymKernel.get_params">(ciderpress.models.kernels.SpinSymKernel method)</a>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.get_params">get_params() (ciderpress.models.kernels.DiffTransform method)</a>
 </li>
-      </ul></li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_q2a">get_q2a() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/models/kernel_tools.html#ciderpress.models.kernel_plans.kernel_tools.get_rbf_kernel">get_rbf_kernel() (in module ciderpress.models.kernel_plans.kernel_tools)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.get_reasonable_normalizer">get_reasonable_normalizer() (ciderpress.dft.settings.BaseSettings method)</a>
 
@@ -660,10 +941,6 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.get_reasonable_normalizer">(ciderpress.dft.settings.EmptySettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.get_reasonable_normalizer">(ciderpress.dft.settings.FeatureSettings method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FracLaplSettings.get_reasonable_normalizer">(ciderpress.dft.settings.FracLaplSettings method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.HybridSettings.get_reasonable_normalizer">(ciderpress.dft.settings.HybridSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.get_reasonable_normalizer">(ciderpress.dft.settings.NLDFSettings method)</a>
 </li>
@@ -674,8 +951,6 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ.get_reasonable_normalizer">(ciderpress.dft.settings.NLDFSettingsVJ method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK.get_reasonable_normalizer">(ciderpress.dft.settings.NLDFSettingsVK method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SADMSettings.get_reasonable_normalizer">(ciderpress.dft.settings.SADMSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings.get_reasonable_normalizer">(ciderpress.dft.settings.SDMX1Settings method)</a>
 </li>
@@ -690,13 +965,37 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings.get_reasonable_normalizer">(ciderpress.dft.settings.SemilocalSettings method)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_rho_tuple">get_rho_tuple() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_rs">get_rs() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
 </li>
-      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.get_vec_eval">get_vec_eval() (in module ciderpress.dft.xc_evaluator)</a>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_s2">get_s2() (in module ciderpress.dft.settings)</a>
+</li>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_single_orbital_tau">get_single_orbital_tau() (in module ciderpress.dft.settings)</a>
+</li>
+      <li><a href="ciderpress/dft/model_utils.html#ciderpress.dft.model_utils.get_slxc_settings">get_slxc_settings() (in module ciderpress.dft.model_utils)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.get_transformed_interpolation_terms">get_transformed_interpolation_terms() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.get_uniform_tau">get_uniform_tau() (in module ciderpress.dft.settings)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.get_vxc">get_vxc() (ciderpress.dft.plans.SDMXIntPlan method)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan.get_vxc">(ciderpress.dft.plans.SemilocalPlan method)</a>
+</li>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan2.get_vxc">(ciderpress.dft.plans.SemilocalPlan2 method)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.ModelWithNormalizer.get_x0_usps">get_x0_usps() (ciderpress.dft.xc_evaluator.ModelWithNormalizer method)</a>
 </li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_xc">get_xc() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
 </li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer.get_xc_energy">get_xc_energy() (ciderpress.pyscf.analyzers.RHFAnalyzer method)</a>
+</li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.GlobalLinearEvaluator">GlobalLinearEvaluator (class in ciderpress.dft.xc_evaluator)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.rks_grad.Gradients">Gradients (class in ciderpress.pyscf.rks_grad)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -704,18 +1003,12 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.HybridPlan">HybridPlan (class in ciderpress.dft.plans)</a>
-</li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.HybridSettings">HybridSettings (class in ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan.has_coul_list">has_coul_list (ciderpress.dft.plans.SDMXPlan attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.hyperparameters">hyperparameters (ciderpress.models.kernels.ADKernel property)</a>
-
-      <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.hyperparameters">(ciderpress.models.kernels.DiffTransform property)</a>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.hyperparameters">hyperparameters (ciderpress.models.kernels.DiffTransform property)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -728,11 +1021,9 @@
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.is_empty">is_empty (ciderpress.dft.settings.BaseSettings property)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.is_stationary">is_stationary() (ciderpress.models.kernels.ADKernel method)</a>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAddLLRBF.is_stationary">is_stationary() (ciderpress.models.kernels.DiffAddLLRBF method)</a>
 
       <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAddLLRBF.is_stationary">(ciderpress.models.kernels.DiffAddLLRBF method)</a>
-</li>
         <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffAddRQ.is_stationary">(ciderpress.models.kernels.DiffAddRQ method)</a>
 </li>
         <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffARBFV2.is_stationary">(ciderpress.models.kernels.DiffARBFV2 method)</a>
@@ -761,16 +1052,36 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.KernelEvaluator">KernelEvaluator (class in ciderpress.dft.xc_evaluator)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.LMap">LMap (class in ciderpress.dft.transform_data)</a>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_interpolation.LCAOInterpolator">LCAOInterpolator (class in ciderpress.dft.lcao_interpolation)</a>
+</li>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_interpolation.LCAOInterpolatorDirect">LCAOInterpolatorDirect (class in ciderpress.dft.lcao_interpolation)</a>
+</li>
+      <li><a href="ciderpress/dft/lcao_numerical.html#ciderpress.dft.lcao_nldf_generator.LCAONLDFGenerator">LCAONLDFGenerator (class in ciderpress.dft.lcao_nldf_generator)</a>
+</li>
+      <li><a href="ciderpress/gpaw/numerical.html#ciderpress.gpaw.nldf_interface.LibCiderPW">LibCiderPW (class in ciderpress.gpaw.nldf_interface)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer.load">load() (ciderpress.pyscf.analyzers.ElectronAnalyzer static method)</a>
+      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.LMap">LMap (class in ciderpress.dft.transform_data)</a>
+</li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.XCEvalSerializable.load">load() (ciderpress.dft.xc_evaluator.XCEvalSerializable class method)</a>
+
+      <ul>
+        <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.ElectronAnalyzer.load">(ciderpress.pyscf.analyzers.ElectronAnalyzer static method)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/dft/model_utils.html#ciderpress.dft.model_utils.load_cider_model">load_cider_model() (in module ciderpress.dft.model_utils)</a>
+</li>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.load_data">load_data() (ciderpress.models.train.MOLGP static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -798,15 +1109,35 @@
 </li>
       <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedDFTKernel2">MappedDFTKernel2 (class in ciderpress.dft.xc_evaluator2)</a>
 </li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC">MappedXC (class in ciderpress.dft.xc_evaluator)</a>
+</li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2">MappedXC2 (class in ciderpress.dft.xc_evaluator2)</a>
+</li>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.mode">mode (ciderpress.models.dft_kernel.DFTKernel attribute)</a>
+</li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.ModelWithNormalizer">ModelWithNormalizer (class in ciderpress.dft.xc_evaluator)</a>
 </li>
       <li>
     module
 
       <ul>
+        <li><a href="ciderpress/dft/baselines.html#module-ciderpress.dft.baselines">ciderpress.dft.baselines</a>
+</li>
         <li><a href="ciderpress/dft/feat_normalizer.html#module-ciderpress.dft.feat_normalizer">ciderpress.dft.feat_normalizer</a>
 </li>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.grids_indexer">ciderpress.dft.grids_indexer</a>
+</li>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_convolutions">ciderpress.dft.lcao_convolutions</a>
+</li>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_interpolation">ciderpress.dft.lcao_interpolation</a>
+</li>
+        <li><a href="ciderpress/dft/lcao_numerical.html#module-ciderpress.dft.lcao_nldf_generator">ciderpress.dft.lcao_nldf_generator</a>
+</li>
+        <li><a href="ciderpress/dft/model_utils.html#module-ciderpress.dft.model_utils">ciderpress.dft.model_utils</a>
+</li>
         <li><a href="ciderpress/dft/plans.html#module-ciderpress.dft.plans">ciderpress.dft.plans</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.dft.pwutil">ciderpress.dft.pwutil</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#module-ciderpress.dft.settings">ciderpress.dft.settings</a>
 </li>
@@ -816,7 +1147,29 @@
 </li>
         <li><a href="ciderpress/dft/xc_evaluator.html#module-ciderpress.dft.xc_evaluator2">ciderpress.dft.xc_evaluator2</a>
 </li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_descriptor_utils">ciderpress.gpaw.atom_descriptor_utils</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.atom_utils">ciderpress.gpaw.atom_utils</a>
+</li>
         <li><a href="ciderpress/gpaw/calculator.html#module-ciderpress.gpaw.calculator">ciderpress.gpaw.calculator</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_fft">ciderpress.gpaw.cider_fft</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_kernel">ciderpress.gpaw.cider_kernel</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_paw">ciderpress.gpaw.cider_paw</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.cider_sl">ciderpress.gpaw.cider_sl</a>
+</li>
+        <li><a href="ciderpress/gpaw/descriptors.html#module-ciderpress.gpaw.descriptors">ciderpress.gpaw.descriptors</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.fit_paw_gauss_pot">ciderpress.gpaw.fit_paw_gauss_pot</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.gpaw_grids">ciderpress.gpaw.gpaw_grids</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.interp_paw">ciderpress.gpaw.interp_paw</a>
+</li>
+        <li><a href="ciderpress/gpaw/numerical.html#module-ciderpress.gpaw.nldf_interface">ciderpress.gpaw.nldf_interface</a>
 </li>
         <li><a href="ciderpress/models/dft_kernel.html#module-ciderpress.models.dft_kernel">ciderpress.models.dft_kernel</a>
 </li>
@@ -832,7 +1185,27 @@
 </li>
         <li><a href="ciderpress/pyscf/dft.html#module-ciderpress.pyscf.dft">ciderpress.pyscf.dft</a>
 </li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.gen_cider_grid">ciderpress.pyscf.gen_cider_grid</a>
+</li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.nldf_convolutions">ciderpress.pyscf.nldf_convolutions</a>
+</li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.numint">ciderpress.pyscf.numint</a>
+</li>
         <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.dft">ciderpress.pyscf.pbc.dft</a>
+</li>
+        <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.numint">ciderpress.pyscf.pbc.numint</a>
+</li>
+        <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.sdmx_fft">ciderpress.pyscf.pbc.sdmx_fft</a>
+</li>
+        <li><a href="ciderpress/pyscf/pbc/dft.html#module-ciderpress.pyscf.pbc.util">ciderpress.pyscf.pbc.util</a>
+</li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.rks_grad">ciderpress.pyscf.rks_grad</a>
+</li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.sdmx">ciderpress.pyscf.sdmx</a>
+</li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.sdmx_slow">ciderpress.pyscf.sdmx_slow</a>
+</li>
+        <li><a href="ciderpress/pyscf/numerical.html#module-ciderpress.pyscf.uks_grad">ciderpress.pyscf.uks_grad</a>
 </li>
       </ul></li>
   </ul></td>
@@ -847,6 +1220,10 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedDFTKernel.N1">N1 (ciderpress.dft.xc_evaluator.MappedDFTKernel property)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.new">new() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.nfeat">nfeat (ciderpress.dft.settings.BaseSettings property)</a>
 
       <ul>
@@ -854,13 +1231,7 @@
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.nfeat">(ciderpress.dft.settings.FeatureSettings property)</a>
 </li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FracLaplSettings.nfeat">(ciderpress.dft.settings.FracLaplSettings property)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.HybridSettings.nfeat">(ciderpress.dft.settings.HybridSettings property)</a>
-</li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.nfeat">(ciderpress.dft.settings.NLDFSettings property)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SADMSettings.nfeat">(ciderpress.dft.settings.SADMSettings property)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings.nfeat">(ciderpress.dft.settings.SDMX1Settings property)</a>
 </li>
@@ -874,6 +1245,10 @@
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings.nfeat">(ciderpress.dft.settings.SemilocalSettings property)</a>
 </li>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC.nfeat">(ciderpress.dft.xc_evaluator.MappedXC property)</a>
+</li>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.ModelWithNormalizer.nfeat">(ciderpress.dft.xc_evaluator.ModelWithNormalizer property)</a>
+</li>
       </ul></li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.nldf_type">nldf_type (ciderpress.dft.settings.NLDFSettings property)</a>
 </li>
@@ -881,8 +1256,6 @@
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFGaussianPlan">NLDFGaussianPlan (class in ciderpress.dft.plans)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings">NLDFSettings (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI">NLDFSettingsVI (class in ciderpress.dft.settings)</a>
@@ -895,6 +1268,16 @@
 </li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFSplinePlan">NLDFSplinePlan (class in ciderpress.dft.plans)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.NNEvaluator">NNEvaluator (class in ciderpress.dft.xc_evaluator)</a>
+</li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC.normalizer">normalizer (ciderpress.dft.xc_evaluator.MappedXC property)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_rks">nr_rks() (in module ciderpress.pyscf.numint)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.numint.nr_uks">nr_uks() (in module ciderpress.pyscf.numint)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.num_feat_param_sets">num_feat_param_sets (ciderpress.dft.settings.NLDFSettings property)</a>
 
       <ul>
@@ -905,6 +1288,24 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ.num_feat_param_sets">(ciderpress.dft.settings.NLDFSettingsVJ property)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK.num_feat_param_sets">(ciderpress.dft.settings.NLDFSettingsVK property)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.num_kernels">num_kernels (ciderpress.models.train.MOLGP property)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.num_l0_feat">num_l0_feat (ciderpress.dft.plans.SDMXFullPlan property)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.num_l0_feat">(ciderpress.dft.plans.SDMXIntPlan property)</a>
+</li>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan.num_l0_feat">(ciderpress.dft.plans.SDMXPlan property)</a>
+</li>
+      </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.num_l1_feat">num_l1_feat (ciderpress.dft.plans.SDMXFullPlan property)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan.num_l1_feat">(ciderpress.dft.plans.SDMXIntPlan property)</a>
+</li>
+        <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan.num_l1_feat">(ciderpress.dft.plans.SDMXPlan property)</a>
 </li>
       </ul></li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettings.num_vi_feats">num_vi_feats (ciderpress.dft.settings.NLDFSettings property)</a>
@@ -919,6 +1320,8 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK.num_vi_feats">(ciderpress.dft.settings.NLDFSettingsVK property)</a>
 </li>
       </ul></li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vi_ints">num_vi_ints (ciderpress.dft.plans.NLDFAuxiliaryPlan property)</a>
+</li>
       <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.num_vj">num_vj (ciderpress.dft.plans.NLDFAuxiliaryPlan property)</a>
 </li>
   </ul></td>
@@ -930,6 +1333,10 @@
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.OmegaMap">OmegaMap (class in ciderpress.dft.transform_data)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.optimize_cov_and_noise_">optimize_cov_and_noise_() (ciderpress.models.train.MOLGP method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
@@ -937,17 +1344,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.PartialARBF">PartialARBF (class in ciderpress.models.kernels)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.PartialRBF">PartialRBF (class in ciderpress.models.kernels)</a>
 </li>
   </ul></td>
-</tr></table>
-
-<h2 id="Q">Q</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.QARBF">QARBF (class in ciderpress.models.kernels)</a>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator">PyscfNLDFGenerator (class in ciderpress.pyscf.nldf_convolutions)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.nldf_convolutions.PySCFNLDFInitializer">PySCFNLDFInitializer (class in ciderpress.pyscf.nldf_convolutions)</a>
+</li>
+      <li><a href="ciderpress/pyscf/numerical.html#ciderpress.pyscf.sdmx.PySCFSDMXInitializer">PySCFSDMXInitializer (class in ciderpress.pyscf.sdmx)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -955,14 +1360,14 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.requires_vector_input">requires_vector_input (ciderpress.models.kernels.ADKernel property)</a>
-
-      <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.requires_vector_input">(ciderpress.models.kernels.DiffTransform property)</a>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.RBFEvaluator">RBFEvaluator (class in ciderpress.dft.xc_evaluator)</a>
 </li>
-      </ul></li>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.requires_vector_input">requires_vector_input (ciderpress.models.kernels.DiffTransform property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.reset_reactions">reset_reactions() (ciderpress.models.train.MOLGP method)</a>
+</li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RHFAnalyzer">RHFAnalyzer (class in ciderpress.pyscf.analyzers)</a>
 </li>
       <li><a href="ciderpress/pyscf/analyzers.html#ciderpress.pyscf.analyzers.RKSAnalyzer">RKSAnalyzer (in module ciderpress.pyscf.analyzers)</a>
@@ -973,13 +1378,9 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SADMPlan">SADMPlan (class in ciderpress.dft.plans)</a>
-</li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SADMSettings">SADMSettings (class in ciderpress.dft.settings)</a>
-</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings">SDMX1Settings (class in ciderpress.dft.settings)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXBaseSettings">SDMXBaseSettings (class in ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan">SDMXFullPlan (class in ciderpress.dft.plans)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXFullSettings">SDMXFullSettings (class in ciderpress.dft.settings)</a>
 </li>
@@ -987,25 +1388,39 @@
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXGSettings">SDMXGSettings (class in ciderpress.dft.settings)</a>
 </li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXIntPlan">SDMXIntPlan (class in ciderpress.dft.plans)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXPlan">SDMXPlan (class in ciderpress.dft.plans)</a>
+</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMXSettings">SDMXSettings (class in ciderpress.dft.settings)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan">SemilocalPlan (class in ciderpress.dft.plans)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SemilocalPlan2">SemilocalPlan2 (class in ciderpress.dft.plans)</a>
 </li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SemilocalSettings">SemilocalSettings (class in ciderpress.dft.settings)</a>
 </li>
       <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.set_control_points">set_control_points() (ciderpress.models.train.MOLGP method)</a>
 </li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.NNEvaluator.set_device">set_device() (ciderpress.dft.xc_evaluator.NNEvaluator method)</a>
+</li>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.SDMXFullPlan.settings">settings (ciderpress.dft.plans.SDMXFullPlan attribute)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SignedUMap">SignedUMap (class in ciderpress.dft.transform_data)</a>
 </li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SingleDot">SingleDot (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SingleRBF">SingleRBF (class in ciderpress.models.kernels)</a>
-</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLBMap">SLBMap (class in ciderpress.dft.transform_data)</a>
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLDMap">SLDMap (class in ciderpress.dft.transform_data)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLNMap">SLNMap (class in ciderpress.dft.transform_data)</a>
+</li>
+      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLR2Map">SLR2Map (class in ciderpress.dft.transform_data)</a>
+</li>
+      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLR3Map">SLR3Map (class in ciderpress.dft.transform_data)</a>
+</li>
+      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLRMap">SLRMap (class in ciderpress.dft.transform_data)</a>
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLTMap">SLTMap (class in ciderpress.dft.transform_data)</a>
 </li>
@@ -1013,27 +1428,17 @@
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.SLXMap">SLXMap (class in ciderpress.dft.transform_data)</a>
 </li>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SPEC_USPS">SPEC_USPS (in module ciderpress.dft.settings)</a>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.SpinRBFEvaluator">SpinRBFEvaluator (class in ciderpress.dft.xc_evaluator)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SpinSymARBF">SpinSymARBF (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SpinSymKernel">SpinSymKernel (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SpinSymPoly">SpinSymPoly (class in ciderpress.models.kernels)</a>
 </li>
       <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SpinSymRBF">SpinSymRBF (class in ciderpress.models.kernels)</a>
 </li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.SplineSetEvaluator">SplineSetEvaluator (class in ciderpress.dft.xc_evaluator)</a>
+</li>
       <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.store_mol_covs">store_mol_covs() (ciderpress.models.train.MOLGP method)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SubsetAddLLRBF">SubsetAddLLRBF (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SubsetAddRQ">SubsetAddRQ (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SubsetARBF">SubsetARBF (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SubsetPoly">SubsetPoly (class in ciderpress.models.kernels)</a>
-</li>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.SubsetRBF">SubsetRBF (class in ciderpress.models.kernels)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1041,32 +1446,32 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.ADKernel.theta">theta (ciderpress.models.kernels.ADKernel property)</a>
-
-      <ul>
-        <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.theta">(ciderpress.models.kernels.DiffTransform property)</a>
+      <li><a href="ciderpress/models/kernels.html#ciderpress.models.kernels.DiffTransform.theta">theta (ciderpress.models.kernels.DiffTransform property)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.TMap">TMap (class in ciderpress.dft.transform_data)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedDFTKernel.to_dict">to_dict() (ciderpress.dft.xc_evaluator.MappedDFTKernel method)</a>
+
+      <ul>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.SplineSetEvaluator.to_dict">(ciderpress.dft.xc_evaluator.SplineSetEvaluator method)</a>
+</li>
+        <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.XCEvalSerializable.to_dict">(ciderpress.dft.xc_evaluator.XCEvalSerializable method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.HybridSettings.ueg_vector">ueg_vector (ciderpress.dft.settings.HybridSettings property)</a>
-</li>
       <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.BaseSettings.ueg_vector">ueg_vector() (ciderpress.dft.settings.BaseSettings method)</a>
 
       <ul>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.EmptySettings.ueg_vector">(ciderpress.dft.settings.EmptySettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FeatureSettings.ueg_vector">(ciderpress.dft.settings.FeatureSettings method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.FracLaplSettings.ueg_vector">(ciderpress.dft.settings.FracLaplSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI.ueg_vector">(ciderpress.dft.settings.NLDFSettingsVI method)</a>
 </li>
@@ -1075,8 +1480,6 @@
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ.ueg_vector">(ciderpress.dft.settings.NLDFSettingsVJ method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVK.ueg_vector">(ciderpress.dft.settings.NLDFSettingsVK method)</a>
-</li>
-        <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SADMSettings.ueg_vector">(ciderpress.dft.settings.SADMSettings method)</a>
 </li>
         <li><a href="ciderpress/dft/settings.html#ciderpress.dft.settings.SDMX1Settings.ueg_vector">(ciderpress.dft.settings.SDMX1Settings method)</a>
 </li>
@@ -1109,9 +1512,11 @@
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.V3Map">V3Map (class in ciderpress.dft.transform_data)</a>
 </li>
+      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.V4Map">V4Map (class in ciderpress.dft.transform_data)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.V4Map">V4Map (class in ciderpress.dft.transform_data)</a>
+      <li><a href="ciderpress/dft/model_utils.html#ciderpress.dft.model_utils.validate_cider_composition">validate_cider_composition() (in module ciderpress.dft.model_utils)</a>
 </li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.VMap">VMap (class in ciderpress.dft.transform_data)</a>
 </li>
@@ -1133,8 +1538,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ciderpress/models/dft_kernel.html#ciderpress.models.dft_kernel.DFTKernel.X1ctrl">X1ctrl (ciderpress.models.dft_kernel.DFTKernel attribute)</a>
 </li>
+      <li><a href="ciderpress/dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.XCEvalSerializable">XCEvalSerializable (class in ciderpress.dft.xc_evaluator)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/models/train.html#ciderpress.models.train.MOLGP.xkernels">xkernels (ciderpress.models.train.MOLGP property)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.XMap">XMap (class in ciderpress.dft.transform_data)</a>
 </li>
   </ul></td>
@@ -1151,6 +1560,12 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs">zero_coefs() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ciderpress/dft/plans.html#ciderpress.dft.plans.NLDFAuxiliaryPlan.zero_coefs_full">zero_coefs_full() (ciderpress.dft.plans.NLDFAuxiliaryPlan method)</a>
+</li>
       <li><a href="ciderpress/dft/transform_data.html#ciderpress.dft.transform_data.ZMap">ZMap (class in ciderpress.dft.transform_data)</a>
 </li>
   </ul></td>
@@ -1165,7 +1580,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

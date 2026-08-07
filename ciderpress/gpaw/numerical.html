@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPAW FFT, PAW, and Radial Implementation &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="C Extension Libraries" href="../../c_extensions/c_extensions.html" />
+    <link rel="prev" title="GPAW Descriptor Interface" href="descriptors.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gpaw.html">GPAW Interface and PAW Implementation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calculator.html">GPAW Calculator Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptors.html">GPAW Descriptor Interface</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GPAW FFT, PAW, and Radial Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-ciderpress.gpaw.cider_kernel">Smooth-grid forward and adjoint</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_kernel.CiderKernel"><code class="docutils literal notranslate"><span class="pre">CiderKernel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.nldf_interface.LibCiderPW"><code class="docutils literal notranslate"><span class="pre">LibCiderPW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.nldf_interface.FFTWrapper"><code class="docutils literal notranslate"><span class="pre">FFTWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_fft.CiderGGA"><code class="docutils literal notranslate"><span class="pre">CiderGGA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_fft.CiderMGGA"><code class="docutils literal notranslate"><span class="pre">CiderMGGA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#why-paw-needs-pasdw">Why PAW needs PASDW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ciderpress.gpaw.cider_paw">PAW/PASDW modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_paw.CiderGGAPASDW"><code class="docutils literal notranslate"><span class="pre">CiderGGAPASDW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.cider_paw.CiderMGGAPASDW"><code class="docutils literal notranslate"><span class="pre">CiderMGGAPASDW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.atom_utils.FastPASDWCiderKernel"><code class="docutils literal notranslate"><span class="pre">FastPASDWCiderKernel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ciderpress.gpaw.interp_paw">Radial reconstruction and on-site correction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.interp_paw.DiffPAWXCCorrection"><code class="docutils literal notranslate"><span class="pre">DiffPAWXCCorrection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.interp_paw.DiffGGA"><code class="docutils literal notranslate"><span class="pre">DiffGGA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ciderpress.gpaw.interp_paw.DiffMGGA"><code class="docutils literal notranslate"><span class="pre">DiffMGGA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#forward-derivative-contract">Forward/derivative contract</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="gpaw.html">GPAW Interface and PAW Implementation</a></li>
+      <li class="breadcrumb-item active">GPAW FFT, PAW, and Radial Implementation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/ciderpress/gpaw/numerical.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gpaw-fft-paw-and-radial-implementation">
+<h1>GPAW FFT, PAW, and Radial Implementation<a class="headerlink" href="#gpaw-fft-paw-and-radial-implementation" title="Link to this heading"></a></h1>
+<p>The GPAW backend connects the mapped functional to smooth-grid FFT operations,
+PAW/PASDW corrections, and their derivatives.  Calculations construct the
+functional with <a class="reference internal" href="calculator.html#ciderpress.gpaw.calculator.get_cider_functional" title="ciderpress.gpaw.calculator.get_cider_functional"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cider_functional()</span></code></a> and
+use <a class="reference internal" href="calculator.html#ciderpress.gpaw.calculator.CiderGPAW" title="ciderpress.gpaw.calculator.CiderGPAW"><code class="xref py py-class docutils literal notranslate"><span class="pre">CiderGPAW</span></code></a>; the modules below implement
+the numerical layers beneath those interfaces.</p>
+<section id="module-ciderpress.gpaw.cider_kernel">
+<span id="smooth-grid-forward-and-adjoint"></span><h2>Smooth-grid forward and adjoint<a class="headerlink" href="#module-ciderpress.gpaw.cider_kernel" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="#module-ciderpress.gpaw.cider_kernel" title="ciderpress.gpaw.cider_kernel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_kernel</span></code></a> is the bridge between GPAW density arrays
+and <a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator.MappedXC" title="ciderpress.dft.xc_evaluator.MappedXC"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC</span></code></a> or
+<a class="reference internal" href="../dft/xc_evaluator.html#ciderpress.dft.xc_evaluator2.MappedXC2" title="ciderpress.dft.xc_evaluator2.MappedXC2"><code class="xref py py-class docutils literal notranslate"><span class="pre">MappedXC2</span></code></a>.  It assembles semilocal and
+NLDF blocks in serialized order, applies normalization, calls the mapped
+model, and distributes the returned derivatives to the density, gradient,
+kinetic-energy-density, and NLDF potentials.  The GGA/MGGA kernel classes also
+assemble the explicit exchange and correlation terms selected by
+<code class="docutils literal notranslate"><span class="pre">get_cider_functional</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.cider_kernel.CiderKernel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.cider_kernel.</span></span><span class="sig-name descname"><span class="pre">CiderKernel</span></span><a class="headerlink" href="#ciderpress.gpaw.cider_kernel.CiderKernel" title="Link to this definition"></a></dt>
+<dd><p>Common mapped-model adapter used by the GPAW GGA and meta-GGA kernel
+classes.  It assembles and normalizes the raw semilocal and NLDF features,
+calls the mapped evaluator, and distributes the returned derivatives to
+GPAW’s semilocal and NLDF potential arrays.</p>
+</dd></dl>
+
+<p id="module-ciderpress.gpaw.cider_sl"><a class="reference internal" href="#module-ciderpress.gpaw.cider_sl" title="ciderpress.gpaw.cider_sl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_sl</span></code></a> connects packaged semilocal CIDER23X models to
+the same GGA/MGGA and PAW framework.</p>
+<p id="module-ciderpress.gpaw.nldf_interface"><a class="reference internal" href="#module-ciderpress.gpaw.nldf_interface" title="ciderpress.gpaw.nldf_interface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.nldf_interface</span></code></a> wraps the compiled periodic NLDF
+library. It distributes the real and reciprocal arrays, evaluates the kernel
+interpolation and FFT convolutions, and provides the reverse contractions
+needed for the XC potential and stress.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.nldf_interface.LibCiderPW">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.nldf_interface.</span></span><span class="sig-name descname"><span class="pre">LibCiderPW</span></span><a class="headerlink" href="#ciderpress.gpaw.nldf_interface.LibCiderPW" title="Link to this definition"></a></dt>
+<dd><p>Owns the compiled serial or MPI convolution plan and its work arrays. Its
+forward and backward operations are an adjoint pair.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.nldf_interface.FFTWrapper">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.nldf_interface.</span></span><span class="sig-name descname"><span class="pre">FFTWrapper</span></span><a class="headerlink" href="#ciderpress.gpaw.nldf_interface.FFTWrapper" title="Link to this definition"></a></dt>
+<dd><p>Adapts GPAW’s plane-wave descriptor and array distribution to the compiled
+CIDER FFT interface.</p>
+</dd></dl>
+
+<p id="module-ciderpress.gpaw.cider_fft"><a class="reference internal" href="#module-ciderpress.gpaw.cider_fft" title="ciderpress.gpaw.cider_fft"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_fft</span></code></a> connects those operations to GPAW’s GGA and
+meta-GGA XC framework. It gathers the smooth density ingredients, evaluates
+the mapped energy density, adds the backward feature potential, and supplies
+the smooth-grid force and stress terms.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.cider_fft.CiderGGA">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.cider_fft.</span></span><span class="sig-name descname"><span class="pre">CiderGGA</span></span><a class="headerlink" href="#ciderpress.gpaw.cider_fft.CiderGGA" title="Link to this definition"></a></dt>
+<dd><p>Smooth-grid GGA CIDER implementation.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.cider_fft.CiderMGGA">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.cider_fft.</span></span><span class="sig-name descname"><span class="pre">CiderMGGA</span></span><a class="headerlink" href="#ciderpress.gpaw.cider_fft.CiderMGGA" title="Link to this definition"></a></dt>
+<dd><p>Smooth-grid meta-GGA implementation, including kinetic-energy-density
+input and potential.</p>
+</dd></dl>
+
+<p>The interpolation controls <code class="docutils literal notranslate"><span class="pre">qmax</span></code>, <code class="docutils literal notranslate"><span class="pre">lambd</span></code>, and <code class="docutils literal notranslate"><span class="pre">Nalpha</span></code> define the
+numerical representation of the density-dependent kernel. Energy, potential,
+force, and stress calculations being compared must use the same controls.</p>
+</section>
+<section id="why-paw-needs-pasdw">
+<h2>Why PAW needs PASDW<a class="headerlink" href="#why-paw-needs-pasdw" title="Link to this heading"></a></h2>
+<p>In ordinary PAW, a local or semilocal XC energy can be decomposed into a
+smooth cell term and atom-centered all-electron-minus-pseudo corrections,</p>
+<div class="math notranslate nohighlight">
+\[E_{\mathrm{xc}}
+= \widetilde E_{\mathrm{xc}}
++ \sum_A\left(E_{\mathrm{xc}}^A-\widetilde E_{\mathrm{xc}}^A\right).\]</div>
+<p>An NLDF at a point depends on density in a finite surrounding region.  A
+final on-site energy correction leaves the convolution source outside the
+augmentation sphere unchanged.  CiderPress transports that all-electron
+source with the PAW/PASDW construction introduced with
+CIDER23X. (PASDW stands for Projector Augmented/Smoothed Density Wave,
+and the concept is introduced in more detail in
+the CIDER23X paper. <a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>)</p>
+<p>The transfer has two coupled stages. First, localized source functions
+<span class="math notranslate nohighlight">\(g_i^A\)</span> augment the smooth kernel source,</p>
+<div class="math notranslate nohighlight">
+\[\widetilde\theta_\alpha^{\mathrm{aug}}(\mathbf r)
+= \widetilde\theta_\alpha(\mathbf r)
++ \sum_{A i} C_{i\alpha}^A g_i^A(\mathbf r),\]</div>
+<p>so that the convolved smooth feature reproduces the all-electron feature
+outside each augmentation sphere. Second, localized feature partial waves
+and dual projectors transfer the convolved fields back to the atomic support
+grids. Their projection coefficients have the form</p>
+<div class="math notranslate nohighlight">
+\[B_{j\beta}^A
+= \Delta v\sum_{g\in A}
+\widetilde F_\beta^{\mathrm{aug}}(\mathbf r_g)
+\widetilde p_j^A(\mathbf r_g).\]</div>
+<p>The on-site all-electron and pseudo features use the same returned field, with
+the required localized residual added on the all-electron side.  Their
+difference gives the PAW correction and includes the nonlocal information
+transported through the cell grid.</p>
+</section>
+<section id="module-ciderpress.gpaw.cider_paw">
+<span id="paw-pasdw-modules"></span><h2>PAW/PASDW modules<a class="headerlink" href="#module-ciderpress.gpaw.cider_paw" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="#module-ciderpress.gpaw.cider_paw" title="ciderpress.gpaw.cider_paw"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.cider_paw</span></code></a> coordinates the atom-to-grid source
+augmentation, grid-to-atom return projection, on-site energy/potential, and
+their force and stress contributions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.cider_paw.CiderGGAPASDW">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.cider_paw.</span></span><span class="sig-name descname"><span class="pre">CiderGGAPASDW</span></span><a class="headerlink" href="#ciderpress.gpaw.cider_paw.CiderGGAPASDW" title="Link to this definition"></a></dt>
+<dd><p>GGA smooth-grid functional with PASDW augmentation corrections.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.cider_paw.CiderMGGAPASDW">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.cider_paw.</span></span><span class="sig-name descname"><span class="pre">CiderMGGAPASDW</span></span><a class="headerlink" href="#ciderpress.gpaw.cider_paw.CiderMGGAPASDW" title="Link to this definition"></a></dt>
+<dd><p>Meta-GGA counterpart, including PAW kinetic-energy-density response.</p>
+</dd></dl>
+
+<p id="module-ciderpress.gpaw.atom_utils"><a class="reference internal" href="#module-ciderpress.gpaw.atom_utils" title="ciderpress.gpaw.atom_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.atom_utils</span></code></a> constructs the radial/angular auxiliary
+bases, localized source and projector functions, overlap fits, and the
+forward/backward atomic contractions used by PASDW.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.atom_utils.FastPASDWCiderKernel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.atom_utils.</span></span><span class="sig-name descname"><span class="pre">FastPASDWCiderKernel</span></span><a class="headerlink" href="#ciderpress.gpaw.atom_utils.FastPASDWCiderKernel" title="Link to this definition"></a></dt>
+<dd><p>Owns the per-setup PASDW data and applies atom-to-grid, grid-to-atom,
+energy, potential, force, and stress contractions for a calculation.</p>
+</dd></dl>
+
+<p id="module-ciderpress.gpaw.fit_paw_gauss_pot"><a class="reference internal" href="#module-ciderpress.gpaw.fit_paw_gauss_pot" title="ciderpress.gpaw.fit_paw_gauss_pot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.fit_paw_gauss_pot</span></code></a> builds the localized radial source
+and projector bases.</p>
+<p id="module-ciderpress.dft.pwutil"><a class="reference internal" href="#module-ciderpress.dft.pwutil" title="ciderpress.dft.pwutil"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.dft.pwutil</span></code></a> wraps the compiled spline, spherical-harmonic,
+and atom/grid contraction kernels.</p>
+<p id="module-ciderpress.gpaw.atom_descriptor_utils"><a class="reference internal" href="#module-ciderpress.gpaw.atom_descriptor_utils" title="ciderpress.gpaw.atom_descriptor_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.atom_descriptor_utils</span></code></a> applies the corresponding atomic
+corrections when extracting fixed-density descriptor arrays and occupation
+derivatives.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pasdw_ovlp_fit</span></code> selects overlap fitting for the transfer and changes the
+evaluated numbers.  <code class="docutils literal notranslate"><span class="pre">pasdw_store_funcs</span></code> caches atom-centered projector
+values: it trades memory for repeated cost and leaves the evaluated
+functional unchanged.</p>
+</section>
+<section id="module-ciderpress.gpaw.interp_paw">
+<span id="radial-reconstruction-and-on-site-correction"></span><h2>Radial reconstruction and on-site correction<a class="headerlink" href="#module-ciderpress.gpaw.interp_paw" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="#module-ciderpress.gpaw.interp_paw" title="ciderpress.gpaw.interp_paw"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.interp_paw</span></code></a> handles the radial on-site layer of the
+PAW/PASDW route.  It reconstructs differentiable all-electron and pseudo
+partial-wave density ingredients on an appropriate radial grid and evaluates
+the on-site GGA, meta-GGA, or CIDER correction. The returned derivatives are
+contracted back into GPAW’s PAW density matrices.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.interp_paw.DiffPAWXCCorrection">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.interp_paw.</span></span><span class="sig-name descname"><span class="pre">DiffPAWXCCorrection</span></span><a class="headerlink" href="#ciderpress.gpaw.interp_paw.DiffPAWXCCorrection" title="Link to this definition"></a></dt>
+<dd><p>Container for interpolated all-electron and pseudo partial-wave densities,
+radial derivatives, kinetic-energy-density terms, and projector
+transformations for one GPAW setup.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.interp_paw.DiffGGA">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.interp_paw.</span></span><span class="sig-name descname"><span class="pre">DiffGGA</span></span><a class="headerlink" href="#ciderpress.gpaw.interp_paw.DiffGGA" title="Link to this definition"></a></dt>
+<dd><p>Differentiable radial GGA correction used by the CIDER PAW path.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.gpaw.interp_paw.DiffMGGA">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.gpaw.interp_paw.</span></span><span class="sig-name descname"><span class="pre">DiffMGGA</span></span><a class="headerlink" href="#ciderpress.gpaw.interp_paw.DiffMGGA" title="Link to this definition"></a></dt>
+<dd><p>Differentiable radial meta-GGA correction, including reconstructed
+kinetic-energy-density terms.</p>
+</dd></dl>
+
+<p id="module-ciderpress.gpaw.gpaw_grids"><a class="reference internal" href="#module-ciderpress.gpaw.gpaw_grids" title="ciderpress.gpaw.gpaw_grids"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ciderpress.gpaw.gpaw_grids</span></code></a> supplies the radial-grid descriptors used
+for this reconstruction.</p>
+<p>For heavier elements, the implementation retains the setup’s native dense
+all-electron radial form inside the required cutoff; lighter elements use the
+generated CIDER radial representation.  The implementation selects this
+radial treatment by element to control interpolation error.</p>
+<p>Two safeguards preserve physical and numerical invariants:</p>
+<ul class="simple">
+<li><p>A mapped point that exceeds an interpolation endpoint by floating-point
+roundoff is clipped to that endpoint.  A request outside the source radial
+grid raises an error.</p></li>
+<li><p>Interpolated all-electron and pseudo core kinetic-energy densities are
+bounded below by the von Weizsaecker value
+<span class="math notranslate nohighlight">\(\tau_{\mathrm W}=|\nabla n|^2/(8n)\)</span> (with the corresponding
+spherical-harmonic normalization used on the radial grid).  This enforces
+the Fermi-hole-curvature/iso-orbital bound in the finite radial
+representation.</p></li>
+</ul>
+</section>
+<section id="forward-derivative-contract">
+<h2>Forward/derivative contract<a class="headerlink" href="#forward-derivative-contract" title="Link to this heading"></a></h2>
+<p>The PASDW transfer is linear, so the returned potential must be the exact
+adjoint of the discretized forward transfer. Forces additionally differentiate
+the localized functions and projectors with respect to atomic position;
+stress differentiates the reciprocal kernel and the cell-scaled transfer.</p>
+<p>Validation covers smooth-grid and PAW feature values, potentials, forces, and
+stress at the same interpolation and projection settings.  See
+<a class="reference internal" href="../../usage/convergence.html"><span class="doc">Handling SCF Convergence Issues</span></a> for SCF controls when encountering convergence issues,
+<a class="reference internal" href="../../theory/numerical_evaluation.html"><span class="doc">Numerical Evaluation in PySCF and GPAW</span></a> for the complete backend path, and
+<a class="reference internal" href="../../workflows/extending.html"><span class="doc">Extending CiderPress</span></a> for implementation invariants.</p>
+<div class="docutils container" id="id2">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
+</aside>
+</aside>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="descriptors.html" class="btn btn-neutral float-left" title="GPAW Descriptor Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../c_extensions/c_extensions.html" class="btn btn-neutral float-right" title="C Extension Libraries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

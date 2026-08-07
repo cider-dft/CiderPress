@@ -1,0 +1,245 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Common LCAO NLDF Infrastructure &mdash; CiderPress 0.5.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Feature Normalization" href="feat_normalizer.html" />
+    <link rel="prev" title="Feature Evaluation Plans" href="plans.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/cider_logo_and_name.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="dft.html">Core DFT Representation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dft.html#normalization-and-transformation-of-features">Normalization and Transformation of Features</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dft.html#model-baselines-and-model-evaluation">Model Baselines and Model Evaluation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="settings.html">Feature Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plans.html">Feature Evaluation Plans</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Common LCAO NLDF Infrastructure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-ciderpress.dft.grids_indexer">Atom-centered grid indexing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ciderpress.dft.lcao_convolutions">Auxiliary Gaussian convolutions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ciderpress.dft.lcao_interpolation">Grid/basis interpolation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ciderpress.dft.lcao_nldf_generator">NLDF orchestration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="feat_normalizer.html">Feature Normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="transform_data.html">Generating Bounded Model Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baselines.html">Energy-Density Baselines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="xc_evaluator.html">Mapped XC Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_utils.html">Model Loading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/citing.html">Citing CIDER and CiderPress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CiderPress</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="dft.html">Core DFT Representation</a></li>
+      <li class="breadcrumb-item active">Common LCAO NLDF Infrastructure</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/ciderpress/dft/lcao_numerical.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="common-lcao-nldf-infrastructure">
+<h1>Common LCAO NLDF Infrastructure<a class="headerlink" href="#common-lcao-nldf-infrastructure" title="Link to this heading"></a></h1>
+<p>The molecular NLDF implementation is divided between PySCF adapters and a
+host-independent linear-combination-of-atomic-orbitals (LCAO) layer.  The
+classes on this page define the atom-centered grid indexing, auxiliary
+Gaussian convolutions, and grid/basis interpolation used by the PySCF forward
+and adjoint paths.</p>
+<section id="module-ciderpress.dft.grids_indexer">
+<span id="atom-centered-grid-indexing"></span><h2>Atom-centered grid indexing<a class="headerlink" href="#module-ciderpress.dft.grids_indexer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.grids_indexer.AtomicGridsIndexer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.grids_indexer.</span></span><span class="sig-name descname"><span class="pre">AtomicGridsIndexer</span></span><a class="headerlink" href="#ciderpress.dft.grids_indexer.AtomicGridsIndexer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p><code class="docutils literal notranslate"><span class="pre">AtomicGridsIndexer</span></code> relates PySCF’s sorted and screened quadrature points
+to atom, radial shell, angular point, and spherical-harmonic indices.  Energy,
+potential, and grid-response operations share this mapping.</p>
+</section>
+<section id="module-ciderpress.dft.lcao_convolutions">
+<span id="auxiliary-gaussian-convolutions"></span><h2>Auxiliary Gaussian convolutions<a class="headerlink" href="#module-ciderpress.dft.lcao_convolutions" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.lcao_convolutions.ATCBasis">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.lcao_convolutions.</span></span><span class="sig-name descname"><span class="pre">ATCBasis</span></span><a class="headerlink" href="#ciderpress.dft.lcao_convolutions.ATCBasis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.lcao_convolutions.ConvolutionCollection">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.lcao_convolutions.</span></span><span class="sig-name descname"><span class="pre">ConvolutionCollection</span></span><a class="headerlink" href="#ciderpress.dft.lcao_convolutions.ConvolutionCollection" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.lcao_convolutions.ConvolutionCollectionK">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.lcao_convolutions.</span></span><span class="sig-name descname"><span class="pre">ConvolutionCollectionK</span></span><a class="headerlink" href="#ciderpress.dft.lcao_convolutions.ConvolutionCollectionK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p><code class="docutils literal notranslate"><span class="pre">ATCBasis</span></code> stores the atom-centered auxiliary Gaussian basis and its angular
+layout.  <code class="docutils literal notranslate"><span class="pre">ConvolutionCollection</span></code> builds the matrices that convolve the
+source expansion for version-I/J features; <code class="docutils literal notranslate"><span class="pre">ConvolutionCollectionK</span></code> supplies
+the corresponding version-K operations.</p>
+</section>
+<section id="module-ciderpress.dft.lcao_interpolation">
+<span id="grid-basis-interpolation"></span><h2>Grid/basis interpolation<a class="headerlink" href="#module-ciderpress.dft.lcao_interpolation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.lcao_interpolation.LCAOInterpolator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.lcao_interpolation.</span></span><span class="sig-name descname"><span class="pre">LCAOInterpolator</span></span><a class="headerlink" href="#ciderpress.dft.lcao_interpolation.LCAOInterpolator" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.lcao_interpolation.LCAOInterpolatorDirect">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.lcao_interpolation.</span></span><span class="sig-name descname"><span class="pre">LCAOInterpolatorDirect</span></span><a class="headerlink" href="#ciderpress.dft.lcao_interpolation.LCAOInterpolatorDirect" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p>The interpolators transfer fields between the atom-centered auxiliary basis
+and molecular quadrature points.  Their forward and backward methods form the
+pair used for NLDF values and potentials.  The direct variant treats the
+on-site contribution explicitly and is used by the packaged molecular NLDF
+path.</p>
+</section>
+<section id="module-ciderpress.dft.lcao_nldf_generator">
+<span id="nldf-orchestration"></span><h2>NLDF orchestration<a class="headerlink" href="#module-ciderpress.dft.lcao_nldf_generator" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ciderpress.dft.lcao_nldf_generator.LCAONLDFGenerator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ciderpress.dft.lcao_nldf_generator.</span></span><span class="sig-name descname"><span class="pre">LCAONLDFGenerator</span></span><a class="headerlink" href="#ciderpress.dft.lcao_nldf_generator.LCAONLDFGenerator" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p><code class="docutils literal notranslate"><span class="pre">LCAONLDFGenerator</span></code> combines an exponent-interpolation plan, convolution
+collection, and LCAO interpolator.  The PySCF-specific
+<a class="reference internal" href="../pyscf/numerical.html#ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator" title="ciderpress.pyscf.nldf_convolutions.PyscfNLDFGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyscfNLDFGenerator</span></code></a> constructs
+these objects from a molecule and its CIDER grid.</p>
+<p>See <a class="reference internal" href="../../theory/nldf_numerical.html"><span class="doc">Numerical Evaluation of NLDF Features</span></a> for the mathematical description and
+<a class="reference internal" href="../pyscf/numerical.html"><span class="doc">PySCF Numerical and Derivative Implementation</span></a> for the PySCF numerical implementation details.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plans.html" class="btn btn-neutral float-left" title="Feature Evaluation Plans" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="feat_normalizer.html" class="btn btn-neutral float-right" title="Feature Normalization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #002040;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #002040;
+    }
+  </style>
+
+
+</body>
+</html>

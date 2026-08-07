@@ -1,26 +1,40 @@
-PySCF Interface
-===============
+PySCF Interface and Numerical Modules
+=====================================
 
-The PySCF interface allows CIDER functionals to be used in the PySCF
-software package. Most CIDER models are only availabe in the
-non-periodic version of PySCF, but SDMX functionals can be performed
-with periodic boundary conditions if pseudopotentials and a
-uniform XC integration grid are used. We note that the latter
-feature is particularly experimental.
+The PySCF interface is the molecular all-electron route for all packaged
+families.  :func:`ciderpress.pyscf.dft.make_cider_calc` decorates a normal
+restricted or unrestricted Kohn--Sham object and selects its numerical
+integration path from the settings stored in the mapped model.
 
 This documentation assumes you are familiar with the PySCF code and
 have a working installation of the software.
 For PySCF documentation, please see the `PySCF <https://pyscf.org/>`_
 website.
 
-The main module CiderPress users need to be familiar with is
-:py:mod:`ciderpress.pyscf.dft`, which contains tools to
-turn a standard Kohn-Sham DFT calculation into one that uses
-a CIDER functional. See the module documentation for details.
+The molecular implementation is divided by responsibility:
 
-For those interested in the experimental periodic boundary
-condition feature for SDMX functionals, please see the
-:py:mod:`ciderpress.pyscf.pbc.dft` module documentation.
+* :mod:`ciderpress.pyscf.dft` constructs the decorated SCF object and defines
+  total-energy, dispersion, checkpoint, and gradient behavior.
+* :mod:`ciderpress.pyscf.numint` connects semilocal, NLDF, and SDMX feature
+  evaluation to PySCF's blockwise atom-centered quadrature.
+* :mod:`ciderpress.pyscf.gen_cider_grid` and
+  :mod:`ciderpress.pyscf.nldf_convolutions` build and evaluate the auxiliary
+  nonlocal-density representation.
+* :mod:`ciderpress.pyscf.sdmx` evaluates the density-matrix descriptors used
+  by CIDER24X.
+* :mod:`ciderpress.pyscf.rks_grad` and :mod:`ciderpress.pyscf.uks_grad`
+  propagate feature and grid response into nuclear gradients.
+* :mod:`ciderpress.pyscf.analyzers` and
+  :mod:`ciderpress.pyscf.descriptors` expose fixed-density ingredients for
+  inspection and training-data construction.
+
+For packaged model selection, complete examples, and restart guidance, see
+:doc:`../../usage/production_models`, :doc:`../../usage/pyscf`, and
+:doc:`../../usage/convergence`.
+
+The periodic PySCF SDMX path requires pseudopotentials and a uniform XC grid
+and supports methodological reproduction of the CIDER24X work.  Packaged
+periodic NLDF calculations use classic GPAW with PAW.
 
 .. toctree::
    :maxdepth: 2
@@ -29,4 +43,4 @@ condition feature for SDMX functionals, please see the
    pbc/dft
    analyzers
    descriptors
-
+   numerical

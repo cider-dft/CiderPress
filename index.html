@@ -6,20 +6,20 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CiderPress: Machine Learning Exchange-Correlation Functionals &mdash; CiderPress 0.4.0 documentation</title>
+  <title>CiderPress: Machine-Learned Exchange-Correlation Functionals &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c02275b"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview and Installation Instructions" href="installation/installation.html" /> 
+    <link rel="next" title="Installation" href="installation/installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,16 +42,40 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features/features.html">Density and Orbital Features in CiderPress</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">The Models Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/features.html">Electronic Features in CiderPress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -68,7 +92,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">CiderPress: Machine Learning Exchange-Correlation Functionals</li>
+      <li class="breadcrumb-item active">CiderPress: Machine-Learned Exchange-Correlation Functionals</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -78,64 +102,174 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="ciderpress-machine-learning-exchange-correlation-functionals">
-<h1>CiderPress: Machine Learning Exchange-Correlation Functionals<a class="headerlink" href="#ciderpress-machine-learning-exchange-correlation-functionals" title="Link to this heading"></a></h1>
-<p>Welcome to the CiderPress documentation! CiderPress is a Python package built
-for running machine-learned exchange-correlation functionals within the CIDER
-framework. This documentation is currently under construction. In the meantime,
-please feel free to post a Github issue or reach out the developers at
-<a class="reference external" href="mailto:kylebystrom&#37;&#52;&#48;gmail&#46;com">kylebystrom<span>&#64;</span>gmail<span>&#46;</span>com</a>.</p>
+  <section id="ciderpress-machine-learned-exchange-correlation-functionals">
+<h1>CiderPress: Machine-Learned Exchange-Correlation Functionals<a class="headerlink" href="#ciderpress-machine-learned-exchange-correlation-functionals" title="Link to this heading"></a></h1>
+<p>CiderPress implements the CIDER framework for constructing and evaluating
+machine-learned density functionals.  The code serves several purposes:</p>
+<ul class="simple">
+<li><p>Specify the physically constrained electronic descriptors used as model
+inputs for CIDER functionals, along with the numerical settings for
+evaluating these features.</p></li>
+<li><p>Train, evaluate, store, and load Gaussian process regression models
+representing CIDER functionals. Tools are also included to map
+Gaussian processes to more efficient inference-time models.</p></li>
+<li><p>Through interfaces to existing DFT backends
+(PySCF <a class="footnote-reference brackets" href="#footcite-sunrecentdevelopmentspyscf2020a" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+and GPAW <a class="footnote-reference brackets" href="#footcite-mortensengpawopenpython2024" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>), compute
+the electronic input descriptors, evaluate the XC energy and potential,
+and perform full self-consistent field calculations with CIDER functionals.</p></li>
+</ul>
+<p>CIDER stands for <em>Compressed scale-Invariant DEnsity Representation</em>.  The
+name originally described the scale-invariant density features used
+to learn exchange.  The framework now also includes smoothed
+density-matrix features, full exchange-correlation models, and molecular and
+periodic numerical implementations.</p>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>To run a calculation, begin with <a class="reference internal" href="installation/installation.html"><span class="doc">Installation</span></a>, then use
+<a class="reference internal" href="usage/production_models.html"><span class="doc">Choosing a CIDER Functional</span></a> and <a class="reference internal" href="usage/quickstart.html"><span class="doc">First Calculations</span></a>.</p></li>
+<li><p>To understand the functional forms used in CiderPress, begin with
+<a class="reference internal" href="theory/framework.html"><span class="doc">The CIDER Framework</span></a> and <a class="reference internal" href="features/features.html"><span class="doc">Electronic Features in CiderPress</span></a>.</p></li>
+<li><p>To inspect models, generate descriptors, or work on the implementation, use
+<a class="reference internal" href="workflows/workflows.html"><span class="doc">Model and Descriptor Workflows</span></a> and the API reference.</p></li>
+</ul>
+<p>The calculation guides state which combinations of models, settings, and DFT
+backends are supported.  In brief, PySCF is the molecular all-electron backend,
+while classic GPAW provides the periodic plane-wave PAW implementation.
+The packaged functional families compute different parts of the XC energy.
+CIDER23X and CIDER24X use an explicit surrogate-hybrid composition;
+CIDER26XC uses the full-XC initialization described in the model guide.</p>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Overview and Installation Instructions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#what-is-the-cider-formalism">What is the CIDER formalism?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#warning-the-ciderpress-code-base-is-experimental"><strong>WARNING</strong>: The CiderPress Code Base is Experimental</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#how-can-i-run-a-cider-calculation">How can I run a CIDER calculation?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#how-can-i-train-a-cider-functional">How can I train a CIDER functional?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#known-issues">Known Issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#questions-and-comments">Questions and Comments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#citing">Citing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#install-the-core-package">Install the core package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#optional-model-dependencies">Optional model dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#build-configuration">Build configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#install-from-a-source-checkout">Install from a source checkout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#pyscf-environment">PySCF environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/installation.html#gpaw-environment">GPAW environment</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory Overview</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/production_models.html">Choosing a CIDER Functional</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#family-selection">Family selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#cider23x-exchange-models">CIDER23X exchange models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#cider24x-sdmx-exchange-models">CIDER24X SDMX exchange models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#cider26xc-full-xc-models">CIDER26XC full-XC models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#d4-with-cider26xcchemd4">D4 with <code class="docutils literal notranslate"><span class="pre">CIDER26XCCHEMD4</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#loading-rules-and-model-trust">Loading rules and model trust</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/production_models.html#checksums">Checksums</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage/quickstart.html">First Calculations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/quickstart.html#molecule-with-pyscf">Molecule with PySCF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/quickstart.html#exchange-only-model-with-pyscf">Exchange-only model with PySCF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/quickstart.html#periodic-solid-with-gpaw">Periodic solid with GPAW</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage/pyscf.html">Molecular Calculations with PySCF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#choose-the-functional-composition-first">Choose the functional composition first</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#closed-shell-workflow">Closed-shell workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#density-fitting">Density fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#open-shell-systems">Open-shell systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#checkpoints-and-interrupted-calculations">Checkpoints and interrupted calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#d4-corrected-energy">D4-corrected energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#cider24x">CIDER24X</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/pyscf.html#gradients-and-other-methods">Gradients and other methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#functional-construction">Functional construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#pbe-seeded-periodic-workflow">PBE-seeded periodic workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#surfaces-and-adsorption-systems">Surfaces and adsorption systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#isolated-systems-in-periodic-boxes">Isolated systems in periodic boxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#restarting-a-cider-checkpoint">Restarting a CIDER checkpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#forces-and-stress">Forces and stress</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#pasdw-and-interpolation-controls">PASDW and interpolation controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#parallel-execution-and-memory">Parallel execution and memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/gpaw.html#scf-strategy">SCF strategy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage/properties.html">Energies and Derivative Properties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/properties.html#molecular-gradients">Molecular gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/properties.html#periodic-forces-and-stress">Periodic forces and stress</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/properties.html#energy-composition">Energy composition</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage/convergence.html">Handling SCF Convergence Issues</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#pyscf-restart-ladder">PySCF restart ladder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#gpaw-reference-settings">GPAW reference settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/convergence.html#restart-compatibility">Restart compatibility</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="theory/theory.html">Theory and Functional Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="theory/framework.html">The CIDER Framework</a></li>
 <li class="toctree-l2"><a class="reference internal" href="theory/uniform_scaling.html">Uniform Scaling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/full_xc.html">From Exchange Models to Full XC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="theory/gp.html">Machine Learning Framework for CIDER Functionals</a></li>
 <li class="toctree-l2"><a class="reference internal" href="theory/nldf_numerical.html">Numerical Evaluation of NLDF Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/numerical_evaluation.html">Numerical Evaluation in PySCF and GPAW</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="features/features.html">Density and Orbital Features in CiderPress</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="features/sl.html">Semilocal Features (SL)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features/nldf.html">Nonlocal Density Features (NLDF)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features/nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="features/sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/features.html">Electronic Features in CiderPress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="features/features.html#feature-families">Feature families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features/features.html#representation-in-the-code">Representation in the code</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">DFT Module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/settings.html">The Settings Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/plans.html">The Plans Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/feat_normalizer.html">The Feature Normalizer Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/transform_data.html">The Transform Data Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/xc_evaluator.html">The XC Evaluator Modules</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="workflows/workflows.html">Model and Descriptor Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflows/models.html">Model Objects and Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows/descriptors.html">Inspecting Densities and Descriptors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows/training.html">Training and Mapping Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows/extending.html">Extending CiderPress</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">The Models Module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/train.html">ciderpress.models.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/dft_kernel.html">ciderpress.models.dft_kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/kernels.html">ciderpress.models.kernels</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/dft/dft.html">Core DFT Representation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/dft.html#settings-and-numerical-plans">Settings and numerical plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/dft.html#normalization-and-transformation-of-features">Normalization and Transformation of Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/dft/dft.html#model-baselines-and-model-evaluation">Model Baselines and Model Evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/models/models.html">Regression, Training, and Mapping APIs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/train.html">Integrated-System GP Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/dft_kernel.html">DFT Kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/models/kernels.html">Differentiable Covariance Kernels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ciderpress/models/kernel_tools.html">Kernel Tools</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/dft.html">dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/pbc/dft.html">pbc.dft</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/analyzers.html">analyzers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/descriptors.html">descriptors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/dft.html">PySCF Calculator Decoration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/pbc/dft.html">Periodic PySCF Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/analyzers.html">PySCF Electronic Analyzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/descriptors.html">PySCF Descriptor Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/pyscf/numerical.html">PySCF Numerical and Derivative Implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ciderpress/gpaw/calculator.html">GPAW Calculator Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/gpaw/descriptors.html">GPAW Descriptor Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ciderpress/gpaw/numerical.html">GPAW FFT, PAW, and Radial Implementation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="c_extensions/c_extensions.html">C Extension Libraries</a><ul>
@@ -144,19 +278,45 @@ please feel free to post a Github issue or reach out the developers at
 </li>
 </ul>
 </div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/citing.html">Citing CIDER and CiderPress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider23x-and-molecular-periodic-nldf-evaluation">CIDER23X and molecular/periodic NLDF evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider24x-and-sdmx-eigenvalue-training">CIDER24X and SDMX/eigenvalue training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/citing.html#cider26xc">CIDER26XC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/citing.html#citing-the-software">Citing the software</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="docutils container" id="id3">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-sunrecentdevelopmentspyscf2020a" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Qiming Sun, Xing Zhang, Samragni Banerjee, Peng Bao, Marc Barbry, Nick S. Blunt, Nikolay A. Bogdanov, George H. Booth, Jia Chen, Zhi-Hao Cui, Janus J. Eriksen, Yang Gao, Sheng Guo, Jan Hermann, Matthew R. Hermes, Kevin Koh, Peter Koval, Susi Lehtola, Zhendong Li, Junzi Liu, Narbe Mardirossian, James D. McClain, Mario Motta, Bastien Mussard, Hung Q. Pham, Artem Pulkin, Wirawan Purwanto, Paul J. Robinson, Enrico Ronca, Elvira R. Sayfutyarova, Maximilian Scheurer, Henry F. Schurkus, James E. T. Smith, Chong Sun, Shi-Ning Sun, Shiv Upadhyay, Lucas K. Wagner, Xiao Wang, Alec White, James Daniel Whitfield, Mark J. Williamson, Sebastian Wouters, Jun Yang, Jason M. Yu, Tianyu Zhu, Timothy C. Berkelbach, Sandeep Sharma, Alexander Yu. Sokolov, and Garnet Kin-Lic Chan. Recent developments in the PySCF program package. <em>The Journal of Chemical Physics</em>, 153(2):024109, July 2020. <a class="reference external" href="https://doi.org/10.1063/5.0006074">doi:10.1063/5.0006074</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-mortensengpawopenpython2024" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Jens Jørgen Mortensen, Ask Hjorth Larsen, Mikael Kuisma, Aleksei V. Ivanov, Alireza Taghizadeh, Andrew Peterson, Anubhab Haldar, Asmus Ougaard Dohn, Christian Schäfer, Elvar Örn Jónsson, Eric D. Hermes, Fredrik Andreas Nilsson, Georg Kastlunger, Gianluca Levi, Hannes Jónsson, Hannu Häkkinen, Jakub Fojt, Jiban Kangsabanik, Joachim Sødequist, Jouko Lehtomäki, Julian Heske, Jussi Enkovaara, Kirsten Trøstrup Winther, Marcin Dulak, Marko M. Melander, Martin Ovesen, Martti Louhivuori, Michael Walter, Morten Gjerding, Olga Lopez-Acevedo, Paul Erhart, Robert Warmbier, Rolf Würdemann, Sami Kaappa, Simone Latini, Tara Maria Boland, Thomas Bligaard, Thorbjørn Skovhus, Toma Susi, Tristan Maxson, Tuomas Rossi, Xi Chen, Yorick Leonard A. Schmerwitz, Jakob Schiøtz, Thomas Olsen, Karsten Wedel Jacobsen, and Kristian Sommer Thygesen. GPAW: An open Python package for electronic structure calculations. <em>The Journal of Chemical Physics</em>, 160(9):092503, March 2024. <a class="reference external" href="https://doi.org/10.1063/5.0182685">doi:10.1063/5.0182685</a>.</p>
+</aside>
+</aside>
+</div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation/installation.html" class="btn btn-neutral float-right" title="Overview and Installation Instructions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

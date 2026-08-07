@@ -6,21 +6,21 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nonlocal Density Features (NLDF) &mdash; CiderPress 0.4.0 documentation</title>
+  <title>Nonlocal Density Features (NLDF) &mdash; CiderPress 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c02275b"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Nonlocal Orbital Features (NLOF)" href="nlof.html" />
+    <link rel="next" title="Smoothed Density Matrix Exchange (SDMX)" href="sdmx.html" />
     <link rel="prev" title="Semilocal Features (SL)" href="sl.html" /> 
 </head>
 
@@ -44,27 +44,54 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/production_models.html">Choosing a CIDER Functional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">First Calculations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Running calculations</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/pyscf.html">Molecular Calculations with PySCF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/gpaw.html">Periodic and Isolated Calculations with GPAW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/properties.html">Energies and Derivative Properties</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/convergence.html">Handling SCF Convergence Issues</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The CIDER framework</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">Overview and Installation Instructions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="features.html">Density and Orbital Features in CiderPress</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Nonlocal Density Features (NLDF)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#version-j">Version J</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#version-i">Version I</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#version-k">Version K</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../theory/theory.html">Theory and Functional Design</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="features.html">Electronic Features in CiderPress</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="features.html#feature-families">Feature families</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="features.html#representation-in-the-code">Representation in the code</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sl.html">Semilocal Features (SL)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Nonlocal Density Features (NLDF)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#version-j">Version J</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#version-i">Version I</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#version-k">Version K</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="nlof.html">Nonlocal Orbital Features (NLOF)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sdmx.html">Smooth Density Matrix Exchange (SDMX)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdmx.html">Smoothed Density Matrix Exchange (SDMX)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">DFT Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">The Models Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Model and descriptor workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../workflows/workflows.html">Model and Descriptor Workflows</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API and implementation reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/dft/dft.html">Core DFT Representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/models/models.html">Regression, Training, and Mapping APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/pyscf/pyscf.html">PySCF Interface and Numerical Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ciderpress/gpaw/gpaw.html">GPAW Interface and PAW Implementation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../c_extensions/c_extensions.html">C Extension Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/limitations.html">Supported Use and Limitations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/citing.html">Citing CIDER and CiderPress</a></li>
 </ul>
 
         </div>
@@ -81,7 +108,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="features.html">Density and Orbital Features in CiderPress</a></li>
+          <li class="breadcrumb-item"><a href="features.html">Electronic Features in CiderPress</a></li>
       <li class="breadcrumb-item active">Nonlocal Density Features (NLDF)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/features/nldf.rst.txt" rel="nofollow"> View page source</a>
@@ -94,103 +121,166 @@
              
   <section id="nonlocal-density-features-nldf">
 <span id="nldf-feat"></span><h1>Nonlocal Density Features (NLDF)<a class="headerlink" href="#nonlocal-density-features-nldf" title="Link to this heading"></a></h1>
-<p>Nonlocal density features, or NLDFs, are the original type of nonlocal feature used
-to train Cider models. The general idea is to take the density <span class="math notranslate nohighlight">\(n(\mathbf{r})\)</span>,
-multiply it by a kernel function <span class="math notranslate nohighlight">\(k(\mathbf{r}-\mathbf{r}')\)</span>, and integrate
-over real space to obtain features <span class="math notranslate nohighlight">\(G(\mathbf{r})\)</span> that are nonlocal in the density:</p>
+<p>Nonlocal density features (NLDFs) describe the density in a neighborhood of
+each integration point.  A fixed-kernel convolution has the form</p>
 <div class="math notranslate nohighlight">
-\[G[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} k(\mathbf{r}-\mathbf{r}') n(\mathbf{r}')\]</div>
-<p>This is a fairly simple convolution-based descriptor, but it has a significant shortcoming.
-In order to guarantee a reasonable and finite value for <span class="math notranslate nohighlight">\(G(\mathbf{r})\)</span>,
-<span class="math notranslate nohighlight">\(k(\mathbf{r}-\mathbf{r}')\)</span> must decay exponetially on some length-scale
-as <span class="math notranslate nohighlight">\(|\mathbf{r}-\mathbf{r}'|\)</span> grows large. However, choosing a single
-length-scale will result in nontrivial behavior of the feature under
-<a class="reference internal" href="../theory/uniform_scaling.html#unif-scaling"><span class="std std-ref">Uniform Scaling</span></a>. To cure this problem, we need a
-density-dependent kernel <span class="math notranslate nohighlight">\(k[n](\mathbf{r}-\mathbf{r}')\)</span>. For a scaled
+\[G[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+k(\mathbf{r}-\mathbf{r}') n(\mathbf{r}')\]</div>
+<p>An exponentially decaying fixed kernel introduces a dimensional length scale
+that conflicts with uniform coordinate scaling.  CIDER instead uses
+density-dependent kernel exponents.  For a scaled
 density <span class="math notranslate nohighlight">\(n_\lambda(\mathbf{r})=\lambda^3 n(\lambda\mathbf{r})\)</span>,
 if <span class="math notranslate nohighlight">\(k[n_\lambda](\mathbf{r}-\mathbf{r}')=\lambda^j k[n](\lambda(\mathbf{r}-\mathbf{r}'))\)</span>,
 then</p>
 <div class="math notranslate nohighlight">
 \[G[n_\lambda](\mathbf{r}) = \lambda^j G[n](\lambda\mathbf{r})\]</div>
-<p>These features can then be reguralized to be scale-invariant and used in exchange functional models.</p>
-<p>There are three types of NLDF implemented in CiderPress currently: versions <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">j</span></code>, and <code class="docutils literal notranslate"><span class="pre">k</span></code>.
-It turns out that version <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code> features can be efficiently computed together, so
-they can be combined into one feature version <code class="docutils literal notranslate"><span class="pre">ij</span></code>.</p>
+<p>The resulting power law can be combined with a normalizer to produce the
+scaling behavior required by the functional.  Typically, this means
+constructing a scale-invariant normalized feature, as explained in
+<a class="reference internal" href="../theory/uniform_scaling.html"><span class="doc">Uniform Scaling</span></a>.</p>
+<p>Three NLDF versions are implemented in the molecular feature framework:
+<code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">j</span></code>, and <code class="docutils literal notranslate"><span class="pre">k</span></code>.  Version <code class="docutils literal notranslate"><span class="pre">i</span></code> and <code class="docutils literal notranslate"><span class="pre">j</span></code> features can be evaluated
+together through the combined <code class="docutils literal notranslate"><span class="pre">ij</span></code> setting.  The packaged CIDER23X and
+CIDER26XC models use version <code class="docutils literal notranslate"><span class="pre">j</span></code>.  GPAW supports version <code class="docutils literal notranslate"><span class="pre">j</span></code>.  The other
+versions and alternative kernel specifications are
+model-development interfaces.</p>
 <section id="version-j">
 <h2>Version J<a class="headerlink" href="#version-j" title="Link to this heading"></a></h2>
-<p>Version J is the NLDF implemented in Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. It takes the form</p>
+<p>Version J is the NLDF implemented in Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. In the raw form
+computed by the settings layer, it reads</p>
 <div class="math notranslate nohighlight">
-\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_i[n](\mathbf{r})+a_0[n](\mathbf{r}'))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')\]</div>
-<p>For a functional with GGA semilocal features, <span class="math notranslate nohighlight">\(a_i[n](\mathbf{r})\)</span> (and <span class="math notranslate nohighlight">\(a_0[n](\mathbf{r})\)</span>) take the form</p>
+\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-(a_0[n](\mathbf{r}')+a_i[n](\mathbf{r}))|\mathbf{r}-\mathbf{r}'|^2) n(\mathbf{r}')\]</div>
+<p>Equation 18 of Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> includes a constant prefactor determined
+by the two exponent parameters. CiderPress represents the convolution and its
+normalization in separate serialized objects: <code class="docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code> defines the
+raw feature, and the model’s normalizer defines its uniform-electron-gas
+value.</p>
+<p>Equations 20 and 22 of Bystrom and Kozinsky<a class="footnote-reference brackets" href="#footcite-cider23x" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> write the exponent with a
+constant term <span class="math notranslate nohighlight">\(B_i\)</span> and one modulation term <span class="math notranslate nohighlight">\(C_i\)</span>, using the
+reduced gradient for a GGA functional and the kinetic-energy density for a
+meta-GGA functional:</p>
 <div class="math notranslate nohighlight">
-\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right)\right]\]</div>
-<p>For a functional with meta-GGA semilocal features, <span class="math notranslate nohighlight">\(a_i[n](\mathbf{r})\)</span> takes the form</p>
+\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + C_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right)\right]\]</div>
 <div class="math notranslate nohighlight">
-\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[A_i + B_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]\]</div>
-<p><span class="math notranslate nohighlight">\(A_i,B_i,C_i\)</span> are tunable parameters. Conventionally <span class="math notranslate nohighlight">\(B_i=0\)</span> is used for the meta-GGA case (with <span class="math notranslate nohighlight">\(C_i\)</span> finite),
-but one can choose nonzero values in the CiderPress code. Using different <span class="math notranslate nohighlight">\(A_i,B_i,C_i\)</span> for different <span class="math notranslate nohighlight">\(i\)</span>
-allows one to compute multiple features simultaneously (at roughly the same cost as one feature using the
-fast NLDF evaluation algorithm). However, <span class="math notranslate nohighlight">\(A_0,B_0,C_0\)</span> must be the same for all features. Both the GGA and meta-GGA
-constructions of <span class="math notranslate nohighlight">\(a_i[n](\mathbf{r})\)</span> obey</p>
+\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]\]</div>
+<p>Here <span class="math notranslate nohighlight">\(\tau\)</span> is the kinetic-energy density and <span class="math notranslate nohighlight">\(\tau_0\)</span> its
+uniform electron gas value, both defined in <a class="reference internal" href="sl.html"><span class="doc">Semilocal Features (SL)</span></a>. The settings layer
+generalizes these to a single expression that carries both modulations,</p>
+<div class="math notranslate nohighlight">
+\[a_i[n](\mathbf{r}) = \pi\left(\frac{n}{2}\right)^{2/3} \left[B_i + D_i\left(\frac{|\nabla n|^2}{8n\tau_0}\right) + C_i\left(\frac{\tau}{\tau_0}-1\right)\right]\]</div>
+<p>with <span class="math notranslate nohighlight">\(D_i\)</span> the gradient coefficient. The packaged CIDER23X and
+CIDER26XC meta-GGA models set <span class="math notranslate nohighlight">\(D_i=0\)</span>, recovering Equation 22.</p>
+<p>In the serialized settings the parameter array is <code class="docutils literal notranslate"><span class="pre">[a0,</span> <span class="pre">grad_mul,</span>
+<span class="pre">tau_mul]</span></code>, and <code class="docutils literal notranslate"><span class="pre">tau_mul</span></code> is ignored for a GGA exponent. Only the constant
+term maps directly: <span class="math notranslate nohighlight">\(B_i\)</span> is <code class="docutils literal notranslate"><span class="pre">a0</span></code>, while <span class="math notranslate nohighlight">\(D_i\)</span> and <span class="math notranslate nohighlight">\(C_i\)</span>
+are <code class="docutils literal notranslate"><span class="pre">grad_mul</span></code> and <code class="docutils literal notranslate"><span class="pre">tau_mul</span></code> multiplied by
+<span class="math notranslate nohighlight">\(1.2\,(6\pi^2)^{2/3}/\pi \approx 5.803\)</span>, the conversion applied in
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.get_cider_exponent" title="ciderpress.dft.settings.get_cider_exponent"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_cider_exponent()</span></code></a>.</p>
+<p>Using different parameters for each <span class="math notranslate nohighlight">\(i\)</span> produces several feature
+length scales in one auxiliary expansion. The source exponent
+<span class="math notranslate nohighlight">\(a_0\)</span> is shared by all features. Both the GGA and meta-GGA
+constructions obey</p>
 <div class="math notranslate nohighlight">
 \[a_i[n_\lambda](\mathbf{r}) = \lambda^2 a_i[n](\lambda \mathbf{r})\]</div>
-<p>As a result of the above relationship, <span class="math notranslate nohighlight">\(G_i[n](\mathbf{r})\)</span> is scale-invariant:</p>
+<p>This exponent scaling makes <span class="math notranslate nohighlight">\(G_i[n](\mathbf{r})\)</span> scale invariant:</p>
 <div class="math notranslate nohighlight">
 \[G_i[n_\lambda](\mathbf{r}) = G_i[n](\lambda\mathbf{r})\]</div>
-<p>In CiderPress, there is also an <strong>experimental</strong> feature to multiply the density <span class="math notranslate nohighlight">\(n(\mathbf{r}')\)</span> by another
-function <span class="math notranslate nohighlight">\(b(\mathbf{r}')\)</span> before integrating over the kernel function. In this case,
-<span class="math notranslate nohighlight">\(G_i[n](\mathbf{r})\)</span> has the same uniform scaling behavior as <span class="math notranslate nohighlight">\(b(\mathbf{r}')\)</span>.</p>
+<p>The settings format can multiply the source density by another semilocal
+quantity <span class="math notranslate nohighlight">\(b(\mathbf{r}')\)</span>.  The multiplier contributes its uniform
+scaling power to the raw feature.  This option is experimental and is not
+used by the packaged functionals.</p>
+<p>The settings layer defines the squared-exponential specification <code class="docutils literal notranslate"><span class="pre">se</span></code> and
+the <code class="docutils literal notranslate"><span class="pre">se_ar2</span></code>, <code class="docutils literal notranslate"><span class="pre">se_a2r4</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">se_erf_rinv</span></code> variants. Rational-kernel variants use the <code class="docutils literal notranslate"><span class="pre">vdw_param</span></code>
+setting.  The packaged models select <code class="docutils literal notranslate"><span class="pre">se</span></code>.  Kernel strings, their ordered
+parameters, and their normalization form part of the serialized model; see
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVJ" title="ciderpress.dft.settings.NLDFSettingsVJ"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVJ</span></code></a>.</p>
 </section>
 <section id="version-i">
 <h2>Version I<a class="headerlink" href="#version-i" title="Link to this heading"></a></h2>
-<p>Version I modifies Version J in two ways. First, <span class="math notranslate nohighlight">\(a_i[n](\mathbf{r})\)</span>, the exponent contribution computed
-at point <span class="math notranslate nohighlight">\(\mathbf{r}\)</span> is not used; only <span class="math notranslate nohighlight">\(a_0[n](\mathbf{r}')\)</span>. Second, several different options
-are introduced for the integration kernel, resulting in a general form</p>
+<p>Version I uses the source exponent <span class="math notranslate nohighlight">\(a_0[n](\mathbf r')\)</span> and omits the
+target exponent <span class="math notranslate nohighlight">\(a_i[n](\mathbf r)\)</span>.  Several integration kernels are
+available, giving the general form</p>
 <div class="math notranslate nohighlight">
 \[G_*[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' k_*(a_0[n](\mathbf{r}'), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')\]</div>
-<p>The <span class="math notranslate nohighlight">\(*\)</span> symbol is a stand-in for the form of integration kernel used. The options are listed below:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">se</span></code>: <span class="math notranslate nohighlight">\(k_\text{se}(a, r) = \text{e}^{-ar^2}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">se_r2</span></code>: <span class="math notranslate nohighlight">\(k_\text{se_r2}(a,r) = r^2 \text{e}^{-ar^2}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">se_apr2</span></code> <span class="math notranslate nohighlight">\(k_\text{se_apr2}(a, r) = a r^2 \text{e}^{-ar^2}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">se_ap</span></code>: <span class="math notranslate nohighlight">\(k_\text{se_ap}(a, r) = a \text{e}^{-ar^2}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">se_ap2r2</span></code>: <span class="math notranslate nohighlight">\(k_\text{se_ap2r2}(a, r) = a^2 r^2 \text{e}^{-ar^2}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">se_lapl</span></code>: <span class="math notranslate nohighlight">\(k_\text{se_lapl}(a, r) = 4 k_\text{se_ap2r2}(a, r) - 2 k_\text{se_ap}(a, r)\)</span></p></li>
-</ul>
-<p>There are also two options for vector features of the form</p>
+<p>The <span class="math notranslate nohighlight">\(*\)</span> symbol stands for the kernel specification. With
+<span class="math notranslate nohighlight">\(R=|\mathbf r-\mathbf r'|\)</span>, the scalar kernels implemented by
+<a class="reference internal" href="../ciderpress/dft/settings.html#ciderpress.dft.settings.NLDFSettingsVI" title="ciderpress.dft.settings.NLDFSettingsVI"><code class="xref py py-class docutils literal notranslate"><span class="pre">NLDFSettingsVI</span></code></a> are:</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Version-I scalar kernels</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(k_*(a,R)\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">se</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\exp(-aR^2)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">se_r2</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(R^2\exp(-aR^2)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">se_apr2</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(aR^2\exp(-aR^2)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">se_ap</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(a\exp(-aR^2)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">se_ap2r2</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(a^2R^2\exp(-aR^2)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">se_lapl</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\((4a^2R^2-6a)\exp(-aR^2)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">se_lapl</span></code> kernel is the three-dimensional Laplacian of <code class="docutils literal notranslate"><span class="pre">se</span></code> with
+respect to the displacement vector.  Earlier development versions used the
+coefficient <code class="docutils literal notranslate"><span class="pre">-2a</span></code> for this experimental feature.  No packaged functional
+uses Version I or <code class="docutils literal notranslate"><span class="pre">se_lapl</span></code>; the Version-I specification may change in a
+future release.</p>
+<p>Version I also provides vector features of the form</p>
 <div class="math notranslate nohighlight">
-\[\mathbf{g}_*[n](\mathbf{r}) = \int \text{d}^3\mathbf{r} \,(\mathbf{r}'-\mathbf{r})\,k_*(a_0[n](\mathbf{r}), |\mathbf{r}-\mathbf{r}'|) n(\mathbf{r}')\]</div>
-<p>There are two options for <span class="math notranslate nohighlight">\(k\)</span> in the above formula:</p>
+\[\mathbf{g}_*[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+(\mathbf{r}'-\mathbf{r})
+k_*(a_0[n](\mathbf{r}'), |\mathbf{r}-\mathbf{r}'|)
+n(\mathbf{r}')\]</div>
+<p>The implemented vector kernels are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">se_grad</span></code>: <span class="math notranslate nohighlight">\(k_\text{se_grad}(a, r) = k_\text{se_ap}(a, r)\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">se_rvec</span></code>: <span class="math notranslate nohighlight">\(k_\text{se_grad}(a, r) = k_\text{se}(a, r)\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">se_grad</span></code> uses <span class="math notranslate nohighlight">\(k_*(a,R)=a\exp(-aR^2)\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">se_rvec</span></code> uses <span class="math notranslate nohighlight">\(k_*(a,R)=\exp(-aR^2)\)</span>.</p></li>
 </ul>
 <p>To construct rotationally invariant descriptors, the vector integrals <span class="math notranslate nohighlight">\(\mathbf{g}_*[n](\mathbf{r})\)</span>
-must be dotted with the density gradient or with another vector integral. For example,
-one could have <span class="math notranslate nohighlight">\(G=\mathbf{g}_\text{se_grad} \cdot \mathbf{g}_\text{se_grad}\)</span></p>
-<p>As with Version J, there is experimental support for multiplying <span class="math notranslate nohighlight">\(n(\mathbf{r}')\)</span> by another
-function <span class="math notranslate nohighlight">\(b(\mathbf{r}')\)</span> before integrating.</p>
-<p>Unforunately, while all the above Version I variants are supported in the code (in any combination),
-most of them either have numerical precision issues (i.e. they are difficult to compute with high
-precision using the fast NLDF algorithms) or are physically unrealistic (being too large in the core
-region or similar issues). The two most physically and numerically sensible seem to be <code class="docutils literal notranslate"><span class="pre">se_ap</span></code>
-and <code class="docutils literal notranslate"><span class="pre">se_grad</span></code> dotted with itself.</p>
+must be dotted with the density gradient or with another vector integral. For
+example, the <code class="docutils literal notranslate"><span class="pre">se_grad</span></code> vector can be dotted with itself to form the scalar
+<span class="math notranslate nohighlight">\(G=\mathbf{g}_*\cdot\mathbf{g}_*\)</span>.</p>
+<p>Version I also accepts a semilocal source multiplier
+<span class="math notranslate nohighlight">\(b(\mathbf r')\)</span>.</p>
+<p>Version-I variants are experimental model-construction options.  A custom
+combination defines a distinct descriptor and requires independent
+forward/adjoint, scaling, and low-density validation.</p>
 </section>
 <section id="version-k">
 <h2>Version K<a class="headerlink" href="#version-k" title="Link to this heading"></a></h2>
 <p>Version K is a modification of Version J meant to remove the need for the squared-exponential kernel
 to depend on the density at <span class="math notranslate nohighlight">\(\mathbf{r}'\)</span>. However, without the dependence on <span class="math notranslate nohighlight">\(a_0[n](\mathbf{r}')\)</span>,
-the NLDFs can have large contributions from the core electrons in the valence region, which
-is physically unrealistic. To fix this, we multiply the density by a function that
-decays when <span class="math notranslate nohighlight">\(a_i(\mathbf{r})&lt;&lt;a_0(\mathbf{r}')\)</span>:</p>
+the NLDFs can have large contributions from the core electrons in the valence
+region.  Version K therefore multiplies the density by a function that decays
+when <span class="math notranslate nohighlight">\(a_i(\mathbf{r})\ll a_0(\mathbf{r}')\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[G_i[n](\mathbf{r}) = \int \text{d}^3\mathbf{r}' \exp(-a_i[n](\mathbf{r})|\mathbf{r}-\mathbf{r}'|^2) \exp(-3a_0[n](\mathbf{r}')/2a_i[n](\mathbf{r})) n(\mathbf{r}')\]</div>
-<p>We have alternative options for the damping function, but the above exponential is the only supported
-one currently.</p>
-<div class="docutils container" id="id2">
+\[G_i[n](\mathbf{r}) = \int \mathrm{d}^3\mathbf{r}'\,
+\exp\!\left(-a_i[n](\mathbf{r})|\mathbf{r}-\mathbf{r}'|^2\right)
+\exp\!\left(-\frac{3a_0[n](\mathbf{r}')}{2a_i[n](\mathbf{r})}\right)
+n(\mathbf{r}')\]</div>
+<div class="docutils container" id="id4">
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="footcite-cider23x" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>)</span>
 <p>Kyle Bystrom and Boris Kozinsky. Nonlocal machine-learned exchange functional for molecules and solids. <em>Phys. Rev. B</em>, 110:075130, Aug 2024. URL: <a class="reference external" href="https://link.aps.org/doi/10.1103/PhysRevB.110.075130">https://link.aps.org/doi/10.1103/PhysRevB.110.075130</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.110.075130">doi:10.1103/PhysRevB.110.075130</a>.</p>
 </aside>
 </aside>
@@ -203,13 +293,13 @@ one currently.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="sl.html" class="btn btn-neutral float-left" title="Semilocal Features (SL)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="nlof.html" class="btn btn-neutral float-right" title="Nonlocal Orbital Features (NLOF)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sdmx.html" class="btn btn-neutral float-right" title="Smoothed Density Matrix Exchange (SDMX)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Kyle Bystrom.</p>
+    <p>&#169; Copyright 2026, Kyle Bystrom.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
