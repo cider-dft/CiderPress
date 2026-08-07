@@ -1,9 +1,10 @@
-SCF Fallback Settings
-=====================
+Handling SCF Convergence Issues
+===============================
 
 The CIDER interfaces use the SCF algorithms supplied by PySCF and GPAW.  This
-page collects the fallback settings used by the runnable examples, with the
-selected CIDER model and feature representation held fixed.
+page collects settings for calculations that do not converge with the usual
+SCF controls.  The runnable examples keep the selected CIDER model and feature
+representation fixed while changing the SCF algorithm and initial density.
 
 PySCF restart ladder
 --------------------
@@ -63,7 +64,7 @@ CIDER controls with both the PBE density and PySCF's atomic initial guess:
 When a relaxed rung converges, the example starts one final ``cdiis8``
 calculation from its density.  Each attempt writes a separate checkpoint.
 The PySCF CIDER26XC integration supports the conventional DIIS methods used
-here; Newton/SOSCF is outside this integration path.
+here; Newton/SOSCF is not currently implemented for CIDER functionals.
 
 GPAW reference settings
 -----------------------

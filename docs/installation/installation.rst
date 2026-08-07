@@ -9,7 +9,7 @@ parallel plane-wave calculations.
 Requirements
 ------------
 
-* Python 3.12
+* Python 3.10--3.12
 * A C and C++ compiler with OpenMP support
 * BLAS and LAPACK
 * CMake
@@ -29,13 +29,13 @@ Install the released source distribution with:
    pip install ciderpress
 
 CIDER23X, CIDER24X, and CIDER26XC model files are included.  CIDER24X loads
-PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the core
-runtime.
+PyTorch with its mapped neural evaluator.  CIDER23X and CIDER26XC use the
+dependencies installed with the core package.
 
 Optional model dependencies
 ---------------------------
 
-Install the D4 runtime for ``CIDER26XCCHEMD4`` with:
+Install the D4 dependencies for ``CIDER26XCCHEMD4`` with:
 
 .. code-block:: bash
 

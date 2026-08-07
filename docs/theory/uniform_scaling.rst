@@ -49,7 +49,7 @@ high-density limits\ :footcite:p:`Kaplan2023`
 where :math:`\mathcal{C}_0[n]` is a density functional that does not depend
 on :math:`\lambda`.
 
-A scale-invariant feature vector satisfies
+A *scale-invariant* feature vector satisfies
 
 .. math:: \mathbf{x}[n_\lambda](\mathbf{r}) = \mathbf{x}[n](\lambda \mathbf{r})
 

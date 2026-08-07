@@ -85,3 +85,5 @@ CIDER26XC uses the full-XC initialization described in the model guide.
 
    reference/limitations
    reference/citing
+
+.. footbibliography::

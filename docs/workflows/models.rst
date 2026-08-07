@@ -28,9 +28,10 @@ Evaluation representation
    model file.
 
 Functional metadata
-   The top-level object records feature settings, optional libxc composition,
-   and fitted correction metadata such as the D4 term associated with
-   ``CIDER26XCCHEMD4``.
+   The top-level object records feature settings and fitted correction
+   metadata such as the D4 term associated with ``CIDER26XCCHEMD4``.
+   Full-XC models also record the additive libxc baseline used to combine
+   their exchange and correlation components.
 
 Loading and inspection
 ----------------------
@@ -77,8 +78,11 @@ After fitting, ``MOLGP.map(mapping_plans)`` or
 
 The packaged families illustrate three evaluator choices.  CIDER23X uses
 mapped spline evaluators.  CIDER24X uses a neural evaluator trained to
-reproduce its GP.  CIDER26XC stores the sparse control-point prediction in an
-optimized RBF evaluator, preserving direct evaluation of that GP form.
+reproduce its GP.  CIDER26XC stores the sparse control-point prediction in a
+radial-basis-function (RBF) evaluator.  Here RBF denotes the
+squared-exponential covariance kernel evaluated directly between each feature
+vector and the stored GP control points.  The implementation is
+:class:`~ciderpress.dft.xc_evaluator.RBFEvaluator`.
 
 Baselines and functional composition
 ------------------------------------
@@ -105,13 +109,13 @@ Joblib files store trainable Python objects and their fitting state.  Mapped
 YAML stores the inference object used by the calculation interfaces.  Both
 formats reconstruct Python objects and should be loaded from trusted sources.
 
-The mapped YAML models published with the CIDER23X, CIDER24X, and CIDER26XC
-work are installed with the package, so no download step is needed.  They
-live in ``ciderpress/data/functionals`` and are shipped as package data
-through ``MANIFEST.in``; :mod:`ciderpress.dft.model_utils` resolves their
-short names, and :doc:`../usage/production_models` lists every name with its
-checksum.  The older functional sets from the CIDER23X and CIDER24X works are
-also archived on Zenodo and can be fetched with ``scripts/download_functionals.py``.
+The package installs the mapped YAML models published with the CIDER23X,
+CIDER24X, and CIDER26XC work under ``ciderpress/data/functionals``.
+``MANIFEST.in`` includes these files as package data, and
+:mod:`ciderpress.dft.model_utils` resolves their short names.
+:doc:`../usage/production_models` lists every name with its checksum.  The
+CIDER23X and CIDER24X functional sets are also archived on Zenodo and can be
+fetched with ``scripts/download_functionals.py``.
 
 See :doc:`training` for the expected training-data boundary and
 :doc:`../ciderpress/models/models` for the regression APIs.

@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-"""Warm-start an open-shell CIDER calculation and try conservative fallbacks."""
+"""Demonstrate a reusable restart ladder on a compact open-shell molecule.
+
+O2 keeps the example inexpensive and normally converges on an early rung. The
+same sequence can be applied when a larger open-shell calculation needs a PBE
+warm start or more conservative SCF controls.
+"""
 
 from pathlib import Path
 

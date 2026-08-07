@@ -138,8 +138,9 @@ contains the expected term exactly once.  For ``CIDER26XCCHEM`` and
 ``CIDER26XCSURFSCI`` the expected dispersion is zero, so an attached wrapper
 is disabled and does not contribute to the returned energy.
 
-The current molecular gradient contains the electronic CIDER contribution
-only.  See :doc:`properties` for composite CIDER+D4 derivatives.
+For ``CIDER26XCCHEMD4``, ``mf.nuc_grad_method()`` adds the analytical D4
+derivative to the electronic CIDER and nuclear-repulsion terms.  See
+:doc:`properties` for the gradient interface.
 
 CIDER24X
 --------
@@ -154,7 +155,8 @@ Gradients and other methods
 ---------------------------
 
 Analytical restricted and unrestricted nuclear gradients are available for
-the molecular NLDF path, including density-fitted calculations.  Use
+the molecular NLDF path, including density-fitted calculations and the D4
+correction selected by ``CIDER26XCCHEMD4``.  Use
 ``mf.nuc_grad_method()`` as shown in :doc:`properties`.  The gradient code
 raises ``NotImplementedError`` for models carrying SDMX features, so CIDER24X
 calculations give energies but not forces.
@@ -167,3 +169,5 @@ molecular NLDF path.
 
 The PBE-seeded CDIIS, ADIIS, EDIIS, level-shift, and damping settings used by
 the restart example are listed in :doc:`convergence`.
+
+.. footbibliography::

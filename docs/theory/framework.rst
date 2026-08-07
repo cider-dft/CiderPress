@@ -1,7 +1,7 @@
 The CIDER Framework
 ===================
 
-CIDER :footcide:p:`CIDER22X,CIDER23X,CIDER24X,CIDER26XC`
+CIDER :footcite:p:`CIDER22X,CIDER23X,CIDER24X,CIDER26XC`
 is a framework for learning a model for the exchange or
 exchange-correlation energy density from electronic structure.  CiderPress is
 the software implementation of that framework.  It supplies feature

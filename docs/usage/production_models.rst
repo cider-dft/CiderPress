@@ -89,7 +89,8 @@ CIDER24X SDMX exchange models
 -----------------------------
 
 The CIDER24X models use smoothed density-matrix exchange descriptors and a
-mapped neural evaluator.  Install their optional runtime before loading them:
+mapped neural evaluator.  Install their optional PyTorch dependency before
+loading them:
 
 .. code-block:: bash
 
@@ -169,11 +170,11 @@ D4 with ``CIDER26XCCHEMD4``
 D4 is evaluated from the geometry after the density SCF, so it changes the
 total energy but not the CIDER potential or density.  CiderPress adds the
 term the model was trained with exactly once, whether or not a dispersion
-wrapper is already attached to the SCF object.  The runtime attributes that
+wrapper is already attached to the SCF object.  The calculation attributes that
 record this are documented in :doc:`pyscf`.
 
-The D4 term is absent from the current nuclear gradient; see
-:doc:`properties` before using derivative-based workflows.
+The analytical molecular gradient includes the corresponding D4 derivative;
+the complete gradient interface is documented in :doc:`properties`.
 
 Loading rules and model trust
 -----------------------------
