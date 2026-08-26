@@ -4,7 +4,7 @@
 
 CiderPress: Machine-Learned Exchange-Correlation Functionals
 ------------------------------------------------------------
-![Build Status](https://github.com/mir-group/CiderPress/actions/workflows/basic_tests.yml/badge.svg)
+![Build Status](https://github.com/cider-dft/CiderPress/actions/workflows/basic_tests.yml/badge.svg)
 
 CiderPress provides tools for training and evaluating CIDER functionals in
 density functional theory calculations. Interfaces to PySCF and classic GPAW
@@ -26,7 +26,7 @@ pip install ciderpress
 From a source checkout, use:
 
 ```bash
-git clone https://github.com/mir-group/CiderPress.git
+git clone https://github.com/cider-dft/CiderPress.git
 cd CiderPress
 pip install .
 ```
@@ -38,17 +38,17 @@ pip install 'ciderpress[cider24]'  # PyTorch-backed CIDER24X models
 pip install 'ciderpress[d4]'       # CIDER26XCCHEMD4 post-density energy (pyscf-dispersion + dftd4)
 ```
 
-See the [installation guide](https://mir-group.github.io/CiderPress/installation/installation.html)
+See the [installation guide](https://cider-dft.github.io/CiderPress/installation/installation.html)
 for compiler, MPI, FFT, MKL, GPAW, and source-build details.
 
 ## Documentation
 
-- [Documentation index](https://mir-group.github.io/CiderPress/)
-- [Choosing a packaged model](https://mir-group.github.io/CiderPress/usage/production_models.html)
-- [PySCF guide](https://mir-group.github.io/CiderPress/usage/pyscf.html)
-- [GPAW guide](https://mir-group.github.io/CiderPress/usage/gpaw.html)
-- [SCF convergence recommendations](https://mir-group.github.io/CiderPress/usage/convergence.html)
-- [CIDER framework and model lineage](https://mir-group.github.io/CiderPress/theory/framework.html)
+- [Documentation index](https://cider-dft.github.io/CiderPress/)
+- [Choosing a packaged model](https://cider-dft.github.io/CiderPress/usage/production_models.html)
+- [PySCF guide](https://cider-dft.github.io/CiderPress/usage/pyscf.html)
+- [GPAW guide](https://cider-dft.github.io/CiderPress/usage/gpaw.html)
+- [SCF convergence recommendations](https://cider-dft.github.io/CiderPress/usage/convergence.html)
+- [CIDER framework and model lineage](https://cider-dft.github.io/CiderPress/theory/framework.html)
 
 ## Packaged Functional Families
 
@@ -66,7 +66,7 @@ CiderPress 0.5.0 includes mapped models from three CIDER generations:
 
 All of these functionals can be selected and loaded by their short name
 anywhere an `mlfunc` path is accepted. The
-[model guide](https://mir-group.github.io/CiderPress/usage/production_models.html)
+[model guide](https://cider-dft.github.io/CiderPress/usage/production_models.html)
 lists every name, feature representation, supported backend, functional
 composition, and release checksum.
 
@@ -124,7 +124,7 @@ are linked in the documentation list above.
 
 ## Support
 
-Use the [GitHub issue tracker](https://github.com/mir-group/CiderPress/issues)
+Use the [GitHub issue tracker](https://github.com/cider-dft/CiderPress/issues)
 for bug reports, documentation problems, and technical questions. Scientific
 inquiries may also be sent to Kyle Bystrom at kylebystrom@gmail.com.
 
@@ -167,5 +167,5 @@ framework in CiderPress.  Work using CIDER24X should also cite:
 The CIDER26XC models accompany the forthcoming manuscript *Machine-Learned
 Exchange-Correlation Functionals in the CIDER Framework and Application to
 Chemistry and Surface Science*. See the
-[citation guide](https://mir-group.github.io/CiderPress/reference/citing.html)
+[citation guide](https://cider-dft.github.io/CiderPress/reference/citing.html)
 for the current citation record.

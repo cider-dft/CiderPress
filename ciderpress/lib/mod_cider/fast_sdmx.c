@@ -930,12 +930,12 @@ void contract_shl_to_alpha_l1_bwd(size_t ngrids, size_t nalpha, size_t nsh,
 }
 
 // vlg : (ncomp, ylm_atom_loc[natm], ngrids)
-void SDMXeval_loop(void (*fiter)(), FPtr_eval_sdmx feval, FPtr_exp_sdmx fexp,
-                   double fac, int ngrids, int param[], int *shls_slice,
-                   int *ao_loc, double *ao, double *coord, uint8_t *non0table,
-                   int *atm, int natm, int *bas, int nbas, double *env,
-                   double *ylm_vlg, int *ylm_atom_loc, double *alphas,
-                   double *alpha_norms, int nalpha) {
+void SDMXeval_loop(void (*fiter)(FPtr_eval_sdmx, ...), FPtr_eval_sdmx feval,
+                   FPtr_exp_sdmx fexp, double fac, int ngrids, int param[],
+                   int *shls_slice, int *ao_loc, double *ao, double *coord,
+                   uint8_t *non0table, int *atm, int natm, int *bas, int nbas,
+                   double *env, double *ylm_vlg, int *ylm_atom_loc,
+                   double *alphas, double *alpha_norms, int nalpha) {
     int shloc[shls_slice[1] - shls_slice[0] + 1];
     const int nshlblk = SDMXshloc_by_atom(shloc, shls_slice, atm, bas);
     const int nblk = (ngrids + BLKSIZE - 1) / BLKSIZE;

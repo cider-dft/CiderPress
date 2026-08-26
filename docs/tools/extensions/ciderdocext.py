@@ -14,7 +14,7 @@ SOURCE_REF = os.environ.get("CIDERPRESS_SOURCE_REF") or os.environ.get(
 def _source_uri(target):
     ref = quote(SOURCE_REF, safe="")
     path = quote(target, safe="/")
-    return f"https://github.com/mir-group/CiderPress/blob/{ref}/{path}"
+    return f"https://github.com/cider-dft/CiderPress/blob/{ref}/{path}"
 
 
 def source_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):

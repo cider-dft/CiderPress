@@ -31,7 +31,7 @@ Citing the software
 -------------------
 
 Cite the CiderPress software by its repository,
-`github.com/mir-group/CiderPress <https://github.com/mir-group/CiderPress>`__,
+`github.com/cider-dft/CiderPress <https://github.com/cider-dft/CiderPress>`__,
 and the version used (for example, CiderPress 0.5.0).
 
 Also cite the host electronic-structure code and any separately evaluated
