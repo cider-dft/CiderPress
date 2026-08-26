@@ -209,10 +209,10 @@ nonlocal meta-GGA variants are the main application models from that work.</p>
 semilocal terms stated explicitly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span>
     <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span>
-    <span class="s2">&quot;CIDER23X_NL_MGGA_DTR&quot;</span><span class="p">,</span>
+    <span class="s2">"CIDER23X_NL_MGGA_DTR"</span><span class="p">,</span>
     <span class="n">xmix</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
-    <span class="n">xkernel</span><span class="o">=</span><span class="s2">&quot;GGA_X_PBE&quot;</span><span class="p">,</span>
-    <span class="n">ckernel</span><span class="o">=</span><span class="s2">&quot;GGA_C_PBE&quot;</span><span class="p">,</span>
+    <span class="n">xkernel</span><span class="o">=</span><span class="s2">"GGA_X_PBE"</span><span class="p">,</span>
+    <span class="n">ckernel</span><span class="o">=</span><span class="s2">"GGA_C_PBE"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -225,7 +225,7 @@ functional.</p>
 <p>The CIDER24X models use smoothed density-matrix exchange descriptors and a
 mapped neural evaluator.  Install their optional PyTorch dependency before
 loading them:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;ciderpress[cider24]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'ciderpress[cider24]'</span>
 </pre></div>
 </div>
 <p>For systems requiring a platform-specific CPU or CUDA build, install PyTorch
@@ -278,7 +278,7 @@ the CIDER24X work.  Packaged periodic NLDF calculations use GPAW.</p>
 </table>
 <p>These files already contain the full XC energy form and feature vectors
 described in <a class="reference internal" href="../theory/full_xc.html"><span class="doc">From Exchange Models to Full XC</span></a>.  PySCF’s defaults are correct:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">),</span> <span class="s2">"CIDER26XCCHEM"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>GPAW’s initializer serves both exchange and full-XC models.  Its defaults
@@ -287,7 +287,7 @@ are <code class="docutils literal notranslate"><span class="pre">xmix=1.0</span>
 term to the full XC already stored in CIDER26XC.  Supply the full-XC
 composition explicitly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
-    <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+    <span class="s2">"CIDER26XCSURFSCI"</span><span class="p">,</span>
     <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

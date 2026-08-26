@@ -13,7 +13,7 @@ whenever it is loaded.
 .. important::
 
    Open a
-   `CiderPress GitHub issue <https://github.com/mir-group/CiderPress/issues/new>`_
+   `CiderPress GitHub issue <https://github.com/cider-dft/CiderPress/issues/new>`_
    before changing a feature family, numerical backend, PAW/PASDW route,
    mapped-model format, or checkpoint schema.  These are cross-backend
    interfaces, and a model file written by one version must remain

@@ -161,7 +161,7 @@ feature family, backend, and any additive correction.</p>
 <p>For an NLDF CIDER calculation, obtain a PySCF gradient object from the
 converged mean-field object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
-<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Evaluate a molecular CIDER26XC energy and analytical gradient.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">"""Evaluate a molecular CIDER26XC energy and analytical gradient."""</span>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
 <span class="linenos"> 5</span>
@@ -170,33 +170,33 @@ converged mean-field object:</p>
 <span class="linenos"> 8</span>
 <span class="linenos"> 9</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="linenos">10</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span>
-<span class="linenos">11</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">11</span>        <span class="n">atom</span><span class="o">=</span><span class="s2">"""</span>
 <span class="linenos">12</span><span class="s2">        O  0.000000  0.000000  0.117790</span>
 <span class="linenos">13</span><span class="s2">        H  0.000000  0.755453 -0.471161</span>
 <span class="linenos">14</span><span class="s2">        H  0.000000 -0.755453 -0.471161</span>
-<span class="linenos">15</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
-<span class="linenos">16</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">,</span>
+<span class="linenos">15</span><span class="s2">        """</span><span class="p">,</span>
+<span class="linenos">16</span>        <span class="n">basis</span><span class="o">=</span><span class="s2">"def2-svp"</span><span class="p">,</span>
 <span class="linenos">17</span>        <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="linenos">18</span>        <span class="n">spin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="linenos">19</span>    <span class="p">)</span>
 <span class="linenos">20</span>
 <span class="linenos">21</span>    <span class="n">base</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="linenos">22</span>    <span class="n">base</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="linenos">23</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
-<span class="linenos">24</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">&quot;def2-universal-jfit&quot;</span><span class="p">)</span>
+<span class="linenos">23</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">make_cider_calc</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s2">"CIDER26XCCHEM"</span><span class="p">)</span>
+<span class="linenos">24</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">density_fit</span><span class="p">(</span><span class="n">auxbasis</span><span class="o">=</span><span class="s2">"def2-universal-jfit"</span><span class="p">)</span>
 <span class="linenos">25</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-10</span>
 <span class="linenos">26</span>    <span class="n">mf</span><span class="o">.</span><span class="n">max_cycle</span> <span class="o">=</span> <span class="mi">200</span>
 <span class="linenos">27</span>    <span class="n">energy</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 <span class="linenos">28</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
-<span class="linenos">29</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CIDER SCF did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">29</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"CIDER SCF did not converge"</span><span class="p">)</span>
 <span class="linenos">30</span>
 <span class="linenos">31</span>    <span class="n">gradient</span> <span class="o">=</span> <span class="n">mf</span><span class="o">.</span><span class="n">nuc_grad_method</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">grid_response</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
-<span class="linenos">32</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha&quot;</span><span class="p">)</span>
-<span class="linenos">33</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;gradient (Ha/Bohr):&quot;</span><span class="p">)</span>
+<span class="linenos">32</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"total energy = </span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.12f</span><span class="si">}</span><span class="s2"> Ha"</span><span class="p">)</span>
+<span class="linenos">33</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">"gradient (Ha/Bohr):"</span><span class="p">)</span>
 <span class="linenos">34</span>    <span class="nb">print</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
 <span class="linenos">35</span>
 <span class="linenos">36</span>
-<span class="linenos">37</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">37</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 <span class="linenos">38</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -212,7 +212,7 @@ selected through <code class="docutils literal notranslate"><span class="pre">at
 <p>With classic GPAW and PAW setups, use the standard ASE calls after the CIDER
 SCF has converged:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
-<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Evaluate forces and stress from a converged CIDER GPAW checkpoint.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">"""Evaluate forces and stress from a converged CIDER GPAW checkpoint."""</span>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">parprint</span>
 <span class="linenos"> 5</span>
@@ -221,30 +221,30 @@ SCF has converged:</p>
 <span class="linenos"> 8</span>
 <span class="linenos"> 9</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="linenos">10</span>    <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
-<span class="linenos">11</span>        <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span>
+<span class="linenos">11</span>        <span class="s2">"CIDER26XCSURFSCI"</span><span class="p">,</span>
 <span class="linenos">12</span>        <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
 <span class="linenos">13</span>        <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="linenos">14</span>        <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="linenos">15</span>        <span class="n">pasdw_store_funcs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="linenos">16</span>    <span class="p">)</span>
 <span class="linenos">17</span>    <span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span>
-<span class="linenos">18</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">&quot;si_cider.gpw&quot;</span><span class="p">,</span>
+<span class="linenos">18</span>        <span class="n">restart</span><span class="o">=</span><span class="s2">"si_cider.gpw"</span><span class="p">,</span>
 <span class="linenos">19</span>        <span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span>
-<span class="linenos">20</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;augment_grids&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="linenos">21</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;si_cider_properties.txt&quot;</span><span class="p">,</span>
+<span class="linenos">20</span>        <span class="n">parallel</span><span class="o">=</span><span class="p">{</span><span class="s2">"augment_grids"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="linenos">21</span>        <span class="n">txt</span><span class="o">=</span><span class="s2">"si_cider_properties.txt"</span><span class="p">,</span>
 <span class="linenos">22</span>    <span class="p">)</span>
 <span class="linenos">23</span>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">calc</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
 <span class="linenos">24</span>    <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">calc</span>
 <span class="linenos">25</span>
 <span class="linenos">26</span>    <span class="n">forces</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_forces</span><span class="p">()</span>
 <span class="linenos">27</span>    <span class="n">stress</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_stress</span><span class="p">(</span><span class="n">voigt</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="linenos">28</span>    <span class="n">parprint</span><span class="p">(</span><span class="s2">&quot;forces (eV/Angstrom):&quot;</span><span class="p">)</span>
+<span class="linenos">28</span>    <span class="n">parprint</span><span class="p">(</span><span class="s2">"forces (eV/Angstrom):"</span><span class="p">)</span>
 <span class="linenos">29</span>    <span class="n">parprint</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
-<span class="linenos">30</span>    <span class="n">parprint</span><span class="p">(</span><span class="s2">&quot;stress (eV/Angstrom^3):&quot;</span><span class="p">)</span>
+<span class="linenos">30</span>    <span class="n">parprint</span><span class="p">(</span><span class="s2">"stress (eV/Angstrom^3):"</span><span class="p">)</span>
 <span class="linenos">31</span>    <span class="n">parprint</span><span class="p">(</span><span class="n">stress</span><span class="p">)</span>
 <span class="linenos">32</span>
 <span class="linenos">33</span>
-<span class="linenos">34</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">34</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 <span class="linenos">35</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>

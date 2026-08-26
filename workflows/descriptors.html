@@ -129,7 +129,7 @@ cache densities, kinetic-energy densities, exchange energy densities, and
 related quantities.  Their HDF5 representation is useful for separating an
 electronic-structure calculation from later descriptor generation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="ch">#!/usr/bin/env python</span>
-<span class="linenos"> 2</span><span class="sd">&quot;&quot;&quot;Evaluate the descriptor blocks expected by a packaged CIDER model.&quot;&quot;&quot;</span>
+<span class="linenos"> 2</span><span class="sd">"""Evaluate the descriptor blocks expected by a packaged CIDER model."""</span>
 <span class="linenos"> 3</span>
 <span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">pyscf</span><span class="w"> </span><span class="kn">import</span> <span class="n">dft</span><span class="p">,</span> <span class="n">gto</span>
 <span class="linenos"> 5</span>
@@ -139,27 +139,27 @@ electronic-structure calculation from later descriptor generation.</p>
 <span class="linenos"> 9</span>
 <span class="linenos">10</span>
 <span class="linenos">11</span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="linenos">12</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="s2">&quot;H 0 0 0; H 0 0 0.74&quot;</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">&quot;def2-svp&quot;</span><span class="p">)</span>
+<span class="linenos">12</span>    <span class="n">mol</span> <span class="o">=</span> <span class="n">gto</span><span class="o">.</span><span class="n">M</span><span class="p">(</span><span class="n">atom</span><span class="o">=</span><span class="s2">"H 0 0 0; H 0 0 0.74"</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">"def2-svp"</span><span class="p">)</span>
 <span class="linenos">13</span>    <span class="n">mf</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">RKS</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="linenos">14</span>    <span class="n">mf</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="s2">&quot;PBE&quot;</span>
+<span class="linenos">14</span>    <span class="n">mf</span><span class="o">.</span><span class="n">xc</span> <span class="o">=</span> <span class="s2">"PBE"</span>
 <span class="linenos">15</span>    <span class="n">mf</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="linenos">16</span>    <span class="n">mf</span><span class="o">.</span><span class="n">conv_tol</span> <span class="o">=</span> <span class="mf">1e-10</span>
 <span class="linenos">17</span>    <span class="n">mf</span><span class="o">.</span><span class="n">kernel</span><span class="p">()</span>
 <span class="linenos">18</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">mf</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
-<span class="linenos">19</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;PBE SCF did not converge&quot;</span><span class="p">)</span>
+<span class="linenos">19</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"PBE SCF did not converge"</span><span class="p">)</span>
 <span class="linenos">20</span>
-<span class="linenos">21</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">load_cider_model</span><span class="p">(</span><span class="s2">&quot;CIDER26XCCHEM&quot;</span><span class="p">)</span>
+<span class="linenos">21</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">load_cider_model</span><span class="p">(</span><span class="s2">"CIDER26XCCHEM"</span><span class="p">)</span>
 <span class="linenos">22</span>    <span class="n">analyzer</span> <span class="o">=</span> <span class="n">RHFAnalyzer</span><span class="o">.</span><span class="n">from_calc</span><span class="p">(</span><span class="n">mf</span><span class="p">,</span> <span class="n">grids_level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="linenos">23</span>
 <span class="linenos">24</span>    <span class="n">semilocal</span> <span class="o">=</span> <span class="n">get_descriptors</span><span class="p">(</span><span class="n">analyzer</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">sl_settings</span><span class="p">)</span>
 <span class="linenos">25</span>    <span class="n">nonlocal_density</span> <span class="o">=</span> <span class="n">get_descriptors</span><span class="p">(</span><span class="n">analyzer</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">nldf_settings</span><span class="p">)</span>
 <span class="linenos">26</span>
-<span class="linenos">27</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;grid points = </span><span class="si">{</span><span class="n">analyzer</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">28</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;semilocal descriptor shape = </span><span class="si">{</span><span class="n">semilocal</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">29</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NLDF descriptor shape = </span><span class="si">{</span><span class="n">nonlocal_density</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">27</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"grid points = </span><span class="si">{</span><span class="n">analyzer</span><span class="o">.</span><span class="n">grids</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="linenos">28</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"semilocal descriptor shape = </span><span class="si">{</span><span class="n">semilocal</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="linenos">29</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NLDF descriptor shape = </span><span class="si">{</span><span class="n">nonlocal_density</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="linenos">30</span>
 <span class="linenos">31</span>
-<span class="linenos">32</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="linenos">32</span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 <span class="linenos">33</span>    <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>

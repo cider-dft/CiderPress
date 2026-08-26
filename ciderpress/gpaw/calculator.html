@@ -135,12 +135,12 @@ calculations with other functionals.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ciderpress.gpaw.calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">CiderGPAW</span><span class="p">,</span> <span class="n">get_cider_functional</span>
 
 <span class="n">xc</span> <span class="o">=</span> <span class="n">get_cider_functional</span><span class="p">(</span>
-    <span class="s2">&quot;CIDER26XCSURFSCI&quot;</span><span class="p">,</span> <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="s2">"CIDER26XCSURFSCI"</span><span class="p">,</span> <span class="n">xmix</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">xkernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ckernel</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">atoms</span><span class="o">.</span><span class="n">calc</span> <span class="o">=</span> <span class="n">CiderGPAW</span><span class="p">(</span><span class="n">xc</span><span class="o">=</span><span class="n">xc</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 <span class="n">atoms</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For a full example, see <a class="reference external" href="https://github.com/mir-group/CiderPress/blob/9ab3d3aad184f486b6f5c04f1e91441536a93b03/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>
+<p>For a full example, see <a class="reference external" href="https://github.com/cider-dft/CiderPress/blob/874430a2ed4710a30c1d22f413b9a6b68c22caf1/examples/gpaw/production_calc.py">examples/gpaw/production_calc.py</a>
 and <a class="reference internal" href="../../usage/gpaw.html"><span class="doc">Periodic and Isolated Calculations with GPAW</span></a>.</p>
 <dl class="py class" id="module-ciderpress.gpaw.calculator">
 <dt class="sig sig-object py" id="ciderpress.gpaw.calculator.CiderGPAW">
