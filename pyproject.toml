@@ -45,4 +45,4 @@ cider24 = ["torch"]
 test = ["pytest"]
 
 [project.urls]
-Repository = "https://github.com/mir-group/CiderPress"
+Repository = "https://github.com/cider-dft/CiderPress"
